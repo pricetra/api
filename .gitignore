@@ -1,0 +1,12 @@
+server
+
+tmp
+
+# Ent
+ent/*
+!ent/schema
+!ent/entc.go
+!ent/generate.go
+!ent/migrate
+
+.vscode

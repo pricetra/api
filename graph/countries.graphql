@@ -1,0 +1,30 @@
+extend type Query {
+  getAllCountries: [Country!]!
+}
+
+type AdministrativeDivision {
+  name: String!
+    @goTag(
+      key: "alias"
+      value: "administrative_division.administrative_division"
+    )
+  cities: String!
+}
+
+type Currency {
+  currencyCode: String! @goTag(key: "sql", value: "primary_key")
+  name: String!
+  symbol: String!
+  symbolNative: String!
+  decimals: Int!
+  numToBasic: Int
+}
+
+type Country {
+  code: String! @goTag(key: "sql", value: "primary_key")
+  name: String!
+  administrativeDivisions: [AdministrativeDivision!]!
+  currency: Currency
+  callingCode: String
+  language: String
+}

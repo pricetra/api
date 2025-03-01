@@ -1,0 +1,80 @@
+extend type Mutation {
+  createAccount(input: CreateAccountInput!): User!
+  verifyEmail(verificationCode: String!): User!
+  resendEmailVerificationCode(email: String!): Boolean!
+  updateProfile(input: UpdateUser!): User! @isAuthenticated
+}
+
+extend type Query {
+  login(email: String!, password: String!, ipAddress: String): Auth!
+  googleOAuth(accessToken: String!, ipAddress: String): Auth!
+  me: User! @isAuthenticated
+}
+
+input CreateAccountInput {
+  email: String! @goTag(key: "validate", value: "required,email")
+  phoneNumber: String @goTag(key: "validate", value: "omitempty,e164") # e164 phone number format ("+[country code] [area code] [subscriber number]")
+  name: String! @goTag(key: "validate", value: "required")
+  password: String! @goTag(key: "validate", value: "required")
+}
+
+input UpdateUser {
+  name: String
+  avatar: Upload
+  birthDate: Time
+  bio: String
+}
+
+enum AuthPlatformType {
+  INTERNAL
+  APPLE
+  GOOGLE
+}
+
+type User {
+  id: ID! @goTag(key: "sql", value: "primary_key")
+  createdAt: Time!
+  updatedAt: Time!
+  email: String!
+  phoneNumber: String
+  name: String!
+  avatar: String
+  birthDate: Time
+  bio: String
+  active: Boolean!
+  authPlatform: AuthPlatformType @goTag(key: "alias", value: "auth_state.platform")
+  authStateId: ID @goTag(key: "alias", value: "auth_state.id")
+}
+
+type UserShallow {
+  id: ID!
+    @goTag(key: "sql", value: "primary_key")
+    @goTag(key: "alias", value: "user.id")
+  name: String! @goTag(key: "alias", value: "user.name")
+  avatar: String @goTag(key: "alias", value: "user.avatar")
+  active: Boolean @goTag(key: "alias", value: "user.active")
+}
+
+type CreatedByUser {
+  id: ID!
+    @goTag(key: "sql", value: "primary_key")
+    @goTag(key: "alias", value: "created_by_user.id")
+  name: String! @goTag(key: "alias", value: "created_by_user.name")
+  avatar: String @goTag(key: "alias", value: "created_by_user.avatar")
+  active: Boolean @goTag(key: "alias", value: "created_by_user.active")
+}
+
+type UpdatedByUser {
+  id: ID!
+    @goTag(key: "sql", value: "primary_key")
+    @goTag(key: "alias", value: "updated_by_user.id")
+  name: String! @goTag(key: "alias", value: "updated_by_user.name")
+  avatar: String @goTag(key: "alias", value: "updated_by_user.avatar")
+  active: Boolean @goTag(key: "alias", value: "updated_by_user.active")
+}
+
+type Auth {
+  token: String!
+  user: User!
+  isNewUser: Boolean
+}
