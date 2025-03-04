@@ -22,14 +22,18 @@ func (r *queryResolver) BarcodeScan(ctx context.Context, barcode string) (*gmode
 	if err != nil {
 		return nil, err
 	}
-	
+
 	if len(result.Items) == 0 {
 		return nil, fmt.Errorf("no results found for this barcode")
 	}
 	item := result.Items[0]
+	image := ""
+	if (len(item.Images) > 0) {
+		image = item.Images[0]
+	}
 	product, err = r.Service.CreateProduct(ctx, gmodel.CreateProduct{
 		Name: item.Title,
-		Image: item.Images[0],
+		Image: image,
 		Description: item.Description,
 		Brand: item.Brand,
 		Code: barcode,

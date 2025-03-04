@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/go-jet/jet/v2/postgres"
@@ -10,6 +11,8 @@ import (
 	"github.com/pricetra/api/graph/gmodel"
 	"github.com/pricetra/api/types"
 )
+
+const UPCItemdb_API = "https://api.upcitemdb.com/prod"
 
 func (s Service) CreateProduct(ctx context.Context, input gmodel.CreateProduct) (product gmodel.Product, err error) {
 	qb := table.Product.
@@ -46,7 +49,7 @@ func (s Service) FindProductWithCode(ctx context.Context, barcode string) (produ
 }
 
 func (s Service) UPCItemDbLookupWithUpcCode(upc string) (result types.UPCItemDbJsonResult, err error) {
-	res, err := http.Get("http://pokeapi.co/api/v2/pokedex/kanto/")
+	res, err := http.Get(fmt.Sprintf("%s/trial/lookup?upc=%s", UPCItemdb_API, upc))
 	if err != nil {
 		return result, err
 	}
