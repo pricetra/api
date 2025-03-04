@@ -65,6 +65,21 @@ type CreateAddress struct {
 	CountryCode            string  `json:"countryCode" validate:"iso3166_1_alpha2"`
 }
 
+type CreateProduct struct {
+	Name                 string   `json:"name"`
+	Image                string   `json:"image"`
+	Description          string   `json:"description"`
+	URL                  *string  `json:"url,omitempty"`
+	Brand                string   `json:"brand"`
+	Code                 string   `json:"code"`
+	Color                *string  `json:"color,omitempty"`
+	Model                *string  `json:"model,omitempty"`
+	Category             *string  `json:"category,omitempty"`
+	Weight               *string  `json:"weight,omitempty"`
+	LowestRecordedPrice  *float64 `json:"lowestRecordedPrice,omitempty"`
+	HighestRecordedPrice *float64 `json:"highestRecordedPrice,omitempty"`
+}
+
 type CreatedByUser struct {
 	ID     int64   `json:"id" sql:"primary_key" alias:"created_by_user.id"`
 	Name   string  `json:"name" alias:"created_by_user.name"`
@@ -82,6 +97,24 @@ type Currency struct {
 }
 
 type Mutation struct {
+}
+
+type Product struct {
+	ID                   int64     `json:"id" sql:"primary_key"`
+	Name                 string    `json:"name"`
+	Image                string    `json:"image"`
+	Description          string    `json:"description"`
+	URL                  *string   `json:"url,omitempty"`
+	Brand                string    `json:"brand"`
+	Code                 string    `json:"code"`
+	Color                *string   `json:"color,omitempty"`
+	Model                *string   `json:"model,omitempty"`
+	Category             *string   `json:"category,omitempty"`
+	Weight               *string   `json:"weight,omitempty"`
+	LowestRecordedPrice  *float64  `json:"lowestRecordedPrice,omitempty"`
+	HighestRecordedPrice *float64  `json:"highestRecordedPrice,omitempty"`
+	CreatedAt            time.Time `json:"createdAt"`
+	UpdatedAt            time.Time `json:"updatedAt"`
 }
 
 type Query struct {

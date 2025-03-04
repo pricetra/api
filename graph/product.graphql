@@ -1,0 +1,36 @@
+extend type Query {
+    barcodeScan(barcode: String!): Product!
+}
+
+type Product {
+    id: ID! @goTag(key: "sql", value: "primary_key")
+    name: String!
+    image: String!
+    description: String!
+    url: String
+    brand: String!
+    code: String!
+    color: String
+    model: String
+    category: String
+    weight: String
+    lowestRecordedPrice: Float
+    highestRecordedPrice: Float
+    createdAt: Time!
+    updatedAt: Time!
+}
+
+input CreateProduct {
+    name: String!
+    image: String!
+    description: String!
+    url: String
+    brand: String!
+    code: String!
+    color: String
+    model: String
+    category: String
+    weight: String
+    lowestRecordedPrice: Float
+    highestRecordedPrice: Float
+}
