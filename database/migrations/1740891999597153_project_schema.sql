@@ -33,6 +33,13 @@ create table "product" (
     "brand" varchar(255) not null,
     "code" varchar(255) unique not null,
 
+    "color" varchar(255),
+    "model" varchar(255),
+    "category" text,
+    "weight" varchar(255),
+    "lowest_recorded_price" numeric(10, 3),
+    "highest_recorded_price" numeric(10, 3),
+
     "created_by_id" bigint references "user"("id") on delete set null,
     "updated_by_id" bigint references "user"("id") on delete set null,
 
@@ -55,7 +62,7 @@ create table "stock" (
 
 create table "price" (
     "id" bigserial unique primary key,
-    "amount" numeric(9, 2) not null,
+    "amount" numeric(10, 3) not null,
     "currency_code" varchar(3) references "currency"("currency_code") default 'USD' not null,
     "product_id" bigint references "product"("id") on delete cascade not null,
     "company_id" bigint references "company"("id") on delete cascade not null,

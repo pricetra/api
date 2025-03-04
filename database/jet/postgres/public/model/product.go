@@ -12,15 +12,21 @@ import (
 )
 
 type Product struct {
-	ID          int64 `sql:"primary_key"`
-	Name        string
-	Image       string
-	Description string
-	URL         *string
-	Brand       string
-	Code        string
-	CreatedByID *int64
-	UpdatedByID *int64
-	CreatedAt   time.Time
-	UpdatedAt   time.Time
+	ID                   int64 `sql:"primary_key"`
+	Name                 string
+	Image                string
+	Description          string
+	URL                  *string
+	Brand                string
+	Code                 string
+	Color                *string
+	Model                *string
+	Category             *string
+	Weight               *string
+	LowestRecordedPrice  *float64
+	HighestRecordedPrice *float64
+	CreatedByID          *int64
+	UpdatedByID          *int64
+	CreatedAt            time.Time
+	UpdatedAt            time.Time
 }

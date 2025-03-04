@@ -17,17 +17,23 @@ type productTable struct {
 	postgres.Table
 
 	// Columns
-	ID          postgres.ColumnInteger
-	Name        postgres.ColumnString
-	Image       postgres.ColumnString
-	Description postgres.ColumnString
-	URL         postgres.ColumnString
-	Brand       postgres.ColumnString
-	Code        postgres.ColumnString
-	CreatedByID postgres.ColumnInteger
-	UpdatedByID postgres.ColumnInteger
-	CreatedAt   postgres.ColumnTimestampz
-	UpdatedAt   postgres.ColumnTimestampz
+	ID                   postgres.ColumnInteger
+	Name                 postgres.ColumnString
+	Image                postgres.ColumnString
+	Description          postgres.ColumnString
+	URL                  postgres.ColumnString
+	Brand                postgres.ColumnString
+	Code                 postgres.ColumnString
+	Color                postgres.ColumnString
+	Model                postgres.ColumnString
+	Category             postgres.ColumnString
+	Weight               postgres.ColumnString
+	LowestRecordedPrice  postgres.ColumnFloat
+	HighestRecordedPrice postgres.ColumnFloat
+	CreatedByID          postgres.ColumnInteger
+	UpdatedByID          postgres.ColumnInteger
+	CreatedAt            postgres.ColumnTimestampz
+	UpdatedAt            postgres.ColumnTimestampz
 
 	AllColumns     postgres.ColumnList
 	MutableColumns postgres.ColumnList
@@ -68,36 +74,48 @@ func newProductTable(schemaName, tableName, alias string) *ProductTable {
 
 func newProductTableImpl(schemaName, tableName, alias string) productTable {
 	var (
-		IDColumn          = postgres.IntegerColumn("id")
-		NameColumn        = postgres.StringColumn("name")
-		ImageColumn       = postgres.StringColumn("image")
-		DescriptionColumn = postgres.StringColumn("description")
-		URLColumn         = postgres.StringColumn("url")
-		BrandColumn       = postgres.StringColumn("brand")
-		CodeColumn        = postgres.StringColumn("code")
-		CreatedByIDColumn = postgres.IntegerColumn("created_by_id")
-		UpdatedByIDColumn = postgres.IntegerColumn("updated_by_id")
-		CreatedAtColumn   = postgres.TimestampzColumn("created_at")
-		UpdatedAtColumn   = postgres.TimestampzColumn("updated_at")
-		allColumns        = postgres.ColumnList{IDColumn, NameColumn, ImageColumn, DescriptionColumn, URLColumn, BrandColumn, CodeColumn, CreatedByIDColumn, UpdatedByIDColumn, CreatedAtColumn, UpdatedAtColumn}
-		mutableColumns    = postgres.ColumnList{NameColumn, ImageColumn, DescriptionColumn, URLColumn, BrandColumn, CodeColumn, CreatedByIDColumn, UpdatedByIDColumn, CreatedAtColumn, UpdatedAtColumn}
+		IDColumn                   = postgres.IntegerColumn("id")
+		NameColumn                 = postgres.StringColumn("name")
+		ImageColumn                = postgres.StringColumn("image")
+		DescriptionColumn          = postgres.StringColumn("description")
+		URLColumn                  = postgres.StringColumn("url")
+		BrandColumn                = postgres.StringColumn("brand")
+		CodeColumn                 = postgres.StringColumn("code")
+		ColorColumn                = postgres.StringColumn("color")
+		ModelColumn                = postgres.StringColumn("model")
+		CategoryColumn             = postgres.StringColumn("category")
+		WeightColumn               = postgres.StringColumn("weight")
+		LowestRecordedPriceColumn  = postgres.FloatColumn("lowest_recorded_price")
+		HighestRecordedPriceColumn = postgres.FloatColumn("highest_recorded_price")
+		CreatedByIDColumn          = postgres.IntegerColumn("created_by_id")
+		UpdatedByIDColumn          = postgres.IntegerColumn("updated_by_id")
+		CreatedAtColumn            = postgres.TimestampzColumn("created_at")
+		UpdatedAtColumn            = postgres.TimestampzColumn("updated_at")
+		allColumns                 = postgres.ColumnList{IDColumn, NameColumn, ImageColumn, DescriptionColumn, URLColumn, BrandColumn, CodeColumn, ColorColumn, ModelColumn, CategoryColumn, WeightColumn, LowestRecordedPriceColumn, HighestRecordedPriceColumn, CreatedByIDColumn, UpdatedByIDColumn, CreatedAtColumn, UpdatedAtColumn}
+		mutableColumns             = postgres.ColumnList{NameColumn, ImageColumn, DescriptionColumn, URLColumn, BrandColumn, CodeColumn, ColorColumn, ModelColumn, CategoryColumn, WeightColumn, LowestRecordedPriceColumn, HighestRecordedPriceColumn, CreatedByIDColumn, UpdatedByIDColumn, CreatedAtColumn, UpdatedAtColumn}
 	)
 
 	return productTable{
 		Table: postgres.NewTable(schemaName, tableName, alias, allColumns...),
 
 		//Columns
-		ID:          IDColumn,
-		Name:        NameColumn,
-		Image:       ImageColumn,
-		Description: DescriptionColumn,
-		URL:         URLColumn,
-		Brand:       BrandColumn,
-		Code:        CodeColumn,
-		CreatedByID: CreatedByIDColumn,
-		UpdatedByID: UpdatedByIDColumn,
-		CreatedAt:   CreatedAtColumn,
-		UpdatedAt:   UpdatedAtColumn,
+		ID:                   IDColumn,
+		Name:                 NameColumn,
+		Image:                ImageColumn,
+		Description:          DescriptionColumn,
+		URL:                  URLColumn,
+		Brand:                BrandColumn,
+		Code:                 CodeColumn,
+		Color:                ColorColumn,
+		Model:                ModelColumn,
+		Category:             CategoryColumn,
+		Weight:               WeightColumn,
+		LowestRecordedPrice:  LowestRecordedPriceColumn,
+		HighestRecordedPrice: HighestRecordedPriceColumn,
+		CreatedByID:          CreatedByIDColumn,
+		UpdatedByID:          UpdatedByIDColumn,
+		CreatedAt:            CreatedAtColumn,
+		UpdatedAt:            UpdatedAtColumn,
 
 		AllColumns:     allColumns,
 		MutableColumns: mutableColumns,
