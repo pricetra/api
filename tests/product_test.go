@@ -11,11 +11,11 @@ func TestProduct(t *testing.T) {
 	var err error
 	var product gmodel.Product
 	input := gmodel.CreateProduct{
-		Name: "Lucerne Provolone Cheese",
+		Name: "Random test product",
 		Image: "my_image.jpg",
-		Description: "Provolone cheese slices",
-		Brand: "ALDI",
-		Code: "021130045198",
+		Description: "Some description",
+		Brand: "Pricetra",
+		Code: "ABC123BARCODETEST",
 	}
 	
 	t.Run("create product", func(t *testing.T) {
