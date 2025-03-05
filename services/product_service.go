@@ -54,6 +54,16 @@ func (s Service) UPCItemDbLookupWithUpcCode(upc string) (result types.UPCItemDbJ
 		return result, err
 	}
 
-	err = json.NewDecoder(res.Body).Decode(&result)
-	return result, err
+	if err := json.NewDecoder(res.Body).Decode(&result); err != nil {
+		return types.UPCItemDbJsonResult{}, err
+	}
+
+	if result.Code != "OK" {
+		message := ""
+		if result.Message != nil {
+			message = *result.Message
+		}
+		return types.UPCItemDbJsonResult{}, fmt.Errorf("%s - %s", result.Code, message)
+	}
+	return result, nil
 }

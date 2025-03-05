@@ -75,4 +75,5 @@ type UPCItemDbJsonResult struct {
 	Total int `json:"total"`
 	Offset int `json:"offset"`
 	Items []UPCItemDbJsonResultItem `json:"items"`
+	Message *string `json:"message,omitempty"`
 }
