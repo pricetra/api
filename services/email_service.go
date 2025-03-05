@@ -13,7 +13,7 @@ func (service Service) SendTemplateEmail(
 	template_id string, 
 	template_data map[string]any,
 ) (*rest.Response, error) {
-	from := mail.NewEmail("Stadio", "no-reply@thestadio.com")
+	from := mail.NewEmail("Pricetra", "no-reply@pricetra.com")
 	email := mail.NewV3MailInit(from, subject, to)
 	email.SetTemplateID(template_id)
 
@@ -38,7 +38,7 @@ func (service Service) SendEmailVerification(user gmodel.User, email_verificatio
 	}
 	return service.SendTemplateEmail(
 		to,
-		"Stadio: Email verification code", 
+		"Email Verification Code - Pricetra", 
 		service.Tokens.SendGrid.Templates.EmailVerification, 
 		data,
 	)
