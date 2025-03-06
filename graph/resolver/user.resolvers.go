@@ -50,8 +50,13 @@ func (r *mutationResolver) ResendEmailVerificationCode(ctx context.Context, emai
 	if err != nil {
 		return false, err
 	}
-	if res, _ := r.Service.SendEmailVerification(user, email_verification); res.StatusCode == http.StatusBadRequest {
-		return false, fmt.Errorf(res.Body)
+
+	email_res, email_err := r.Service.SendEmailVerification(user, email_verification)
+	if (email_err != nil) {
+		return false, email_err
+	}
+	if email_res.StatusCode == http.StatusBadRequest {
+		return false, fmt.Errorf("could not send email")
 	}
 	return email_verification.ID > 0, nil
 }

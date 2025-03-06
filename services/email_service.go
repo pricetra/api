@@ -29,16 +29,13 @@ func (service Service) SendTemplateEmail(
 func (service Service) SendEmailVerification(user gmodel.User, email_verification model.EmailVerification) (*rest.Response, error) {
 	to := mail.NewEmail(user.Name, user.Email)
 	data := map[string]any{
-		"user": map[string]any{
-			"id": user.ID,
-			"name": user.Name,
-			"email": user.Email,
-		},
+		"name": user.Name,
+		"email": user.Email,
 		"code": email_verification.Code,
 	}
 	return service.SendTemplateEmail(
 		to,
-		"Email Verification Code - Pricetra", 
+		"Email Verification Code", 
 		service.Tokens.SendGrid.Templates.EmailVerification, 
 		data,
 	)
