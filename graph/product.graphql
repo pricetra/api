@@ -1,5 +1,6 @@
 extend type Query {
-    barcodeScan(barcode: String!): Product!
+    barcodeScan(barcode: String!): Product! @isAuthenticated
+    allProducts: [Product!]! @isAuthenticated
 }
 
 type Product {

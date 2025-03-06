@@ -33,3 +33,16 @@ func (r *queryResolver) BarcodeScan(ctx context.Context, barcode string) (*gmode
 	}
 	return &product, nil
 }
+
+// AllProducts is the resolver for the allProducts field.
+func (r *queryResolver) AllProducts(ctx context.Context) ([]*gmodel.Product, error) {
+	products, err := r.Service.FindAllProducts(ctx)
+	if err != nil {
+		return nil, err
+	}
+	res := make([]*gmodel.Product, len(products))
+	for i := 0; i < len(products); i++ {
+		res[i] = &products[i]
+	}
+	return res, nil
+}

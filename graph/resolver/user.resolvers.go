@@ -52,7 +52,7 @@ func (r *mutationResolver) ResendEmailVerificationCode(ctx context.Context, emai
 	}
 
 	email_res, email_err := r.Service.SendEmailVerification(user, email_verification)
-	if (email_err != nil) {
+	if email_err != nil {
 		return false, email_err
 	}
 	if email_res.StatusCode == http.StatusBadRequest {

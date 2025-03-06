@@ -67,3 +67,12 @@ func (s Service) UPCItemDbLookupWithUpcCode(upc string) (result types.UPCItemDbJ
 	}
 	return result, nil
 }
+
+func (s Service) FindAllProducts(ctx context.Context) (products []gmodel.Product, err error) {
+	qb := table.Product.
+		SELECT(table.Product.AllColumns).
+		FROM(table.Product).
+		ORDER_BY(table.Product.CreatedAt.DESC())
+	err = qb.QueryContext(ctx, s.DbOrTxQueryable(), &products)
+	return products, err
+}
