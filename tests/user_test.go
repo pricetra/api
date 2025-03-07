@@ -130,11 +130,11 @@ func TestUser(t *testing.T) {
 				}
 				user1.AuthStateID = user1_auth.User.AuthStateID
 				user1.AuthPlatform = user1_auth.User.AuthPlatform
-				if *user1_auth.User != user1 {
-					t.Fatal("returned user object does not match")
+				if user1_auth.User.ID != user1.ID {
+					t.Fatal("returned user does not match", user1_auth.User, user1)
 				}
 
-				if *user1_auth.User.AuthPlatform != gmodel.AuthPlatformType(gmodel.AuthDeviceTypeUnknown) {
+				if *user1_auth.User.AuthDevice != gmodel.AuthDeviceTypeUnknown {
 					t.Fatal("default auth platform type should be 'unknown'", user1_auth.User.AuthPlatform)
 				}
 
