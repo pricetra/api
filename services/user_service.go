@@ -241,6 +241,10 @@ func (service Service) CreateAuthState(
 	ip_address *string,
 	device_type *model.AuthDeviceType,
 ) (model.AuthState, error) {
+	if device_type == nil {
+		new_device := model.AuthDeviceType_Unknown
+		device_type = &new_device
+	}
 	query := table.AuthState.INSERT(
 		table.AuthState.UserID,
 		table.AuthState.IPAddress,
