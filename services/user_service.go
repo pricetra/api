@@ -127,7 +127,12 @@ func (service Service) CreateOauthUser(ctx context.Context, input gmodel.CreateA
 	return user, nil
 }
 
-func (service Service) GoogleAuthentication(ctx context.Context, access_token string, ip_address *string) (gmodel.Auth, error) {
+func (service Service) GoogleAuthentication(
+	ctx context.Context,
+	access_token string,
+	ip_address *string,
+	device_type *model.AuthDeviceType,
+) (gmodel.Auth, error) {
 	oauth_service, err := oauth2.NewService(ctx, option.WithoutAuthentication())
 	if err != nil {
 		return gmodel.Auth{}, fmt.Errorf("could not create service")
@@ -152,14 +157,20 @@ func (service Service) GoogleAuthentication(ctx context.Context, access_token st
 		}
 		new_user = true
 	}
-	auth_state, err := service.CreateAuthStateWithJwt(ctx, user.ID, model.UserAuthPlatformType_Google, ip_address)
+	auth_state, err := service.CreateAuthStateWithJwt(ctx, user.ID, model.UserAuthPlatformType_Google, ip_address, device_type)
 	if err == nil && new_user {
 		auth_state.IsNewUser = &new_user
 	}
 	return auth_state, err
 }
 
-func (service Service) LoginInternal(ctx context.Context, email string, password string, ip_address *string) (gmodel.Auth, error) {
+func (service Service) LoginInternal(
+	ctx context.Context,
+	email string,
+	password string,
+	ip_address *string,
+	device_type *model.AuthDeviceType,
+) (gmodel.Auth, error) {
 	db := service.DbOrTxQueryable()	
 	query := table.User.
 		SELECT(table.User.AllColumns).
@@ -176,7 +187,7 @@ func (service Service) LoginInternal(ctx context.Context, email string, password
 		return gmodel.Auth{}, fmt.Errorf("incorrect email or password")
 	}
 
-	return service.CreateAuthStateWithJwt(ctx, verify_user.ID, model.UserAuthPlatformType_Internal, ip_address)
+	return service.CreateAuthStateWithJwt(ctx, verify_user.ID, model.UserAuthPlatformType_Internal, ip_address, device_type)
 }
 
 func (service Service) CreateAuthStateWithJwt(
@@ -184,8 +195,9 @@ func (service Service) CreateAuthStateWithJwt(
 	user_id int64, 
 	auth_platform model.UserAuthPlatformType, 
 	ip_address *string,
+	device_type *model.AuthDeviceType,
 ) (gmodel.Auth, error) {
-	auth_state, auth_state_err := service.CreateAuthState(ctx, gmodel.User{ ID: user_id }, auth_platform, ip_address)
+	auth_state, auth_state_err := service.CreateAuthState(ctx, gmodel.User{ ID: user_id }, auth_platform, ip_address, device_type)
 	if auth_state_err != nil {
 		return gmodel.Auth{}, fmt.Errorf("could not create auth state")
 	}
@@ -195,6 +207,7 @@ func (service Service) CreateAuthStateWithJwt(
 			table.User.AllColumns,
 			table.AuthState.ID, 
 			table.AuthState.Platform,
+			table.AuthState.DeviceType,
 		).
 		FROM(table.User.LEFT_JOIN(
 			table.AuthState, 
@@ -221,15 +234,23 @@ func (service Service) CreateAuthStateWithJwt(
 }
 
 // Given an existing user, create an auth_state row
-func (service Service) CreateAuthState(ctx context.Context, user gmodel.User, auth_platform model.UserAuthPlatformType, ip_address *string) (model.AuthState, error) {
+func (service Service) CreateAuthState(
+	ctx context.Context,
+	user gmodel.User,
+	auth_platform model.UserAuthPlatformType,
+	ip_address *string,
+	device_type *model.AuthDeviceType,
+) (model.AuthState, error) {
 	query := table.AuthState.INSERT(
 		table.AuthState.UserID,
 		table.AuthState.IPAddress,
 		table.AuthState.Platform,
+		table.AuthState.DeviceType,
 	).MODEL(model.AuthState{
 		UserID: user.ID,
 		IPAddress: ip_address,
 		Platform: auth_platform,
+		DeviceType: device_type,
 	}).RETURNING(table.AuthState.AllColumns)
 
 	var auth_state model.AuthState
@@ -392,6 +413,7 @@ func (service Service) VerifyJwt(ctx context.Context, authorization types.Author
 			table.User.AllColumns,
 			table.AuthState.ID,
 			table.AuthState.Platform,
+			table.AuthState.DeviceType,
 		).
 		FROM(table.User.LEFT_JOIN(
 			table.AuthState, 

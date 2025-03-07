@@ -6,8 +6,17 @@ extend type Mutation {
 }
 
 extend type Query {
-  login(email: String!, password: String!, ipAddress: String): Auth!
-  googleOAuth(accessToken: String!, ipAddress: String): Auth!
+  login(
+    email: String!
+    password: String!
+    ipAddress: String
+    device: AuthDeviceType
+  ): Auth!
+  googleOAuth(
+    accessToken: String!
+    ipAddress: String
+    device: AuthDeviceType
+  ): Auth!
   me: User! @isAuthenticated
 }
 
@@ -31,6 +40,14 @@ enum AuthPlatformType {
   GOOGLE
 }
 
+enum AuthDeviceType {
+  ios
+  android
+  web
+  other
+  unknown
+}
+
 type User {
   id: ID! @goTag(key: "sql", value: "primary_key")
   createdAt: Time!
@@ -42,7 +59,10 @@ type User {
   birthDate: Time
   bio: String
   active: Boolean!
-  authPlatform: AuthPlatformType @goTag(key: "alias", value: "auth_state.platform")
+  authPlatform: AuthPlatformType
+    @goTag(key: "alias", value: "auth_state.platform")
+  authDevice: AuthDeviceType
+    @goTag(key: "alias", value: "auth_state.auth_device")
   authStateId: ID @goTag(key: "alias", value: "auth_state.id")
 }
 

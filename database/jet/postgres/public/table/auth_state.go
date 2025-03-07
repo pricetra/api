@@ -22,6 +22,7 @@ type authStateTable struct {
 	UserID     postgres.ColumnInteger
 	IPAddress  postgres.ColumnString
 	Platform   postgres.ColumnString
+	DeviceType postgres.ColumnString
 
 	AllColumns     postgres.ColumnList
 	MutableColumns postgres.ColumnList
@@ -67,8 +68,9 @@ func newAuthStateTableImpl(schemaName, tableName, alias string) authStateTable {
 		UserIDColumn     = postgres.IntegerColumn("user_id")
 		IPAddressColumn  = postgres.StringColumn("ip_address")
 		PlatformColumn   = postgres.StringColumn("platform")
-		allColumns       = postgres.ColumnList{IDColumn, LoggedInAtColumn, UserIDColumn, IPAddressColumn, PlatformColumn}
-		mutableColumns   = postgres.ColumnList{LoggedInAtColumn, UserIDColumn, IPAddressColumn, PlatformColumn}
+		DeviceTypeColumn = postgres.StringColumn("device_type")
+		allColumns       = postgres.ColumnList{IDColumn, LoggedInAtColumn, UserIDColumn, IPAddressColumn, PlatformColumn, DeviceTypeColumn}
+		mutableColumns   = postgres.ColumnList{LoggedInAtColumn, UserIDColumn, IPAddressColumn, PlatformColumn, DeviceTypeColumn}
 	)
 
 	return authStateTable{
@@ -80,6 +82,7 @@ func newAuthStateTableImpl(schemaName, tableName, alias string) authStateTable {
 		UserID:     UserIDColumn,
 		IPAddress:  IPAddressColumn,
 		Platform:   PlatformColumn,
+		DeviceType: DeviceTypeColumn,
 
 		AllColumns:     allColumns,
 		MutableColumns: mutableColumns,

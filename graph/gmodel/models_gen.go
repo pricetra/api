@@ -146,6 +146,7 @@ type User struct {
 	Bio          *string           `json:"bio,omitempty"`
 	Active       bool              `json:"active"`
 	AuthPlatform *AuthPlatformType `json:"authPlatform,omitempty" alias:"auth_state.platform"`
+	AuthDevice   *AuthDeviceType   `json:"authDevice,omitempty" alias:"auth_state.auth_device"`
 	AuthStateID  *int64            `json:"authStateId,omitempty" alias:"auth_state.id"`
 }
 
@@ -154,6 +155,53 @@ type UserShallow struct {
 	Name   string  `json:"name" alias:"user.name"`
 	Avatar *string `json:"avatar,omitempty" alias:"user.avatar"`
 	Active *bool   `json:"active,omitempty" alias:"user.active"`
+}
+
+type AuthDeviceType string
+
+const (
+	AuthDeviceTypeIos     AuthDeviceType = "ios"
+	AuthDeviceTypeAndroid AuthDeviceType = "android"
+	AuthDeviceTypeWeb     AuthDeviceType = "web"
+	AuthDeviceTypeOther   AuthDeviceType = "other"
+	AuthDeviceTypeUnknown AuthDeviceType = "unknown"
+)
+
+var AllAuthDeviceType = []AuthDeviceType{
+	AuthDeviceTypeIos,
+	AuthDeviceTypeAndroid,
+	AuthDeviceTypeWeb,
+	AuthDeviceTypeOther,
+	AuthDeviceTypeUnknown,
+}
+
+func (e AuthDeviceType) IsValid() bool {
+	switch e {
+	case AuthDeviceTypeIos, AuthDeviceTypeAndroid, AuthDeviceTypeWeb, AuthDeviceTypeOther, AuthDeviceTypeUnknown:
+		return true
+	}
+	return false
+}
+
+func (e AuthDeviceType) String() string {
+	return string(e)
+}
+
+func (e *AuthDeviceType) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = AuthDeviceType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid AuthDeviceType", str)
+	}
+	return nil
+}
+
+func (e AuthDeviceType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
 type AuthPlatformType string

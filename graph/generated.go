@@ -131,8 +131,8 @@ type ComplexityRoot struct {
 		AllProducts     func(childComplexity int) int
 		BarcodeScan     func(childComplexity int, barcode string) int
 		GetAllCountries func(childComplexity int) int
-		GoogleOAuth     func(childComplexity int, accessToken string, ipAddress *string) int
-		Login           func(childComplexity int, email string, password string, ipAddress *string) int
+		GoogleOAuth     func(childComplexity int, accessToken string, ipAddress *string, device *gmodel.AuthDeviceType) int
+		Login           func(childComplexity int, email string, password string, ipAddress *string, device *gmodel.AuthDeviceType) int
 		Me              func(childComplexity int) int
 	}
 
@@ -145,6 +145,7 @@ type ComplexityRoot struct {
 
 	User struct {
 		Active       func(childComplexity int) int
+		AuthDevice   func(childComplexity int) int
 		AuthPlatform func(childComplexity int) int
 		AuthStateID  func(childComplexity int) int
 		Avatar       func(childComplexity int) int
@@ -176,8 +177,8 @@ type QueryResolver interface {
 	GetAllCountries(ctx context.Context) ([]*gmodel.Country, error)
 	BarcodeScan(ctx context.Context, barcode string) (*gmodel.Product, error)
 	AllProducts(ctx context.Context) ([]*gmodel.Product, error)
-	Login(ctx context.Context, email string, password string, ipAddress *string) (*gmodel.Auth, error)
-	GoogleOAuth(ctx context.Context, accessToken string, ipAddress *string) (*gmodel.Auth, error)
+	Login(ctx context.Context, email string, password string, ipAddress *string, device *gmodel.AuthDeviceType) (*gmodel.Auth, error)
+	GoogleOAuth(ctx context.Context, accessToken string, ipAddress *string, device *gmodel.AuthDeviceType) (*gmodel.Auth, error)
 	Me(ctx context.Context) (*gmodel.User, error)
 }
 
@@ -634,7 +635,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.GoogleOAuth(childComplexity, args["accessToken"].(string), args["ipAddress"].(*string)), true
+		return e.complexity.Query.GoogleOAuth(childComplexity, args["accessToken"].(string), args["ipAddress"].(*string), args["device"].(*gmodel.AuthDeviceType)), true
 
 	case "Query.login":
 		if e.complexity.Query.Login == nil {
@@ -646,7 +647,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.Login(childComplexity, args["email"].(string), args["password"].(string), args["ipAddress"].(*string)), true
+		return e.complexity.Query.Login(childComplexity, args["email"].(string), args["password"].(string), args["ipAddress"].(*string), args["device"].(*gmodel.AuthDeviceType)), true
 
 	case "Query.me":
 		if e.complexity.Query.Me == nil {
@@ -689,6 +690,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.User.Active(childComplexity), true
+
+	case "User.authDevice":
+		if e.complexity.User.AuthDevice == nil {
+			break
+		}
+
+		return e.complexity.User.AuthDevice(childComplexity), true
 
 	case "User.authPlatform":
 		if e.complexity.User.AuthPlatform == nil {
@@ -1039,6 +1047,15 @@ func (ec *executionContext) field_Query_googleOAuth_args(ctx context.Context, ra
 		}
 	}
 	args["ipAddress"] = arg1
+	var arg2 *gmodel.AuthDeviceType
+	if tmp, ok := rawArgs["device"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("device"))
+		arg2, err = ec.unmarshalOAuthDeviceType2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐAuthDeviceType(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["device"] = arg2
 	return args, nil
 }
 
@@ -1072,6 +1089,15 @@ func (ec *executionContext) field_Query_login_args(ctx context.Context, rawArgs 
 		}
 	}
 	args["ipAddress"] = arg2
+	var arg3 *gmodel.AuthDeviceType
+	if tmp, ok := rawArgs["device"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("device"))
+		arg3, err = ec.unmarshalOAuthDeviceType2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐAuthDeviceType(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["device"] = arg3
 	return args, nil
 }
 
@@ -1924,6 +1950,8 @@ func (ec *executionContext) fieldContext_Auth_user(ctx context.Context, field gr
 				return ec.fieldContext_User_active(ctx, field)
 			case "authPlatform":
 				return ec.fieldContext_User_authPlatform(ctx, field)
+			case "authDevice":
+				return ec.fieldContext_User_authDevice(ctx, field)
 			case "authStateId":
 				return ec.fieldContext_User_authStateId(ctx, field)
 			}
@@ -2741,6 +2769,8 @@ func (ec *executionContext) fieldContext_Mutation_createAccount(ctx context.Cont
 				return ec.fieldContext_User_active(ctx, field)
 			case "authPlatform":
 				return ec.fieldContext_User_authPlatform(ctx, field)
+			case "authDevice":
+				return ec.fieldContext_User_authDevice(ctx, field)
 			case "authStateId":
 				return ec.fieldContext_User_authStateId(ctx, field)
 			}
@@ -2822,6 +2852,8 @@ func (ec *executionContext) fieldContext_Mutation_verifyEmail(ctx context.Contex
 				return ec.fieldContext_User_active(ctx, field)
 			case "authPlatform":
 				return ec.fieldContext_User_authPlatform(ctx, field)
+			case "authDevice":
+				return ec.fieldContext_User_authDevice(ctx, field)
 			case "authStateId":
 				return ec.fieldContext_User_authStateId(ctx, field)
 			}
@@ -2978,6 +3010,8 @@ func (ec *executionContext) fieldContext_Mutation_updateProfile(ctx context.Cont
 				return ec.fieldContext_User_active(ctx, field)
 			case "authPlatform":
 				return ec.fieldContext_User_authPlatform(ctx, field)
+			case "authDevice":
+				return ec.fieldContext_User_authDevice(ctx, field)
 			case "authStateId":
 				return ec.fieldContext_User_authStateId(ctx, field)
 			}
@@ -3912,7 +3946,7 @@ func (ec *executionContext) _Query_login(ctx context.Context, field graphql.Coll
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Login(rctx, fc.Args["email"].(string), fc.Args["password"].(string), fc.Args["ipAddress"].(*string))
+		return ec.resolvers.Query().Login(rctx, fc.Args["email"].(string), fc.Args["password"].(string), fc.Args["ipAddress"].(*string), fc.Args["device"].(*gmodel.AuthDeviceType))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -3975,7 +4009,7 @@ func (ec *executionContext) _Query_googleOAuth(ctx context.Context, field graphq
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().GoogleOAuth(rctx, fc.Args["accessToken"].(string), fc.Args["ipAddress"].(*string))
+		return ec.resolvers.Query().GoogleOAuth(rctx, fc.Args["accessToken"].(string), fc.Args["ipAddress"].(*string), fc.Args["device"].(*gmodel.AuthDeviceType))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -4105,6 +4139,8 @@ func (ec *executionContext) fieldContext_Query_me(ctx context.Context, field gra
 				return ec.fieldContext_User_active(ctx, field)
 			case "authPlatform":
 				return ec.fieldContext_User_authPlatform(ctx, field)
+			case "authDevice":
+				return ec.fieldContext_User_authDevice(ctx, field)
 			case "authStateId":
 				return ec.fieldContext_User_authStateId(ctx, field)
 			}
@@ -4877,6 +4913,47 @@ func (ec *executionContext) fieldContext_User_authPlatform(ctx context.Context, 
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type AuthPlatformType does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _User_authDevice(ctx context.Context, field graphql.CollectedField, obj *gmodel.User) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_User_authDevice(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.AuthDevice, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*gmodel.AuthDeviceType)
+	fc.Result = res
+	return ec.marshalOAuthDeviceType2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐAuthDeviceType(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_User_authDevice(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "User",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type AuthDeviceType does not have child fields")
 		},
 	}
 	return fc, nil
@@ -7922,6 +7999,8 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 			}
 		case "authPlatform":
 			out.Values[i] = ec._User_authPlatform(ctx, field, obj)
+		case "authDevice":
+			out.Values[i] = ec._User_authDevice(ctx, field, obj)
 		case "authStateId":
 			out.Values[i] = ec._User_authStateId(ctx, field, obj)
 		default:
@@ -8866,6 +8945,22 @@ func (ec *executionContext) marshalN__TypeKind2string(ctx context.Context, sel a
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) unmarshalOAuthDeviceType2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐAuthDeviceType(ctx context.Context, v interface{}) (*gmodel.AuthDeviceType, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var res = new(gmodel.AuthDeviceType)
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOAuthDeviceType2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐAuthDeviceType(ctx context.Context, sel ast.SelectionSet, v *gmodel.AuthDeviceType) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return v
 }
 
 func (ec *executionContext) unmarshalOAuthPlatformType2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐAuthPlatformType(ctx context.Context, v interface{}) (*gmodel.AuthPlatformType, error) {

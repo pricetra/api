@@ -10,6 +10,7 @@ import (
 	"net/http"
 
 	"github.com/cloudinary/cloudinary-go/v2/api/uploader"
+	"github.com/pricetra/api/database/jet/postgres/public/model"
 	"github.com/pricetra/api/graph"
 	"github.com/pricetra/api/graph/gmodel"
 )
@@ -88,14 +89,26 @@ func (r *mutationResolver) UpdateProfile(ctx context.Context, input gmodel.Updat
 }
 
 // Login is the resolver for the login field.
-func (r *queryResolver) Login(ctx context.Context, email string, password string, ipAddress *string) (*gmodel.Auth, error) {
-	auth, err := r.Service.LoginInternal(ctx, email, password, ipAddress)
+func (r *queryResolver) Login(ctx context.Context, email string, password string, ipAddress *string, device *gmodel.AuthDeviceType) (*gmodel.Auth, error) {
+	var mapped_device model.AuthDeviceType
+	if device == nil {
+		mapped_device = model.AuthDeviceType_Unknown
+	} else {
+		mapped_device.Scan(device.String())
+	}
+	auth, err := r.Service.LoginInternal(ctx, email, password, ipAddress, &mapped_device)
 	return &auth, err
 }
 
 // GoogleOAuth is the resolver for the googleOAuth field.
-func (r *queryResolver) GoogleOAuth(ctx context.Context, accessToken string, ipAddress *string) (*gmodel.Auth, error) {
-	auth, err := r.Service.GoogleAuthentication(ctx, accessToken, ipAddress)
+func (r *queryResolver) GoogleOAuth(ctx context.Context, accessToken string, ipAddress *string, device *gmodel.AuthDeviceType) (*gmodel.Auth, error) {
+	var mapped_device model.AuthDeviceType
+	if device == nil {
+		mapped_device = model.AuthDeviceType_Unknown
+	} else {
+		mapped_device.Scan(device.String())
+	}
+	auth, err := r.Service.GoogleAuthentication(ctx, accessToken, ipAddress, &mapped_device)
 	return &auth, err
 }
 

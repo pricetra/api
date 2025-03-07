@@ -17,4 +17,5 @@ type AuthState struct {
 	UserID     int64
 	IPAddress  *string
 	Platform   UserAuthPlatformType
+	DeviceType *AuthDeviceType
 }

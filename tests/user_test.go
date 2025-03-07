@@ -106,7 +106,7 @@ func TestUser(t *testing.T) {
 	t.Run("login", func(t *testing.T) {
 		t.Run("correct input", func(t *testing.T) {
 			t.Run("inactive user", func(t *testing.T) {
-				_, err := service.LoginInternal(ctx, user1_input.Email, user1_input.Password, nil)
+				_, err := service.LoginInternal(ctx, user1_input.Email, user1_input.Password, nil, nil)
 				if err != nil {
 					t.Fatal("should still login, even if user is inactive")
 				}
@@ -124,7 +124,7 @@ func TestUser(t *testing.T) {
 				}
 				user1.Active = true
 
-				user1_auth, err = service.LoginInternal(ctx, user1_input.Email, user1_input.Password, nil)
+				user1_auth, err = service.LoginInternal(ctx, user1_input.Email, user1_input.Password, nil, nil)
 				if err != nil {
 					t.Fatal("could not login", err.Error())
 				}
@@ -132,6 +132,10 @@ func TestUser(t *testing.T) {
 				user1.AuthPlatform = user1_auth.User.AuthPlatform
 				if *user1_auth.User != user1 {
 					t.Fatal("returned user object does not match")
+				}
+
+				if *user1_auth.User.AuthPlatform != gmodel.AuthPlatformType(gmodel.AuthDeviceTypeUnknown) {
+					t.Fatal("default auth platform type should be 'unknown'")
 				}
 
 				t.Parallel()
@@ -167,12 +171,16 @@ func TestUser(t *testing.T) {
 				})
 
 				t.Run("new login should create new auth_state entry", func(t *testing.T) {
-					user1_auth2, err = service.LoginInternal(ctx, user1_input.Email, user1_input.Password, nil)
+					device := model.AuthDeviceType_Android
+					user1_auth2, err = service.LoginInternal(ctx, user1_input.Email, user1_input.Password, nil, &device)
 					if err != nil {
 						t.Fatal("could not login", err.Error())
 					}
 					if user1_auth2.User.AuthStateID == user1_auth.User.AuthStateID {
 						t.Fatal("auth_state.id should not match")
+					}
+					if *user1_auth2.User.AuthDevice != gmodel.AuthDeviceTypeAndroid {
+						t.Fatal("auth device is not 'android'")
 					}
 
 					var logins []int
@@ -190,7 +198,8 @@ func TestUser(t *testing.T) {
 		})
 
 		t.Run("incorrect input", func(t *testing.T) {
-			_, err := service.LoginInternal(ctx, user1_input.Email, "somerandompassword", nil)
+			device := model.AuthDeviceType_Web
+			_, err := service.LoginInternal(ctx, user1_input.Email, "somerandompassword", nil, &device)
 			if err == nil {
 				t.Fatal("login should fail. password is incorrect")
 			}
