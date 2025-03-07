@@ -135,7 +135,7 @@ func TestUser(t *testing.T) {
 				}
 
 				if *user1_auth.User.AuthPlatform != gmodel.AuthPlatformType(gmodel.AuthDeviceTypeUnknown) {
-					t.Fatal("default auth platform type should be 'unknown'")
+					t.Fatal("default auth platform type should be 'unknown'", user1_auth.User.AuthPlatform)
 				}
 
 				t.Parallel()

@@ -146,7 +146,7 @@ type User struct {
 	Bio          *string           `json:"bio,omitempty"`
 	Active       bool              `json:"active"`
 	AuthPlatform *AuthPlatformType `json:"authPlatform,omitempty" alias:"auth_state.platform"`
-	AuthDevice   *AuthDeviceType   `json:"authDevice,omitempty" alias:"auth_state.auth_device"`
+	AuthDevice   *AuthDeviceType   `json:"authDevice,omitempty" alias:"auth_state.device_type"`
 	AuthStateID  *int64            `json:"authStateId,omitempty" alias:"auth_state.id"`
 }
 

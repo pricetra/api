@@ -62,7 +62,7 @@ type User {
   authPlatform: AuthPlatformType
     @goTag(key: "alias", value: "auth_state.platform")
   authDevice: AuthDeviceType
-    @goTag(key: "alias", value: "auth_state.auth_device")
+    @goTag(key: "alias", value: "auth_state.device_type")
   authStateId: ID @goTag(key: "alias", value: "auth_state.id")
 }
 
