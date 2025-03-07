@@ -58,6 +58,26 @@ func (service Service) FindUserById(ctx context.Context, id int64) (gmodel.User,
 	return user, nil
 }
 
+func (service Service) FindAuthUserById(ctx context.Context, user_id int64, auth_state_id int64) (user gmodel.User, err error) {
+	qb := table.User.
+		SELECT(
+			table.User.AllColumns,
+			table.AuthState.ID, 
+			table.AuthState.Platform,
+			table.AuthState.DeviceType,
+		).
+		FROM(table.User.LEFT_JOIN(
+			table.AuthState, 
+			table.User.ID.EQ(table.AuthState.UserID),
+		)).
+		WHERE(postgres.AND(
+			table.User.ID.EQ(postgres.Int(user_id)),
+			table.AuthState.ID.EQ(postgres.Int(auth_state_id)),
+		)).LIMIT(1)
+	err = qb.QueryContext(ctx, service.DbOrTxQueryable(), &user)
+	return user, err
+} 
+
 func (service Service) CreateInternalUser(ctx context.Context, input gmodel.CreateAccountInput) (user gmodel.User, email_verification model.EmailVerification, err error) {
 	if service.UserEmailExists(ctx, input.Email) {
 		return gmodel.User{}, model.EmailVerification{}, fmt.Errorf("email already exists")
@@ -202,23 +222,8 @@ func (service Service) CreateAuthStateWithJwt(
 		return gmodel.Auth{}, fmt.Errorf("could not create auth state")
 	}
 
-	qb := table.User.
-		SELECT(
-			table.User.AllColumns,
-			table.AuthState.ID, 
-			table.AuthState.Platform,
-			table.AuthState.DeviceType,
-		).
-		FROM(table.User.LEFT_JOIN(
-			table.AuthState, 
-			table.User.ID.EQ(table.AuthState.UserID),
-		)).
-		WHERE(postgres.AND(
-			table.User.ID.EQ(postgres.Int(user_id)),
-			table.AuthState.ID.EQ(postgres.Int(auth_state.ID)),
-		)).LIMIT(1)
-	var user gmodel.User
-	if err := qb.QueryContext(ctx, service.DbOrTxQueryable(), &user); err != nil {
+	user, err := service.FindAuthUserById(ctx, user_id, auth_state.ID)
+	if err != nil {
 		return gmodel.Auth{}, fmt.Errorf("internal error")
 	}
 
@@ -466,7 +471,10 @@ func (service Service) UpdateUser(ctx context.Context, user gmodel.User, input g
 	if err = qb.QueryContext(ctx, service.DbOrTxQueryable(), &updated_user); err != nil {
 		return gmodel.User{}, err
 	}
-	return updated_user, nil
+	if user.AuthStateID == nil {
+		return updated_user, nil
+	}
+	return service.FindAuthUserById(ctx, user.ID, *user.AuthStateID)
 }
 
 func (service Service) Logout(ctx context.Context, user gmodel.User, auth_state_id int64) error {
