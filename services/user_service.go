@@ -20,7 +20,7 @@ import (
 	"google.golang.org/api/option"
 )
 
-const EMAIL_VERIFICATION_CODE_LEN = 10
+const EMAIL_VERIFICATION_CODE_LEN = 6
 
 // Returns `false` if user email does not exist. Otherwise `true`
 func (service Service) UserEmailExists(ctx context.Context, email string) bool {
@@ -263,7 +263,7 @@ func (service Service) CreateAuthState(
 }
 
 func (service Service) CreateEmailVerification(ctx context.Context, user gmodel.User) (model.EmailVerification, error) {
-	code := randstr.String(EMAIL_VERIFICATION_CODE_LEN)
+	code := randstr.Dec(EMAIL_VERIFICATION_CODE_LEN)
 
 	query := table.EmailVerification.INSERT(
 		table.EmailVerification.UserID,
