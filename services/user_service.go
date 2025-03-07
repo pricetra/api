@@ -468,3 +468,31 @@ func (service Service) UpdateUser(ctx context.Context, user gmodel.User, input g
 	}
 	return updated_user, nil
 }
+
+func (service Service) Logout(ctx context.Context, user gmodel.User, auth_state_id int64) error {
+	db := service.DbOrTxQueryable()
+	qb := table.AuthState.
+		SELECT(table.AuthState.ID.AS("id")).
+		FROM(table.AuthState).
+		WHERE(
+			postgres.AND(
+				table.AuthState.ID.EQ(postgres.Int64(auth_state_id)),
+				table.AuthState.UserID.EQ(postgres.Int64(user.ID)),
+			),
+		)
+	fmt.Println(qb.DebugSql())
+	var res struct { ID int64 }
+	if err := qb.QueryContext(ctx, db, &res); err != nil {
+		return err
+	}
+
+	fmt.Println(res)
+
+	_, err := table.AuthState.
+		DELETE().
+		WHERE(table.AuthState.ID.EQ(
+			postgres.Int64(res.ID),
+		)).
+		ExecContext(ctx, service.DB)
+	return err
+}

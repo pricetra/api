@@ -88,6 +88,16 @@ func (r *mutationResolver) UpdateProfile(ctx context.Context, input gmodel.Updat
 	return &updated_user, nil
 }
 
+// Logout is the resolver for the logout field.
+func (r *mutationResolver) Logout(ctx context.Context) (bool, error) {
+	user := r.Service.GetAuthUserFromContext(ctx)
+	if user.AuthStateID == nil {
+		return false, fmt.Errorf("no auth state attached to user")
+	}
+	err := r.Service.Logout(ctx, user, *user.AuthStateID)
+	return err == nil, err
+}
+
 // Login is the resolver for the login field.
 func (r *queryResolver) Login(ctx context.Context, email string, password string, ipAddress *string, device *gmodel.AuthDeviceType) (*gmodel.Auth, error) {
 	var mapped_device model.AuthDeviceType

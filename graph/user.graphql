@@ -3,6 +3,7 @@ extend type Mutation {
   verifyEmail(verificationCode: String!): User!
   resendEmailVerificationCode(email: String!): Boolean!
   updateProfile(input: UpdateUser!): User! @isAuthenticated
+  logout: Boolean! @isAuthenticated
 }
 
 extend type Query {
