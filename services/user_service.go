@@ -480,13 +480,10 @@ func (service Service) Logout(ctx context.Context, user gmodel.User, auth_state_
 				table.AuthState.UserID.EQ(postgres.Int64(user.ID)),
 			),
 		)
-	fmt.Println(qb.DebugSql())
 	var res struct { ID int64 }
 	if err := qb.QueryContext(ctx, db, &res); err != nil {
 		return err
 	}
-
-	fmt.Println(res)
 
 	_, err := table.AuthState.
 		DELETE().
