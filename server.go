@@ -15,7 +15,7 @@ import (
 
 func main() {
 	if err := godotenv.Load(".env"); err != nil {
-		log.Fatalf("Error loading .env file")
+		log.Println("Could not find .env file. Proceeding with using normal env variables.")
 	}
 
 	port := os.Getenv("PORT")
