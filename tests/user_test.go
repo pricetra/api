@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/go-jet/jet/v2/postgres"
+	"github.com/google/uuid"
 	"github.com/pricetra/api/database/jet/postgres/public/model"
 	"github.com/pricetra/api/database/jet/postgres/public/table"
 	"github.com/pricetra/api/graph/gmodel"
@@ -202,6 +203,63 @@ func TestUser(t *testing.T) {
 			_, err := service.LoginInternal(ctx, user1_input.Email, "somerandompassword", nil, &device)
 			if err == nil {
 				t.Fatal("login should fail. password is incorrect")
+			}
+		})
+	})
+
+	t.Run("update user", func(t *testing.T) {
+		user, _, err := service.CreateInternalUser(ctx, gmodel.CreateAccountInput{
+			Name: "Joe Doe",
+			Email: "joe_doe@prictra.com",
+			Password: "password123",
+		})
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		t.Run("update name only", func(t *testing.T) {
+			new_name := "Joe Diaz Doe"
+			updated_user, err := service.UpdateUser(ctx, user, gmodel.UpdateUser{
+				Name: &new_name,
+			})
+			if err != nil {
+				t.Fatal(err)
+			}
+			if updated_user.Name == user.Name {
+				t.Fatal("name was not updated")
+			}
+
+			find_updated_user, err := service.FindUserById(ctx, updated_user.ID)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if find_updated_user.Name != updated_user.Name {
+				t.Fatal("updated name and found name were different")
+			}
+		})
+
+		t.Run("update avatar only", func(t *testing.T) {
+			avatar := uuid.NewString()
+			updated_user, err := service.UpdateUser(ctx, user, gmodel.UpdateUser{
+				Avatar: &avatar,
+			})
+			if err != nil {
+				t.Fatal(err)
+			}
+			user_avatar := ""
+			if user.Avatar != nil {
+				user_avatar = *user.Avatar
+			}
+			if *updated_user.Avatar == user_avatar {
+				t.Fatal("avatar was not updated")
+			}
+
+			find_updated_user, err := service.FindUserById(ctx, updated_user.ID)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if *find_updated_user.Avatar != *updated_user.Avatar {
+				t.Fatal("updated avatar and found avatar were different")
 			}
 		})
 	})

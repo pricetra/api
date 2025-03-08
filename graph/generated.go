@@ -7244,7 +7244,7 @@ func (ec *executionContext) unmarshalInputUpdateUser(ctx context.Context, obj in
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"name", "avatar", "birthDate", "bio"}
+	fieldsInOrder := [...]string{"name", "avatar", "avatarFile", "birthDate", "bio"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -7260,11 +7260,18 @@ func (ec *executionContext) unmarshalInputUpdateUser(ctx context.Context, obj in
 			it.Name = data
 		case "avatar":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("avatar"))
-			data, err := ec.unmarshalOUpload2ᚖgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚐUpload(ctx, v)
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
 			it.Avatar = data
+		case "avatarFile":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("avatarFile"))
+			data, err := ec.unmarshalOUpload2ᚖgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚐUpload(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.AvatarFile = data
 		case "birthDate":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("birthDate"))
 			data, err := ec.unmarshalOTime2ᚖtimeᚐTime(ctx, v)

@@ -70,8 +70,8 @@ func (r *mutationResolver) UpdateProfile(ctx context.Context, input gmodel.Updat
 		return nil, err
 	}
 
-	if input.Avatar != nil && updated_user.Avatar != nil {
-		_, err := r.Service.GraphImageUpload(ctx, *input.Avatar, uploader.UploadParams{
+	if updated_user.Avatar != nil && input.AvatarFile != nil {
+		_, err := r.Service.GraphImageUpload(ctx, *input.AvatarFile, uploader.UploadParams{
 			PublicID: *updated_user.Avatar,
 			Tags:     []string{"USER_PROFILE"},
 		})
@@ -81,9 +81,7 @@ func (r *mutationResolver) UpdateProfile(ctx context.Context, input gmodel.Updat
 	}
 	// Delete old avatar
 	if user.Avatar != nil {
-		if _, err := r.Service.DeleteImageUpload(ctx, *user.Avatar); err != nil {
-			return nil, fmt.Errorf("could not delete old avatar UUID: %s", *user.Avatar)
-		}
+		r.Service.DeleteImageUpload(ctx, *user.Avatar)
 	}
 	return &updated_user, nil
 }

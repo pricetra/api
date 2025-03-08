@@ -121,10 +121,11 @@ type Query struct {
 }
 
 type UpdateUser struct {
-	Name      *string         `json:"name,omitempty"`
-	Avatar    *graphql.Upload `json:"avatar,omitempty"`
-	BirthDate *time.Time      `json:"birthDate,omitempty"`
-	Bio       *string         `json:"bio,omitempty"`
+	Name       *string         `json:"name,omitempty"`
+	Avatar     *string         `json:"avatar,omitempty" validate:"omitempty,uuid"`
+	AvatarFile *graphql.Upload `json:"avatarFile,omitempty"`
+	BirthDate  *time.Time      `json:"birthDate,omitempty"`
+	Bio        *string         `json:"bio,omitempty"`
 }
 
 type UpdatedByUser struct {

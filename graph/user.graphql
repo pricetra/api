@@ -30,7 +30,8 @@ input CreateAccountInput {
 
 input UpdateUser {
   name: String
-  avatar: Upload
+  avatar: String @goTag(key: "validate", value:"omitempty,uuid")
+  avatarFile: Upload
   birthDate: Time
   bio: String
 }

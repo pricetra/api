@@ -453,9 +453,11 @@ func (service Service) UpdateUser(ctx context.Context, user gmodel.User, input g
 		user.Name = *input.Name
 	}
 	if input.Avatar != nil {
+		if err := uuid.Validate(*input.Avatar); err != nil {
+			return updated_user, err
+		}
 		columns = append(columns, table.User.Avatar)
-		avatar_id := uuid.New().String()
-		user.Avatar = &avatar_id
+		user.Avatar = input.Avatar
 	}
 	if input.BirthDate != nil {
 		columns = append(columns, table.User.BirthDate)
