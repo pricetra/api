@@ -458,6 +458,11 @@ func (service Service) UpdateUser(ctx context.Context, user gmodel.User, input g
 		}
 		columns = append(columns, table.User.Avatar)
 		user.Avatar = input.Avatar
+	} else if input.AvatarFile != nil {
+		// user didn't provide avatar but provided a file so let's create one
+		columns = append(columns, table.User.Avatar)
+		avatar_id := uuid.NewString()
+		user.Avatar = &avatar_id
 	}
 	if input.BirthDate != nil {
 		columns = append(columns, table.User.BirthDate)
