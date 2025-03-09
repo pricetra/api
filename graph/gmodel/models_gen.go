@@ -78,6 +78,8 @@ type CreateProduct struct {
 	Weight               *string  `json:"weight,omitempty"`
 	LowestRecordedPrice  *float64 `json:"lowestRecordedPrice,omitempty"`
 	HighestRecordedPrice *float64 `json:"highestRecordedPrice,omitempty"`
+	CreatedByID          *int64   `json:"-"`
+	UpdatedByID          *int64   `json:"-"`
 }
 
 type CreatedByUser struct {
@@ -100,21 +102,25 @@ type Mutation struct {
 }
 
 type Product struct {
-	ID                   int64     `json:"id" sql:"primary_key"`
-	Name                 string    `json:"name"`
-	Image                string    `json:"image"`
-	Description          string    `json:"description"`
-	URL                  *string   `json:"url,omitempty"`
-	Brand                string    `json:"brand"`
-	Code                 string    `json:"code"`
-	Color                *string   `json:"color,omitempty"`
-	Model                *string   `json:"model,omitempty"`
-	Category             *string   `json:"category,omitempty"`
-	Weight               *string   `json:"weight,omitempty"`
-	LowestRecordedPrice  *float64  `json:"lowestRecordedPrice,omitempty"`
-	HighestRecordedPrice *float64  `json:"highestRecordedPrice,omitempty"`
-	CreatedAt            time.Time `json:"createdAt"`
-	UpdatedAt            time.Time `json:"updatedAt"`
+	ID                   int64          `json:"id" sql:"primary_key"`
+	Name                 string         `json:"name"`
+	Image                string         `json:"image"`
+	Description          string         `json:"description"`
+	URL                  *string        `json:"url,omitempty"`
+	Brand                string         `json:"brand"`
+	Code                 string         `json:"code"`
+	Color                *string        `json:"color,omitempty"`
+	Model                *string        `json:"model,omitempty"`
+	Category             *string        `json:"category,omitempty"`
+	Weight               *string        `json:"weight,omitempty"`
+	LowestRecordedPrice  *float64       `json:"lowestRecordedPrice,omitempty"`
+	HighestRecordedPrice *float64       `json:"highestRecordedPrice,omitempty"`
+	CreatedAt            time.Time      `json:"createdAt"`
+	UpdatedAt            time.Time      `json:"updatedAt"`
+	CreatedByID          *int64         `json:"createdById,omitempty"`
+	CreatedBy            *CreatedByUser `json:"createdBy,omitempty"`
+	UpdatedByID          *int64         `json:"updatedById,omitempty"`
+	UpdatedBy            *UpdatedByUser `json:"updatedBy,omitempty"`
 }
 
 type Query struct {

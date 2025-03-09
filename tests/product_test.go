@@ -9,6 +9,15 @@ import (
 
 func TestProduct(t *testing.T) {
 	var err error
+	user, _, err := service.CreateInternalUser(ctx, gmodel.CreateAccountInput{
+		Name: "Product test user",
+		Email: "product_test@pricetra.com",
+		Password: "password123",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	var product gmodel.Product
 	input := gmodel.CreateProduct{
 		Name: "Random test product",
@@ -19,9 +28,16 @@ func TestProduct(t *testing.T) {
 	}
 	
 	t.Run("create product", func(t *testing.T) {
-		product, err = service.CreateProduct(ctx, input)
+		product, err = service.CreateProduct(ctx, user, input)
 		if err != nil {
 			t.Fatal(err)
+		}
+
+		if product.CreatedByID == nil || *product.CreatedByID != user.ID {
+			t.Fatal("product createdById was not inserted")
+		}
+		if product.UpdatedByID == nil || *product.UpdatedByID != user.ID {
+			t.Fatal("product updatedById was not inserted")
 		}
 	})
 

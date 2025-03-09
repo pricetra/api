@@ -14,7 +14,10 @@ import (
 
 const UPCItemdb_API = "https://api.upcitemdb.com/prod"
 
-func (s Service) CreateProduct(ctx context.Context, input gmodel.CreateProduct) (product gmodel.Product, err error) {
+func (s Service) CreateProduct(ctx context.Context, user gmodel.User, input gmodel.CreateProduct) (product gmodel.Product, err error) {
+	input.CreatedByID = &user.ID
+	input.UpdatedByID = &user.ID
+
 	qb := table.Product.
 		INSERT(
 			table.Product.Name,
@@ -29,6 +32,8 @@ func (s Service) CreateProduct(ctx context.Context, input gmodel.CreateProduct) 
 			table.Product.Weight,
 			table.Product.LowestRecordedPrice,
 			table.Product.HighestRecordedPrice,
+			table.Product.CreatedByID,
+			table.Product.UpdatedByID,
 		).
 		MODEL(input).
 		RETURNING(table.Product.AllColumns)

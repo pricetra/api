@@ -4,34 +4,41 @@ extend type Query {
 }
 
 type Product {
-    id: ID! @goTag(key: "sql", value: "primary_key")
-    name: String!
-    image: String!
-    description: String!
-    url: String
-    brand: String!
-    code: String!
-    color: String
-    model: String
-    category: String
-    weight: String
-    lowestRecordedPrice: Float
-    highestRecordedPrice: Float
-    createdAt: Time!
-    updatedAt: Time!
+  id: ID! @goTag(key: "sql", value: "primary_key")
+  name: String!
+  image: String!
+  description: String!
+  url: String
+  brand: String!
+  code: String!
+  color: String
+  model: String
+  category: String
+  weight: String
+  lowestRecordedPrice: Float
+  highestRecordedPrice: Float
+  createdAt: Time!
+  updatedAt: Time!
+  createdById: ID
+  createdBy: CreatedByUser
+  updatedById: ID
+  updatedBy: UpdatedByUser
 }
 
 input CreateProduct {
-    name: String!
-    image: String!
-    description: String!
-    url: String
-    brand: String!
-    code: String!
-    color: String
-    model: String
-    category: String
-    weight: String
-    lowestRecordedPrice: Float
-    highestRecordedPrice: Float
+  name: String!
+  image: String!
+  description: String!
+  url: String
+  brand: String!
+  code: String!
+  color: String
+  model: String
+  category: String
+  weight: String
+  lowestRecordedPrice: Float
+  highestRecordedPrice: Float
+
+  createdById: ID @goTag(key: "json", value: "-")
+  updatedById: ID @goTag(key: "json", value: "-")
 }

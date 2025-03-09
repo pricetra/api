@@ -13,6 +13,7 @@ import (
 
 // BarcodeScan is the resolver for the barcodeScan field.
 func (r *queryResolver) BarcodeScan(ctx context.Context, barcode string) (*gmodel.Product, error) {
+	user := r.Service.GetAuthUserFromContext(ctx)
 	product, err := r.Service.FindProductWithCode(ctx, barcode)
 	if err == nil {
 		return &product, nil
@@ -27,7 +28,7 @@ func (r *queryResolver) BarcodeScan(ctx context.Context, barcode string) (*gmode
 		return nil, fmt.Errorf("no results found for this barcode")
 	}
 	item := result.Items[0]
-	product, err = r.Service.CreateProduct(ctx, item.ToCreateProduct(&barcode))
+	product, err = r.Service.CreateProduct(ctx, user, item.ToCreateProduct(&barcode))
 	if err != nil {
 		return nil, err
 	}

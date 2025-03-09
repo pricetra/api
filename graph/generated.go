@@ -116,6 +116,8 @@ type ComplexityRoot struct {
 		Code                 func(childComplexity int) int
 		Color                func(childComplexity int) int
 		CreatedAt            func(childComplexity int) int
+		CreatedBy            func(childComplexity int) int
+		CreatedByID          func(childComplexity int) int
 		Description          func(childComplexity int) int
 		HighestRecordedPrice func(childComplexity int) int
 		ID                   func(childComplexity int) int
@@ -125,6 +127,8 @@ type ComplexityRoot struct {
 		Name                 func(childComplexity int) int
 		URL                  func(childComplexity int) int
 		UpdatedAt            func(childComplexity int) int
+		UpdatedBy            func(childComplexity int) int
+		UpdatedByID          func(childComplexity int) int
 		Weight               func(childComplexity int) int
 	}
 
@@ -538,6 +542,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Product.CreatedAt(childComplexity), true
 
+	case "Product.createdBy":
+		if e.complexity.Product.CreatedBy == nil {
+			break
+		}
+
+		return e.complexity.Product.CreatedBy(childComplexity), true
+
+	case "Product.createdById":
+		if e.complexity.Product.CreatedByID == nil {
+			break
+		}
+
+		return e.complexity.Product.CreatedByID(childComplexity), true
+
 	case "Product.description":
 		if e.complexity.Product.Description == nil {
 			break
@@ -600,6 +618,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Product.UpdatedAt(childComplexity), true
+
+	case "Product.updatedBy":
+		if e.complexity.Product.UpdatedBy == nil {
+			break
+		}
+
+		return e.complexity.Product.UpdatedBy(childComplexity), true
+
+	case "Product.updatedById":
+		if e.complexity.Product.UpdatedByID == nil {
+			break
+		}
+
+		return e.complexity.Product.UpdatedByID(childComplexity), true
 
 	case "Product.weight":
 		if e.complexity.Product.Weight == nil {
@@ -3744,6 +3776,190 @@ func (ec *executionContext) fieldContext_Product_updatedAt(ctx context.Context, 
 	return fc, nil
 }
 
+func (ec *executionContext) _Product_createdById(ctx context.Context, field graphql.CollectedField, obj *gmodel.Product) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Product_createdById(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CreatedByID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int64)
+	fc.Result = res
+	return ec.marshalOID2ᚖint64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Product_createdById(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Product",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Product_createdBy(ctx context.Context, field graphql.CollectedField, obj *gmodel.Product) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Product_createdBy(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CreatedBy, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*gmodel.CreatedByUser)
+	fc.Result = res
+	return ec.marshalOCreatedByUser2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐCreatedByUser(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Product_createdBy(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Product",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_CreatedByUser_id(ctx, field)
+			case "name":
+				return ec.fieldContext_CreatedByUser_name(ctx, field)
+			case "avatar":
+				return ec.fieldContext_CreatedByUser_avatar(ctx, field)
+			case "active":
+				return ec.fieldContext_CreatedByUser_active(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type CreatedByUser", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Product_updatedById(ctx context.Context, field graphql.CollectedField, obj *gmodel.Product) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Product_updatedById(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UpdatedByID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int64)
+	fc.Result = res
+	return ec.marshalOID2ᚖint64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Product_updatedById(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Product",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Product_updatedBy(ctx context.Context, field graphql.CollectedField, obj *gmodel.Product) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Product_updatedBy(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UpdatedBy, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*gmodel.UpdatedByUser)
+	fc.Result = res
+	return ec.marshalOUpdatedByUser2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐUpdatedByUser(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Product_updatedBy(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Product",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_UpdatedByUser_id(ctx, field)
+			case "name":
+				return ec.fieldContext_UpdatedByUser_name(ctx, field)
+			case "avatar":
+				return ec.fieldContext_UpdatedByUser_avatar(ctx, field)
+			case "active":
+				return ec.fieldContext_UpdatedByUser_active(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type UpdatedByUser", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Query_getAllCountries(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Query_getAllCountries(ctx, field)
 	if err != nil {
@@ -3891,6 +4107,14 @@ func (ec *executionContext) fieldContext_Query_barcodeScan(ctx context.Context, 
 				return ec.fieldContext_Product_createdAt(ctx, field)
 			case "updatedAt":
 				return ec.fieldContext_Product_updatedAt(ctx, field)
+			case "createdById":
+				return ec.fieldContext_Product_createdById(ctx, field)
+			case "createdBy":
+				return ec.fieldContext_Product_createdBy(ctx, field)
+			case "updatedById":
+				return ec.fieldContext_Product_updatedById(ctx, field)
+			case "updatedBy":
+				return ec.fieldContext_Product_updatedBy(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Product", field.Name)
 		},
@@ -3998,6 +4222,14 @@ func (ec *executionContext) fieldContext_Query_allProducts(ctx context.Context, 
 				return ec.fieldContext_Product_createdAt(ctx, field)
 			case "updatedAt":
 				return ec.fieldContext_Product_updatedAt(ctx, field)
+			case "createdById":
+				return ec.fieldContext_Product_createdById(ctx, field)
+			case "createdBy":
+				return ec.fieldContext_Product_createdBy(ctx, field)
+			case "updatedById":
+				return ec.fieldContext_Product_updatedById(ctx, field)
+			case "updatedBy":
+				return ec.fieldContext_Product_updatedBy(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Product", field.Name)
 		},
@@ -7140,7 +7372,7 @@ func (ec *executionContext) unmarshalInputCreateProduct(ctx context.Context, obj
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"name", "image", "description", "url", "brand", "code", "color", "model", "category", "weight", "lowestRecordedPrice", "highestRecordedPrice"}
+	fieldsInOrder := [...]string{"name", "image", "description", "url", "brand", "code", "color", "model", "category", "weight", "lowestRecordedPrice", "highestRecordedPrice", "createdById", "updatedById"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -7231,6 +7463,20 @@ func (ec *executionContext) unmarshalInputCreateProduct(ctx context.Context, obj
 				return it, err
 			}
 			it.HighestRecordedPrice = data
+		case "createdById":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdById"))
+			data, err := ec.unmarshalOID2ᚖint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CreatedByID = data
+		case "updatedById":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedById"))
+			data, err := ec.unmarshalOID2ᚖint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UpdatedByID = data
 		}
 	}
 
@@ -7782,6 +8028,14 @@ func (ec *executionContext) _Product(ctx context.Context, sel ast.SelectionSet, 
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "createdById":
+			out.Values[i] = ec._Product_createdById(ctx, field, obj)
+		case "createdBy":
+			out.Values[i] = ec._Product_createdBy(ctx, field, obj)
+		case "updatedById":
+			out.Values[i] = ec._Product_updatedById(ctx, field, obj)
+		case "updatedBy":
+			out.Values[i] = ec._Product_updatedBy(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}

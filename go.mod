@@ -96,7 +96,7 @@ require (
 	github.com/go-playground/validator/v10 v10.18.0
 	github.com/gohugoio/hugo v0.111.3 // indirect
 	github.com/golang-jwt/jwt v3.2.2+incompatible
-	github.com/google/uuid v1.6.0 // indirect
+	github.com/google/uuid v1.6.0
 	github.com/lib/pq v1.10.9
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
