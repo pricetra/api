@@ -39,6 +39,17 @@ type Auth struct {
 	IsNewUser *bool  `json:"isNewUser,omitempty"`
 }
 
+type Company struct {
+	ID          int64          `json:"id" sql:"primary_key"`
+	Name        string         `json:"name"`
+	Logo        string         `json:"logo"`
+	Website     string         `json:"website"`
+	CreatedByID *int64         `json:"createdById,omitempty"`
+	CreatedBy   *CreatedByUser `json:"createdBy,omitempty"`
+	UpdatedByID *int64         `json:"updatedById,omitempty"`
+	UpdatedBy   *UpdatedByUser `json:"updatedBy,omitempty"`
+}
+
 type Country struct {
 	Code                    string                    `json:"code" sql:"primary_key"`
 	Name                    string                    `json:"name"`
@@ -63,6 +74,13 @@ type CreateAddress struct {
 	City                   string  `json:"city" validate:"required"`
 	AdministrativeDivision string  `json:"administrativeDivision" validate:"required"`
 	CountryCode            string  `json:"countryCode" validate:"iso3166_1_alpha2"`
+}
+
+type CreateCompany struct {
+	Name     string          `json:"name"`
+	Logo     string          `json:"logo" validate:"uuid"`
+	Website  string          `json:"website" validate:"http_url"`
+	LogoFile *graphql.Upload `json:"logoFile,omitempty"`
 }
 
 type CreateProduct struct {

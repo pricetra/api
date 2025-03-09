@@ -1,0 +1,22 @@
+type Company {
+  id: ID! @goTag(key: "sql", value: "primary_key")
+  name: String!
+  logo: String!
+  website: String!
+
+  createdById: ID
+  createdBy: CreatedByUser
+  updatedById: ID
+  updatedBy: UpdatedByUser
+}
+
+input CreateCompany {
+  name: String!
+  logo: String! @goTag(key: "validate", value:"uuid")
+  website: String! @goTag(key: "validate", value:"http_url")
+  logoFile: Upload
+}
+
+extend type Mutation {
+  createCompany(input: CreateCompany!): Company! @isAuthenticated
+}

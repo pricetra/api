@@ -11,7 +11,6 @@ import (
 
 	"github.com/cloudinary/cloudinary-go/v2/api/uploader"
 	"github.com/pricetra/api/database/jet/postgres/public/model"
-	"github.com/pricetra/api/graph"
 	"github.com/pricetra/api/graph/gmodel"
 )
 
@@ -125,8 +124,3 @@ func (r *queryResolver) Me(ctx context.Context) (*gmodel.User, error) {
 	auth_user := r.Service.GetAuthUserFromContext(ctx)
 	return &auth_user, nil
 }
-
-// Mutation returns graph.MutationResolver implementation.
-func (r *Resolver) Mutation() graph.MutationResolver { return &mutationResolver{r} }
-
-type mutationResolver struct{ *Resolver }
