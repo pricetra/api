@@ -78,8 +78,6 @@ type CreateProduct struct {
 	Weight               *string  `json:"weight,omitempty"`
 	LowestRecordedPrice  *float64 `json:"lowestRecordedPrice,omitempty"`
 	HighestRecordedPrice *float64 `json:"highestRecordedPrice,omitempty"`
-	CreatedByID          *int64   `json:"-"`
-	UpdatedByID          *int64   `json:"-"`
 }
 
 type CreatedByUser struct {

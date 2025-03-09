@@ -38,7 +38,4 @@ input CreateProduct {
   weight: String
   lowestRecordedPrice: Float
   highestRecordedPrice: Float
-
-  createdById: ID @goTag(key: "json", value: "-")
-  updatedById: ID @goTag(key: "json", value: "-")
 }

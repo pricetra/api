@@ -7372,7 +7372,7 @@ func (ec *executionContext) unmarshalInputCreateProduct(ctx context.Context, obj
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"name", "image", "description", "url", "brand", "code", "color", "model", "category", "weight", "lowestRecordedPrice", "highestRecordedPrice", "createdById", "updatedById"}
+	fieldsInOrder := [...]string{"name", "image", "description", "url", "brand", "code", "color", "model", "category", "weight", "lowestRecordedPrice", "highestRecordedPrice"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -7463,20 +7463,6 @@ func (ec *executionContext) unmarshalInputCreateProduct(ctx context.Context, obj
 				return it, err
 			}
 			it.HighestRecordedPrice = data
-		case "createdById":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdById"))
-			data, err := ec.unmarshalOID2ᚖint64(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.CreatedByID = data
-		case "updatedById":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedById"))
-			data, err := ec.unmarshalOID2ᚖint64(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.UpdatedByID = data
 		}
 	}
 
