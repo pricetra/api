@@ -43,7 +43,8 @@ func (s Service) GetAllCompanies(ctx context.Context) (companies []gmodel.Compan
 		table.Company.
 			LEFT_JOIN(created_user_table, created_user_table.ID.EQ(table.Company.CreatedByID)).
 			LEFT_JOIN(updated_user_table, updated_user_table.ID.EQ(table.Company.UpdatedByID)),
-	)
+	).
+	ORDER_BY(table.Company.CreatedAt.DESC())
 	err = qb.QueryContext(ctx, s.DbOrTxQueryable(), &companies)
 	return companies, err
 }
