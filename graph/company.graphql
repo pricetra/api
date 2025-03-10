@@ -17,6 +17,10 @@ input CreateCompany {
   logoFile: Upload
 }
 
+extend type Query {
+  allCompanies: [Company!]! @isAuthenticated
+}
+
 extend type Mutation {
   createCompany(input: CreateCompany!): Company! @isAuthenticated
 }

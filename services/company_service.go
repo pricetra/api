@@ -33,3 +33,17 @@ func (s Service) CreateCompany(ctx context.Context, user gmodel.User, input gmod
 	err = qb.QueryContext(ctx, s.DbOrTxQueryable(), &company)
 	return company, err
 }
+
+func (s Service) GetAllCompanies(ctx context.Context) (companies []gmodel.Company, err error) {
+	created_user_table, updated_user_table, user_cols := s.CreatedAndUpdatedUserTable()
+	qb := table.Company.SELECT(
+		table.Company.AllColumns,
+		user_cols...,
+	).FROM(
+		table.Company.
+			LEFT_JOIN(created_user_table, created_user_table.ID.EQ(table.Company.CreatedByID)).
+			LEFT_JOIN(updated_user_table, updated_user_table.ID.EQ(table.Company.UpdatedByID)),
+	)
+	err = qb.QueryContext(ctx, s.DbOrTxQueryable(), &companies)
+	return companies, err
+}

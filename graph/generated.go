@@ -145,6 +145,7 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
+		AllCompanies    func(childComplexity int) int
 		AllProducts     func(childComplexity int) int
 		BarcodeScan     func(childComplexity int, barcode string) int
 		GetAllCountries func(childComplexity int) int
@@ -193,6 +194,7 @@ type MutationResolver interface {
 	Logout(ctx context.Context) (bool, error)
 }
 type QueryResolver interface {
+	AllCompanies(ctx context.Context) ([]*gmodel.Company, error)
 	GetAllCountries(ctx context.Context) ([]*gmodel.Country, error)
 	BarcodeScan(ctx context.Context, barcode string) (*gmodel.Product, error)
 	AllProducts(ctx context.Context) ([]*gmodel.Product, error)
@@ -720,6 +722,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Product.Weight(childComplexity), true
+
+	case "Query.allCompanies":
+		if e.complexity.Query.AllCompanies == nil {
+			break
+		}
+
+		return e.complexity.Query.AllCompanies(childComplexity), true
 
 	case "Query.allProducts":
 		if e.complexity.Query.AllProducts == nil {
@@ -4506,6 +4515,88 @@ func (ec *executionContext) fieldContext_Product_updatedBy(ctx context.Context, 
 				return ec.fieldContext_UpdatedByUser_active(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type UpdatedByUser", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_allCompanies(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_allCompanies(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().AllCompanies(rctx)
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.IsAuthenticated == nil {
+				return nil, errors.New("directive isAuthenticated is not implemented")
+			}
+			return ec.directives.IsAuthenticated(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.([]*gmodel.Company); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*github.com/pricetra/api/graph/gmodel.Company`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*gmodel.Company)
+	fc.Result = res
+	return ec.marshalNCompany2ᚕᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐCompanyᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_allCompanies(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Company_id(ctx, field)
+			case "name":
+				return ec.fieldContext_Company_name(ctx, field)
+			case "logo":
+				return ec.fieldContext_Company_logo(ctx, field)
+			case "website":
+				return ec.fieldContext_Company_website(ctx, field)
+			case "createdById":
+				return ec.fieldContext_Company_createdById(ctx, field)
+			case "createdBy":
+				return ec.fieldContext_Company_createdBy(ctx, field)
+			case "updatedById":
+				return ec.fieldContext_Company_updatedById(ctx, field)
+			case "updatedBy":
+				return ec.fieldContext_Company_updatedBy(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Company", field.Name)
 		},
 	}
 	return fc, nil
@@ -8732,6 +8823,28 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Query")
+		case "allCompanies":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_allCompanies(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
 		case "getAllCountries":
 			field := field
 
@@ -9480,6 +9593,50 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 
 func (ec *executionContext) marshalNCompany2githubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐCompany(ctx context.Context, sel ast.SelectionSet, v gmodel.Company) graphql.Marshaler {
 	return ec._Company(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNCompany2ᚕᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐCompanyᚄ(ctx context.Context, sel ast.SelectionSet, v []*gmodel.Company) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNCompany2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐCompany(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
 }
 
 func (ec *executionContext) marshalNCompany2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐCompany(ctx context.Context, sel ast.SelectionSet, v *gmodel.Company) graphql.Marshaler {

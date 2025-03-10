@@ -508,3 +508,21 @@ func (service Service) Logout(ctx context.Context, user gmodel.User, auth_state_
 		ExecContext(ctx, service.DB)
 	return err
 }
+
+func (service Service) CreatedAndUpdatedUserTable() (
+	created_by_user *table.UserTable, 
+	updated_by_user *table.UserTable, 
+	columns []postgres.Projection,
+) {
+	created_by_user = table.User.AS("created_by_user")
+	updated_by_user = table.User.AS("updated_by_user")
+	columns = []postgres.Projection{
+		created_by_user.ID,
+		created_by_user.Name,
+		created_by_user.Avatar,
+		updated_by_user.ID,
+		updated_by_user.Name,
+		updated_by_user.Avatar,
+	}
+	return created_by_user, updated_by_user, columns
+}

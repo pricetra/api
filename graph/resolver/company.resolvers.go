@@ -20,12 +20,12 @@ func (r *mutationResolver) CreateCompany(ctx context.Context, input gmodel.Creat
 	if err != nil {
 		return nil, err
 	}
-	
+
 	// upload file
 	if input.LogoFile != nil {
 		_, err := r.Service.GraphImageUpload(ctx, *input.LogoFile, uploader.UploadParams{
 			PublicID: input.Logo,
-			Tags: []string{"COMPANY_LOGO"},
+			Tags:     []string{"COMPANY_LOGO"},
 		})
 		if err != nil {
 			return nil, fmt.Errorf("could not upload logo to CDN")
@@ -34,7 +34,25 @@ func (r *mutationResolver) CreateCompany(ctx context.Context, input gmodel.Creat
 	return &company, nil
 }
 
+// AllCompanies is the resolver for the allCompanies field.
+func (r *queryResolver) AllCompanies(ctx context.Context) ([]*gmodel.Company, error) {
+	companies, err := r.Service.GetAllCompanies(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	result := make([]*gmodel.Company, len(companies))
+	for i := range companies {
+		result[i] = &companies[i]
+	}
+	return result, nil
+}
+
 // Mutation returns graph.MutationResolver implementation.
 func (r *Resolver) Mutation() graph.MutationResolver { return &mutationResolver{r} }
 
+// Query returns graph.QueryResolver implementation.
+func (r *Resolver) Query() graph.QueryResolver { return &queryResolver{r} }
+
 type mutationResolver struct{ *Resolver }
+type queryResolver struct{ *Resolver }
