@@ -79,9 +79,14 @@ func (s Service) UPCItemDbLookupWithUpcCode(upc string) (result types.UPCItemDbJ
 }
 
 func (s Service) FindAllProducts(ctx context.Context) (products []gmodel.Product, err error) {
+	created_user_table, updated_user_table, user_cols := s.CreatedAndUpdatedUserTable()
 	qb := table.Product.
-		SELECT(table.Product.AllColumns).
-		FROM(table.Product).
+		SELECT(table.Product.AllColumns, user_cols...).
+		FROM(
+			table.Product.
+				LEFT_JOIN(created_user_table, created_user_table.ID.EQ(table.Product.CreatedByID)).
+				LEFT_JOIN(updated_user_table, updated_user_table.ID.EQ(table.Product.UpdatedByID)),
+		).
 		ORDER_BY(table.Product.CreatedAt.DESC())
 	err = qb.QueryContext(ctx, s.DbOrTxQueryable(), &products)
 	return products, err
