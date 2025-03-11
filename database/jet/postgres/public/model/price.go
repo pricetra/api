@@ -16,7 +16,7 @@ type Price struct {
 	Amount       float64
 	CurrencyCode string
 	ProductID    int64
-	CompanyID    int64
+	StoreID      int64
 	BranchID     int64
 	StockID      int64
 	CreatedByID  *int64

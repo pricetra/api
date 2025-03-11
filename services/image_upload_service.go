@@ -7,6 +7,14 @@ import (
 	"github.com/cloudinary/cloudinary-go/v2/api/uploader"
 )
 
+func (service Service) ImageUrlUpload(
+	ctx context.Context,
+	image_url string,
+	params uploader.UploadParams,
+) (*uploader.UploadResult, error) {
+	return service.Cloudinary.Upload.Upload(ctx, image_url, params)
+}
+
 func (service Service) GraphImageUpload(
 	ctx context.Context,
 	image graphql.Upload,

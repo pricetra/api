@@ -11,9 +11,9 @@ import (
 	"github.com/go-jet/jet/v2/postgres"
 )
 
-var Company = newCompanyTable("public", "company", "")
+var Store = newStoreTable("public", "store", "")
 
-type companyTable struct {
+type storeTable struct {
 	postgres.Table
 
 	// Columns
@@ -30,40 +30,40 @@ type companyTable struct {
 	MutableColumns postgres.ColumnList
 }
 
-type CompanyTable struct {
-	companyTable
+type StoreTable struct {
+	storeTable
 
-	EXCLUDED companyTable
+	EXCLUDED storeTable
 }
 
-// AS creates new CompanyTable with assigned alias
-func (a CompanyTable) AS(alias string) *CompanyTable {
-	return newCompanyTable(a.SchemaName(), a.TableName(), alias)
+// AS creates new StoreTable with assigned alias
+func (a StoreTable) AS(alias string) *StoreTable {
+	return newStoreTable(a.SchemaName(), a.TableName(), alias)
 }
 
-// Schema creates new CompanyTable with assigned schema name
-func (a CompanyTable) FromSchema(schemaName string) *CompanyTable {
-	return newCompanyTable(schemaName, a.TableName(), a.Alias())
+// Schema creates new StoreTable with assigned schema name
+func (a StoreTable) FromSchema(schemaName string) *StoreTable {
+	return newStoreTable(schemaName, a.TableName(), a.Alias())
 }
 
-// WithPrefix creates new CompanyTable with assigned table prefix
-func (a CompanyTable) WithPrefix(prefix string) *CompanyTable {
-	return newCompanyTable(a.SchemaName(), prefix+a.TableName(), a.TableName())
+// WithPrefix creates new StoreTable with assigned table prefix
+func (a StoreTable) WithPrefix(prefix string) *StoreTable {
+	return newStoreTable(a.SchemaName(), prefix+a.TableName(), a.TableName())
 }
 
-// WithSuffix creates new CompanyTable with assigned table suffix
-func (a CompanyTable) WithSuffix(suffix string) *CompanyTable {
-	return newCompanyTable(a.SchemaName(), a.TableName()+suffix, a.TableName())
+// WithSuffix creates new StoreTable with assigned table suffix
+func (a StoreTable) WithSuffix(suffix string) *StoreTable {
+	return newStoreTable(a.SchemaName(), a.TableName()+suffix, a.TableName())
 }
 
-func newCompanyTable(schemaName, tableName, alias string) *CompanyTable {
-	return &CompanyTable{
-		companyTable: newCompanyTableImpl(schemaName, tableName, alias),
-		EXCLUDED:     newCompanyTableImpl("", "excluded", ""),
+func newStoreTable(schemaName, tableName, alias string) *StoreTable {
+	return &StoreTable{
+		storeTable: newStoreTableImpl(schemaName, tableName, alias),
+		EXCLUDED:   newStoreTableImpl("", "excluded", ""),
 	}
 }
 
-func newCompanyTableImpl(schemaName, tableName, alias string) companyTable {
+func newStoreTableImpl(schemaName, tableName, alias string) storeTable {
 	var (
 		IDColumn          = postgres.IntegerColumn("id")
 		NameColumn        = postgres.StringColumn("name")
@@ -77,7 +77,7 @@ func newCompanyTableImpl(schemaName, tableName, alias string) companyTable {
 		mutableColumns    = postgres.ColumnList{NameColumn, LogoColumn, WebsiteColumn, CreatedByIDColumn, UpdatedByIDColumn, CreatedAtColumn, UpdatedAtColumn}
 	)
 
-	return companyTable{
+	return storeTable{
 		Table: postgres.NewTable(schemaName, tableName, alias, allColumns...),
 
 		//Columns

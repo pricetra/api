@@ -14,7 +14,6 @@ func UseSchema(schema string) {
 	AdministrativeDivision = AdministrativeDivision.FromSchema(schema)
 	AuthState = AuthState.FromSchema(schema)
 	Branch = Branch.FromSchema(schema)
-	Company = Company.FromSchema(schema)
 	Country = Country.FromSchema(schema)
 	Currency = Currency.FromSchema(schema)
 	EmailVerification = EmailVerification.FromSchema(schema)
@@ -23,5 +22,6 @@ func UseSchema(schema string) {
 	Product = Product.FromSchema(schema)
 	SpatialRefSys = SpatialRefSys.FromSchema(schema)
 	Stock = Stock.FromSchema(schema)
+	Store = Store.FromSchema(schema)
 	User = User.FromSchema(schema)
 }

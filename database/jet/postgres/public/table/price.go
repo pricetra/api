@@ -21,7 +21,7 @@ type priceTable struct {
 	Amount       postgres.ColumnFloat
 	CurrencyCode postgres.ColumnString
 	ProductID    postgres.ColumnInteger
-	CompanyID    postgres.ColumnInteger
+	StoreID      postgres.ColumnInteger
 	BranchID     postgres.ColumnInteger
 	StockID      postgres.ColumnInteger
 	CreatedByID  postgres.ColumnInteger
@@ -72,15 +72,15 @@ func newPriceTableImpl(schemaName, tableName, alias string) priceTable {
 		AmountColumn       = postgres.FloatColumn("amount")
 		CurrencyCodeColumn = postgres.StringColumn("currency_code")
 		ProductIDColumn    = postgres.IntegerColumn("product_id")
-		CompanyIDColumn    = postgres.IntegerColumn("company_id")
+		StoreIDColumn      = postgres.IntegerColumn("store_id")
 		BranchIDColumn     = postgres.IntegerColumn("branch_id")
 		StockIDColumn      = postgres.IntegerColumn("stock_id")
 		CreatedByIDColumn  = postgres.IntegerColumn("created_by_id")
 		UpdatedByIDColumn  = postgres.IntegerColumn("updated_by_id")
 		CreatedAtColumn    = postgres.TimestampzColumn("created_at")
 		UpdatedAtColumn    = postgres.TimestampzColumn("updated_at")
-		allColumns         = postgres.ColumnList{IDColumn, AmountColumn, CurrencyCodeColumn, ProductIDColumn, CompanyIDColumn, BranchIDColumn, StockIDColumn, CreatedByIDColumn, UpdatedByIDColumn, CreatedAtColumn, UpdatedAtColumn}
-		mutableColumns     = postgres.ColumnList{AmountColumn, CurrencyCodeColumn, ProductIDColumn, CompanyIDColumn, BranchIDColumn, StockIDColumn, CreatedByIDColumn, UpdatedByIDColumn, CreatedAtColumn, UpdatedAtColumn}
+		allColumns         = postgres.ColumnList{IDColumn, AmountColumn, CurrencyCodeColumn, ProductIDColumn, StoreIDColumn, BranchIDColumn, StockIDColumn, CreatedByIDColumn, UpdatedByIDColumn, CreatedAtColumn, UpdatedAtColumn}
+		mutableColumns     = postgres.ColumnList{AmountColumn, CurrencyCodeColumn, ProductIDColumn, StoreIDColumn, BranchIDColumn, StockIDColumn, CreatedByIDColumn, UpdatedByIDColumn, CreatedAtColumn, UpdatedAtColumn}
 	)
 
 	return priceTable{
@@ -91,7 +91,7 @@ func newPriceTableImpl(schemaName, tableName, alias string) priceTable {
 		Amount:       AmountColumn,
 		CurrencyCode: CurrencyCodeColumn,
 		ProductID:    ProductIDColumn,
-		CompanyID:    CompanyIDColumn,
+		StoreID:      StoreIDColumn,
 		BranchID:     BranchIDColumn,
 		StockID:      StockIDColumn,
 		CreatedByID:  CreatedByIDColumn,

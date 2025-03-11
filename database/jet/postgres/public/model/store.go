@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-type Company struct {
+type Store struct {
 	ID          int64 `sql:"primary_key"`
 	Name        string
 	Logo        string

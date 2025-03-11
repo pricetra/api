@@ -39,17 +39,6 @@ type Auth struct {
 	IsNewUser *bool  `json:"isNewUser,omitempty"`
 }
 
-type Company struct {
-	ID          int64          `json:"id" sql:"primary_key"`
-	Name        string         `json:"name"`
-	Logo        string         `json:"logo"`
-	Website     string         `json:"website"`
-	CreatedByID *int64         `json:"createdById,omitempty"`
-	CreatedBy   *CreatedByUser `json:"createdBy,omitempty"`
-	UpdatedByID *int64         `json:"updatedById,omitempty"`
-	UpdatedBy   *UpdatedByUser `json:"updatedBy,omitempty"`
-}
-
 type Country struct {
 	Code                    string                    `json:"code" sql:"primary_key"`
 	Name                    string                    `json:"name"`
@@ -76,13 +65,6 @@ type CreateAddress struct {
 	CountryCode            string  `json:"countryCode" validate:"iso3166_1_alpha2"`
 }
 
-type CreateCompany struct {
-	Name     string          `json:"name"`
-	Logo     string          `json:"logo" validate:"uuid"`
-	Website  string          `json:"website" validate:"http_url"`
-	LogoFile *graphql.Upload `json:"logoFile,omitempty"`
-}
-
 type CreateProduct struct {
 	Name                 string   `json:"name"`
 	Image                string   `json:"image"`
@@ -96,6 +78,13 @@ type CreateProduct struct {
 	Weight               *string  `json:"weight,omitempty"`
 	LowestRecordedPrice  *float64 `json:"lowestRecordedPrice,omitempty"`
 	HighestRecordedPrice *float64 `json:"highestRecordedPrice,omitempty"`
+}
+
+type CreateStore struct {
+	Name     string          `json:"name"`
+	Logo     string          `json:"logo" validate:"uuid"`
+	Website  string          `json:"website" validate:"http_url"`
+	LogoFile *graphql.Upload `json:"logoFile,omitempty"`
 }
 
 type CreatedByUser struct {
@@ -140,6 +129,17 @@ type Product struct {
 }
 
 type Query struct {
+}
+
+type Store struct {
+	ID          int64          `json:"id" sql:"primary_key"`
+	Name        string         `json:"name"`
+	Logo        string         `json:"logo"`
+	Website     string         `json:"website"`
+	CreatedByID *int64         `json:"createdById,omitempty"`
+	CreatedBy   *CreatedByUser `json:"createdBy,omitempty"`
+	UpdatedByID *int64         `json:"updatedById,omitempty"`
+	UpdatedBy   *UpdatedByUser `json:"updatedBy,omitempty"`
 }
 
 type UpdateUser struct {

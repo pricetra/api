@@ -19,7 +19,7 @@ type stockTable struct {
 	// Columns
 	ID          postgres.ColumnInteger
 	ProductID   postgres.ColumnInteger
-	CompanyID   postgres.ColumnInteger
+	StoreID     postgres.ColumnInteger
 	BranchID    postgres.ColumnInteger
 	CreatedByID postgres.ColumnInteger
 	UpdatedByID postgres.ColumnInteger
@@ -67,14 +67,14 @@ func newStockTableImpl(schemaName, tableName, alias string) stockTable {
 	var (
 		IDColumn          = postgres.IntegerColumn("id")
 		ProductIDColumn   = postgres.IntegerColumn("product_id")
-		CompanyIDColumn   = postgres.IntegerColumn("company_id")
+		StoreIDColumn     = postgres.IntegerColumn("store_id")
 		BranchIDColumn    = postgres.IntegerColumn("branch_id")
 		CreatedByIDColumn = postgres.IntegerColumn("created_by_id")
 		UpdatedByIDColumn = postgres.IntegerColumn("updated_by_id")
 		CreatedAtColumn   = postgres.TimestampzColumn("created_at")
 		UpdatedAtColumn   = postgres.TimestampzColumn("updated_at")
-		allColumns        = postgres.ColumnList{IDColumn, ProductIDColumn, CompanyIDColumn, BranchIDColumn, CreatedByIDColumn, UpdatedByIDColumn, CreatedAtColumn, UpdatedAtColumn}
-		mutableColumns    = postgres.ColumnList{ProductIDColumn, CompanyIDColumn, BranchIDColumn, CreatedByIDColumn, UpdatedByIDColumn, CreatedAtColumn, UpdatedAtColumn}
+		allColumns        = postgres.ColumnList{IDColumn, ProductIDColumn, StoreIDColumn, BranchIDColumn, CreatedByIDColumn, UpdatedByIDColumn, CreatedAtColumn, UpdatedAtColumn}
+		mutableColumns    = postgres.ColumnList{ProductIDColumn, StoreIDColumn, BranchIDColumn, CreatedByIDColumn, UpdatedByIDColumn, CreatedAtColumn, UpdatedAtColumn}
 	)
 
 	return stockTable{
@@ -83,7 +83,7 @@ func newStockTableImpl(schemaName, tableName, alias string) stockTable {
 		//Columns
 		ID:          IDColumn,
 		ProductID:   ProductIDColumn,
-		CompanyID:   CompanyIDColumn,
+		StoreID:     StoreIDColumn,
 		BranchID:    BranchIDColumn,
 		CreatedByID: CreatedByIDColumn,
 		UpdatedByID: UpdatedByIDColumn,

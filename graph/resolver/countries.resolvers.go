@@ -10,6 +10,7 @@ import (
 
 	"github.com/go-jet/jet/v2/postgres"
 	"github.com/pricetra/api/database/jet/postgres/public/table"
+	"github.com/pricetra/api/graph"
 	"github.com/pricetra/api/graph/gmodel"
 )
 
@@ -40,3 +41,8 @@ func (r *queryResolver) GetAllCountries(ctx context.Context) ([]*gmodel.Country,
 	}
 	return countries, nil
 }
+
+// Query returns graph.QueryResolver implementation.
+func (r *Resolver) Query() graph.QueryResolver { return &queryResolver{r} }
+
+type queryResolver struct{ *Resolver }

@@ -14,7 +14,7 @@ import (
 type Stock struct {
 	ID          int64 `sql:"primary_key"`
 	ProductID   int64
-	CompanyID   int64
+	StoreID     int64
 	BranchID    int64
 	CreatedByID *int64
 	UpdatedByID *int64

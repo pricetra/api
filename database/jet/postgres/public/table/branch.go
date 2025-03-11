@@ -20,7 +20,7 @@ type branchTable struct {
 	ID          postgres.ColumnInteger
 	Name        postgres.ColumnString
 	AddressID   postgres.ColumnInteger
-	CompanyID   postgres.ColumnInteger
+	StoreID     postgres.ColumnInteger
 	CreatedByID postgres.ColumnInteger
 	UpdatedByID postgres.ColumnInteger
 	CreatedAt   postgres.ColumnTimestampz
@@ -68,13 +68,13 @@ func newBranchTableImpl(schemaName, tableName, alias string) branchTable {
 		IDColumn          = postgres.IntegerColumn("id")
 		NameColumn        = postgres.StringColumn("name")
 		AddressIDColumn   = postgres.IntegerColumn("address_id")
-		CompanyIDColumn   = postgres.IntegerColumn("company_id")
+		StoreIDColumn     = postgres.IntegerColumn("store_id")
 		CreatedByIDColumn = postgres.IntegerColumn("created_by_id")
 		UpdatedByIDColumn = postgres.IntegerColumn("updated_by_id")
 		CreatedAtColumn   = postgres.TimestampzColumn("created_at")
 		UpdatedAtColumn   = postgres.TimestampzColumn("updated_at")
-		allColumns        = postgres.ColumnList{IDColumn, NameColumn, AddressIDColumn, CompanyIDColumn, CreatedByIDColumn, UpdatedByIDColumn, CreatedAtColumn, UpdatedAtColumn}
-		mutableColumns    = postgres.ColumnList{NameColumn, AddressIDColumn, CompanyIDColumn, CreatedByIDColumn, UpdatedByIDColumn, CreatedAtColumn, UpdatedAtColumn}
+		allColumns        = postgres.ColumnList{IDColumn, NameColumn, AddressIDColumn, StoreIDColumn, CreatedByIDColumn, UpdatedByIDColumn, CreatedAtColumn, UpdatedAtColumn}
+		mutableColumns    = postgres.ColumnList{NameColumn, AddressIDColumn, StoreIDColumn, CreatedByIDColumn, UpdatedByIDColumn, CreatedAtColumn, UpdatedAtColumn}
 	)
 
 	return branchTable{
@@ -84,7 +84,7 @@ func newBranchTableImpl(schemaName, tableName, alias string) branchTable {
 		ID:          IDColumn,
 		Name:        NameColumn,
 		AddressID:   AddressIDColumn,
-		CompanyID:   CompanyIDColumn,
+		StoreID:     StoreIDColumn,
 		CreatedByID: CreatedByIDColumn,
 		UpdatedByID: UpdatedByIDColumn,
 		CreatedAt:   CreatedAtColumn,

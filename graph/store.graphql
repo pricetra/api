@@ -1,4 +1,4 @@
-type Company {
+type Store {
   id: ID! @goTag(key: "sql", value: "primary_key")
   name: String!
   logo: String!
@@ -10,7 +10,7 @@ type Company {
   updatedBy: UpdatedByUser
 }
 
-input CreateCompany {
+input CreateStore {
   name: String!
   logo: String! @goTag(key: "validate", value:"uuid")
   website: String! @goTag(key: "validate", value:"http_url")
@@ -18,9 +18,9 @@ input CreateCompany {
 }
 
 extend type Query {
-  allCompanies: [Company!]! @isAuthenticated
+  allStores: [Store!]! @isAuthenticated
 }
 
 extend type Mutation {
-  createCompany(input: CreateCompany!): Company! @isAuthenticated
+  createStore(input: CreateStore!): Store! @isAuthenticated
 }

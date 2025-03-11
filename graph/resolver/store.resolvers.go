@@ -13,10 +13,10 @@ import (
 	"github.com/pricetra/api/graph/gmodel"
 )
 
-// CreateCompany is the resolver for the createCompany field.
-func (r *mutationResolver) CreateCompany(ctx context.Context, input gmodel.CreateCompany) (*gmodel.Company, error) {
+// CreateStore is the resolver for the createStore field.
+func (r *mutationResolver) CreateStore(ctx context.Context, input gmodel.CreateStore) (*gmodel.Store, error) {
 	user := r.Service.GetAuthUserFromContext(ctx)
-	company, err := r.Service.CreateCompany(ctx, user, input)
+	store, err := r.Service.CreateStore(ctx, user, input)
 	if err != nil {
 		return nil, err
 	}
@@ -31,19 +31,19 @@ func (r *mutationResolver) CreateCompany(ctx context.Context, input gmodel.Creat
 			return nil, fmt.Errorf("could not upload logo to CDN")
 		}
 	}
-	return &company, nil
+	return &store, nil
 }
 
-// AllCompanies is the resolver for the allCompanies field.
-func (r *queryResolver) AllCompanies(ctx context.Context) ([]*gmodel.Company, error) {
-	companies, err := r.Service.GetAllCompanies(ctx)
+// AllStores is the resolver for the allStores field.
+func (r *queryResolver) AllStores(ctx context.Context) ([]*gmodel.Store, error) {
+	stores, err := r.Service.GetAllStores(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	result := make([]*gmodel.Company, len(companies))
-	for i := range companies {
-		result[i] = &companies[i]
+	result := make([]*gmodel.Store, len(stores))
+	for i := range stores {
+		result[i] = &stores[i]
 	}
 	return result, nil
 }
@@ -51,8 +51,4 @@ func (r *queryResolver) AllCompanies(ctx context.Context) ([]*gmodel.Company, er
 // Mutation returns graph.MutationResolver implementation.
 func (r *Resolver) Mutation() graph.MutationResolver { return &mutationResolver{r} }
 
-// Query returns graph.QueryResolver implementation.
-func (r *Resolver) Query() graph.QueryResolver { return &queryResolver{r} }
-
 type mutationResolver struct{ *Resolver }
-type queryResolver struct{ *Resolver }
