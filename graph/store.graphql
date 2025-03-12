@@ -19,6 +19,7 @@ input CreateStore {
 
 extend type Query {
   allStores: [Store!]! @isAuthenticated
+  findStore(id: ID!): Store! @isAuthenticated
 }
 
 extend type Mutation {

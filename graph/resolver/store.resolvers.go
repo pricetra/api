@@ -48,6 +48,15 @@ func (r *queryResolver) AllStores(ctx context.Context) ([]*gmodel.Store, error) 
 	return result, nil
 }
 
+// FindStore is the resolver for the findStore field.
+func (r *queryResolver) FindStore(ctx context.Context, id int64) (*gmodel.Store, error) {
+	store, err := r.Service.FindStore(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	return &store, nil
+}
+
 // Mutation returns graph.MutationResolver implementation.
 func (r *Resolver) Mutation() graph.MutationResolver { return &mutationResolver{r} }
 
