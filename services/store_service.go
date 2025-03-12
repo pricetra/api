@@ -65,3 +65,16 @@ func (s Service) FindStore(ctx context.Context, id int64) (store gmodel.Store, e
 	err = qb.QueryContext(ctx, s.DbOrTxQueryable(), &store)
 	return store, err
 }
+
+func (s Service) StoreExists(ctx context.Context, id int64) bool {
+	qb := table.Store.
+		SELECT(table.Store.ID).
+		FROM(table.Store).
+		WHERE(table.Store.ID.EQ(postgres.Int(id))).LIMIT(1).
+		LIMIT(1)
+	var store struct{
+		ID int64 `sql:"primary_key"`
+	}
+	err := qb.QueryContext(ctx, s.DbOrTxQueryable(), &store)
+	return err == nil
+}

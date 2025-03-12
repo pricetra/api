@@ -40,6 +40,19 @@ type Auth struct {
 	IsNewUser *bool  `json:"isNewUser,omitempty"`
 }
 
+type Branch struct {
+	ID          int64          `json:"id" sql:"primary_key"`
+	Name        string         `json:"name"`
+	AddressID   int64          `json:"addressId"`
+	Address     *Address       `json:"address"`
+	StoreID     int64          `json:"storeId"`
+	Store       *Store         `json:"store,omitempty"`
+	CreatedByID *int64         `json:"createdById,omitempty"`
+	CreatedBy   *CreatedByUser `json:"createdBy,omitempty"`
+	UpdatedByID *int64         `json:"updatedById,omitempty"`
+	UpdatedBy   *UpdatedByUser `json:"updatedBy,omitempty"`
+}
+
 type Country struct {
 	Code                    string                    `json:"code" sql:"primary_key"`
 	Name                    string                    `json:"name"`
@@ -65,6 +78,12 @@ type CreateAddress struct {
 	AdministrativeDivision string  `json:"administrativeDivision" validate:"required"`
 	CountryCode            string  `json:"countryCode" validate:"required,iso3166_1_alpha2"`
 	ZipCode                int     `json:"zipCode" validate:"required"`
+}
+
+type CreateBranch struct {
+	Name    string         `json:"name" validate:"required"`
+	Address *CreateAddress `json:"address"`
+	StoreID int64          `json:"storeId" validate:"required"`
 }
 
 type CreateProduct struct {

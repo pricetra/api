@@ -1,0 +1,28 @@
+type Branch {
+  id: ID! @goTag(key: "sql", value: "primary_key")
+  name: String!
+  addressId: ID!
+  address: Address!
+  storeId: ID!
+  store: Store
+
+  createdById: ID
+  createdBy: CreatedByUser
+  updatedById: ID
+  updatedBy: UpdatedByUser
+}
+
+input CreateBranch {
+  name: String! @goTag(key: "validate", value: "required")
+  address: CreateAddress!
+  storeId: ID! @goTag(key: "validate", value: "required")
+}
+
+extend type Query {
+  allBranches(storeId: ID!): [Branch!]! @isAuthenticated
+  findBranch(storeId: ID!, id: ID!): Branch! @isAuthenticated
+}
+
+extend type Mutation {
+  createBranch(input: CreateBranch!): Branch! @isAuthenticated
+}

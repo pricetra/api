@@ -9,7 +9,6 @@ import (
 	"fmt"
 
 	"github.com/cloudinary/cloudinary-go/v2/api/uploader"
-	"github.com/pricetra/api/graph"
 	"github.com/pricetra/api/graph/gmodel"
 )
 
@@ -56,8 +55,3 @@ func (r *queryResolver) FindStore(ctx context.Context, id int64) (*gmodel.Store,
 	}
 	return &store, nil
 }
-
-// Mutation returns graph.MutationResolver implementation.
-func (r *Resolver) Mutation() graph.MutationResolver { return &mutationResolver{r} }
-
-type mutationResolver struct{ *Resolver }
