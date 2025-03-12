@@ -5,7 +5,9 @@ input CreateAddress {
   fullAddress: String! @goTag(key: "validate", value: "required,contains")
   city: String! @goTag(key: "validate", value: "required")
   administrativeDivision: String! @goTag(key: "validate", value: "required")
-  countryCode: String! @goTag(key: "validate", value: "iso3166_1_alpha2")
+  countryCode: String!
+    @goTag(key: "validate", value: "required,iso3166_1_alpha2")
+  zipCode: Int! @goTag(key: "validate", value: "required")
 }
 
 type Address {
@@ -19,6 +21,8 @@ type Address {
   fullAddress: String!
   countryCode: String!
   country: String @goTag(key: "alias", value: "country.name")
+  zipCode: String!
+
   createdById: ID
   createdBy: CreatedByUser
   updatedById: ID

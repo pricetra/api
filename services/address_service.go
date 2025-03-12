@@ -47,6 +47,7 @@ func (service Service) CreateAddress(ctx context.Context, user *gmodel.User, inp
 		table.Address.City,
 		table.Address.AdministrativeDivision,
 		table.Address.CountryCode,
+		table.Address.ZipCode,
 		table.Address.CreatedByID,
 		table.Address.UpdatedByID,
 	).MODEL(model.Address{
@@ -57,6 +58,7 @@ func (service Service) CreateAddress(ctx context.Context, user *gmodel.User, inp
 		City: input.City,
 		AdministrativeDivision: input.AdministrativeDivision,
 		CountryCode: country_code,
+		ZipCode: int32(input.ZipCode),
 		CreatedByID: &user.ID,
 		UpdatedByID: &user.ID,
 	}).RETURNING(table.Address.AllColumns)

@@ -30,6 +30,7 @@ type addressTable struct {
 	Coordinates            postgres.ColumnString
 	AdministrativeDivision postgres.ColumnString
 	City                   postgres.ColumnString
+	ZipCode                postgres.ColumnInteger
 
 	AllColumns     postgres.ColumnList
 	MutableColumns postgres.ColumnList
@@ -83,8 +84,9 @@ func newAddressTableImpl(schemaName, tableName, alias string) addressTable {
 		CoordinatesColumn            = postgres.StringColumn("coordinates")
 		AdministrativeDivisionColumn = postgres.StringColumn("administrative_division")
 		CityColumn                   = postgres.StringColumn("city")
-		allColumns                   = postgres.ColumnList{IDColumn, CreatedAtColumn, UpdatedAtColumn, LatitudeColumn, LongitudeColumn, MapsLinkColumn, FullAddressColumn, CountryCodeColumn, CreatedByIDColumn, UpdatedByIDColumn, CoordinatesColumn, AdministrativeDivisionColumn, CityColumn}
-		mutableColumns               = postgres.ColumnList{CreatedAtColumn, UpdatedAtColumn, LatitudeColumn, LongitudeColumn, MapsLinkColumn, FullAddressColumn, CountryCodeColumn, CreatedByIDColumn, UpdatedByIDColumn, AdministrativeDivisionColumn, CityColumn}
+		ZipCodeColumn                = postgres.IntegerColumn("zip_code")
+		allColumns                   = postgres.ColumnList{IDColumn, CreatedAtColumn, UpdatedAtColumn, LatitudeColumn, LongitudeColumn, MapsLinkColumn, FullAddressColumn, CountryCodeColumn, CreatedByIDColumn, UpdatedByIDColumn, CoordinatesColumn, AdministrativeDivisionColumn, CityColumn, ZipCodeColumn}
+		mutableColumns               = postgres.ColumnList{CreatedAtColumn, UpdatedAtColumn, LatitudeColumn, LongitudeColumn, MapsLinkColumn, FullAddressColumn, CountryCodeColumn, CreatedByIDColumn, UpdatedByIDColumn, AdministrativeDivisionColumn, CityColumn, ZipCodeColumn}
 	)
 
 	return addressTable{
@@ -104,6 +106,7 @@ func newAddressTableImpl(schemaName, tableName, alias string) addressTable {
 		Coordinates:            CoordinatesColumn,
 		AdministrativeDivision: AdministrativeDivisionColumn,
 		City:                   CityColumn,
+		ZipCode:                ZipCodeColumn,
 
 		AllColumns:     allColumns,
 		MutableColumns: mutableColumns,

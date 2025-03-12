@@ -22,6 +22,7 @@ type Address struct {
 	FullAddress string         `json:"fullAddress"`
 	CountryCode string         `json:"countryCode"`
 	Country     *string        `json:"country,omitempty" alias:"country.name"`
+	ZipCode     string         `json:"zipCode"`
 	CreatedByID *int64         `json:"createdById,omitempty"`
 	CreatedBy   *CreatedByUser `json:"createdBy,omitempty"`
 	UpdatedByID *int64         `json:"updatedById,omitempty"`
@@ -62,7 +63,8 @@ type CreateAddress struct {
 	FullAddress            string  `json:"fullAddress" validate:"required,contains"`
 	City                   string  `json:"city" validate:"required"`
 	AdministrativeDivision string  `json:"administrativeDivision" validate:"required"`
-	CountryCode            string  `json:"countryCode" validate:"iso3166_1_alpha2"`
+	CountryCode            string  `json:"countryCode" validate:"required,iso3166_1_alpha2"`
+	ZipCode                int     `json:"zipCode" validate:"required"`
 }
 
 type CreateProduct struct {

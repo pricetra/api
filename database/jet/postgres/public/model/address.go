@@ -25,4 +25,5 @@ type Address struct {
 	Coordinates            string
 	AdministrativeDivision string
 	City                   string
+	ZipCode                int32
 }
