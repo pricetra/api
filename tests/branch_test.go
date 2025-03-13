@@ -56,6 +56,12 @@ func TestBranch(t *testing.T) {
 		if branch.ID == 0 {
 			t.Fatal("branch was not created")
 		}
+		if branch.Address == nil {
+			t.Fatal("address must be defined")
+		}
+		if branch.Address.Latitude != lat || branch.Address.Longitude != lon {
+			t.Fatal("lat and lon data does not match")
+		}
 	})
 
 	t.Run("find branch", func(t *testing.T) {

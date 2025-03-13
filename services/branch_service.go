@@ -51,6 +51,7 @@ func (s Service) CreateBranch(ctx context.Context, user gmodel.User, input gmode
 	if err := s.TX.Commit(); err != nil {
 		return branch, err
 	}
+	branch.Address = &address
 	return branch, err
 } 
 
