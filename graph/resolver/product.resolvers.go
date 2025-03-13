@@ -7,7 +7,9 @@ package gresolver
 import (
 	"context"
 	"fmt"
+	"log"
 
+	"github.com/cloudinary/cloudinary-go/v2/api/uploader"
 	"github.com/pricetra/api/graph/gmodel"
 )
 
@@ -31,6 +33,17 @@ func (r *queryResolver) BarcodeScan(ctx context.Context, barcode string) (*gmode
 	product, err = r.Service.CreateProduct(ctx, user, item.ToCreateProduct(&barcode))
 	if err != nil {
 		return nil, err
+	}
+
+	// Upload image to CDN
+	if product.Image != "" {
+		_, err := r.Service.ImageUrlUpload(ctx, product.Image, uploader.UploadParams{
+			PublicID: product.Code,
+			Tags: []string{"PRODUCT"},
+		})
+		if err != nil {
+			log.Println("could not upload remote product image URL.", err.Error())
+		}
 	}
 	return &product, nil
 }
