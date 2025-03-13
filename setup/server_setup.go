@@ -57,6 +57,9 @@ func NewServer(db_conn *sql.DB, router *chi.Mux) *types.ServerBase {
 		Sendgrid: sendgrid_client,
 	}
 
+	// Startup utils...
+	StartupUtils(service)
+
 	// TODO: only show in dev environment
 	server.Router.Handle("/playground", playground.Handler("GraphQL Playground", GRAPH_ENDPOINT))
 
