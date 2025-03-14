@@ -7,6 +7,8 @@ import (
 	"github.com/cloudinary/cloudinary-go/v2/api/uploader"
 )
 
+const CLOUDINARY_UPLOAD_BASE string = "https://res.cloudinary.com/pricetra-cdn/image/upload"
+
 func (service Service) ImageUrlUpload(
 	ctx context.Context,
 	image_url string,

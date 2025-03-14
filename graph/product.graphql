@@ -3,6 +3,11 @@ extend type Query {
     allProducts: [Product!]! @isAuthenticated
 }
 
+extend type Mutation {
+  createProduct(input: CreateProduct!): Product! @isAuthenticated
+  updateProduct(id: ID!, input: UpdateProduct!): Product! @isAuthenticated
+}
+
 type Product {
   id: ID! @goTag(key: "sql", value: "primary_key")
   name: String!
@@ -26,16 +31,33 @@ type Product {
 }
 
 input CreateProduct {
-  name: String!
-  image: String!
+  name: String! @goTag(key: "validate", value: "required")
+  image: String
   description: String!
-  url: String
+  url: String @goTag(key: "validate", value: "omitempty,http_url")
   brand: String!
-  code: String!
+  code: String! @goTag(key: "validate", value: "required")
   color: String
   model: String
   category: String
   weight: String
   lowestRecordedPrice: Float
   highestRecordedPrice: Float
+  imageFile: Upload
+}
+
+input UpdateProduct {
+  name: String
+  image: String
+  description: String
+  url: String @goTag(key: "validate", value: "http_url")
+  brand: String
+  code: String
+  color: String
+  model: String
+  category: String
+  weight: String
+  lowestRecordedPrice: Float
+  highestRecordedPrice: Float
+  imageFile: Upload
 }

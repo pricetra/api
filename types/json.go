@@ -57,7 +57,7 @@ func (ob UPCItemDbJsonResultItem) ToCreateProduct(upc *string) gmodel.CreateProd
 	}
 	return gmodel.CreateProduct{
 		Name: ob.Title,
-		Image: image,
+		Image: &image,
 		Description: ob.Description,
 		Brand: ob.Brand,
 		Code: barcode,

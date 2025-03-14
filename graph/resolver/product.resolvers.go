@@ -14,6 +14,49 @@ import (
 	"github.com/pricetra/api/graph/gmodel"
 )
 
+// CreateProduct is the resolver for the createProduct field.
+func (r *mutationResolver) CreateProduct(ctx context.Context, input gmodel.CreateProduct) (*gmodel.Product, error) {
+	user := r.Service.GetAuthUserFromContext(ctx)
+	source := model.ProductSourceType_Pricetra
+	product, err := r.Service.CreateProduct(ctx, user, input, &source)
+	if err != nil {
+		return nil, err
+	}
+
+	// upload image file to CDN
+	if input.ImageFile != nil {
+		_, err := r.Service.GraphImageUpload(ctx, *input.ImageFile, uploader.UploadParams{
+			PublicID: product.Code,
+			Tags:     []string{"PRODUCT"},
+		})
+		if err != nil {
+			log.Println("could not upload image to cdn.", err.Error())
+		}
+	}
+	return &product, nil
+}
+
+// UpdateProduct is the resolver for the updateProduct field.
+func (r *mutationResolver) UpdateProduct(ctx context.Context, id int64, input gmodel.UpdateProduct) (*gmodel.Product, error) {
+	user := r.Service.GetAuthUserFromContext(ctx)
+	product, err := r.Service.UpdateProductById(ctx, user, id, input)
+	if err != nil {
+		return nil, err
+	}
+
+	// upload image file to CDN
+	if input.ImageFile != nil {
+		_, err := r.Service.GraphImageUpload(ctx, *input.ImageFile, uploader.UploadParams{
+			PublicID: product.Code,
+			Tags:     []string{"PRODUCT"},
+		})
+		if err != nil {
+			log.Println("could not upload image to cdn.", err.Error())
+		}
+	}
+	return &product, nil
+}
+
 // BarcodeScan is the resolver for the barcodeScan field.
 func (r *queryResolver) BarcodeScan(ctx context.Context, barcode string) (*gmodel.Product, error) {
 	user := r.Service.GetAuthUserFromContext(ctx)
@@ -41,7 +84,7 @@ func (r *queryResolver) BarcodeScan(ctx context.Context, barcode string) (*gmode
 	if product.Image != "" {
 		_, err := r.Service.ImageUrlUpload(ctx, product.Image, uploader.UploadParams{
 			PublicID: product.Code,
-			Tags: []string{"PRODUCT"},
+			Tags:     []string{"PRODUCT"},
 		})
 		if err != nil {
 			log.Println("could not upload remote product image URL.", err.Error())

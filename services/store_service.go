@@ -70,7 +70,7 @@ func (s Service) StoreExists(ctx context.Context, id int64) bool {
 	qb := table.Store.
 		SELECT(table.Store.ID).
 		FROM(table.Store).
-		WHERE(table.Store.ID.EQ(postgres.Int(id))).LIMIT(1).
+		WHERE(table.Store.ID.EQ(postgres.Int(id))).
 		LIMIT(1)
 	var store struct{
 		ID int64 `sql:"primary_key"`

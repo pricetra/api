@@ -19,9 +19,10 @@ func TestProduct(t *testing.T) {
 	}
 
 	var product gmodel.Product
+	image := "my_image.jpg"
 	input := gmodel.CreateProduct{
 		Name: "Random test product",
-		Image: "my_image.jpg",
+		Image: &image,
 		Description: "Some description",
 		Brand: "Pricetra",
 		Code: "ABC123BARCODETEST",

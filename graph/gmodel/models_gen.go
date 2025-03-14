@@ -87,18 +87,19 @@ type CreateBranch struct {
 }
 
 type CreateProduct struct {
-	Name                 string   `json:"name"`
-	Image                string   `json:"image"`
-	Description          string   `json:"description"`
-	URL                  *string  `json:"url,omitempty"`
-	Brand                string   `json:"brand"`
-	Code                 string   `json:"code"`
-	Color                *string  `json:"color,omitempty"`
-	Model                *string  `json:"model,omitempty"`
-	Category             *string  `json:"category,omitempty"`
-	Weight               *string  `json:"weight,omitempty"`
-	LowestRecordedPrice  *float64 `json:"lowestRecordedPrice,omitempty"`
-	HighestRecordedPrice *float64 `json:"highestRecordedPrice,omitempty"`
+	Name                 string          `json:"name" validate:"required"`
+	Image                *string         `json:"image,omitempty"`
+	Description          string          `json:"description"`
+	URL                  *string         `json:"url,omitempty" validate:"omitempty,http_url"`
+	Brand                string          `json:"brand"`
+	Code                 string          `json:"code" validate:"required"`
+	Color                *string         `json:"color,omitempty"`
+	Model                *string         `json:"model,omitempty"`
+	Category             *string         `json:"category,omitempty"`
+	Weight               *string         `json:"weight,omitempty"`
+	LowestRecordedPrice  *float64        `json:"lowestRecordedPrice,omitempty"`
+	HighestRecordedPrice *float64        `json:"highestRecordedPrice,omitempty"`
+	ImageFile            *graphql.Upload `json:"imageFile,omitempty"`
 }
 
 type CreateStore struct {
@@ -161,6 +162,22 @@ type Store struct {
 	CreatedBy   *CreatedByUser `json:"createdBy,omitempty"`
 	UpdatedByID *int64         `json:"updatedById,omitempty"`
 	UpdatedBy   *UpdatedByUser `json:"updatedBy,omitempty"`
+}
+
+type UpdateProduct struct {
+	Name                 *string         `json:"name,omitempty"`
+	Image                *string         `json:"image,omitempty"`
+	Description          *string         `json:"description,omitempty"`
+	URL                  *string         `json:"url,omitempty" validate:"http_url"`
+	Brand                *string         `json:"brand,omitempty"`
+	Code                 *string         `json:"code,omitempty"`
+	Color                *string         `json:"color,omitempty"`
+	Model                *string         `json:"model,omitempty"`
+	Category             *string         `json:"category,omitempty"`
+	Weight               *string         `json:"weight,omitempty"`
+	LowestRecordedPrice  *float64        `json:"lowestRecordedPrice,omitempty"`
+	HighestRecordedPrice *float64        `json:"highestRecordedPrice,omitempty"`
+	ImageFile            *graphql.Upload `json:"imageFile,omitempty"`
 }
 
 type UpdateUser struct {
