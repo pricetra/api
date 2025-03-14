@@ -29,4 +29,5 @@ type Product struct {
 	UpdatedByID          *int64
 	CreatedAt            time.Time
 	UpdatedAt            time.Time
+	Source               ProductSourceType
 }

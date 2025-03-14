@@ -10,6 +10,7 @@ import (
 	"log"
 
 	"github.com/cloudinary/cloudinary-go/v2/api/uploader"
+	"github.com/pricetra/api/database/jet/postgres/public/model"
 	"github.com/pricetra/api/graph/gmodel"
 )
 
@@ -30,7 +31,8 @@ func (r *queryResolver) BarcodeScan(ctx context.Context, barcode string) (*gmode
 		return nil, fmt.Errorf("no results found for this barcode")
 	}
 	item := result.Items[0]
-	product, err = r.Service.CreateProduct(ctx, user, item.ToCreateProduct(&barcode))
+	source := model.ProductSourceType_Upcitemdb
+	product, err = r.Service.CreateProduct(ctx, user, item.ToCreateProduct(&barcode), &source)
 	if err != nil {
 		return nil, err
 	}

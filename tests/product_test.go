@@ -28,7 +28,7 @@ func TestProduct(t *testing.T) {
 	}
 	
 	t.Run("create product", func(t *testing.T) {
-		product, err = service.CreateProduct(ctx, user, input)
+		product, err = service.CreateProduct(ctx, user, input, nil)
 		if err != nil {
 			t.Fatal(err)
 		}

@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/go-jet/jet/v2/postgres"
+	"github.com/pricetra/api/database/jet/postgres/public/model"
 	"github.com/pricetra/api/database/jet/postgres/public/table"
 	"github.com/pricetra/api/graph/gmodel"
 	"github.com/pricetra/api/types"
@@ -14,7 +15,17 @@ import (
 
 const UPCItemdb_API = "https://api.upcitemdb.com/prod"
 
-func (s Service) CreateProduct(ctx context.Context, user gmodel.User, input gmodel.CreateProduct) (product gmodel.Product, err error) {
+func (s Service) CreateProduct(ctx context.Context, user gmodel.User, input gmodel.CreateProduct, source *model.ProductSourceType) (product gmodel.Product, err error) {
+	if err := s.StructValidator.StructCtx(ctx, input); err != nil {
+		return product, err
+	}
+
+	var source_val model.ProductSourceType
+	if source == nil {
+		source_val = model.ProductSourceType_Pricetra
+	} else {
+		source_val = *source
+	}
 	qb := table.Product.
 		INSERT(
 			table.Product.Name,
@@ -29,20 +40,34 @@ func (s Service) CreateProduct(ctx context.Context, user gmodel.User, input gmod
 			table.Product.Weight,
 			table.Product.LowestRecordedPrice,
 			table.Product.HighestRecordedPrice,
+			table.Product.Source,
 			table.Product.CreatedByID,
 			table.Product.UpdatedByID,
 		).
 		MODEL(struct{
 			gmodel.CreateProduct
+			Source model.ProductSourceType
 			CreatedByID *int64
 			UpdatedByID *int64
 		}{
 			CreateProduct: input,
+			Source: source_val,
 			CreatedByID: &user.ID,
 			UpdatedByID: &user.ID,
 		}).
 		RETURNING(table.Product.AllColumns)
 
+	err = qb.QueryContext(ctx, s.DbOrTxQueryable(), &product)
+	return product, err
+}
+
+func (s Service) FindProductById(ctx context.Context, id int64) (product gmodel.Product, err error) {
+	qb := table.Product.
+		SELECT(table.Product.AllColumns).
+		FROM(table.Product).
+		WHERE(table.Product.ID.EQ(postgres.Int(id))).
+		LIMIT(1)
+	
 	err = qb.QueryContext(ctx, s.DbOrTxQueryable(), &product)
 	return product, err
 }
@@ -91,3 +116,5 @@ func (s Service) FindAllProducts(ctx context.Context) (products []gmodel.Product
 	err = qb.QueryContext(ctx, s.DbOrTxQueryable(), &products)
 	return products, err
 }
+
+func (s Service) UpdateProductById(ctx context.Context) {}

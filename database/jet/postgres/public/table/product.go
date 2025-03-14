@@ -34,6 +34,7 @@ type productTable struct {
 	UpdatedByID          postgres.ColumnInteger
 	CreatedAt            postgres.ColumnTimestampz
 	UpdatedAt            postgres.ColumnTimestampz
+	Source               postgres.ColumnString
 
 	AllColumns     postgres.ColumnList
 	MutableColumns postgres.ColumnList
@@ -91,8 +92,9 @@ func newProductTableImpl(schemaName, tableName, alias string) productTable {
 		UpdatedByIDColumn          = postgres.IntegerColumn("updated_by_id")
 		CreatedAtColumn            = postgres.TimestampzColumn("created_at")
 		UpdatedAtColumn            = postgres.TimestampzColumn("updated_at")
-		allColumns                 = postgres.ColumnList{IDColumn, NameColumn, ImageColumn, DescriptionColumn, URLColumn, BrandColumn, CodeColumn, ColorColumn, ModelColumn, CategoryColumn, WeightColumn, LowestRecordedPriceColumn, HighestRecordedPriceColumn, CreatedByIDColumn, UpdatedByIDColumn, CreatedAtColumn, UpdatedAtColumn}
-		mutableColumns             = postgres.ColumnList{NameColumn, ImageColumn, DescriptionColumn, URLColumn, BrandColumn, CodeColumn, ColorColumn, ModelColumn, CategoryColumn, WeightColumn, LowestRecordedPriceColumn, HighestRecordedPriceColumn, CreatedByIDColumn, UpdatedByIDColumn, CreatedAtColumn, UpdatedAtColumn}
+		SourceColumn               = postgres.StringColumn("source")
+		allColumns                 = postgres.ColumnList{IDColumn, NameColumn, ImageColumn, DescriptionColumn, URLColumn, BrandColumn, CodeColumn, ColorColumn, ModelColumn, CategoryColumn, WeightColumn, LowestRecordedPriceColumn, HighestRecordedPriceColumn, CreatedByIDColumn, UpdatedByIDColumn, CreatedAtColumn, UpdatedAtColumn, SourceColumn}
+		mutableColumns             = postgres.ColumnList{NameColumn, ImageColumn, DescriptionColumn, URLColumn, BrandColumn, CodeColumn, ColorColumn, ModelColumn, CategoryColumn, WeightColumn, LowestRecordedPriceColumn, HighestRecordedPriceColumn, CreatedByIDColumn, UpdatedByIDColumn, CreatedAtColumn, UpdatedAtColumn, SourceColumn}
 	)
 
 	return productTable{
@@ -116,6 +118,7 @@ func newProductTableImpl(schemaName, tableName, alias string) productTable {
 		UpdatedByID:          UpdatedByIDColumn,
 		CreatedAt:            CreatedAtColumn,
 		UpdatedAt:            UpdatedAtColumn,
+		Source:               SourceColumn,
 
 		AllColumns:     allColumns,
 		MutableColumns: mutableColumns,
