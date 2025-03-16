@@ -31,15 +31,9 @@ func (s Service) CreateProduct(ctx context.Context, user gmodel.User, input gmod
 		source_val = *source
 	}
 
-	if input.Image == nil {
-		if input.ImageFile != nil {
-			image := fmt.Sprintf("%s/%s", CLOUDINARY_UPLOAD_BASE, input.Code)
-			input.Image = &image
-		} else {
-			image := ""
-			input.Image = &image
-		}
-	}
+	// product.image should always be pointed to the CDN with public_id == product.code 
+	image := fmt.Sprintf("%s/%s", CLOUDINARY_UPLOAD_BASE, input.Code)
+	input.Image = &image
 
 	qb := table.Product.
 		INSERT(
