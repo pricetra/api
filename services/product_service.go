@@ -207,13 +207,14 @@ func (s Service) UpdateProductById(ctx context.Context, user gmodel.User, id int
 		UPDATE(cols).
 		MODEL(struct{
 			gmodel.UpdateProduct
-			UpdatedById *int64
+			UpdatedByID *int64
 			UpdatedAt time.Time
 		}{
 			UpdateProduct: input,
-			UpdatedById: &user.ID,
+			UpdatedByID: &user.ID,
 			UpdatedAt: time.Now(),
 		}).
+		WHERE(table.Product.ID.EQ(postgres.Int(id))).
 		RETURNING(table.Product.AllColumns)
 	err = qb.QueryContext(ctx, s.DbOrTxQueryable(), &updated_product)
 	if err != nil {

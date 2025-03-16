@@ -168,7 +168,7 @@ type UpdateProduct struct {
 	Name                 *string         `json:"name,omitempty"`
 	Image                *string         `json:"image,omitempty"`
 	Description          *string         `json:"description,omitempty"`
-	URL                  *string         `json:"url,omitempty" validate:"http_url"`
+	URL                  *string         `json:"url,omitempty" validate:"omitempty,http_url"`
 	Brand                *string         `json:"brand,omitempty"`
 	Code                 *string         `json:"code,omitempty"`
 	Color                *string         `json:"color,omitempty"`

@@ -50,7 +50,7 @@ input UpdateProduct {
   name: String
   image: String
   description: String
-  url: String @goTag(key: "validate", value: "http_url")
+  url: String @goTag(key: "validate", value: "omitempty,http_url")
   brand: String
   code: String
   color: String
