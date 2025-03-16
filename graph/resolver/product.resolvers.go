@@ -75,14 +75,15 @@ func (r *queryResolver) BarcodeScan(ctx context.Context, barcode string) (*gmode
 	}
 	item := result.Items[0]
 	source := model.ProductSourceType_Upcitemdb
-	product, err = r.Service.CreateProduct(ctx, user, item.ToCreateProduct(&barcode), &source)
+	product_input := item.ToCreateProduct(&barcode)
+	product, err = r.Service.CreateProduct(ctx, user, product_input, &source)
 	if err != nil {
 		return nil, err
 	}
 
 	// Upload image to CDN
-	if product.Image != "" {
-		_, err := r.Service.ImageUrlUpload(ctx, product.Image, uploader.UploadParams{
+	if product_input.Image != nil {
+		_, err := r.Service.ImageUrlUpload(ctx, *product_input.Image, uploader.UploadParams{
 			PublicID: product.Code,
 			Tags:     []string{"PRODUCT"},
 		})
