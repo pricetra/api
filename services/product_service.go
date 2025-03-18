@@ -138,6 +138,32 @@ func (s Service) FindAllProducts(ctx context.Context) (products []gmodel.Product
 	return products, err
 }
 
+func (s Service) PaginatedProducts(ctx context.Context, paginator_input gmodel.PaginatorInput) (paginated_products gmodel.PaginatedProducts, err error) {
+	sql_paginator, err := s.Paginate(ctx, paginator_input, table.Product, table.Product.ID)
+	if err != nil {
+		return paginated_products, err
+	}
+
+	created_user_table, updated_user_table, user_cols := s.CreatedAndUpdatedUserTable()
+	qb := table.Product.
+		SELECT(table.Product.AllColumns, user_cols...).
+		FROM(
+			table.Product.
+				LEFT_JOIN(created_user_table, created_user_table.ID.EQ(table.Product.CreatedByID)).
+				LEFT_JOIN(updated_user_table, updated_user_table.ID.EQ(table.Product.UpdatedByID)),
+		).
+		ORDER_BY(table.Product.CreatedAt.DESC()).
+		LIMIT(int64(sql_paginator.Limit)).
+		OFFSET(int64(sql_paginator.Offset))
+	err = qb.QueryContext(ctx, s.DbOrTxQueryable(), &paginated_products.Products)
+	if err != nil {
+		return paginated_products, err
+	}
+
+	paginated_products.Paginator = &sql_paginator.Paginator
+	return paginated_products, nil
+}
+
 func (s Service) UpdateProductById(ctx context.Context, user gmodel.User, id int64, input gmodel.UpdateProduct) (updated_product gmodel.Product, err error) {
 	if err := s.StructValidator.StructCtx(ctx, input); err != nil {
 		return updated_product, err

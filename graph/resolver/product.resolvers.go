@@ -95,14 +95,10 @@ func (r *queryResolver) BarcodeScan(ctx context.Context, barcode string) (*gmode
 }
 
 // AllProducts is the resolver for the allProducts field.
-func (r *queryResolver) AllProducts(ctx context.Context) ([]*gmodel.Product, error) {
-	products, err := r.Service.FindAllProducts(ctx)
+func (r *queryResolver) AllProducts(ctx context.Context, paginator gmodel.PaginatorInput) (*gmodel.PaginatedProducts, error) {
+	paginated_products, err := r.Service.PaginatedProducts(ctx, paginator)
 	if err != nil {
 		return nil, err
 	}
-	res := make([]*gmodel.Product, len(products))
-	for i := 0; i < len(products); i++ {
-		res[i] = &products[i]
-	}
-	return res, nil
+	return &paginated_products, nil
 }

@@ -128,6 +128,11 @@ type Currency struct {
 type Mutation struct {
 }
 
+type PaginatedProducts struct {
+	Products  []*Product `json:"products"`
+	Paginator *Paginator `json:"paginator"`
+}
+
 type Paginator struct {
 	Next     *int `json:"next,omitempty"`
 	Page     int  `json:"page"`

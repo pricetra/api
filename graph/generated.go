@@ -128,6 +128,11 @@ type ComplexityRoot struct {
 		VerifyEmail                 func(childComplexity int, verificationCode string) int
 	}
 
+	PaginatedProducts struct {
+		Paginator func(childComplexity int) int
+		Products  func(childComplexity int) int
+	}
+
 	Paginator struct {
 		Limit    func(childComplexity int) int
 		Next     func(childComplexity int) int
@@ -161,7 +166,7 @@ type ComplexityRoot struct {
 
 	Query struct {
 		AllBranches     func(childComplexity int, storeID int64) int
-		AllProducts     func(childComplexity int) int
+		AllProducts     func(childComplexity int, paginator gmodel.PaginatorInput) int
 		AllStores       func(childComplexity int) int
 		BarcodeScan     func(childComplexity int, barcode string) int
 		FindBranch      func(childComplexity int, storeID int64, id int64) int
@@ -230,7 +235,7 @@ type QueryResolver interface {
 	FindBranch(ctx context.Context, storeID int64, id int64) (*gmodel.Branch, error)
 	GetAllCountries(ctx context.Context) ([]*gmodel.Country, error)
 	BarcodeScan(ctx context.Context, barcode string) (*gmodel.Product, error)
-	AllProducts(ctx context.Context) ([]*gmodel.Product, error)
+	AllProducts(ctx context.Context, paginator gmodel.PaginatorInput) (*gmodel.PaginatedProducts, error)
 	AllStores(ctx context.Context) ([]*gmodel.Store, error)
 	FindStore(ctx context.Context, id int64) (*gmodel.Store, error)
 	Login(ctx context.Context, email string, password string, ipAddress *string, device *gmodel.AuthDeviceType) (*gmodel.Auth, error)
@@ -682,6 +687,62 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.VerifyEmail(childComplexity, args["verificationCode"].(string)), true
 
+	case "PaginatedProducts.paginator":
+		if e.complexity.PaginatedProducts.Paginator == nil {
+			break
+		}
+
+		return e.complexity.PaginatedProducts.Paginator(childComplexity), true
+
+	case "PaginatedProducts.products":
+		if e.complexity.PaginatedProducts.Products == nil {
+			break
+		}
+
+		return e.complexity.PaginatedProducts.Products(childComplexity), true
+
+	case "Paginator.limit":
+		if e.complexity.Paginator.Limit == nil {
+			break
+		}
+
+		return e.complexity.Paginator.Limit(childComplexity), true
+
+	case "Paginator.next":
+		if e.complexity.Paginator.Next == nil {
+			break
+		}
+
+		return e.complexity.Paginator.Next(childComplexity), true
+
+	case "Paginator.numPages":
+		if e.complexity.Paginator.NumPages == nil {
+			break
+		}
+
+		return e.complexity.Paginator.NumPages(childComplexity), true
+
+	case "Paginator.page":
+		if e.complexity.Paginator.Page == nil {
+			break
+		}
+
+		return e.complexity.Paginator.Page(childComplexity), true
+
+	case "Paginator.prev":
+		if e.complexity.Paginator.Prev == nil {
+			break
+		}
+
+		return e.complexity.Paginator.Prev(childComplexity), true
+
+	case "Paginator.total":
+		if e.complexity.Paginator.Total == nil {
+			break
+		}
+
+		return e.complexity.Paginator.Total(childComplexity), true
+
 	case "Product.brand":
 		if e.complexity.Product.Brand == nil {
 			break
@@ -832,7 +893,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		return e.complexity.Query.AllProducts(childComplexity), true
+		args, err := ec.field_Query_allProducts_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.AllProducts(childComplexity, args["paginator"].(gmodel.PaginatorInput)), true
 
 	case "Query.allStores":
 		if e.complexity.Query.AllStores == nil {
@@ -1131,6 +1197,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputCreateBranch,
 		ec.unmarshalInputCreateProduct,
 		ec.unmarshalInputCreateStore,
+		ec.unmarshalInputPaginatorInput,
 		ec.unmarshalInputUpdateProduct,
 		ec.unmarshalInputUpdateUser,
 	)
@@ -1229,7 +1296,7 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 	return introspection.WrapTypeFromDef(ec.Schema(), ec.Schema().Types[name]), nil
 }
 
-//go:embed "address.graphql" "branch.graphql" "countries.graphql" "directives.graphql" "product.graphql" "scalars.graphql" "store.graphql" "user.graphql"
+//go:embed "address.graphql" "branch.graphql" "countries.graphql" "directives.graphql" "paginator.graphql" "product.graphql" "scalars.graphql" "store.graphql" "user.graphql"
 var sourcesFS embed.FS
 
 func sourceData(filename string) string {
@@ -1245,6 +1312,7 @@ var sources = []*ast.Source{
 	{Name: "branch.graphql", Input: sourceData("branch.graphql"), BuiltIn: false},
 	{Name: "countries.graphql", Input: sourceData("countries.graphql"), BuiltIn: false},
 	{Name: "directives.graphql", Input: sourceData("directives.graphql"), BuiltIn: false},
+	{Name: "paginator.graphql", Input: sourceData("paginator.graphql"), BuiltIn: false},
 	{Name: "product.graphql", Input: sourceData("product.graphql"), BuiltIn: false},
 	{Name: "scalars.graphql", Input: sourceData("scalars.graphql"), BuiltIn: false},
 	{Name: "store.graphql", Input: sourceData("store.graphql"), BuiltIn: false},
@@ -1412,6 +1480,21 @@ func (ec *executionContext) field_Query_allBranches_args(ctx context.Context, ra
 		}
 	}
 	args["storeId"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_allProducts_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 gmodel.PaginatorInput
+	if tmp, ok := rawArgs["paginator"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("paginator"))
+		arg0, err = ec.unmarshalNPaginatorInput2githubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐPaginatorInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["paginator"] = arg0
 	return args, nil
 }
 
@@ -4498,6 +4581,406 @@ func (ec *executionContext) fieldContext_Mutation_logout(ctx context.Context, fi
 	return fc, nil
 }
 
+func (ec *executionContext) _PaginatedProducts_products(ctx context.Context, field graphql.CollectedField, obj *gmodel.PaginatedProducts) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PaginatedProducts_products(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Products, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*gmodel.Product)
+	fc.Result = res
+	return ec.marshalNProduct2ᚕᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐProductᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PaginatedProducts_products(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PaginatedProducts",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Product_id(ctx, field)
+			case "name":
+				return ec.fieldContext_Product_name(ctx, field)
+			case "image":
+				return ec.fieldContext_Product_image(ctx, field)
+			case "description":
+				return ec.fieldContext_Product_description(ctx, field)
+			case "url":
+				return ec.fieldContext_Product_url(ctx, field)
+			case "brand":
+				return ec.fieldContext_Product_brand(ctx, field)
+			case "code":
+				return ec.fieldContext_Product_code(ctx, field)
+			case "color":
+				return ec.fieldContext_Product_color(ctx, field)
+			case "model":
+				return ec.fieldContext_Product_model(ctx, field)
+			case "category":
+				return ec.fieldContext_Product_category(ctx, field)
+			case "weight":
+				return ec.fieldContext_Product_weight(ctx, field)
+			case "lowestRecordedPrice":
+				return ec.fieldContext_Product_lowestRecordedPrice(ctx, field)
+			case "highestRecordedPrice":
+				return ec.fieldContext_Product_highestRecordedPrice(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Product_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Product_updatedAt(ctx, field)
+			case "createdById":
+				return ec.fieldContext_Product_createdById(ctx, field)
+			case "createdBy":
+				return ec.fieldContext_Product_createdBy(ctx, field)
+			case "updatedById":
+				return ec.fieldContext_Product_updatedById(ctx, field)
+			case "updatedBy":
+				return ec.fieldContext_Product_updatedBy(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Product", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PaginatedProducts_paginator(ctx context.Context, field graphql.CollectedField, obj *gmodel.PaginatedProducts) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PaginatedProducts_paginator(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Paginator, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*gmodel.Paginator)
+	fc.Result = res
+	return ec.marshalNPaginator2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐPaginator(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PaginatedProducts_paginator(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PaginatedProducts",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "next":
+				return ec.fieldContext_Paginator_next(ctx, field)
+			case "page":
+				return ec.fieldContext_Paginator_page(ctx, field)
+			case "prev":
+				return ec.fieldContext_Paginator_prev(ctx, field)
+			case "total":
+				return ec.fieldContext_Paginator_total(ctx, field)
+			case "limit":
+				return ec.fieldContext_Paginator_limit(ctx, field)
+			case "numPages":
+				return ec.fieldContext_Paginator_numPages(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Paginator", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Paginator_next(ctx context.Context, field graphql.CollectedField, obj *gmodel.Paginator) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Paginator_next(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Next, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int)
+	fc.Result = res
+	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Paginator_next(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Paginator",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Paginator_page(ctx context.Context, field graphql.CollectedField, obj *gmodel.Paginator) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Paginator_page(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Page, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Paginator_page(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Paginator",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Paginator_prev(ctx context.Context, field graphql.CollectedField, obj *gmodel.Paginator) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Paginator_prev(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Prev, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int)
+	fc.Result = res
+	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Paginator_prev(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Paginator",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Paginator_total(ctx context.Context, field graphql.CollectedField, obj *gmodel.Paginator) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Paginator_total(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Total, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Paginator_total(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Paginator",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Paginator_limit(ctx context.Context, field graphql.CollectedField, obj *gmodel.Paginator) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Paginator_limit(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Limit, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Paginator_limit(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Paginator",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Paginator_numPages(ctx context.Context, field graphql.CollectedField, obj *gmodel.Paginator) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Paginator_numPages(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.NumPages, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Paginator_numPages(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Paginator",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Product_id(ctx context.Context, field graphql.CollectedField, obj *gmodel.Product) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Product_id(ctx, field)
 	if err != nil {
@@ -5703,7 +6186,7 @@ func (ec *executionContext) _Query_allProducts(ctx context.Context, field graphq
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		directive0 := func(rctx context.Context) (interface{}, error) {
 			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Query().AllProducts(rctx)
+			return ec.resolvers.Query().AllProducts(rctx, fc.Args["paginator"].(gmodel.PaginatorInput))
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
 			if ec.directives.IsAuthenticated == nil {
@@ -5719,10 +6202,10 @@ func (ec *executionContext) _Query_allProducts(ctx context.Context, field graphq
 		if tmp == nil {
 			return nil, nil
 		}
-		if data, ok := tmp.([]*gmodel.Product); ok {
+		if data, ok := tmp.(*gmodel.PaginatedProducts); ok {
 			return data, nil
 		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*github.com/pricetra/api/graph/gmodel.Product`, tmp)
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/pricetra/api/graph/gmodel.PaginatedProducts`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -5734,9 +6217,9 @@ func (ec *executionContext) _Query_allProducts(ctx context.Context, field graphq
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*gmodel.Product)
+	res := resTmp.(*gmodel.PaginatedProducts)
 	fc.Result = res
-	return ec.marshalNProduct2ᚕᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐProductᚄ(ctx, field.Selections, res)
+	return ec.marshalNPaginatedProducts2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐPaginatedProducts(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_allProducts(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -5747,47 +6230,24 @@ func (ec *executionContext) fieldContext_Query_allProducts(ctx context.Context, 
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "id":
-				return ec.fieldContext_Product_id(ctx, field)
-			case "name":
-				return ec.fieldContext_Product_name(ctx, field)
-			case "image":
-				return ec.fieldContext_Product_image(ctx, field)
-			case "description":
-				return ec.fieldContext_Product_description(ctx, field)
-			case "url":
-				return ec.fieldContext_Product_url(ctx, field)
-			case "brand":
-				return ec.fieldContext_Product_brand(ctx, field)
-			case "code":
-				return ec.fieldContext_Product_code(ctx, field)
-			case "color":
-				return ec.fieldContext_Product_color(ctx, field)
-			case "model":
-				return ec.fieldContext_Product_model(ctx, field)
-			case "category":
-				return ec.fieldContext_Product_category(ctx, field)
-			case "weight":
-				return ec.fieldContext_Product_weight(ctx, field)
-			case "lowestRecordedPrice":
-				return ec.fieldContext_Product_lowestRecordedPrice(ctx, field)
-			case "highestRecordedPrice":
-				return ec.fieldContext_Product_highestRecordedPrice(ctx, field)
-			case "createdAt":
-				return ec.fieldContext_Product_createdAt(ctx, field)
-			case "updatedAt":
-				return ec.fieldContext_Product_updatedAt(ctx, field)
-			case "createdById":
-				return ec.fieldContext_Product_createdById(ctx, field)
-			case "createdBy":
-				return ec.fieldContext_Product_createdBy(ctx, field)
-			case "updatedById":
-				return ec.fieldContext_Product_updatedById(ctx, field)
-			case "updatedBy":
-				return ec.fieldContext_Product_updatedBy(ctx, field)
+			case "products":
+				return ec.fieldContext_PaginatedProducts_products(ctx, field)
+			case "paginator":
+				return ec.fieldContext_PaginatedProducts_paginator(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type Product", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type PaginatedProducts", field.Name)
 		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_allProducts_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
 	}
 	return fc, nil
 }
@@ -9662,6 +10122,40 @@ func (ec *executionContext) unmarshalInputCreateStore(ctx context.Context, obj i
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputPaginatorInput(ctx context.Context, obj interface{}) (gmodel.PaginatorInput, error) {
+	var it gmodel.PaginatorInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"limit", "page"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "limit":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("limit"))
+			data, err := ec.unmarshalNInt2int(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Limit = data
+		case "page":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("page"))
+			data, err := ec.unmarshalNInt2int(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Page = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputUpdateProduct(ctx context.Context, obj interface{}) (gmodel.UpdateProduct, error) {
 	var it gmodel.UpdateProduct
 	asMap := map[string]interface{}{}
@@ -10329,6 +10823,108 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_logout(ctx, field)
 			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var paginatedProductsImplementors = []string{"PaginatedProducts"}
+
+func (ec *executionContext) _PaginatedProducts(ctx context.Context, sel ast.SelectionSet, obj *gmodel.PaginatedProducts) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, paginatedProductsImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("PaginatedProducts")
+		case "products":
+			out.Values[i] = ec._PaginatedProducts_products(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "paginator":
+			out.Values[i] = ec._PaginatedProducts_paginator(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var paginatorImplementors = []string{"Paginator"}
+
+func (ec *executionContext) _Paginator(ctx context.Context, sel ast.SelectionSet, obj *gmodel.Paginator) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, paginatorImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Paginator")
+		case "next":
+			out.Values[i] = ec._Paginator_next(ctx, field, obj)
+		case "page":
+			out.Values[i] = ec._Paginator_page(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "prev":
+			out.Values[i] = ec._Paginator_prev(ctx, field, obj)
+		case "total":
+			out.Values[i] = ec._Paginator_total(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "limit":
+			out.Values[i] = ec._Paginator_limit(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "numPages":
+			out.Values[i] = ec._Paginator_numPages(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -11556,6 +12152,35 @@ func (ec *executionContext) marshalNInt2int(ctx context.Context, sel ast.Selecti
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) marshalNPaginatedProducts2githubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐPaginatedProducts(ctx context.Context, sel ast.SelectionSet, v gmodel.PaginatedProducts) graphql.Marshaler {
+	return ec._PaginatedProducts(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNPaginatedProducts2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐPaginatedProducts(ctx context.Context, sel ast.SelectionSet, v *gmodel.PaginatedProducts) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._PaginatedProducts(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNPaginator2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐPaginator(ctx context.Context, sel ast.SelectionSet, v *gmodel.Paginator) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._Paginator(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNPaginatorInput2githubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐPaginatorInput(ctx context.Context, v interface{}) (gmodel.PaginatorInput, error) {
+	res, err := ec.unmarshalInputPaginatorInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalNProduct2githubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐProduct(ctx context.Context, sel ast.SelectionSet, v gmodel.Product) graphql.Marshaler {

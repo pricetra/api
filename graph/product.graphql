@@ -1,11 +1,16 @@
 extend type Query {
-    barcodeScan(barcode: String!): Product! @isAuthenticated
-    allProducts: [Product!]! @isAuthenticated
+  barcodeScan(barcode: String!): Product! @isAuthenticated
+  allProducts(paginator: PaginatorInput!): PaginatedProducts! @isAuthenticated
 }
 
 extend type Mutation {
   createProduct(input: CreateProduct!): Product! @isAuthenticated
   updateProduct(id: ID!, input: UpdateProduct!): Product! @isAuthenticated
+}
+
+type PaginatedProducts {
+  products: [Product!]!
+  paginator: Paginator!
 }
 
 type Product {
