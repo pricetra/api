@@ -128,6 +128,20 @@ type Currency struct {
 type Mutation struct {
 }
 
+type Paginator struct {
+	Next     *int `json:"next,omitempty"`
+	Page     int  `json:"page"`
+	Prev     *int `json:"prev,omitempty"`
+	Total    int  `json:"total"`
+	Limit    int  `json:"limit"`
+	NumPages int  `json:"numPages"`
+}
+
+type PaginatorInput struct {
+	Limit int `json:"limit"`
+	Page  int `json:"page"`
+}
+
 type Product struct {
 	ID                   int64          `json:"id" sql:"primary_key"`
 	Name                 string         `json:"name"`

@@ -128,6 +128,15 @@ type ComplexityRoot struct {
 		VerifyEmail                 func(childComplexity int, verificationCode string) int
 	}
 
+	Paginator struct {
+		Limit    func(childComplexity int) int
+		Next     func(childComplexity int) int
+		NumPages func(childComplexity int) int
+		Page     func(childComplexity int) int
+		Prev     func(childComplexity int) int
+		Total    func(childComplexity int) int
+	}
+
 	Product struct {
 		Brand                func(childComplexity int) int
 		Category             func(childComplexity int) int

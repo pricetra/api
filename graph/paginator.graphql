@@ -1,0 +1,13 @@
+type Paginator {
+    next: Int
+    page: Int!
+    prev: Int
+    total: Int!
+    limit: Int!
+    numPages: Int!
+}
+
+input PaginatorInput {
+    limit: Int! @goTag(key: "validate", value: "required,gt=0,lt=200")
+    page: Int! @goTag(key: "validate", value: "required,gt=0")
+}
