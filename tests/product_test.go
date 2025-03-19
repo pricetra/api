@@ -1,9 +1,12 @@
 package tests
 
 import (
+	"fmt"
 	"reflect"
 	"testing"
 
+	"github.com/go-jet/jet/v2/postgres"
+	"github.com/pricetra/api/database/jet/postgres/public/table"
 	"github.com/pricetra/api/graph/gmodel"
 )
 
@@ -60,5 +63,52 @@ func TestProduct(t *testing.T) {
 				t.Fatal("product should throw an error")
 			}
 		})
+	})
+
+	t.Run("update product", func(t *testing.T) {
+		updated_name := fmt.Sprintf("%s (updated)", product.Name)
+		updated_product, err := service.UpdateProductById(ctx, user, product.ID, gmodel.UpdateProduct{
+			Name: &updated_name,
+		})
+		if err != nil {
+			t.Fatal(err)
+		}
+		if updated_product.ID != product.ID {
+			t.Fatal("did not update the correct product")
+		}
+		if updated_product.Name == product.Name {
+			t.Fatal("did not update name column")
+		}
+		if updated_product.Code != product.Code {
+			t.Fatal("should not have updated anything but name, updated_at, and updated_by_id")
+		}
+	})
+
+	t.Run("pagination", func(t *testing.T) {
+		p, err := service.PaginatedProducts(ctx, gmodel.PaginatorInput{
+			Limit: 3,
+			Page: 1,
+		});
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if len(p.Products) != p.Paginator.Limit {
+			t.Fatal("incorrect number of products returned", len(p.Products), p.Paginator.Limit)
+		}
+		if p.Paginator.Prev != nil || p.Paginator.Next == nil {
+			t.Fatal("paginator next or prev values are not correct")
+		}
+
+		total_qb := table.Product.
+			SELECT(postgres.COUNT(table.Product.ID).AS("total")).
+			FROM(table.Product)
+		var p_total struct{ Total int }
+		if err := total_qb.QueryContext(ctx, db, &p_total); err != nil {
+			t.Fatal(err)
+		}
+		if p.Paginator.Total != p_total.Total {
+			t.Fatal("total products value is incorrect", p.Paginator.Total, p_total.Total)
+		}
 	})
 }
