@@ -102,3 +102,16 @@ func (r *queryResolver) AllProducts(ctx context.Context, paginator gmodel.Pagina
 	}
 	return &paginated_products, nil
 }
+
+// AllBrands is the resolver for the allBrands field.
+func (r *queryResolver) AllBrands(ctx context.Context) ([]*gmodel.Brand, error) {
+	brands, err := r.Service.FindAllBrands(ctx)
+	if err != nil {
+		return nil, err
+	}
+	res := make([]*gmodel.Brand, len(brands))
+	for i, _ := range res {
+		res[i] = &brands[i]
+	}
+	return res, nil
+}

@@ -27,3 +27,6 @@ models:
   ID: # The GraphQL type ID is backed by
     model:
       - github.com/99designs/gqlgen/graphql.Int64 # a go integer
+  Int64:
+    model:
+      - github.com/99designs/gqlgen/graphql.Int64

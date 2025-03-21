@@ -4,6 +4,7 @@ extend type Query {
     paginator: PaginatorInput!
     search: ProductSearch
   ): PaginatedProducts! @isAuthenticated
+  allBrands: [Brand!]! @isAuthenticated
 }
 
 extend type Mutation {
@@ -14,6 +15,11 @@ extend type Mutation {
 type PaginatedProducts {
   products: [Product!]!
   paginator: Paginator!
+}
+
+type Brand {
+  brand: String! @goTag(key: "alias", value: "product.brand")
+  products: Int64!
 }
 
 type Product {

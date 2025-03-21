@@ -53,6 +53,11 @@ type Branch struct {
 	UpdatedBy   *UpdatedByUser `json:"updatedBy,omitempty"`
 }
 
+type Brand struct {
+	Brand    string `json:"brand" alias:"product.brand"`
+	Products int64  `json:"products"`
+}
+
 type Country struct {
 	Code                    string                    `json:"code" sql:"primary_key"`
 	Name                    string                    `json:"name"`

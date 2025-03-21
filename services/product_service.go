@@ -280,3 +280,22 @@ func (s Service) UpdateProductById(ctx context.Context, user gmodel.User, id int
 	}
 	return updated_product, nil
 }
+
+func (s Service) FindAllBrands(ctx context.Context) (brands []gmodel.Brand, err error) {
+	qb := table.Product.
+		SELECT(
+			table.Product.Brand,
+			postgres.COUNT(table.Product.ID).AS("brand.products"),
+		).FROM(table.Product).
+		GROUP_BY(table.Product.Brand).
+		ORDER_BY(
+			postgres.IntegerColumn("brand.products").DESC(),
+			table.Product.Brand.ASC(),
+		)
+	db := s.DbOrTxQueryable()
+	if err := qb.QueryContext(ctx, db, &brands); err != nil {
+		return nil, err
+	}
+	// log.Println(res)
+	return brands, nil
+}

@@ -1,3 +1,4 @@
 scalar Time
 scalar Upload
 scalar Void
+scalar Int64
