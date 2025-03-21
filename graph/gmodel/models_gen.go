@@ -143,8 +143,8 @@ type Paginator struct {
 }
 
 type PaginatorInput struct {
-	Limit int `json:"limit"`
-	Page  int `json:"page"`
+	Limit int `json:"limit" validate:"required,gt=0,lt=200"`
+	Page  int `json:"page" validate:"required,gt=0"`
 }
 
 type Product struct {
@@ -167,6 +167,10 @@ type Product struct {
 	CreatedBy            *CreatedByUser `json:"createdBy,omitempty"`
 	UpdatedByID          *int64         `json:"updatedById,omitempty"`
 	UpdatedBy            *UpdatedByUser `json:"updatedBy,omitempty"`
+}
+
+type ProductSearch struct {
+	Query *string `json:"query,omitempty"`
 }
 
 type Query struct {

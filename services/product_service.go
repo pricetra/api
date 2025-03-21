@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/go-jet/jet/v2/postgres"
@@ -138,21 +139,57 @@ func (s Service) FindAllProducts(ctx context.Context) (products []gmodel.Product
 	return products, err
 }
 
-func (s Service) PaginatedProducts(ctx context.Context, paginator_input gmodel.PaginatorInput) (paginated_products gmodel.PaginatedProducts, err error) {
+func (s Service) PaginatedProducts(ctx context.Context, paginator_input gmodel.PaginatorInput, search *gmodel.ProductSearch) (paginated_products gmodel.PaginatedProducts, err error) {
 	sql_paginator, err := s.Paginate(ctx, paginator_input, table.Product, table.Product.ID)
 	if err != nil {
 		return paginated_products, err
 	}
 
-	created_user_table, updated_user_table, user_cols := s.CreatedAndUpdatedUserTable()
+	created_user_table, updated_user_table, cols := s.CreatedAndUpdatedUserTable()
+
+	var search_where_clause postgres.BoolExpression = nil
+	order_by := []postgres.OrderByClause{}
+	if search != nil && search.Query != nil {
+		query := strings.TrimSpace(*search.Query)
+		if query != "" {
+			rank_col := "rank"
+			search_vector_col_name := fmt.Sprintf(
+				"%s.%s",
+				table.Product.SearchVector.TableName(),
+				table.Product.SearchVector.Name(),
+			)
+			args := postgres.RawArgs{"$query": query}
+
+			// Rank column
+			cols = append(cols, postgres.RawFloat(
+				fmt.Sprintf(
+					"ts_rank(%s, plainto_tsquery('english', $query::TEXT))",
+					search_vector_col_name,
+				),
+				args,
+			).AS(rank_col))
+
+			// Where clause with tsquery
+			search_where_clause = postgres.RawBool(
+				fmt.Sprintf("%s @@ plainto_tsquery('english', $query::TEXT)", search_vector_col_name),
+				args,
+			)
+
+			// Order by
+			order_by = append(order_by, postgres.FloatColumn(rank_col).DESC())
+		}
+	}
+	order_by = append(order_by, table.Product.UpdatedAt.DESC())
+
 	qb := table.Product.
-		SELECT(table.Product.AllColumns, user_cols...).
+		SELECT(table.Product.AllColumns, cols...).
 		FROM(
 			table.Product.
 				LEFT_JOIN(created_user_table, created_user_table.ID.EQ(table.Product.CreatedByID)).
 				LEFT_JOIN(updated_user_table, updated_user_table.ID.EQ(table.Product.UpdatedByID)),
 		).
-		ORDER_BY(table.Product.CreatedAt.DESC()).
+		WHERE(search_where_clause).
+		ORDER_BY(order_by...).
 		LIMIT(int64(sql_paginator.Limit)).
 		OFFSET(int64(sql_paginator.Offset))
 	err = qb.QueryContext(ctx, s.DbOrTxQueryable(), &paginated_products.Products)

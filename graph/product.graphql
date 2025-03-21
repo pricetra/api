@@ -1,6 +1,9 @@
 extend type Query {
   barcodeScan(barcode: String!): Product! @isAuthenticated
-  allProducts(paginator: PaginatorInput!): PaginatedProducts! @isAuthenticated
+  allProducts(
+    paginator: PaginatorInput!
+    search: ProductSearch
+  ): PaginatedProducts! @isAuthenticated
 }
 
 extend type Mutation {
@@ -65,4 +68,8 @@ input UpdateProduct {
   lowestRecordedPrice: Float
   highestRecordedPrice: Float
   imageFile: Upload
+}
+
+input ProductSearch {
+  query: String
 }

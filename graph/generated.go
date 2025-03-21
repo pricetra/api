@@ -166,7 +166,7 @@ type ComplexityRoot struct {
 
 	Query struct {
 		AllBranches     func(childComplexity int, storeID int64) int
-		AllProducts     func(childComplexity int, paginator gmodel.PaginatorInput) int
+		AllProducts     func(childComplexity int, paginator gmodel.PaginatorInput, search *gmodel.ProductSearch) int
 		AllStores       func(childComplexity int) int
 		BarcodeScan     func(childComplexity int, barcode string) int
 		FindBranch      func(childComplexity int, storeID int64, id int64) int
@@ -235,7 +235,7 @@ type QueryResolver interface {
 	FindBranch(ctx context.Context, storeID int64, id int64) (*gmodel.Branch, error)
 	GetAllCountries(ctx context.Context) ([]*gmodel.Country, error)
 	BarcodeScan(ctx context.Context, barcode string) (*gmodel.Product, error)
-	AllProducts(ctx context.Context, paginator gmodel.PaginatorInput) (*gmodel.PaginatedProducts, error)
+	AllProducts(ctx context.Context, paginator gmodel.PaginatorInput, search *gmodel.ProductSearch) (*gmodel.PaginatedProducts, error)
 	AllStores(ctx context.Context) ([]*gmodel.Store, error)
 	FindStore(ctx context.Context, id int64) (*gmodel.Store, error)
 	Login(ctx context.Context, email string, password string, ipAddress *string, device *gmodel.AuthDeviceType) (*gmodel.Auth, error)
@@ -898,7 +898,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.AllProducts(childComplexity, args["paginator"].(gmodel.PaginatorInput)), true
+		return e.complexity.Query.AllProducts(childComplexity, args["paginator"].(gmodel.PaginatorInput), args["search"].(*gmodel.ProductSearch)), true
 
 	case "Query.allStores":
 		if e.complexity.Query.AllStores == nil {
@@ -1198,6 +1198,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputCreateProduct,
 		ec.unmarshalInputCreateStore,
 		ec.unmarshalInputPaginatorInput,
+		ec.unmarshalInputProductSearch,
 		ec.unmarshalInputUpdateProduct,
 		ec.unmarshalInputUpdateUser,
 	)
@@ -1495,6 +1496,15 @@ func (ec *executionContext) field_Query_allProducts_args(ctx context.Context, ra
 		}
 	}
 	args["paginator"] = arg0
+	var arg1 *gmodel.ProductSearch
+	if tmp, ok := rawArgs["search"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("search"))
+		arg1, err = ec.unmarshalOProductSearch2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐProductSearch(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["search"] = arg1
 	return args, nil
 }
 
@@ -6186,7 +6196,7 @@ func (ec *executionContext) _Query_allProducts(ctx context.Context, field graphq
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		directive0 := func(rctx context.Context) (interface{}, error) {
 			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Query().AllProducts(rctx, fc.Args["paginator"].(gmodel.PaginatorInput))
+			return ec.resolvers.Query().AllProducts(rctx, fc.Args["paginator"].(gmodel.PaginatorInput), fc.Args["search"].(*gmodel.ProductSearch))
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
 			if ec.directives.IsAuthenticated == nil {
@@ -10156,6 +10166,33 @@ func (ec *executionContext) unmarshalInputPaginatorInput(ctx context.Context, ob
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputProductSearch(ctx context.Context, obj interface{}) (gmodel.ProductSearch, error) {
+	var it gmodel.ProductSearch
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"query"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "query":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("query"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Query = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputUpdateProduct(ctx context.Context, obj interface{}) (gmodel.UpdateProduct, error) {
 	var it gmodel.UpdateProduct
 	asMap := map[string]interface{}{}
@@ -12724,6 +12761,14 @@ func (ec *executionContext) marshalOInt2ᚖint(ctx context.Context, sel ast.Sele
 	}
 	res := graphql.MarshalInt(*v)
 	return res
+}
+
+func (ec *executionContext) unmarshalOProductSearch2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐProductSearch(ctx context.Context, v interface{}) (*gmodel.ProductSearch, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputProductSearch(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalOStore2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐStore(ctx context.Context, sel ast.SelectionSet, v *gmodel.Store) graphql.Marshaler {
