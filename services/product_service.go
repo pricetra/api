@@ -140,11 +140,6 @@ func (s Service) FindAllProducts(ctx context.Context) (products []gmodel.Product
 }
 
 func (s Service) PaginatedProducts(ctx context.Context, paginator_input gmodel.PaginatorInput, search *gmodel.ProductSearch) (paginated_products gmodel.PaginatedProducts, err error) {
-	sql_paginator, err := s.Paginate(ctx, paginator_input, table.Product, table.Product.ID)
-	if err != nil {
-		return paginated_products, err
-	}
-
 	created_user_table, updated_user_table, cols := s.CreatedAndUpdatedUserTable()
 
 	var search_where_clause postgres.BoolExpression = nil
@@ -180,6 +175,12 @@ func (s Service) PaginatedProducts(ctx context.Context, paginator_input gmodel.P
 		}
 	}
 	order_by = append(order_by, table.Product.UpdatedAt.DESC())
+
+	// get pagination data
+	sql_paginator, err := s.Paginate(ctx, paginator_input, table.Product, table.Product.ID, search_where_clause)
+	if err != nil {
+		return paginated_products, err
+	}
 
 	qb := table.Product.
 		SELECT(table.Product.AllColumns, cols...).

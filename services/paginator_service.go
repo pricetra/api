@@ -14,7 +14,13 @@ type SqlPaginator struct {
 	Offset int
 }
 
-func (s Service) Paginate(ctx context.Context, paginator_input gmodel.PaginatorInput, sql_table postgres.ReadableTable, id_column postgres.Column) (SqlPaginator, error) {
+func (s Service) Paginate(
+	ctx context.Context,
+	paginator_input gmodel.PaginatorInput,
+	sql_table postgres.ReadableTable,
+	id_column postgres.Column,
+	where_clause postgres.BoolExpression,
+) (SqlPaginator, error) {
 	if err := s.StructValidator.StructCtx(ctx, paginator_input); err != nil {
 		return SqlPaginator{}, err
 	}
@@ -22,7 +28,8 @@ func (s Service) Paginate(ctx context.Context, paginator_input gmodel.PaginatorI
 	db := s.DbOrTxQueryable()
 	total_qb := sql_table.
 		SELECT(postgres.COUNT(id_column).AS("total")).
-		FROM(sql_table)
+		FROM(sql_table).
+		WHERE(where_clause)
 	var p_total struct{ Total int }
 	if err := total_qb.QueryContext(ctx, db, &p_total); err != nil {
 		return SqlPaginator{}, err
