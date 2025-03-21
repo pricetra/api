@@ -88,7 +88,7 @@ func TestProduct(t *testing.T) {
 		p, err := service.PaginatedProducts(ctx, gmodel.PaginatorInput{
 			Limit: 3,
 			Page: 1,
-		});
+		}, nil);
 		if err != nil {
 			t.Fatal(err)
 		}
