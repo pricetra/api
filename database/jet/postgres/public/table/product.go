@@ -35,6 +35,7 @@ type productTable struct {
 	CreatedAt            postgres.ColumnTimestampz
 	UpdatedAt            postgres.ColumnTimestampz
 	Source               postgres.ColumnString
+	SearchVector         postgres.ColumnString
 
 	AllColumns     postgres.ColumnList
 	MutableColumns postgres.ColumnList
@@ -93,7 +94,8 @@ func newProductTableImpl(schemaName, tableName, alias string) productTable {
 		CreatedAtColumn            = postgres.TimestampzColumn("created_at")
 		UpdatedAtColumn            = postgres.TimestampzColumn("updated_at")
 		SourceColumn               = postgres.StringColumn("source")
-		allColumns                 = postgres.ColumnList{IDColumn, NameColumn, ImageColumn, DescriptionColumn, URLColumn, BrandColumn, CodeColumn, ColorColumn, ModelColumn, CategoryColumn, WeightColumn, LowestRecordedPriceColumn, HighestRecordedPriceColumn, CreatedByIDColumn, UpdatedByIDColumn, CreatedAtColumn, UpdatedAtColumn, SourceColumn}
+		SearchVectorColumn         = postgres.StringColumn("search_vector")
+		allColumns                 = postgres.ColumnList{IDColumn, NameColumn, ImageColumn, DescriptionColumn, URLColumn, BrandColumn, CodeColumn, ColorColumn, ModelColumn, CategoryColumn, WeightColumn, LowestRecordedPriceColumn, HighestRecordedPriceColumn, CreatedByIDColumn, UpdatedByIDColumn, CreatedAtColumn, UpdatedAtColumn, SourceColumn, SearchVectorColumn}
 		mutableColumns             = postgres.ColumnList{NameColumn, ImageColumn, DescriptionColumn, URLColumn, BrandColumn, CodeColumn, ColorColumn, ModelColumn, CategoryColumn, WeightColumn, LowestRecordedPriceColumn, HighestRecordedPriceColumn, CreatedByIDColumn, UpdatedByIDColumn, CreatedAtColumn, UpdatedAtColumn, SourceColumn}
 	)
 
@@ -119,6 +121,7 @@ func newProductTableImpl(schemaName, tableName, alias string) productTable {
 		CreatedAt:            CreatedAtColumn,
 		UpdatedAt:            UpdatedAtColumn,
 		Source:               SourceColumn,
+		SearchVector:         SearchVectorColumn,
 
 		AllColumns:     allColumns,
 		MutableColumns: mutableColumns,

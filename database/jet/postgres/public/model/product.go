@@ -30,4 +30,5 @@ type Product struct {
 	CreatedAt            time.Time
 	UpdatedAt            time.Time
 	Source               ProductSourceType
+	SearchVector         *string
 }
