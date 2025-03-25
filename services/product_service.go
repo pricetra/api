@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"strings"
 	"time"
@@ -220,7 +221,7 @@ func (s Service) UpdateProductById(ctx context.Context, user gmodel.User, id int
 	if input.Description != nil && *input.Description != product.Description {
 		cols = append(cols, table.Product.Description)
 	}
-	if input.URL != nil && product.URL != nil && *input.URL != *product.URL {
+	if input.URL != nil {
 		cols = append(cols, table.Product.URL)
 	}
 	if input.Brand != nil && *input.Brand != product.Brand {
@@ -233,22 +234,22 @@ func (s Service) UpdateProductById(ctx context.Context, user gmodel.User, id int
 		code = *input.Code
 		cols = append(cols, table.Product.Code)
 	}
-	if input.Color != nil && product.Color != nil && *input.Color != *product.Color {
+	if input.Color != nil {
 		cols = append(cols, table.Product.Color)
 	}
-	if input.Model != nil && product.Model != nil && *input.Model != *product.Model {
+	if input.Model != nil {
 		cols = append(cols, table.Product.Model)
 	}
-	if input.Category != nil && product.Category != nil && *input.Category != *product.Category {
+	if input.Category != nil {
 		cols = append(cols, table.Product.Category)
 	}
-	if input.Weight != nil && product.Weight != nil && *input.Weight != *product.Weight {
+	if input.Weight != nil {
 		cols = append(cols, table.Product.Weight)
 	}
-	if input.LowestRecordedPrice != nil && product.LowestRecordedPrice != nil && *input.LowestRecordedPrice != *product.LowestRecordedPrice {
+	if input.LowestRecordedPrice != nil {
 		cols = append(cols, table.Product.LowestRecordedPrice)
 	}
-	if input.HighestRecordedPrice != nil && product.HighestRecordedPrice != nil && *input.HighestRecordedPrice != *product.HighestRecordedPrice {
+	if input.HighestRecordedPrice != nil {
 		cols = append(cols, table.Product.HighestRecordedPrice)
 	}
 	if input.ImageFile != nil {
@@ -274,6 +275,8 @@ func (s Service) UpdateProductById(ctx context.Context, user gmodel.User, id int
 		}).
 		WHERE(table.Product.ID.EQ(postgres.Int(id))).
 		RETURNING(table.Product.AllColumns)
+
+	log.Println(qb.DebugSql())
 	err = qb.QueryContext(ctx, s.DbOrTxQueryable(), &updated_product)
 	if err != nil {
 		return updated_product, err
