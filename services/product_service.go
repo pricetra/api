@@ -180,7 +180,11 @@ func (s Service) PaginatedProducts(ctx context.Context, paginator_input gmodel.P
 	// get pagination data
 	sql_paginator, err := s.Paginate(ctx, paginator_input, table.Product, table.Product.ID, search_where_clause)
 	if err != nil {
-		return paginated_products, err
+		// Return empty result
+		return gmodel.PaginatedProducts{
+			Products: []*gmodel.Product{},
+			Paginator: &gmodel.Paginator{},
+		}, nil
 	}
 
 	qb := table.Product.
