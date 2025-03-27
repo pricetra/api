@@ -303,6 +303,5 @@ func (s Service) FindAllBrands(ctx context.Context) (brands []gmodel.Brand, err 
 	if err := qb.QueryContext(ctx, db, &brands); err != nil {
 		return nil, err
 	}
-	// log.Println(res)
 	return brands, nil
 }

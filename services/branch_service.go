@@ -107,3 +107,35 @@ func (s Service) FindBranchByBranchIdAndStoreId(ctx context.Context, branch_id i
 	err = qb.QueryContext(ctx, s.DbOrTxQueryable(), &branch)
 	return branch, err
 }
+
+func (s Service) FindBranchesByCoordinates(ctx context.Context, lat float64, lon float64, radius_meters int) (branches []gmodel.Branch, err error) {
+	created_user_table, updated_user_table, user_cols := s.CreatedAndUpdatedUserTable()
+	distance_cols := s.GetDistanceCols(lat, lon, radius_meters)
+	columns := []postgres.Projection{
+		table.Store.AllColumns,
+		table.Address.AllColumns,
+		table.Country.Name,
+		distance_cols.DistanceColumn,
+	}
+	columns = append(columns, user_cols...)
+	qb := table.Branch.
+		SELECT(
+			table.Branch.AllColumns,
+			columns...,
+		).
+		FROM(
+			table.Branch.
+				INNER_JOIN(table.Store, table.Store.ID.EQ(table.Branch.StoreID)).
+				INNER_JOIN(table.Address, table.Address.ID.EQ(table.Branch.AddressID)).
+				INNER_JOIN(table.Country, table.Country.Code.EQ(table.Address.CountryCode)).
+				LEFT_JOIN(created_user_table, created_user_table.ID.EQ(table.Branch.CreatedByID)).
+				LEFT_JOIN(updated_user_table, updated_user_table.ID.EQ(table.Branch.UpdatedByID)),
+		).
+		WHERE(distance_cols.DistanceWhereClauseWithRadius).
+		ORDER_BY(
+			postgres.FloatColumn(distance_cols.DistanceColumnName).ASC(),
+			table.Branch.ID.ASC(),
+		)
+	err = qb.QueryContext(ctx, s.DbOrTxQueryable(), &branches)
+	return branches, err
+}

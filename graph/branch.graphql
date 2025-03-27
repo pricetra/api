@@ -21,6 +21,7 @@ input CreateBranch {
 extend type Query {
   allBranches(storeId: ID!): [Branch!]! @isAuthenticated
   findBranch(storeId: ID!, id: ID!): Branch! @isAuthenticated
+  findBranchesByDistance(lat: Float!, lon: Float!, radiusMeters: Int!): [Branch!]! @isAuthenticated
 }
 
 extend type Mutation {

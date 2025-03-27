@@ -70,3 +70,38 @@ func (service Service) CreateAddress(ctx context.Context, user *gmodel.User, inp
 	}
 	return address, nil
 }
+
+type DistanceColumns struct {
+	AddressCoordinatesColumnName string // Column name for "address"."coordinates"
+	DistanceColumnName string // "address"."distance"
+	DistanceColumn postgres.Projection // Distance from. uses ST_Distance("address"."coordinates", 'SRID=4326;POINT($lat $lon)'::geometry)
+	DistanceWhereClauseWithRadius postgres.BoolExpression // Where clause to determine if address is within lat, lon, and radius
+}
+
+func (s Service) GetDistanceCols(lat float64, lon float64, radius_meters int) DistanceColumns {
+	var d DistanceColumns
+	d.AddressCoordinatesColumnName = fmt.Sprintf(
+		"%s.%s",
+		table.Address.Coordinates.TableName(),
+		table.Address.Coordinates.Name(),
+	)
+	d.DistanceColumnName = fmt.Sprintf("%s.%s", table.Address.Coordinates.TableName(), "distance")
+	d.DistanceColumn = postgres.RawString(
+		fmt.Sprintf(
+			"ST_Distance(%s, 'SRID=4326;POINT(%f %f)'::geometry)",
+			d.AddressCoordinatesColumnName,
+			lon,
+			lat,
+		),
+	).AS(d.DistanceColumnName)
+	d.DistanceWhereClauseWithRadius = postgres.RawBool(
+		fmt.Sprintf(
+			"ST_DWithin(%s, 'POINT(%f %f)'::geometry, %d, TRUE)",
+			d.AddressCoordinatesColumnName,
+			lon,
+			lat,
+			radius_meters,
+		),
+	)
+	return d
+}

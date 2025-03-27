@@ -44,6 +44,20 @@ func (r *queryResolver) FindBranch(ctx context.Context, storeID int64, id int64)
 	return &branch, nil
 }
 
+// FindBranchesByDistance is the resolver for the findBranchesByDistance field.
+func (r *queryResolver) FindBranchesByDistance(ctx context.Context, lat float64, lon float64, radiusMeters int) ([]*gmodel.Branch, error) {
+	branches, err := r.Service.FindBranchesByCoordinates(ctx, lat, lon, radiusMeters)
+	if err != nil {
+		return nil, err
+	}
+
+	res := make([]*gmodel.Branch, len(branches))
+	for i := range branches {
+		res[i] = &branches[i]
+	}
+	return res, nil
+}
+
 // Mutation returns graph.MutationResolver implementation.
 func (r *Resolver) Mutation() graph.MutationResolver { return &mutationResolver{r} }
 

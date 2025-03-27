@@ -12,21 +12,23 @@ import (
 )
 
 type Address struct {
-	ID          int64          `json:"id" sql:"primary_key"`
-	CreatedAt   time.Time      `json:"createdAt"`
-	UpdatedAt   time.Time      `json:"updatedAt"`
-	Latitude    float64        `json:"latitude"`
-	Longitude   float64        `json:"longitude"`
-	Distance    *float64       `json:"distance,omitempty" alias:"address.distance"`
-	MapsLink    string         `json:"mapsLink"`
-	FullAddress string         `json:"fullAddress"`
-	CountryCode string         `json:"countryCode"`
-	Country     *string        `json:"country,omitempty" alias:"country.name"`
-	ZipCode     string         `json:"zipCode"`
-	CreatedByID *int64         `json:"createdById,omitempty"`
-	CreatedBy   *CreatedByUser `json:"createdBy,omitempty"`
-	UpdatedByID *int64         `json:"updatedById,omitempty"`
-	UpdatedBy   *UpdatedByUser `json:"updatedBy,omitempty"`
+	ID                     int64          `json:"id" sql:"primary_key"`
+	CreatedAt              time.Time      `json:"createdAt"`
+	UpdatedAt              time.Time      `json:"updatedAt"`
+	Latitude               float64        `json:"latitude"`
+	Longitude              float64        `json:"longitude"`
+	Distance               *float64       `json:"distance,omitempty" alias:"address.distance"`
+	MapsLink               string         `json:"mapsLink"`
+	FullAddress            string         `json:"fullAddress"`
+	City                   string         `json:"city"`
+	AdministrativeDivision string         `json:"administrativeDivision"`
+	ZipCode                string         `json:"zipCode"`
+	CountryCode            string         `json:"countryCode"`
+	Country                *string        `json:"country,omitempty" alias:"country.name"`
+	CreatedByID            *int64         `json:"createdById,omitempty"`
+	CreatedBy              *CreatedByUser `json:"createdBy,omitempty"`
+	UpdatedByID            *int64         `json:"updatedById,omitempty"`
+	UpdatedBy              *UpdatedByUser `json:"updatedBy,omitempty"`
 }
 
 type AdministrativeDivision struct {

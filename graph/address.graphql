@@ -19,9 +19,11 @@ type Address {
   distance: Float @goTag(key: "alias", value: "address.distance")
   mapsLink: String!
   fullAddress: String!
+  city: String!
+  administrativeDivision: String!
+  zipCode: String!
   countryCode: String!
   country: String @goTag(key: "alias", value: "country.name")
-  zipCode: String!
 
   createdById: ID
   createdBy: CreatedByUser
