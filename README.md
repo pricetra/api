@@ -1,4 +1,4 @@
-# Stadio Backend
+# Pricetra GraphQL API
 
 ## Docker
 We run our development Postgres database in a Docker container, so make sure docker is installed (see [Docker desktop](https://docs.docker.com/desktop/)).
