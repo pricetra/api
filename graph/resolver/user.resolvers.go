@@ -7,6 +7,7 @@ package gresolver
 import (
 	"context"
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/cloudinary/cloudinary-go/v2/api/uploader"
@@ -25,8 +26,13 @@ func (r *mutationResolver) CreateAccount(ctx context.Context, input gmodel.Creat
 	if err != nil {
 		return nil, fmt.Errorf("could not create user. %s", err.Error())
 	}
-	if res, _ := r.Service.SendEmailVerification(new_user, email_verification); res.StatusCode == http.StatusBadRequest {
-		return nil, fmt.Errorf(res.Body)
+
+	email_res, err := r.Service.SendEmailVerification(ctx, new_user, email_verification)
+	if err != nil {
+		return nil, err
+	}
+	if email_res.StatusCode == http.StatusBadRequest {
+		return nil, fmt.Errorf("could not send email. %s", email_res.Body)
 	}
 	return &new_user, nil
 }
@@ -51,13 +57,14 @@ func (r *mutationResolver) ResendEmailVerificationCode(ctx context.Context, emai
 		return false, err
 	}
 
-	email_res, email_err := r.Service.SendEmailVerification(user, email_verification)
+	email_res, email_err := r.Service.SendEmailVerification(ctx, user, email_verification)
 	if email_err != nil {
 		return false, email_err
 	}
 	if email_res.StatusCode == http.StatusBadRequest {
-		return false, fmt.Errorf("could not send email")
+		return false, fmt.Errorf("could not send email. %s", email_res.Body)
 	}
+	log.Printf("%+v\n", email_res.Body)
 	return email_verification.ID > 0, nil
 }
 
