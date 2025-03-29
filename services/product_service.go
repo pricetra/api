@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"strings"
 	"time"
@@ -279,8 +278,6 @@ func (s Service) UpdateProductById(ctx context.Context, user gmodel.User, id int
 		}).
 		WHERE(table.Product.ID.EQ(postgres.Int(id))).
 		RETURNING(table.Product.AllColumns)
-
-	log.Println(qb.DebugSql())
 	err = qb.QueryContext(ctx, s.DbOrTxQueryable(), &updated_product)
 	if err != nil {
 		return updated_product, err

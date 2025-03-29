@@ -7,7 +7,6 @@ package gresolver
 import (
 	"context"
 	"fmt"
-	"log"
 	"net/http"
 
 	"github.com/cloudinary/cloudinary-go/v2/api/uploader"
@@ -64,7 +63,6 @@ func (r *mutationResolver) ResendEmailVerificationCode(ctx context.Context, emai
 	if email_res.StatusCode == http.StatusBadRequest {
 		return false, fmt.Errorf("could not send email. %s", email_res.Body)
 	}
-	log.Printf("%+v\n", email_res.Body)
 	return email_verification.ID > 0, nil
 }
 
