@@ -1,0 +1,17 @@
+extend type Query {
+  getCategories(depth: Int): [Category]!
+}
+
+type Category {
+  id: ID! @goTag(key: "sql", value: "primary_key")
+  name: String!
+  path: String!
+  expandedPathname: String!
+  categoryAlias: String
+  depth: Int
+}
+
+input CreateCategory {
+  name: String!
+  parentPath: [Int!]!
+}

@@ -31,4 +31,5 @@ type Product struct {
 	UpdatedAt            time.Time
 	Source               ProductSourceType
 	SearchVector         *string
+	CategoryID           *int64
 }

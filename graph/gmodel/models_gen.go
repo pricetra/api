@@ -60,6 +60,14 @@ type Brand struct {
 	Products int64  `json:"products"`
 }
 
+type Category struct {
+	ID               int64   `json:"id" sql:"primary_key"`
+	Name             string  `json:"name"`
+	Path             string  `json:"path"`
+	ExpandedPathname string  `json:"expandedPathname"`
+	CategoryAlias    *string `json:"categoryAlias,omitempty"`
+}
+
 type Country struct {
 	Code                    string                    `json:"code" sql:"primary_key"`
 	Name                    string                    `json:"name"`
@@ -91,6 +99,11 @@ type CreateBranch struct {
 	Name    string         `json:"name" validate:"required"`
 	Address *CreateAddress `json:"address"`
 	StoreID int64          `json:"storeId" validate:"required"`
+}
+
+type CreateCategory struct {
+	Name       string `json:"name"`
+	ParentPath []int  `json:"parentPath"`
 }
 
 type CreateProduct struct {
