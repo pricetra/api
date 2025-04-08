@@ -100,6 +100,7 @@ type ComplexityRoot struct {
 
 	Category struct {
 		CategoryAlias    func(childComplexity int) int
+		Depth            func(childComplexity int) int
 		ExpandedPathname func(childComplexity int) int
 		ID               func(childComplexity int) int
 		Name             func(childComplexity int) int
@@ -527,6 +528,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Category.CategoryAlias(childComplexity), true
+
+	case "Category.depth":
+		if e.complexity.Category.Depth == nil {
+			break
+		}
+
+		return e.complexity.Category.Depth(childComplexity), true
 
 	case "Category.expandedPathname":
 		if e.complexity.Category.ExpandedPathname == nil {
@@ -3639,6 +3647,47 @@ func (ec *executionContext) fieldContext_Category_categoryAlias(ctx context.Cont
 	return fc, nil
 }
 
+func (ec *executionContext) _Category_depth(ctx context.Context, field graphql.CollectedField, obj *gmodel.Category) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Category_depth(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Depth, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int)
+	fc.Result = res
+	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Category_depth(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Category",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Country_code(ctx context.Context, field graphql.CollectedField, obj *gmodel.Country) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Country_code(ctx, field)
 	if err != nil {
@@ -6716,6 +6765,8 @@ func (ec *executionContext) fieldContext_Query_getCategories(ctx context.Context
 				return ec.fieldContext_Category_expandedPathname(ctx, field)
 			case "categoryAlias":
 				return ec.fieldContext_Category_categoryAlias(ctx, field)
+			case "depth":
+				return ec.fieldContext_Category_depth(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Category", field.Name)
 		},
@@ -11534,6 +11585,8 @@ func (ec *executionContext) _Category(ctx context.Context, sel ast.SelectionSet,
 			}
 		case "categoryAlias":
 			out.Values[i] = ec._Category_categoryAlias(ctx, field, obj)
+		case "depth":
+			out.Values[i] = ec._Category_depth(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}

@@ -15,7 +15,7 @@ func (s Service) FindCategories(ctx context.Context, depth *int) (categories []g
 	path_len_exp := fmt.Sprintf("array_length(%s, 1)", utils.BuildFullTableName(table.Category.Path))
 	var where_clause postgres.BoolExpression = nil
 	if depth != nil {
-		where_clause = postgres.RawBool(fmt.Sprintf("%s > 1", path_len_exp))
+		where_clause = postgres.RawBool(fmt.Sprintf("%s > %d", path_len_exp, *depth))
 	}
 	qb := table.Category.SELECT(
 			table.Category.AllColumns,
@@ -24,7 +24,6 @@ func (s Service) FindCategories(ctx context.Context, depth *int) (categories []g
 		FROM(table.Category).
 		WHERE(where_clause).
 		ORDER_BY(table.Category.ID.ASC())
-	fmt.Println(qb.DebugSql())
 	err = qb.QueryContext(ctx, s.DbOrTxQueryable(), &categories)
 	return categories, err
 }

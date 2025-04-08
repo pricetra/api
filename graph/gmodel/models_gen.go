@@ -66,6 +66,7 @@ type Category struct {
 	Path             string  `json:"path"`
 	ExpandedPathname string  `json:"expandedPathname"`
 	CategoryAlias    *string `json:"categoryAlias,omitempty"`
+	Depth            *int    `json:"depth,omitempty"`
 }
 
 type Country struct {
