@@ -1,5 +1,9 @@
 extend type Query {
-  getCategories(depth: Int): [Category]!
+  getCategories(depth: Int): [Category]! @isAuthenticated
+}
+
+extend type Mutation {
+  createCategory(input: CreateCategory!): Category! @isAuthenticated
 }
 
 type Category {

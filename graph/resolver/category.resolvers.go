@@ -10,6 +10,15 @@ import (
 	"github.com/pricetra/api/graph/gmodel"
 )
 
+// CreateCategory is the resolver for the createCategory field.
+func (r *mutationResolver) CreateCategory(ctx context.Context, input gmodel.CreateCategory) (*gmodel.Category, error) {
+	category, err := r.Service.CreateCategory(ctx, input)
+	if err != nil {
+		return nil, err
+	}
+	return &category, nil
+}
+
 // GetCategories is the resolver for the getCategories field.
 func (r *queryResolver) GetCategories(ctx context.Context, depth *int) ([]*gmodel.Category, error) {
 	categories, err := r.Service.FindCategories(ctx, depth)
