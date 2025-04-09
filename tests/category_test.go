@@ -47,5 +47,16 @@ func TestCategory(t *testing.T) {
 		if subcategory.Path != path {
 			t.Fatal("paths don't match", subcategory.Path, path)
 		}
+
+		t.Run("incorrect path", func(t *testing.T) {
+			parent_path := append(utils.PostgresArrayToIntArray(subcategory.Path), 12)
+			_, err := service.CreateCategory(ctx, gmodel.CreateCategory{
+				Name: "12332",
+				ParentPath: parent_path,
+			})
+			if err == nil {
+				t.Fatal("sub category has invalid path")
+			}
+		})
 	})
 }
