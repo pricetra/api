@@ -32,7 +32,8 @@ type Product {
   code: String!
   color: String
   model: String
-  category: String
+  categoryId: ID!
+  category: Category
   weight: String
   lowestRecordedPrice: Float
   highestRecordedPrice: Float
@@ -53,7 +54,7 @@ input CreateProduct {
   code: String! @goTag(key: "validate", value: "required")
   color: String
   model: String
-  category: String
+  categoryId: ID! @goTag(key: "validate", value: "required")
   weight: String
   lowestRecordedPrice: Float
   highestRecordedPrice: Float
@@ -69,7 +70,7 @@ input UpdateProduct {
   code: String
   color: String
   model: String
-  category: String
+  categoryId: ID
   weight: String
   lowestRecordedPrice: Float
   highestRecordedPrice: Float

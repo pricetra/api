@@ -12,7 +12,6 @@ import (
 	"github.com/pricetra/api/database/jet/postgres/public/model"
 	"github.com/pricetra/api/database/jet/postgres/public/table"
 	"github.com/pricetra/api/graph/gmodel"
-	"github.com/pricetra/api/types"
 )
 
 const UPCItemdb_API = "https://api.upcitemdb.com/prod"
@@ -46,7 +45,7 @@ func (s Service) CreateProduct(ctx context.Context, user gmodel.User, input gmod
 			table.Product.Code,
 			table.Product.Color,
 			table.Product.Model,
-			table.Product.Category,
+			table.Product.CategoryID,
 			table.Product.Weight,
 			table.Product.LowestRecordedPrice,
 			table.Product.HighestRecordedPrice,
@@ -105,14 +104,14 @@ func (s Service) BarcodeExists(ctx context.Context, barcode string) bool {
 	return err == nil
 }
 
-func (s Service) UPCItemDbLookupWithUpcCode(upc string) (result types.UPCItemDbJsonResult, err error) {
+func (s Service) UPCItemDbLookupWithUpcCode(upc string) (result UPCItemDbJsonResult, err error) {
 	res, err := http.Get(fmt.Sprintf("%s/trial/lookup?upc=%s", UPCItemdb_API, upc))
 	if err != nil {
 		return result, err
 	}
 
 	if err := json.NewDecoder(res.Body).Decode(&result); err != nil {
-		return types.UPCItemDbJsonResult{}, err
+		return UPCItemDbJsonResult{}, err
 	}
 
 	if result.Code != "OK" {
@@ -120,7 +119,7 @@ func (s Service) UPCItemDbLookupWithUpcCode(upc string) (result types.UPCItemDbJ
 		if result.Message != nil {
 			message = *result.Message
 		}
-		return types.UPCItemDbJsonResult{}, fmt.Errorf("%s - %s", result.Code, message)
+		return UPCItemDbJsonResult{}, fmt.Errorf("%s - %s", result.Code, message)
 	}
 	return result, nil
 }
@@ -186,10 +185,12 @@ func (s Service) PaginatedProducts(ctx context.Context, paginator_input gmodel.P
 		}, nil
 	}
 
+	cols = append(cols, table.Category.AllColumns)
 	qb := table.Product.
 		SELECT(table.Product.AllColumns, cols...).
 		FROM(
 			table.Product.
+				INNER_JOIN(table.Category, table.Category.ID.EQ(table.Product.CategoryID)).
 				LEFT_JOIN(created_user_table, created_user_table.ID.EQ(table.Product.CreatedByID)).
 				LEFT_JOIN(updated_user_table, updated_user_table.ID.EQ(table.Product.UpdatedByID)),
 		).
@@ -243,8 +244,8 @@ func (s Service) UpdateProductById(ctx context.Context, user gmodel.User, id int
 	if input.Model != nil {
 		cols = append(cols, table.Product.Model)
 	}
-	if input.Category != nil {
-		cols = append(cols, table.Product.Category)
+	if input.CategoryID != nil {
+		cols = append(cols, table.Product.CategoryID)
 	}
 	if input.Weight != nil {
 		cols = append(cols, table.Product.Weight)

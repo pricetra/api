@@ -162,6 +162,7 @@ type ComplexityRoot struct {
 	Product struct {
 		Brand                func(childComplexity int) int
 		Category             func(childComplexity int) int
+		CategoryID           func(childComplexity int) int
 		Code                 func(childComplexity int) int
 		Color                func(childComplexity int) int
 		CreatedAt            func(childComplexity int) int
@@ -862,6 +863,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Product.Category(childComplexity), true
+
+	case "Product.categoryId":
+		if e.complexity.Product.CategoryID == nil {
+			break
+		}
+
+		return e.complexity.Product.CategoryID(childComplexity), true
 
 	case "Product.code":
 		if e.complexity.Product.Code == nil {
@@ -4686,6 +4694,8 @@ func (ec *executionContext) fieldContext_Mutation_createProduct(ctx context.Cont
 				return ec.fieldContext_Product_color(ctx, field)
 			case "model":
 				return ec.fieldContext_Product_model(ctx, field)
+			case "categoryId":
+				return ec.fieldContext_Product_categoryId(ctx, field)
 			case "category":
 				return ec.fieldContext_Product_category(ctx, field)
 			case "weight":
@@ -4801,6 +4811,8 @@ func (ec *executionContext) fieldContext_Mutation_updateProduct(ctx context.Cont
 				return ec.fieldContext_Product_color(ctx, field)
 			case "model":
 				return ec.fieldContext_Product_model(ctx, field)
+			case "categoryId":
+				return ec.fieldContext_Product_categoryId(ctx, field)
 			case "category":
 				return ec.fieldContext_Product_category(ctx, field)
 			case "weight":
@@ -5377,6 +5389,8 @@ func (ec *executionContext) fieldContext_PaginatedProducts_products(ctx context.
 				return ec.fieldContext_Product_color(ctx, field)
 			case "model":
 				return ec.fieldContext_Product_model(ctx, field)
+			case "categoryId":
+				return ec.fieldContext_Product_categoryId(ctx, field)
 			case "category":
 				return ec.fieldContext_Product_category(ctx, field)
 			case "weight":
@@ -6107,6 +6121,50 @@ func (ec *executionContext) fieldContext_Product_model(ctx context.Context, fiel
 	return fc, nil
 }
 
+func (ec *executionContext) _Product_categoryId(ctx context.Context, field graphql.CollectedField, obj *gmodel.Product) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Product_categoryId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CategoryID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int64)
+	fc.Result = res
+	return ec.marshalNID2int64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Product_categoryId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Product",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Product_category(ctx context.Context, field graphql.CollectedField, obj *gmodel.Product) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Product_category(ctx, field)
 	if err != nil {
@@ -6130,9 +6188,9 @@ func (ec *executionContext) _Product_category(ctx context.Context, field graphql
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*string)
+	res := resTmp.(*gmodel.Category)
 	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+	return ec.marshalOCategory2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐCategory(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Product_category(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -6142,7 +6200,21 @@ func (ec *executionContext) fieldContext_Product_category(ctx context.Context, f
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Category_id(ctx, field)
+			case "name":
+				return ec.fieldContext_Category_name(ctx, field)
+			case "path":
+				return ec.fieldContext_Category_path(ctx, field)
+			case "expandedPathname":
+				return ec.fieldContext_Category_expandedPathname(ctx, field)
+			case "categoryAlias":
+				return ec.fieldContext_Category_categoryAlias(ctx, field)
+			case "depth":
+				return ec.fieldContext_Category_depth(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Category", field.Name)
 		},
 	}
 	return fc, nil
@@ -7058,6 +7130,8 @@ func (ec *executionContext) fieldContext_Query_barcodeScan(ctx context.Context, 
 				return ec.fieldContext_Product_color(ctx, field)
 			case "model":
 				return ec.fieldContext_Product_model(ctx, field)
+			case "categoryId":
+				return ec.fieldContext_Product_categoryId(ctx, field)
 			case "category":
 				return ec.fieldContext_Product_category(ctx, field)
 			case "weight":
@@ -10999,7 +11073,7 @@ func (ec *executionContext) unmarshalInputCreateProduct(ctx context.Context, obj
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"name", "image", "description", "url", "brand", "code", "color", "model", "category", "weight", "lowestRecordedPrice", "highestRecordedPrice", "imageFile"}
+	fieldsInOrder := [...]string{"name", "image", "description", "url", "brand", "code", "color", "model", "categoryId", "weight", "lowestRecordedPrice", "highestRecordedPrice", "imageFile"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -11062,13 +11136,13 @@ func (ec *executionContext) unmarshalInputCreateProduct(ctx context.Context, obj
 				return it, err
 			}
 			it.Model = data
-		case "category":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("category"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+		case "categoryId":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("categoryId"))
+			data, err := ec.unmarshalNID2int64(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.Category = data
+			it.CategoryID = data
 		case "weight":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("weight"))
 			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
@@ -11219,7 +11293,7 @@ func (ec *executionContext) unmarshalInputUpdateProduct(ctx context.Context, obj
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"name", "image", "description", "url", "brand", "code", "color", "model", "category", "weight", "lowestRecordedPrice", "highestRecordedPrice", "imageFile"}
+	fieldsInOrder := [...]string{"name", "image", "description", "url", "brand", "code", "color", "model", "categoryId", "weight", "lowestRecordedPrice", "highestRecordedPrice", "imageFile"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -11282,13 +11356,13 @@ func (ec *executionContext) unmarshalInputUpdateProduct(ctx context.Context, obj
 				return it, err
 			}
 			it.Model = data
-		case "category":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("category"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+		case "categoryId":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("categoryId"))
+			data, err := ec.unmarshalOID2ᚖint64(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.Category = data
+			it.CategoryID = data
 		case "weight":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("weight"))
 			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
@@ -12173,6 +12247,11 @@ func (ec *executionContext) _Product(ctx context.Context, sel ast.SelectionSet, 
 			out.Values[i] = ec._Product_color(ctx, field, obj)
 		case "model":
 			out.Values[i] = ec._Product_model(ctx, field, obj)
+		case "categoryId":
+			out.Values[i] = ec._Product_categoryId(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "category":
 			out.Values[i] = ec._Product_category(ctx, field, obj)
 		case "weight":

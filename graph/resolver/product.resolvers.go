@@ -75,7 +75,7 @@ func (r *queryResolver) BarcodeScan(ctx context.Context, barcode string) (*gmode
 	}
 	item := result.Items[0]
 	source := model.ProductSourceType_Upcitemdb
-	product_input := item.ToCreateProduct(&barcode)
+	product_input := item.ToCreateProduct(ctx, r.Service, &barcode)
 	product, err = r.Service.CreateProduct(ctx, user, product_input, &source)
 	if err != nil {
 		return nil, err

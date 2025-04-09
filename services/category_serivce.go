@@ -12,11 +12,23 @@ import (
 	"github.com/pricetra/api/utils"
 )
 
+const CATEGORY_DELIM string = " > "
+
 func (s Service) FindCategoryById(ctx context.Context, id int64) (category gmodel.Category, err error) {
 	qb := table.Category.
 		SELECT(table.Category.AllColumns).
 		FROM(table.Category).
 		WHERE(table.Category.ID.EQ(postgres.Int(id))).
+		LIMIT(1)
+	err = qb.QueryContext(ctx, s.DbOrTxQueryable(), &category)
+	return category, err
+}
+
+func (s Service) FindCategoryByExactName(ctx context.Context, name string) (category gmodel.Category, err error) {
+	qb := table.Category.
+		SELECT(table.Category.AllColumns).
+		FROM(table.Category).
+		WHERE(table.Category.Name.EQ(postgres.String(name))).
 		LIMIT(1)
 	err = qb.QueryContext(ctx, s.DbOrTxQueryable(), &category)
 	return category, err
@@ -32,8 +44,10 @@ func (s Service) CategoryExists(ctx context.Context, id int64) bool {
 	return qb.QueryContext(ctx, s.DbOrTxQueryable(), &dest) == nil
 }
 
+// This method takes a category path and goes through each id to 
+// verify the hierarchial order and return the expanded_pathname.
+// Ex. `[462,463,464]` -> "Food, Beverages & Tobacco > Dairy & Eggs > Milk"
 func (s Service) CategoryPathToExpandedPathname(ctx context.Context, path []int, name *string) (expanded_pathname string, err error) {
-	const DELIM string = " > "
 	if len(path) == 0 {
 		if name != nil {
 			return *name, nil
@@ -49,13 +63,13 @@ func (s Service) CategoryPathToExpandedPathname(ctx context.Context, path []int,
 		}
 		names[i] = categories[i].Name
 	}
-	expanded_pathname = strings.Join(names, DELIM)
+	expanded_pathname = strings.Join(names, CATEGORY_DELIM)
 	if categories[len(path) - 1].ExpandedPathname != expanded_pathname {
 		return "", fmt.Errorf("incorrect path")
 	}
 	if name != nil {
 		names = append(names, *name)
-		return strings.Join(names, DELIM), nil
+		return strings.Join(names, CATEGORY_DELIM), nil
 	}
 	return expanded_pathname, nil
 }
@@ -126,4 +140,29 @@ func (s Service) FindCategories(ctx context.Context, depth *int) (categories []g
 		ORDER_BY(table.Category.ID.ASC())
 	err = qb.QueryContext(ctx, s.DbOrTxQueryable(), &categories)
 	return categories, err
+}
+
+// Given a category string (Ex. "Food, Beverages & Tobacco > Cooking & Baking Ingredients > Baking Decorations")
+// recursively insert each category and then return the final category
+func (s Service) CategoryRecursiveInsert(ctx context.Context, category_str string) (gmodel.Category, error) {
+	var err error
+	parsed_category := strings.Split(category_str, CATEGORY_DELIM)
+	categories := make([]gmodel.Category, len(parsed_category))
+	for i, category_name := range parsed_category {
+		categories[i], err = s.FindCategoryByExactName(ctx, category_name)
+		if err == nil {
+			continue
+		}
+
+		// Category was not found so insert new one
+		input := gmodel.CreateCategory{ Name: category_name }
+		if i > 0 {
+			input.ParentPath = utils.PostgresArrayToIntArray(categories[i-1].Path)
+		}
+		categories[i], err = s.CreateCategory(ctx, input)
+		if err != nil {
+			return gmodel.Category{}, err
+		}
+	}
+	return categories[len(categories) - 1], nil
 }

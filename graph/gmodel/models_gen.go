@@ -116,7 +116,7 @@ type CreateProduct struct {
 	Code                 string          `json:"code" validate:"required"`
 	Color                *string         `json:"color,omitempty"`
 	Model                *string         `json:"model,omitempty"`
-	Category             *string         `json:"category,omitempty"`
+	CategoryID           int64           `json:"categoryId" validate:"required"`
 	Weight               *string         `json:"weight,omitempty"`
 	LowestRecordedPrice  *float64        `json:"lowestRecordedPrice,omitempty"`
 	HighestRecordedPrice *float64        `json:"highestRecordedPrice,omitempty"`
@@ -178,7 +178,8 @@ type Product struct {
 	Code                 string         `json:"code"`
 	Color                *string        `json:"color,omitempty"`
 	Model                *string        `json:"model,omitempty"`
-	Category             *string        `json:"category,omitempty"`
+	CategoryID           int64          `json:"categoryId"`
+	Category             *Category      `json:"category,omitempty"`
 	Weight               *string        `json:"weight,omitempty"`
 	LowestRecordedPrice  *float64       `json:"lowestRecordedPrice,omitempty"`
 	HighestRecordedPrice *float64       `json:"highestRecordedPrice,omitempty"`
@@ -217,7 +218,7 @@ type UpdateProduct struct {
 	Code                 *string         `json:"code,omitempty"`
 	Color                *string         `json:"color,omitempty"`
 	Model                *string         `json:"model,omitempty"`
-	Category             *string         `json:"category,omitempty"`
+	CategoryID           *int64          `json:"categoryId,omitempty"`
 	Weight               *string         `json:"weight,omitempty"`
 	LowestRecordedPrice  *float64        `json:"lowestRecordedPrice,omitempty"`
 	HighestRecordedPrice *float64        `json:"highestRecordedPrice,omitempty"`

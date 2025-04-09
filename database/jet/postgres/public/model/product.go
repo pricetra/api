@@ -21,7 +21,6 @@ type Product struct {
 	Code                 string
 	Color                *string
 	Model                *string
-	Category             *string
 	Weight               *string
 	LowestRecordedPrice  *float64
 	HighestRecordedPrice *float64
@@ -30,6 +29,6 @@ type Product struct {
 	CreatedAt            time.Time
 	UpdatedAt            time.Time
 	Source               ProductSourceType
-	SearchVector         *string
 	CategoryID           *int64
+	SearchVector         *string
 }

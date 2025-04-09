@@ -26,7 +26,6 @@ type productTable struct {
 	Code                 postgres.ColumnString
 	Color                postgres.ColumnString
 	Model                postgres.ColumnString
-	Category             postgres.ColumnString
 	Weight               postgres.ColumnString
 	LowestRecordedPrice  postgres.ColumnFloat
 	HighestRecordedPrice postgres.ColumnFloat
@@ -35,8 +34,8 @@ type productTable struct {
 	CreatedAt            postgres.ColumnTimestampz
 	UpdatedAt            postgres.ColumnTimestampz
 	Source               postgres.ColumnString
-	SearchVector         postgres.ColumnString
 	CategoryID           postgres.ColumnInteger
+	SearchVector         postgres.ColumnString
 
 	AllColumns     postgres.ColumnList
 	MutableColumns postgres.ColumnList
@@ -86,7 +85,6 @@ func newProductTableImpl(schemaName, tableName, alias string) productTable {
 		CodeColumn                 = postgres.StringColumn("code")
 		ColorColumn                = postgres.StringColumn("color")
 		ModelColumn                = postgres.StringColumn("model")
-		CategoryColumn             = postgres.StringColumn("category")
 		WeightColumn               = postgres.StringColumn("weight")
 		LowestRecordedPriceColumn  = postgres.FloatColumn("lowest_recorded_price")
 		HighestRecordedPriceColumn = postgres.FloatColumn("highest_recorded_price")
@@ -95,10 +93,10 @@ func newProductTableImpl(schemaName, tableName, alias string) productTable {
 		CreatedAtColumn            = postgres.TimestampzColumn("created_at")
 		UpdatedAtColumn            = postgres.TimestampzColumn("updated_at")
 		SourceColumn               = postgres.StringColumn("source")
-		SearchVectorColumn         = postgres.StringColumn("search_vector")
 		CategoryIDColumn           = postgres.IntegerColumn("category_id")
-		allColumns                 = postgres.ColumnList{IDColumn, NameColumn, ImageColumn, DescriptionColumn, URLColumn, BrandColumn, CodeColumn, ColorColumn, ModelColumn, CategoryColumn, WeightColumn, LowestRecordedPriceColumn, HighestRecordedPriceColumn, CreatedByIDColumn, UpdatedByIDColumn, CreatedAtColumn, UpdatedAtColumn, SourceColumn, SearchVectorColumn, CategoryIDColumn}
-		mutableColumns             = postgres.ColumnList{NameColumn, ImageColumn, DescriptionColumn, URLColumn, BrandColumn, CodeColumn, ColorColumn, ModelColumn, CategoryColumn, WeightColumn, LowestRecordedPriceColumn, HighestRecordedPriceColumn, CreatedByIDColumn, UpdatedByIDColumn, CreatedAtColumn, UpdatedAtColumn, SourceColumn, CategoryIDColumn}
+		SearchVectorColumn         = postgres.StringColumn("search_vector")
+		allColumns                 = postgres.ColumnList{IDColumn, NameColumn, ImageColumn, DescriptionColumn, URLColumn, BrandColumn, CodeColumn, ColorColumn, ModelColumn, WeightColumn, LowestRecordedPriceColumn, HighestRecordedPriceColumn, CreatedByIDColumn, UpdatedByIDColumn, CreatedAtColumn, UpdatedAtColumn, SourceColumn, CategoryIDColumn, SearchVectorColumn}
+		mutableColumns             = postgres.ColumnList{NameColumn, ImageColumn, DescriptionColumn, URLColumn, BrandColumn, CodeColumn, ColorColumn, ModelColumn, WeightColumn, LowestRecordedPriceColumn, HighestRecordedPriceColumn, CreatedByIDColumn, UpdatedByIDColumn, CreatedAtColumn, UpdatedAtColumn, SourceColumn, CategoryIDColumn}
 	)
 
 	return productTable{
@@ -114,7 +112,6 @@ func newProductTableImpl(schemaName, tableName, alias string) productTable {
 		Code:                 CodeColumn,
 		Color:                ColorColumn,
 		Model:                ModelColumn,
-		Category:             CategoryColumn,
 		Weight:               WeightColumn,
 		LowestRecordedPrice:  LowestRecordedPriceColumn,
 		HighestRecordedPrice: HighestRecordedPriceColumn,
@@ -123,8 +120,8 @@ func newProductTableImpl(schemaName, tableName, alias string) productTable {
 		CreatedAt:            CreatedAtColumn,
 		UpdatedAt:            UpdatedAtColumn,
 		Source:               SourceColumn,
-		SearchVector:         SearchVectorColumn,
 		CategoryID:           CategoryIDColumn,
+		SearchVector:         SearchVectorColumn,
 
 		AllColumns:     allColumns,
 		MutableColumns: mutableColumns,
