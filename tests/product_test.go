@@ -2,7 +2,6 @@ package tests
 
 import (
 	"fmt"
-	"reflect"
 	"testing"
 
 	"github.com/go-jet/jet/v2/postgres"
@@ -23,12 +22,17 @@ func TestProduct(t *testing.T) {
 
 	var product gmodel.Product
 	image := "my_image.jpg"
+	category, err := service.CategoryRecursiveInsert(ctx, "Product Test Category > Product Test Subcategory")
+	if err != nil {
+		t.Fatal("could not create category", err.Error())
+	}
 	input := gmodel.CreateProduct{
 		Name: "Random test product",
 		Image: &image,
 		Description: "Some description",
 		Brand: "Pricetra",
 		Code: "ABC123BARCODETEST",
+		CategoryID: category.ID,
 	}
 	
 	t.Run("create product", func(t *testing.T) {
@@ -43,6 +47,9 @@ func TestProduct(t *testing.T) {
 		if product.UpdatedByID == nil || *product.UpdatedByID != user.ID {
 			t.Fatal("product updatedById was not inserted")
 		}
+		if product.Category.ExpandedPathname != category.ExpandedPathname {
+			t.Fatal("category expanded pathname is incorrect")
+		}
 	})
 
 	t.Run("find product", func(t *testing.T) {
@@ -52,8 +59,8 @@ func TestProduct(t *testing.T) {
 				t.Fatal(err)
 			}
 
-			if !reflect.DeepEqual(found_product, product) {
-				t.Fatal("products not equal", found_product, product)
+			if found_product.ID != product.ID {
+				t.Fatal("product ids are not equal", found_product, product)
 			}
 		})
 

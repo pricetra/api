@@ -2,6 +2,7 @@ package tests
 
 import (
 	"fmt"
+	"reflect"
 	"testing"
 
 	"github.com/pricetra/api/graph/gmodel"
@@ -56,6 +57,43 @@ func TestCategory(t *testing.T) {
 			})
 			if err == nil {
 				t.Fatal("sub category has invalid path")
+			}
+		})
+	})
+
+	t.Run("recursive category insertion test", func(t *testing.T) {
+		t.Run("confirm existing category", func(t *testing.T) {
+			cat1, err := service.CategoryRecursiveInsert(ctx, "Food, Beverages & Tobacco > Meat & Seafood > Fish & Seafood")
+			if err != nil {
+				t.Fatal(err)
+			}
+			check_category, err := service.FindCategoryById(ctx, 485)
+			if err != nil {
+				t.Fatal("check category was not found", err)
+			}
+
+			if !reflect.DeepEqual(cat1, check_category) {
+				t.Fatal("categories don't match", cat1, check_category)
+			}
+		})
+
+		t.Run("sub category", func(t *testing.T) {
+			cat1, err := service.CategoryRecursiveInsert(ctx, "Food, Beverages & Tobacco > Meat & Seafood > Fish & Seafood > Calamari")
+			if err != nil {
+				t.Fatal(err)
+			}
+			check_category, err := service.FindCategoryById(ctx, 485)
+			if err != nil {
+				t.Fatal("check category was not found", err)
+			}
+
+			cat1_path := utils.PostgresArrayToIntArray(cat1.Path)
+			check_category_path := append(
+				utils.PostgresArrayToIntArray(check_category.Path),
+				int(cat1.ID),
+			)
+			if !reflect.DeepEqual(cat1_path, check_category_path) {
+				t.Fatal("categories don't match", cat1, check_category)
 			}
 		})
 	})

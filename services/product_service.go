@@ -66,13 +66,20 @@ func (s Service) CreateProduct(ctx context.Context, user gmodel.User, input gmod
 		}).
 		RETURNING(table.Product.AllColumns)
 	err = qb.QueryContext(ctx, s.DbOrTxQueryable(), &product)
+
+	// Add category
+	category, _ := s.FindCategoryById(ctx, input.CategoryID)
+	product.Category = &category
 	return product, err
 }
 
 func (s Service) FindProductById(ctx context.Context, id int64) (product gmodel.Product, err error) {
 	qb := table.Product.
 		SELECT(table.Product.AllColumns).
-		FROM(table.Product).
+		FROM(
+			table.Product.
+				INNER_JOIN(table.Category, table.Category.ID.EQ(table.Product.CategoryID)),
+		).
 		WHERE(table.Product.ID.EQ(postgres.Int(id))).
 		LIMIT(1)
 	
@@ -83,7 +90,10 @@ func (s Service) FindProductById(ctx context.Context, id int64) (product gmodel.
 func (s Service) FindProductWithCode(ctx context.Context, barcode string) (product gmodel.Product, err error) {
 	qb := table.Product.
 		SELECT(table.Product.AllColumns).
-		FROM(table.Product).
+		FROM(
+			table.Product.
+				INNER_JOIN(table.Category, table.Category.ID.EQ(table.Product.CategoryID)),
+		).
 		WHERE(table.Product.Code.EQ(postgres.String(barcode))).
 		LIMIT(1)
 	
@@ -130,6 +140,7 @@ func (s Service) FindAllProducts(ctx context.Context) (products []gmodel.Product
 		SELECT(table.Product.AllColumns, user_cols...).
 		FROM(
 			table.Product.
+				INNER_JOIN(table.Category, table.Category.ID.EQ(table.Product.CategoryID)).
 				LEFT_JOIN(created_user_table, created_user_table.ID.EQ(table.Product.CreatedByID)).
 				LEFT_JOIN(updated_user_table, updated_user_table.ID.EQ(table.Product.UpdatedByID)),
 		).
