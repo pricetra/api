@@ -75,13 +75,15 @@ func (s Service) CreateProduct(ctx context.Context, user gmodel.User, input gmod
 
 func (s Service) FindProductById(ctx context.Context, id int64) (product gmodel.Product, err error) {
 	qb := table.Product.
-		SELECT(table.Product.AllColumns).
+		SELECT(
+			table.Product.AllColumns,
+			table.Category.AllColumns,
+		).
 		FROM(
 			table.Product.
 				INNER_JOIN(table.Category, table.Category.ID.EQ(table.Product.CategoryID)),
 		).
-		WHERE(table.Product.ID.EQ(postgres.Int(id))).
-		LIMIT(1)
+		WHERE(table.Product.ID.EQ(postgres.Int(id)))
 	
 	err = qb.QueryContext(ctx, s.DbOrTxQueryable(), &product)
 	return product, err
@@ -89,13 +91,15 @@ func (s Service) FindProductById(ctx context.Context, id int64) (product gmodel.
 
 func (s Service) FindProductWithCode(ctx context.Context, barcode string) (product gmodel.Product, err error) {
 	qb := table.Product.
-		SELECT(table.Product.AllColumns).
+		SELECT(
+			table.Product.AllColumns,
+			table.Category.AllColumns,
+		).
 		FROM(
 			table.Product.
 				INNER_JOIN(table.Category, table.Category.ID.EQ(table.Product.CategoryID)),
 		).
-		WHERE(table.Product.Code.EQ(postgres.String(barcode))).
-		LIMIT(1)
+		WHERE(table.Product.Code.EQ(postgres.String(barcode)))
 	
 	err = qb.QueryContext(ctx, s.DbOrTxQueryable(), &product)
 	return product, err
@@ -135,9 +139,10 @@ func (s Service) UPCItemDbLookupWithUpcCode(upc string) (result UPCItemDbJsonRes
 }
 
 func (s Service) FindAllProducts(ctx context.Context) (products []gmodel.Product, err error) {
-	created_user_table, updated_user_table, user_cols := s.CreatedAndUpdatedUserTable()
+	created_user_table, updated_user_table, cols := s.CreatedAndUpdatedUserTable()
+	cols = append(cols, table.Category.AllColumns)
 	qb := table.Product.
-		SELECT(table.Product.AllColumns, user_cols...).
+		SELECT(table.Product.AllColumns, cols...).
 		FROM(
 			table.Product.
 				INNER_JOIN(table.Category, table.Category.ID.EQ(table.Product.CategoryID)).
