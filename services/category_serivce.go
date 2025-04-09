@@ -35,6 +35,9 @@ func (s Service) CategoryExists(ctx context.Context, id int64) bool {
 func (s Service) CategoryPathToExpandedPathname(ctx context.Context, path []int, name *string) (expanded_pathname string, err error) {
 	const DELIM string = " > "
 	if len(path) == 0 {
+		if name != nil {
+			return *name, nil
+		}
 		return expanded_pathname, nil
 	}
 	categories := make([]gmodel.Category, len(path))
@@ -68,7 +71,8 @@ func (s Service) CreateCategory(ctx context.Context, input gmodel.CreateCategory
 	if err != nil {
 		return gmodel.Category{}, err
 	}
-	path := utils.ToPostgresArray(input.ParentPath)
+	// add random negative int to temporarily avoid path unique key constraint collisions
+	path := utils.ToPostgresArray(append(input.ParentPath, -1 * utils.RangedRandomInt(1617, 4916170)))
 
 	qb := table.Category.
 		INSERT(
