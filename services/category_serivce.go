@@ -126,14 +126,17 @@ func (s Service) CreateCategory(ctx context.Context, input gmodel.CreateCategory
 
 func (s Service) FindCategories(ctx context.Context, depth *int) (categories []gmodel.Category, err error) {
 	depth_col_name := fmt.Sprintf("%s.depth", table.Category.TableName())
-	path_len_exp := fmt.Sprintf("array_length(%s, 1)", utils.BuildFullTableName(table.Category.Path))
+	path_col_name := utils.BuildFullTableName(table.Category.Path)
 	var where_clause postgres.BoolExpression = nil
 	if depth != nil {
-		where_clause = postgres.RawBool(fmt.Sprintf("%s > %d", path_len_exp, *depth))
+		where_clause = postgres.RawBool(
+			fmt.Sprintf("array_length(%s, 1) = %d", path_col_name, *depth),
+		)
 	}
 	qb := table.Category.SELECT(
 			table.Category.AllColumns,
-			postgres.RawInt(path_len_exp).AS(depth_col_name),
+			postgres.RawInt(fmt.Sprintf("array_length(%s, 1)", path_col_name)).
+				AS(depth_col_name),
 		).
 		FROM(table.Category).
 		WHERE(where_clause).
