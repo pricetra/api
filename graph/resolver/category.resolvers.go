@@ -20,8 +20,8 @@ func (r *mutationResolver) CreateCategory(ctx context.Context, input gmodel.Crea
 }
 
 // GetCategories is the resolver for the getCategories field.
-func (r *queryResolver) GetCategories(ctx context.Context, depth *int) ([]*gmodel.Category, error) {
-	categories, err := r.Service.FindCategories(ctx, depth)
+func (r *queryResolver) GetCategories(ctx context.Context, depth *int, parentID *int64) ([]*gmodel.Category, error) {
+	categories, err := r.Service.FindCategories(ctx, depth, parentID)
 	if err != nil {
 		return nil, err
 	}

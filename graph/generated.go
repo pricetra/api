@@ -192,7 +192,7 @@ type ComplexityRoot struct {
 		FindBranchesByDistance func(childComplexity int, lat float64, lon float64, radiusMeters int) int
 		FindStore              func(childComplexity int, id int64) int
 		GetAllCountries        func(childComplexity int) int
-		GetCategories          func(childComplexity int, depth *int) int
+		GetCategories          func(childComplexity int, depth *int, parentID *int64) int
 		GoogleOAuth            func(childComplexity int, accessToken string, ipAddress *string, device *gmodel.AuthDeviceType) int
 		Login                  func(childComplexity int, email string, password string, ipAddress *string, device *gmodel.AuthDeviceType) int
 		Me                     func(childComplexity int) int
@@ -256,7 +256,7 @@ type QueryResolver interface {
 	AllBranches(ctx context.Context, storeID int64) ([]*gmodel.Branch, error)
 	FindBranch(ctx context.Context, storeID int64, id int64) (*gmodel.Branch, error)
 	FindBranchesByDistance(ctx context.Context, lat float64, lon float64, radiusMeters int) ([]*gmodel.Branch, error)
-	GetCategories(ctx context.Context, depth *int) ([]*gmodel.Category, error)
+	GetCategories(ctx context.Context, depth *int, parentID *int64) ([]*gmodel.Category, error)
 	GetAllCountries(ctx context.Context) ([]*gmodel.Country, error)
 	BarcodeScan(ctx context.Context, barcode string) (*gmodel.Product, error)
 	AllProducts(ctx context.Context, paginator gmodel.PaginatorInput, search *gmodel.ProductSearch) (*gmodel.PaginatedProducts, error)
@@ -1093,7 +1093,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.GetCategories(childComplexity, args["depth"].(*int)), true
+		return e.complexity.Query.GetCategories(childComplexity, args["depth"].(*int), args["parentId"].(*int64)), true
 
 	case "Query.googleOAuth":
 		if e.complexity.Query.GoogleOAuth == nil {
@@ -1769,6 +1769,15 @@ func (ec *executionContext) field_Query_getCategories_args(ctx context.Context, 
 		}
 	}
 	args["depth"] = arg0
+	var arg1 *int64
+	if tmp, ok := rawArgs["parentId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("parentId"))
+		arg1, err = ec.unmarshalOID2ᚖint64(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["parentId"] = arg1
 	return args, nil
 }
 
@@ -6921,7 +6930,7 @@ func (ec *executionContext) _Query_getCategories(ctx context.Context, field grap
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		directive0 := func(rctx context.Context) (interface{}, error) {
 			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Query().GetCategories(rctx, fc.Args["depth"].(*int))
+			return ec.resolvers.Query().GetCategories(rctx, fc.Args["depth"].(*int), fc.Args["parentId"].(*int64))
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
 			if ec.directives.IsAuthenticated == nil {

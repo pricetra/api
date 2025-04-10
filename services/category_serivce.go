@@ -124,7 +124,7 @@ func (s Service) CreateCategory(ctx context.Context, input gmodel.CreateCategory
 	return category, nil
 }
 
-func (s Service) FindCategories(ctx context.Context, depth *int) (categories []gmodel.Category, err error) {
+func (s Service) FindCategories(ctx context.Context, depth *int, parent_id *int64) (categories []gmodel.Category, err error) {
 	depth_col_name := fmt.Sprintf("%s.depth", table.Category.TableName())
 	path_col_name := utils.BuildFullTableName(table.Category.Path)
 	var where_clause postgres.BoolExpression = nil
@@ -132,6 +132,20 @@ func (s Service) FindCategories(ctx context.Context, depth *int) (categories []g
 		where_clause = postgres.RawBool(
 			fmt.Sprintf("array_length(%s, 1) = %d", path_col_name, *depth),
 		)
+	}
+	if parent_id != nil {
+		path_col := utils.BuildFullTableName(table.Category.Path)
+		contains_clause := postgres.RawBool(
+			fmt.Sprintf("$id = any(%s)", path_col), 
+			map[string]any{
+				"$id": *parent_id,
+			},
+		)
+		if where_clause == nil {
+			where_clause = contains_clause
+		} else {
+			where_clause = postgres.AND(where_clause, contains_clause)
+		}
 	}
 	qb := table.Category.SELECT(
 			table.Category.AllColumns,
