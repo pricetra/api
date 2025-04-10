@@ -299,6 +299,10 @@ func (s Service) UpdateProductById(ctx context.Context, user gmodel.User, id int
 	if err != nil {
 		return updated_product, err
 	}
+
+	// Add category
+	category, _ := s.FindCategoryById(ctx, updated_product.CategoryID)
+	updated_product.Category = &category
 	return updated_product, nil
 }
 
