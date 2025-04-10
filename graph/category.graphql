@@ -1,5 +1,5 @@
 extend type Query {
-  getCategories(depth: Int): [Category]! @isAuthenticated
+  getCategories(depth: Int): [Category!]! @isAuthenticated
 }
 
 extend type Mutation {
