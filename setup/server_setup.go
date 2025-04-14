@@ -15,7 +15,6 @@ import (
 	"github.com/pricetra/api/services"
 	"github.com/pricetra/api/types"
 	"github.com/pricetra/api/utils"
-	"github.com/sendgrid/sendgrid-go"
 )
 
 const GRAPH_ENDPOINT string = "/graphql"
@@ -42,6 +41,10 @@ func NewServer(db_conn *sql.DB, router *chi.Mux) *types.ServerBase {
 
 	server.Tokens = &tokens
 	server.Tokens.JwtKey = os.Getenv("JWT_KEY")
+	server.Tokens.EmailServer = types.EmailServer{
+		Url: os.Getenv("EMAIL_SERVER_URL"),
+		ApiKey: os.Getenv("EMAIL_SERVER_API_KEY"),
+	}
 
 	// Cloudinary CDN
 	cloudinary, err := cloudinary.NewFromParams(tokens.Cloudinary.CloudName, tokens.Cloudinary.ApiKey, tokens.Cloudinary.ApiSecret)
@@ -49,14 +52,11 @@ func NewServer(db_conn *sql.DB, router *chi.Mux) *types.ServerBase {
 		panic(err)
 	}
 
-	sendgrid_client := sendgrid.NewSendClient(tokens.SendGrid.ApiKey)
-
 	service := services.Service{
 		DB: server.DB,
 		StructValidator: server.StructValidator,
 		Tokens: &tokens,
 		Cloudinary: cloudinary,
-		Sendgrid: sendgrid_client,
 	}
 
 	// Startup utils...

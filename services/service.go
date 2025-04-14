@@ -7,7 +7,6 @@ import (
 	"github.com/go-jet/jet/v2/qrm"
 	"github.com/go-playground/validator/v10"
 	"github.com/pricetra/api/types"
-	"github.com/sendgrid/sendgrid-go"
 )
 
 type Service struct {
@@ -16,7 +15,6 @@ type Service struct {
 	StructValidator *validator.Validate
 	Tokens *types.Tokens
 	Cloudinary *cloudinary.Cloudinary
-	Sendgrid *sendgrid.Client
 }
 
 // Returns a transaction if present.
