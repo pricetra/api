@@ -46,8 +46,10 @@ func NewMockServer() {
 
 	var tokens types.Tokens
 	if err := utils.FileMapper("../tokens.json", &tokens); err != nil {
-		log.Fatalf(err.Error())
+		log.Fatalf("%s", err.Error())
 	}
+
+	tokens.JwtKey = os.Getenv("JWT_KEY")
 
 	// Cloudinary CDN
 	cloudinary, err := cloudinary.NewFromParams(tokens.Cloudinary.CloudName, tokens.Cloudinary.ApiKey, tokens.Cloudinary.ApiSecret)

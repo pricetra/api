@@ -2,6 +2,7 @@ package setup
 
 import (
 	"database/sql"
+	"os"
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
@@ -40,6 +41,7 @@ func NewServer(db_conn *sql.DB, router *chi.Mux) *types.ServerBase {
 	}
 
 	server.Tokens = &tokens
+	server.Tokens.JwtKey = os.Getenv("JWT_KEY")
 
 	// Cloudinary CDN
 	cloudinary, err := cloudinary.NewFromParams(tokens.Cloudinary.CloudName, tokens.Cloudinary.ApiKey, tokens.Cloudinary.ApiSecret)
