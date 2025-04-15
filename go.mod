@@ -10,7 +10,6 @@ require (
 	github.com/joho/godotenv v1.5.1
 	github.com/ory/dockertest/v3 v3.10.0
 	github.com/sendgrid/rest v2.6.9+incompatible
-	github.com/sendgrid/sendgrid-go v3.14.0+incompatible
 	github.com/thanhpk/randstr v1.0.6
 	github.com/vektah/gqlparser/v2 v2.5.11
 	golang.org/x/crypto v0.21.0
