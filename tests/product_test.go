@@ -109,7 +109,10 @@ func TestProduct(t *testing.T) {
 
 		total_qb := table.Product.
 			SELECT(postgres.COUNT(table.Product.ID).AS("total")).
-			FROM(table.Product)
+			FROM(
+				table.Product.
+					INNER_JOIN(table.Category, table.Category.ID.EQ(table.Product.CategoryID)),
+			)
 		var p_total struct{ Total int }
 		if err := total_qb.QueryContext(ctx, db, &p_total); err != nil {
 			t.Fatal(err)
