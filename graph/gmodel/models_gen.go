@@ -192,7 +192,9 @@ type Product struct {
 }
 
 type ProductSearch struct {
-	Query *string `json:"query,omitempty"`
+	Query      *string `json:"query,omitempty"`
+	Category   *string `json:"category,omitempty"`
+	CategoryID *int64  `json:"categoryId,omitempty"`
 }
 
 type Query struct {

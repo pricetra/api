@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"fmt"
+	"log"
 	"strings"
 	"time"
 
@@ -10,6 +11,7 @@ import (
 	"github.com/pricetra/api/database/jet/postgres/public/model"
 	"github.com/pricetra/api/database/jet/postgres/public/table"
 	"github.com/pricetra/api/graph/gmodel"
+	"github.com/pricetra/api/utils"
 )
 
 const UPCItemdb_API = "https://api.upcitemdb.com/prod"
@@ -134,43 +136,77 @@ func (s Service) FindAllProducts(ctx context.Context) (products []gmodel.Product
 
 func (s Service) PaginatedProducts(ctx context.Context, paginator_input gmodel.PaginatorInput, search *gmodel.ProductSearch) (paginated_products gmodel.PaginatedProducts, err error) {
 	created_user_table, updated_user_table, cols := s.CreatedAndUpdatedUserTable()
+	tables := table.Product.
+		INNER_JOIN(table.Category, table.Category.ID.EQ(table.Product.CategoryID)).
+		LEFT_JOIN(created_user_table, created_user_table.ID.EQ(table.Product.CreatedByID)).
+		LEFT_JOIN(updated_user_table, updated_user_table.ID.EQ(table.Product.UpdatedByID))
 
-	var search_where_clause postgres.BoolExpression = nil
+	var where_clause postgres.BoolExpression = nil
 	order_by := []postgres.OrderByClause{}
-	if search != nil && search.Query != nil {
-		query := strings.TrimSpace(*search.Query)
-		if query != "" {
-			rank_col := "rank"
-			search_vector_col_name := fmt.Sprintf(
-				"%s.%s",
-				table.Product.SearchVector.TableName(),
-				table.Product.SearchVector.Name(),
+
+	if search != nil {
+		if search.CategoryID != nil {
+			clause := postgres.RawBool(
+				fmt.Sprintf("$id = any(%s)", utils.BuildFullTableName(table.Category.Path)), 
+				map[string]any{
+					"$id": *search.CategoryID,
+				},
 			)
-			args := postgres.RawArgs{"$query": query}
+			if where_clause == nil {
+				where_clause = clause
+			} else {
+				where_clause = where_clause.AND(clause)
+			}
+		}
 
-			// Rank column
-			cols = append(cols, postgres.RawFloat(
-				fmt.Sprintf(
-					"ts_rank(%s, plainto_tsquery('english', $query::TEXT))",
-					search_vector_col_name,
-				),
-				args,
-			).AS(rank_col))
+		if search.Category != nil {
+			col := utils.BuildFullTableName(table.Category.ExpandedPathname)
+			clause := postgres.RawBool(col + " like $category", map[string]any{
+				"$category": fmt.Sprintf("%%%s%%", *search.Category),
+			})
+			if where_clause == nil {
+				where_clause = clause
+			} else {
+				where_clause = where_clause.AND(clause)
+			}
+		}
 
-			// Where clause with tsquery
-			search_where_clause = postgres.RawBool(
-				fmt.Sprintf("%s @@ plainto_tsquery('english', $query::TEXT)", search_vector_col_name),
-				args,
-			)
-
-			// Order by
-			order_by = append(order_by, postgres.FloatColumn(rank_col).DESC())
+		if search.Query != nil {
+			query := strings.TrimSpace(*search.Query)
+			if query != "" {
+				rank_col := "rank"
+				search_vector_col_name := utils.BuildFullTableName(table.Product.SearchVector)
+				args := postgres.RawArgs{"$query": query}
+	
+				// Rank column
+				cols = append(cols, postgres.RawFloat(
+					fmt.Sprintf(
+						"ts_rank(%s, plainto_tsquery('english', $query::TEXT))",
+						search_vector_col_name,
+					),
+					args,
+				).AS(rank_col))
+	
+				// Where clause with tsquery
+				clause := postgres.RawBool(
+					fmt.Sprintf("%s @@ plainto_tsquery('english', $query::TEXT)", search_vector_col_name),
+					args,
+				)
+				if where_clause == nil {
+					where_clause = clause
+				} else {
+					where_clause = where_clause.AND(clause)
+				}
+	
+				// Order by
+				order_by = append(order_by, postgres.FloatColumn(rank_col).DESC())
+			}
 		}
 	}
 	order_by = append(order_by, table.Product.UpdatedAt.DESC())
 
 	// get pagination data
-	sql_paginator, err := s.Paginate(ctx, paginator_input, table.Product, table.Product.ID, search_where_clause)
+	sql_paginator, err := s.Paginate(ctx, paginator_input, tables, table.Product.ID, where_clause)
 	if err != nil {
 		// Return empty result
 		return gmodel.PaginatedProducts{
@@ -182,16 +218,12 @@ func (s Service) PaginatedProducts(ctx context.Context, paginator_input gmodel.P
 	cols = append(cols, table.Category.AllColumns)
 	qb := table.Product.
 		SELECT(table.Product.AllColumns, cols...).
-		FROM(
-			table.Product.
-				INNER_JOIN(table.Category, table.Category.ID.EQ(table.Product.CategoryID)).
-				LEFT_JOIN(created_user_table, created_user_table.ID.EQ(table.Product.CreatedByID)).
-				LEFT_JOIN(updated_user_table, updated_user_table.ID.EQ(table.Product.UpdatedByID)),
-		).
-		WHERE(search_where_clause).
+		FROM(tables).
+		WHERE(where_clause).
 		ORDER_BY(order_by...).
 		LIMIT(int64(sql_paginator.Limit)).
 		OFFSET(int64(sql_paginator.Offset))
+	log.Println(qb.DebugSql())
 	err = qb.QueryContext(ctx, s.DbOrTxQueryable(), &paginated_products.Products)
 	if err != nil {
 		return paginated_products, err

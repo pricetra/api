@@ -79,4 +79,6 @@ input UpdateProduct {
 
 input ProductSearch {
   query: String
+  category: String
+  categoryId: ID
 }
