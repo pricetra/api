@@ -2,9 +2,7 @@ package services
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
-	"net/http"
 	"strings"
 	"time"
 
@@ -116,26 +114,6 @@ func (s Service) BarcodeExists(ctx context.Context, barcode string) bool {
 	}
 	err := qb.QueryContext(ctx, s.DbOrTxQueryable(), &product)
 	return err == nil
-}
-
-func (s Service) UPCItemDbLookupWithUpcCode(upc string) (result UPCItemDbJsonResult, err error) {
-	res, err := http.Get(fmt.Sprintf("%s/trial/lookup?upc=%s", UPCItemdb_API, upc))
-	if err != nil {
-		return result, err
-	}
-
-	if err := json.NewDecoder(res.Body).Decode(&result); err != nil {
-		return UPCItemDbJsonResult{}, err
-	}
-
-	if result.Code != "OK" {
-		message := ""
-		if result.Message != nil {
-			message = *result.Message
-		}
-		return UPCItemDbJsonResult{}, fmt.Errorf("%s - %s", result.Code, message)
-	}
-	return result, nil
 }
 
 func (s Service) FindAllProducts(ctx context.Context) (products []gmodel.Product, err error) {

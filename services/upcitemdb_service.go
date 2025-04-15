@@ -2,6 +2,9 @@ package services
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
+	"net/http"
 	"strings"
 
 	"github.com/pricetra/api/graph/gmodel"
@@ -24,6 +27,14 @@ type UPCItemDbJsonResultItem struct {
 	Images []string `json:"images,omitempty"`
 	Offers []any `json:"offers,omitempty"`
 	Elid *string `json:"elid,omitempty"`
+}
+
+type UPCItemDbJsonResult struct {
+	Code string `json:"code"`
+	Total int `json:"total"`
+	Offset int `json:"offset"`
+	Items []UPCItemDbJsonResultItem `json:"items"`
+	Message *string `json:"message,omitempty"`
 }
 
 func (ob UPCItemDbJsonResultItem) ToCreateProduct(ctx context.Context, service Service, upc *string) gmodel.CreateProduct {
@@ -58,10 +69,22 @@ func (ob UPCItemDbJsonResultItem) ToCreateProduct(ctx context.Context, service S
 	}
 }
 
-type UPCItemDbJsonResult struct {
-	Code string `json:"code"`
-	Total int `json:"total"`
-	Offset int `json:"offset"`
-	Items []UPCItemDbJsonResultItem `json:"items"`
-	Message *string `json:"message,omitempty"`
+func (s Service) UPCItemDbLookupWithUpcCode(upc string) (result UPCItemDbJsonResult, err error) {
+	res, err := http.Get(fmt.Sprintf("%s/trial/lookup?upc=%s", UPCItemdb_API, upc))
+	if err != nil {
+		return result, err
+	}
+
+	if err := json.NewDecoder(res.Body).Decode(&result); err != nil {
+		return UPCItemDbJsonResult{}, err
+	}
+
+	if result.Code != "OK" {
+		message := ""
+		if result.Message != nil {
+			message = *result.Message
+		}
+		return UPCItemDbJsonResult{}, fmt.Errorf("%s - %s", result.Code, message)
+	}
+	return result, nil
 }
