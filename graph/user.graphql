@@ -36,6 +36,13 @@ input UpdateUser {
   bio: String
 }
 
+enum UserRole {
+  SUPER_ADMIN
+  ADMIN
+  CONTRIBUTOR
+  CONSUMER
+}
+
 enum AuthPlatformType {
   INTERNAL
   APPLE

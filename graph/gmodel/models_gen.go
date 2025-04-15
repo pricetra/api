@@ -354,3 +354,48 @@ func (e *AuthPlatformType) UnmarshalGQL(v interface{}) error {
 func (e AuthPlatformType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
+
+type UserRole string
+
+const (
+	UserRoleSuperAdmin  UserRole = "SUPER_ADMIN"
+	UserRoleAdmin       UserRole = "ADMIN"
+	UserRoleContributor UserRole = "CONTRIBUTOR"
+	UserRoleConsumer    UserRole = "CONSUMER"
+)
+
+var AllUserRole = []UserRole{
+	UserRoleSuperAdmin,
+	UserRoleAdmin,
+	UserRoleContributor,
+	UserRoleConsumer,
+}
+
+func (e UserRole) IsValid() bool {
+	switch e {
+	case UserRoleSuperAdmin, UserRoleAdmin, UserRoleContributor, UserRoleConsumer:
+		return true
+	}
+	return false
+}
+
+func (e UserRole) String() string {
+	return string(e)
+}
+
+func (e *UserRole) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = UserRole(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid UserRole", str)
+	}
+	return nil
+}
+
+func (e UserRole) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}

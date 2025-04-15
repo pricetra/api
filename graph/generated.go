@@ -45,7 +45,7 @@ type ResolverRoot interface {
 }
 
 type DirectiveRoot struct {
-	IsAuthenticated func(ctx context.Context, obj interface{}, next graphql.Resolver) (res interface{}, err error)
+	IsAuthenticated func(ctx context.Context, obj interface{}, next graphql.Resolver, role *gmodel.UserRole) (res interface{}, err error)
 }
 
 type ComplexityRoot struct {
@@ -1471,6 +1471,21 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 // endregion ************************** generated!.gotpl **************************
 
 // region    ***************************** args.gotpl *****************************
+
+func (ec *executionContext) dir_isAuthenticated_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *gmodel.UserRole
+	if tmp, ok := rawArgs["role"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("role"))
+		arg0, err = ec.unmarshalOUserRole2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐUserRole(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["role"] = arg0
+	return args, nil
+}
 
 func (ec *executionContext) field_Mutation_createAccount_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
@@ -4461,7 +4476,7 @@ func (ec *executionContext) _Mutation_createBranch(ctx context.Context, field gr
 			if ec.directives.IsAuthenticated == nil {
 				return nil, errors.New("directive isAuthenticated is not implemented")
 			}
-			return ec.directives.IsAuthenticated(ctx, nil, directive0)
+			return ec.directives.IsAuthenticated(ctx, nil, directive0, nil)
 		}
 
 		tmp, err := directive1(rctx)
@@ -4558,7 +4573,7 @@ func (ec *executionContext) _Mutation_createCategory(ctx context.Context, field 
 			if ec.directives.IsAuthenticated == nil {
 				return nil, errors.New("directive isAuthenticated is not implemented")
 			}
-			return ec.directives.IsAuthenticated(ctx, nil, directive0)
+			return ec.directives.IsAuthenticated(ctx, nil, directive0, nil)
 		}
 
 		tmp, err := directive1(rctx)
@@ -4647,7 +4662,7 @@ func (ec *executionContext) _Mutation_createProduct(ctx context.Context, field g
 			if ec.directives.IsAuthenticated == nil {
 				return nil, errors.New("directive isAuthenticated is not implemented")
 			}
-			return ec.directives.IsAuthenticated(ctx, nil, directive0)
+			return ec.directives.IsAuthenticated(ctx, nil, directive0, nil)
 		}
 
 		tmp, err := directive1(rctx)
@@ -4764,7 +4779,7 @@ func (ec *executionContext) _Mutation_updateProduct(ctx context.Context, field g
 			if ec.directives.IsAuthenticated == nil {
 				return nil, errors.New("directive isAuthenticated is not implemented")
 			}
-			return ec.directives.IsAuthenticated(ctx, nil, directive0)
+			return ec.directives.IsAuthenticated(ctx, nil, directive0, nil)
 		}
 
 		tmp, err := directive1(rctx)
@@ -4881,7 +4896,7 @@ func (ec *executionContext) _Mutation_createStore(ctx context.Context, field gra
 			if ec.directives.IsAuthenticated == nil {
 				return nil, errors.New("directive isAuthenticated is not implemented")
 			}
-			return ec.directives.IsAuthenticated(ctx, nil, directive0)
+			return ec.directives.IsAuthenticated(ctx, nil, directive0, nil)
 		}
 
 		tmp, err := directive1(rctx)
@@ -5195,7 +5210,7 @@ func (ec *executionContext) _Mutation_updateProfile(ctx context.Context, field g
 			if ec.directives.IsAuthenticated == nil {
 				return nil, errors.New("directive isAuthenticated is not implemented")
 			}
-			return ec.directives.IsAuthenticated(ctx, nil, directive0)
+			return ec.directives.IsAuthenticated(ctx, nil, directive0, nil)
 		}
 
 		tmp, err := directive1(rctx)
@@ -5298,7 +5313,7 @@ func (ec *executionContext) _Mutation_logout(ctx context.Context, field graphql.
 			if ec.directives.IsAuthenticated == nil {
 				return nil, errors.New("directive isAuthenticated is not implemented")
 			}
-			return ec.directives.IsAuthenticated(ctx, nil, directive0)
+			return ec.directives.IsAuthenticated(ctx, nil, directive0, nil)
 		}
 
 		tmp, err := directive1(rctx)
@@ -6645,7 +6660,7 @@ func (ec *executionContext) _Query_allBranches(ctx context.Context, field graphq
 			if ec.directives.IsAuthenticated == nil {
 				return nil, errors.New("directive isAuthenticated is not implemented")
 			}
-			return ec.directives.IsAuthenticated(ctx, nil, directive0)
+			return ec.directives.IsAuthenticated(ctx, nil, directive0, nil)
 		}
 
 		tmp, err := directive1(rctx)
@@ -6742,7 +6757,7 @@ func (ec *executionContext) _Query_findBranch(ctx context.Context, field graphql
 			if ec.directives.IsAuthenticated == nil {
 				return nil, errors.New("directive isAuthenticated is not implemented")
 			}
-			return ec.directives.IsAuthenticated(ctx, nil, directive0)
+			return ec.directives.IsAuthenticated(ctx, nil, directive0, nil)
 		}
 
 		tmp, err := directive1(rctx)
@@ -6839,7 +6854,7 @@ func (ec *executionContext) _Query_findBranchesByDistance(ctx context.Context, f
 			if ec.directives.IsAuthenticated == nil {
 				return nil, errors.New("directive isAuthenticated is not implemented")
 			}
-			return ec.directives.IsAuthenticated(ctx, nil, directive0)
+			return ec.directives.IsAuthenticated(ctx, nil, directive0, nil)
 		}
 
 		tmp, err := directive1(rctx)
@@ -6936,7 +6951,7 @@ func (ec *executionContext) _Query_getCategories(ctx context.Context, field grap
 			if ec.directives.IsAuthenticated == nil {
 				return nil, errors.New("directive isAuthenticated is not implemented")
 			}
-			return ec.directives.IsAuthenticated(ctx, nil, directive0)
+			return ec.directives.IsAuthenticated(ctx, nil, directive0, nil)
 		}
 
 		tmp, err := directive1(rctx)
@@ -7083,7 +7098,7 @@ func (ec *executionContext) _Query_barcodeScan(ctx context.Context, field graphq
 			if ec.directives.IsAuthenticated == nil {
 				return nil, errors.New("directive isAuthenticated is not implemented")
 			}
-			return ec.directives.IsAuthenticated(ctx, nil, directive0)
+			return ec.directives.IsAuthenticated(ctx, nil, directive0, nil)
 		}
 
 		tmp, err := directive1(rctx)
@@ -7200,7 +7215,7 @@ func (ec *executionContext) _Query_allProducts(ctx context.Context, field graphq
 			if ec.directives.IsAuthenticated == nil {
 				return nil, errors.New("directive isAuthenticated is not implemented")
 			}
-			return ec.directives.IsAuthenticated(ctx, nil, directive0)
+			return ec.directives.IsAuthenticated(ctx, nil, directive0, nil)
 		}
 
 		tmp, err := directive1(rctx)
@@ -7281,7 +7296,7 @@ func (ec *executionContext) _Query_allBrands(ctx context.Context, field graphql.
 			if ec.directives.IsAuthenticated == nil {
 				return nil, errors.New("directive isAuthenticated is not implemented")
 			}
-			return ec.directives.IsAuthenticated(ctx, nil, directive0)
+			return ec.directives.IsAuthenticated(ctx, nil, directive0, nil)
 		}
 
 		tmp, err := directive1(rctx)
@@ -7351,7 +7366,7 @@ func (ec *executionContext) _Query_allStores(ctx context.Context, field graphql.
 			if ec.directives.IsAuthenticated == nil {
 				return nil, errors.New("directive isAuthenticated is not implemented")
 			}
-			return ec.directives.IsAuthenticated(ctx, nil, directive0)
+			return ec.directives.IsAuthenticated(ctx, nil, directive0, nil)
 		}
 
 		tmp, err := directive1(rctx)
@@ -7433,7 +7448,7 @@ func (ec *executionContext) _Query_findStore(ctx context.Context, field graphql.
 			if ec.directives.IsAuthenticated == nil {
 				return nil, errors.New("directive isAuthenticated is not implemented")
 			}
-			return ec.directives.IsAuthenticated(ctx, nil, directive0)
+			return ec.directives.IsAuthenticated(ctx, nil, directive0, nil)
 		}
 
 		tmp, err := directive1(rctx)
@@ -7652,7 +7667,7 @@ func (ec *executionContext) _Query_me(ctx context.Context, field graphql.Collect
 			if ec.directives.IsAuthenticated == nil {
 				return nil, errors.New("directive isAuthenticated is not implemented")
 			}
-			return ec.directives.IsAuthenticated(ctx, nil, directive0)
+			return ec.directives.IsAuthenticated(ctx, nil, directive0, nil)
 		}
 
 		tmp, err := directive1(rctx)
@@ -14346,6 +14361,22 @@ func (ec *executionContext) marshalOUpload2ᚖgithubᚗcomᚋ99designsᚋgqlgen�
 	}
 	res := graphql.MarshalUpload(*v)
 	return res
+}
+
+func (ec *executionContext) unmarshalOUserRole2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐUserRole(ctx context.Context, v interface{}) (*gmodel.UserRole, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var res = new(gmodel.UserRole)
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOUserRole2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐUserRole(ctx context.Context, sel ast.SelectionSet, v *gmodel.UserRole) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return v
 }
 
 func (ec *executionContext) marshalO__EnumValue2ᚕgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐEnumValueᚄ(ctx context.Context, sel ast.SelectionSet, v []introspection.EnumValue) graphql.Marshaler {
