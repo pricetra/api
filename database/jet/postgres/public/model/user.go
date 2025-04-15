@@ -22,4 +22,5 @@ type User struct {
 	Avatar      *string
 	BirthDate   *time.Time
 	Active      bool
+	Role        UserRoleType
 }
