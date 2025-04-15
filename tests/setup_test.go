@@ -16,7 +16,6 @@ import (
 	"github.com/ory/dockertest/v3/docker"
 	"github.com/pricetra/api/services"
 	"github.com/pricetra/api/types"
-	"github.com/pricetra/api/utils"
 
 	_ "github.com/lib/pq"
 )
@@ -45,10 +44,6 @@ func NewMockServer() {
 	db_migration.RunMigration()
 
 	var tokens types.Tokens
-	if err := utils.FileMapper("../tokens.json", &tokens); err != nil {
-		log.Fatalf("%s", err.Error())
-	}
-
 	tokens.JwtKey = os.Getenv("JWT_KEY")
 
 	// Cloudinary CDN
