@@ -10,6 +10,8 @@ import (
 	"github.com/pricetra/api/graph/gmodel"
 )
 
+const UPCItemdb_API = "https://api.upcitemdb.com/prod"
+
 type UPCItemDbJsonResultItem struct {
 	Ean string `json:"ean"`
 	Title string `json:"title,omitempty"`

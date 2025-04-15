@@ -3,7 +3,6 @@ package services
 import (
 	"context"
 	"fmt"
-	"log"
 	"strings"
 	"time"
 
@@ -13,8 +12,6 @@ import (
 	"github.com/pricetra/api/graph/gmodel"
 	"github.com/pricetra/api/utils"
 )
-
-const UPCItemdb_API = "https://api.upcitemdb.com/prod"
 
 func (s Service) CreateProduct(ctx context.Context, user gmodel.User, input gmodel.CreateProduct, source *model.ProductSourceType) (product gmodel.Product, err error) {
 	if err := s.StructValidator.StructCtx(ctx, input); err != nil {
@@ -223,7 +220,6 @@ func (s Service) PaginatedProducts(ctx context.Context, paginator_input gmodel.P
 		ORDER_BY(order_by...).
 		LIMIT(int64(sql_paginator.Limit)).
 		OFFSET(int64(sql_paginator.Offset))
-	log.Println(qb.DebugSql())
 	err = qb.QueryContext(ctx, s.DbOrTxQueryable(), &paginated_products.Products)
 	if err != nil {
 		return paginated_products, err
