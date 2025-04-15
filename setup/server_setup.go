@@ -14,7 +14,6 @@ import (
 	gresolver "github.com/pricetra/api/graph/resolver"
 	"github.com/pricetra/api/services"
 	"github.com/pricetra/api/types"
-	"github.com/pricetra/api/utils"
 )
 
 const GRAPH_ENDPOINT string = "/graphql"
@@ -34,20 +33,25 @@ func NewServer(db_conn *sql.DB, router *chi.Mux) *types.ServerBase {
 	})
 	db_migration.RunMigration()
 
-	var tokens types.Tokens
-	if err := utils.FileMapper("./tokens.json", &tokens); err != nil {
-		panic(err)
+	server.Tokens = &types.Tokens{
+		JwtKey: os.Getenv("JWT_KEY"),
+		EmailServer: types.EmailServer{
+			Url: os.Getenv("EMAIL_SERVER_URL"),
+			ApiKey: os.Getenv("EMAIL_SERVER_API_KEY"),
+		},
+		Cloudinary: types.CloudinaryTokens{
+			CloudName: os.Getenv("CLOUDINARY_CLOUD_NAME"),
+			ApiKey: os.Getenv("CLOUDINARY_API_KEY"),
+			ApiSecret: os.Getenv("CLOUDINARY_API_SECRET"),
+		},
 	}
 
-	server.Tokens = &tokens
-	server.Tokens.JwtKey = os.Getenv("JWT_KEY")
-	server.Tokens.EmailServer = types.EmailServer{
-		Url: os.Getenv("EMAIL_SERVER_URL"),
-		ApiKey: os.Getenv("EMAIL_SERVER_API_KEY"),
-	}
-
-	// Cloudinary CDN
-	cloudinary, err := cloudinary.NewFromParams(tokens.Cloudinary.CloudName, tokens.Cloudinary.ApiKey, tokens.Cloudinary.ApiSecret)
+	// Setup Cloudinary CDN
+	cloudinary, err := cloudinary.NewFromParams(
+		server.Tokens.Cloudinary.CloudName,
+		server.Tokens.Cloudinary.ApiKey,
+		server.Tokens.Cloudinary.ApiSecret,
+	)
 	if err != nil {
 		panic(err)
 	}
@@ -55,7 +59,6 @@ func NewServer(db_conn *sql.DB, router *chi.Mux) *types.ServerBase {
 	service := services.Service{
 		DB: server.DB,
 		StructValidator: server.StructValidator,
-		Tokens: &tokens,
 		Cloudinary: cloudinary,
 	}
 
