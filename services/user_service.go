@@ -405,6 +405,9 @@ func (service Service) VerifyJwt(ctx context.Context, authorization types.Author
 	if err != nil {
 		return gmodel.User{}, err
 	}
+	if service.Tokens == nil {
+		return gmodel.User{}, fmt.Errorf("tokens value is nil")
+	}
 
 	claims, err := utils.GetJwtClaims(jwt_raw, service.Tokens.JwtKey)
 	if err != nil {
