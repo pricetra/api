@@ -21,6 +21,8 @@ func UseSchema(schema string) {
 	Migration = Migration.FromSchema(schema)
 	Price = Price.FromSchema(schema)
 	Product = Product.FromSchema(schema)
+	ProductBilling = ProductBilling.FromSchema(schema)
+	ProductBillingRate = ProductBillingRate.FromSchema(schema)
 	SpatialRefSys = SpatialRefSys.FromSchema(schema)
 	Stock = Stock.FromSchema(schema)
 	Store = Store.FromSchema(schema)
