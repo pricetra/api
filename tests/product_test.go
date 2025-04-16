@@ -74,7 +74,7 @@ func TestProduct(t *testing.T) {
 
 	t.Run("update product", func(t *testing.T) {
 		updated_name := fmt.Sprintf("%s (updated)", product.Name)
-		updated_product, err := service.UpdateProductById(ctx, user, product.ID, gmodel.UpdateProduct{
+		updated_product, _, err := service.UpdateProductById(ctx, user, product.ID, gmodel.UpdateProduct{
 			Name: &updated_name,
 		})
 		if err != nil {

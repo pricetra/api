@@ -216,14 +216,14 @@ func (s Service) PaginatedProducts(ctx context.Context, paginator_input gmodel.P
 	return paginated_products, nil
 }
 
-func (s Service) UpdateProductById(ctx context.Context, user gmodel.User, id int64, input gmodel.UpdateProduct) (updated_product gmodel.Product, err error) {
+func (s Service) UpdateProductById(ctx context.Context, user gmodel.User, id int64, input gmodel.UpdateProduct) (updated_product gmodel.Product, old_product gmodel.Product, err error) {
 	if err := s.StructValidator.StructCtx(ctx, input); err != nil {
-		return updated_product, err
+		return gmodel.Product{}, gmodel.Product{}, err
 	}
 	
 	product, err := s.FindProductById(ctx, id)
 	if err != nil {
-		return updated_product, fmt.Errorf("product with id does not exist")
+		return gmodel.Product{}, gmodel.Product{}, fmt.Errorf("product with id does not exist")
 	}
 
 	cols := postgres.ColumnList{}
@@ -242,7 +242,7 @@ func (s Service) UpdateProductById(ctx context.Context, user gmodel.User, id int
 	}
 	if input.Code != nil && *input.Code != product.Code {
 		if s.BarcodeExists(ctx, *input.Code) {
-			return updated_product, fmt.Errorf("new barcode is already in use")
+			return gmodel.Product{}, gmodel.Product{}, fmt.Errorf("new barcode is already in use")
 		}
 		code = *input.Code
 		cols = append(cols, table.Product.Code)
@@ -272,7 +272,7 @@ func (s Service) UpdateProductById(ctx context.Context, user gmodel.User, id int
 	}
 
 	if len(cols) == 0 {
-		return product, nil
+		return product, product, nil
 	}
 	cols = append(cols, table.Product.UpdatedByID, table.Product.UpdatedAt)
 	qb := table.Product.
@@ -290,13 +290,13 @@ func (s Service) UpdateProductById(ctx context.Context, user gmodel.User, id int
 		RETURNING(table.Product.AllColumns)
 	err = qb.QueryContext(ctx, s.DbOrTxQueryable(), &updated_product)
 	if err != nil {
-		return updated_product, err
+		return gmodel.Product{}, gmodel.Product{}, err
 	}
 
 	// Add category
 	category, _ := s.FindCategoryById(ctx, updated_product.CategoryID)
 	updated_product.Category = &category
-	return updated_product, nil
+	return updated_product, product, nil
 }
 
 func (s Service) FindAllBrands(ctx context.Context) (brands []gmodel.Brand, err error) {
