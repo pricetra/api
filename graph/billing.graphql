@@ -1,0 +1,21 @@
+extend type Query {
+  myProductBillingData(paginator: PaginatorInput!): PaginatedProductBilling!
+    @isAuthenticated
+}
+
+type ProductBilling {
+  id: ID! @goTag(key: "sql", value: "primary_key")
+  productId: ID!
+  product: Product
+  userId: ID!
+  user: UserShallow
+  createdAt: Time!
+  rate: Float!
+  billingRateType: String!
+  paidAt: Time
+}
+
+type PaginatedProductBilling {
+  data: [ProductBilling!]!
+  paginator: Paginator!
+}

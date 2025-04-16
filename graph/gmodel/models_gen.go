@@ -149,6 +149,11 @@ type Currency struct {
 type Mutation struct {
 }
 
+type PaginatedProductBilling struct {
+	Data      []*ProductBilling `json:"data"`
+	Paginator *Paginator        `json:"paginator"`
+}
+
 type PaginatedProducts struct {
 	Products  []*Product `json:"products"`
 	Paginator *Paginator `json:"paginator"`
@@ -189,6 +194,18 @@ type Product struct {
 	CreatedBy            *CreatedByUser `json:"createdBy,omitempty"`
 	UpdatedByID          *int64         `json:"updatedById,omitempty"`
 	UpdatedBy            *UpdatedByUser `json:"updatedBy,omitempty"`
+}
+
+type ProductBilling struct {
+	ID              int64        `json:"id" sql:"primary_key"`
+	ProductID       int64        `json:"productId"`
+	Product         *Product     `json:"product,omitempty"`
+	UserID          int64        `json:"userId"`
+	User            *UserShallow `json:"user,omitempty"`
+	CreatedAt       time.Time    `json:"createdAt"`
+	Rate            float64      `json:"rate"`
+	BillingRateType string       `json:"billingRateType"`
+	PaidAt          *time.Time   `json:"paidAt,omitempty"`
 }
 
 type ProductSearch struct {

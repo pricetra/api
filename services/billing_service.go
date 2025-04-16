@@ -71,3 +71,43 @@ func (s Service) CreateProductBilling(
 	}
 	return res, nil
 }
+
+func (s Service) FindProductBillingByUser(ctx context.Context, paginator_input gmodel.PaginatorInput, user gmodel.User) (res gmodel.PaginatedProductBilling, err error) {
+	where_clause := table.ProductBilling.UserID.EQ(postgres.Int(user.ID))
+	my_table := table.ProductBilling.
+		INNER_JOIN(table.User, table.User.ID.EQ(table.ProductBilling.UserID)).
+		INNER_JOIN(table.Product, table.Product.ID.EQ(table.ProductBilling.ProductID)).
+		INNER_JOIN(table.Category, table.Category.ID.EQ(table.Product.CategoryID))
+
+	paginator, err := s.Paginate(ctx, paginator_input, my_table, table.ProductBilling.ID, where_clause)
+	if err != nil {
+		return gmodel.PaginatedProductBilling{}, nil
+	}
+
+	qb := table.ProductBilling.
+		SELECT(
+			table.ProductBilling.ID,
+			table.ProductBilling.ProductID,
+			table.ProductBilling.UserID,
+			table.ProductBilling.CreatedAt,
+			table.ProductBilling.Rate,
+			table.ProductBilling.PaidAt,
+			table.ProductBilling.BillingRateType,
+			table.User.ID,
+			table.User.Name,
+			table.User.Avatar,
+			table.User.Active,
+			table.Product.AllColumns,
+			table.Category.AllColumns,
+		).
+		FROM(my_table).
+		WHERE(where_clause).
+		ORDER_BY(table.ProductBilling.CreatedAt).
+		LIMIT(int64(paginator.Limit)).
+		OFFSET(int64(paginator.Offset))
+	if err := qb.QueryContext(ctx, s.DbOrTxQueryable(), &res.Data); err != nil {
+		return gmodel.PaginatedProductBilling{}, err
+	}
+	res.Paginator = &paginator.Paginator
+	return res, nil
+}
