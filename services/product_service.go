@@ -138,7 +138,7 @@ func (s Service) PaginatedProducts(ctx context.Context, paginator_input gmodel.P
 		LEFT_JOIN(created_user_table, created_user_table.ID.EQ(table.Product.CreatedByID)).
 		LEFT_JOIN(updated_user_table, updated_user_table.ID.EQ(table.Product.UpdatedByID))
 
-	var where_clause postgres.BoolExpression = nil
+	where_clause := postgres.Bool(true)
 	order_by := []postgres.OrderByClause{}
 
 	if search != nil {
@@ -149,11 +149,7 @@ func (s Service) PaginatedProducts(ctx context.Context, paginator_input gmodel.P
 					"$id": *search.CategoryID,
 				},
 			)
-			if where_clause == nil {
-				where_clause = clause
-			} else {
-				where_clause = where_clause.AND(clause)
-			}
+			where_clause = where_clause.AND(clause)
 		}
 
 		if search.Category != nil {
@@ -161,11 +157,7 @@ func (s Service) PaginatedProducts(ctx context.Context, paginator_input gmodel.P
 			clause := postgres.RawBool(col + " like $category", map[string]any{
 				"$category": fmt.Sprintf("%%%s%%", *search.Category),
 			})
-			if where_clause == nil {
-				where_clause = clause
-			} else {
-				where_clause = where_clause.AND(clause)
-			}
+			where_clause = where_clause.AND(clause)
 		}
 
 		if search.Query != nil {
@@ -189,12 +181,7 @@ func (s Service) PaginatedProducts(ctx context.Context, paginator_input gmodel.P
 					fmt.Sprintf("%s @@ plainto_tsquery('english', $query::TEXT)", search_vector_col_name),
 					args,
 				)
-				if where_clause == nil {
-					where_clause = clause
-				} else {
-					where_clause = where_clause.AND(clause)
-				}
-	
+				where_clause = where_clause.AND(clause)
 				// Order by
 				order_by = append(order_by, postgres.FloatColumn(rank_col).DESC())
 			}
