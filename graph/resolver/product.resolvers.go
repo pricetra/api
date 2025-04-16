@@ -33,6 +33,9 @@ func (r *mutationResolver) CreateProduct(ctx context.Context, input gmodel.Creat
 			log.Println("could not upload image to cdn.", err.Error())
 		}
 	}
+
+	// Handle billing
+	r.Service.CreateProductBilling(ctx, user, model.ProductBillingType_Create, product, input, nil)
 	return &product, nil
 }
 
@@ -54,6 +57,10 @@ func (r *mutationResolver) UpdateProduct(ctx context.Context, id int64, input gm
 			log.Println("could not upload image to cdn.", err.Error())
 		}
 	}
+
+	// Handle billing
+	// TODO: fetch old product info
+	r.Service.CreateProductBilling(ctx, user, model.ProductBillingType_Update, product, input, nil)
 	return &product, nil
 }
 
@@ -91,6 +98,9 @@ func (r *queryResolver) BarcodeScan(ctx context.Context, barcode string) (*gmode
 			log.Println("could not upload remote product image URL.", err.Error())
 		}
 	}
+
+	// Handle billing
+	r.Service.CreateProductBilling(ctx, user, model.ProductBillingType_Scan, product, item, nil)
 	return &product, nil
 }
 
