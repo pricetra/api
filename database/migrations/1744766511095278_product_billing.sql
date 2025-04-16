@@ -19,5 +19,6 @@ create table "product_billing" (
     "rate" numeric(3, 2) not null,
     "billing_rate_type" "product_billing_type" references "product_billing_rate"("type") on delete cascade not null,
     "new_data" jsonb,
-    "old_data" jsonb
+    "old_data" jsonb,
+    "paid_at" timestamp with time zone
 );
