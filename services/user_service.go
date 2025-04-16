@@ -529,3 +529,16 @@ func (service Service) CreatedAndUpdatedUserTable() (
 	}
 	return created_by_user, updated_by_user, columns
 }
+
+func (Service) RoleValue(role gmodel.UserRole) int {
+	switch role {
+		case gmodel.UserRoleSuperAdmin: return 4
+		case gmodel.UserRoleAdmin: return 3
+		case gmodel.UserRoleContributor: return 2
+		default: return 1
+	}
+}
+
+func (s Service) IsRoleAuthorized(minimum_required_role gmodel.UserRole, user_role gmodel.UserRole) bool {
+	return s.RoleValue(user_role) >= s.RoleValue(minimum_required_role)
+}

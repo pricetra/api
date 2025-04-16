@@ -14,9 +14,13 @@ func (service Service) IsAuthenticatedDirective(ctx context.Context, obj any, ne
 	if !ok {
 		return nil, fmt.Errorf("authorization header type error")
 	}
+
 	user, err := service.VerifyJwt(ctx, authorization)
 	if err != nil {
 		return nil, fmt.Errorf("unauthorized")
+	}
+	if role != nil && !service.IsRoleAuthorized(*role, user.Role) {
+		return nil, fmt.Errorf("insufficient permissions")
 	}
 	new_ctx := context.WithValue(ctx, types.AuthUserKey, user)
 	return next(new_ctx)
