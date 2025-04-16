@@ -3,7 +3,7 @@ extend type Query {
 }
 
 extend type Mutation {
-  createCategory(input: CreateCategory!): Category! @isAuthenticated
+  createCategory(input: CreateCategory!): Category! @isAuthenticated(role: "CONTRIBUTOR")
 }
 
 type Category {

@@ -25,5 +25,5 @@ extend type Query {
 }
 
 extend type Mutation {
-  createBranch(input: CreateBranch!): Branch! @isAuthenticated
+  createBranch(input: CreateBranch!): Branch! @isAuthenticated(role: "ADMIN")
 }

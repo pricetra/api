@@ -4483,10 +4483,14 @@ func (ec *executionContext) _Mutation_createBranch(ctx context.Context, field gr
 			return ec.resolvers.Mutation().CreateBranch(rctx, fc.Args["input"].(gmodel.CreateBranch))
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
+			role, err := ec.unmarshalOUserRole2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐUserRole(ctx, "ADMIN")
+			if err != nil {
+				return nil, err
+			}
 			if ec.directives.IsAuthenticated == nil {
 				return nil, errors.New("directive isAuthenticated is not implemented")
 			}
-			return ec.directives.IsAuthenticated(ctx, nil, directive0, nil)
+			return ec.directives.IsAuthenticated(ctx, nil, directive0, role)
 		}
 
 		tmp, err := directive1(rctx)
@@ -4580,10 +4584,14 @@ func (ec *executionContext) _Mutation_createCategory(ctx context.Context, field 
 			return ec.resolvers.Mutation().CreateCategory(rctx, fc.Args["input"].(gmodel.CreateCategory))
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
+			role, err := ec.unmarshalOUserRole2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐUserRole(ctx, "CONTRIBUTOR")
+			if err != nil {
+				return nil, err
+			}
 			if ec.directives.IsAuthenticated == nil {
 				return nil, errors.New("directive isAuthenticated is not implemented")
 			}
-			return ec.directives.IsAuthenticated(ctx, nil, directive0, nil)
+			return ec.directives.IsAuthenticated(ctx, nil, directive0, role)
 		}
 
 		tmp, err := directive1(rctx)
@@ -4669,10 +4677,14 @@ func (ec *executionContext) _Mutation_createProduct(ctx context.Context, field g
 			return ec.resolvers.Mutation().CreateProduct(rctx, fc.Args["input"].(gmodel.CreateProduct))
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
+			role, err := ec.unmarshalOUserRole2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐUserRole(ctx, "CONTRIBUTOR")
+			if err != nil {
+				return nil, err
+			}
 			if ec.directives.IsAuthenticated == nil {
 				return nil, errors.New("directive isAuthenticated is not implemented")
 			}
-			return ec.directives.IsAuthenticated(ctx, nil, directive0, nil)
+			return ec.directives.IsAuthenticated(ctx, nil, directive0, role)
 		}
 
 		tmp, err := directive1(rctx)
@@ -4786,10 +4798,14 @@ func (ec *executionContext) _Mutation_updateProduct(ctx context.Context, field g
 			return ec.resolvers.Mutation().UpdateProduct(rctx, fc.Args["id"].(int64), fc.Args["input"].(gmodel.UpdateProduct))
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
+			role, err := ec.unmarshalOUserRole2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐUserRole(ctx, "CONTRIBUTOR")
+			if err != nil {
+				return nil, err
+			}
 			if ec.directives.IsAuthenticated == nil {
 				return nil, errors.New("directive isAuthenticated is not implemented")
 			}
-			return ec.directives.IsAuthenticated(ctx, nil, directive0, nil)
+			return ec.directives.IsAuthenticated(ctx, nil, directive0, role)
 		}
 
 		tmp, err := directive1(rctx)
@@ -4903,10 +4919,14 @@ func (ec *executionContext) _Mutation_createStore(ctx context.Context, field gra
 			return ec.resolvers.Mutation().CreateStore(rctx, fc.Args["input"].(gmodel.CreateStore))
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
+			role, err := ec.unmarshalOUserRole2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐUserRole(ctx, "ADMIN")
+			if err != nil {
+				return nil, err
+			}
 			if ec.directives.IsAuthenticated == nil {
 				return nil, errors.New("directive isAuthenticated is not implemented")
 			}
-			return ec.directives.IsAuthenticated(ctx, nil, directive0, nil)
+			return ec.directives.IsAuthenticated(ctx, nil, directive0, role)
 		}
 
 		tmp, err := directive1(rctx)

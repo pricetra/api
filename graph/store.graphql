@@ -23,5 +23,5 @@ extend type Query {
 }
 
 extend type Mutation {
-  createStore(input: CreateStore!): Store! @isAuthenticated
+  createStore(input: CreateStore!): Store! @isAuthenticated(role: "ADMIN")
 }
