@@ -59,6 +59,7 @@ func NewServer(db_conn *sql.DB, router *chi.Mux) *types.ServerBase {
 	service := services.Service{
 		DB: server.DB,
 		StructValidator: server.StructValidator,
+		Tokens: server.Tokens,
 		Cloudinary: cloudinary,
 	}
 

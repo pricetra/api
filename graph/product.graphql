@@ -8,8 +8,8 @@ extend type Query {
 }
 
 extend type Mutation {
-  createProduct(input: CreateProduct!): Product! @isAuthenticated
-  updateProduct(id: ID!, input: UpdateProduct!): Product! @isAuthenticated
+  createProduct(input: CreateProduct!): Product! @isAuthenticated(role: "CONTRIBUTOR")
+  updateProduct(id: ID!, input: UpdateProduct!): Product! @isAuthenticated(role: "CONTRIBUTOR")
 }
 
 type PaginatedProducts {

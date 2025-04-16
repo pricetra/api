@@ -36,6 +36,13 @@ input UpdateUser {
   bio: String
 }
 
+enum UserRole {
+  SUPER_ADMIN
+  ADMIN
+  CONTRIBUTOR
+  CONSUMER
+}
+
 enum AuthPlatformType {
   INTERNAL
   APPLE
@@ -66,6 +73,7 @@ type User {
   authDevice: AuthDeviceType
     @goTag(key: "alias", value: "auth_state.device_type")
   authStateId: ID @goTag(key: "alias", value: "auth_state.id")
+  role: UserRole!
 }
 
 type UserShallow {

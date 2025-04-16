@@ -405,6 +405,9 @@ func (service Service) VerifyJwt(ctx context.Context, authorization types.Author
 	if err != nil {
 		return gmodel.User{}, err
 	}
+	if service.Tokens == nil {
+		return gmodel.User{}, fmt.Errorf("tokens value is nil")
+	}
 
 	claims, err := utils.GetJwtClaims(jwt_raw, service.Tokens.JwtKey)
 	if err != nil {
@@ -525,4 +528,17 @@ func (service Service) CreatedAndUpdatedUserTable() (
 		updated_by_user.Avatar,
 	}
 	return created_by_user, updated_by_user, columns
+}
+
+func (Service) RoleValue(role gmodel.UserRole) int {
+	switch role {
+		case gmodel.UserRoleSuperAdmin: return 4
+		case gmodel.UserRoleAdmin: return 3
+		case gmodel.UserRoleContributor: return 2
+		default: return 1
+	}
+}
+
+func (s Service) IsRoleAuthorized(minimum_required_role gmodel.UserRole, user_role gmodel.UserRole) bool {
+	return s.RoleValue(user_role) >= s.RoleValue(minimum_required_role)
 }
