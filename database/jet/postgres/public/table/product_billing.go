@@ -25,6 +25,7 @@ type productBillingTable struct {
 	BillingRateType postgres.ColumnString
 	NewData         postgres.ColumnString
 	OldData         postgres.ColumnString
+	PaidAt          postgres.ColumnTimestampz
 
 	AllColumns     postgres.ColumnList
 	MutableColumns postgres.ColumnList
@@ -73,8 +74,9 @@ func newProductBillingTableImpl(schemaName, tableName, alias string) productBill
 		BillingRateTypeColumn = postgres.StringColumn("billing_rate_type")
 		NewDataColumn         = postgres.StringColumn("new_data")
 		OldDataColumn         = postgres.StringColumn("old_data")
-		allColumns            = postgres.ColumnList{IDColumn, ProductIDColumn, UserIDColumn, CreatedAtColumn, RateColumn, BillingRateTypeColumn, NewDataColumn, OldDataColumn}
-		mutableColumns        = postgres.ColumnList{ProductIDColumn, UserIDColumn, CreatedAtColumn, RateColumn, BillingRateTypeColumn, NewDataColumn, OldDataColumn}
+		PaidAtColumn          = postgres.TimestampzColumn("paid_at")
+		allColumns            = postgres.ColumnList{IDColumn, ProductIDColumn, UserIDColumn, CreatedAtColumn, RateColumn, BillingRateTypeColumn, NewDataColumn, OldDataColumn, PaidAtColumn}
+		mutableColumns        = postgres.ColumnList{ProductIDColumn, UserIDColumn, CreatedAtColumn, RateColumn, BillingRateTypeColumn, NewDataColumn, OldDataColumn, PaidAtColumn}
 	)
 
 	return productBillingTable{
@@ -89,6 +91,7 @@ func newProductBillingTableImpl(schemaName, tableName, alias string) productBill
 		BillingRateType: BillingRateTypeColumn,
 		NewData:         NewDataColumn,
 		OldData:         OldDataColumn,
+		PaidAt:          PaidAtColumn,
 
 		AllColumns:     allColumns,
 		MutableColumns: mutableColumns,

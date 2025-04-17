@@ -20,4 +20,5 @@ type ProductBilling struct {
 	BillingRateType ProductBillingType
 	NewData         *string
 	OldData         *string
+	PaidAt          *time.Time
 }
