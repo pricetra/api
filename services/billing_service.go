@@ -102,7 +102,7 @@ func (s Service) FindProductBillingByUser(ctx context.Context, paginator_input g
 		).
 		FROM(my_table).
 		WHERE(where_clause).
-		ORDER_BY(table.ProductBilling.CreatedAt).
+		ORDER_BY(table.ProductBilling.CreatedAt.DESC()).
 		LIMIT(int64(paginator.Limit)).
 		OFFSET(int64(paginator.Offset))
 	if err := qb.QueryContext(ctx, s.DbOrTxQueryable(), &res.Data); err != nil {
