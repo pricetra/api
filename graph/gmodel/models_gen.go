@@ -252,6 +252,18 @@ type UpdateUser struct {
 	Bio        *string         `json:"bio,omitempty"`
 }
 
+type UpdateUserFull struct {
+	Email       *string         `json:"email,omitempty" validate:"omitempty,email"`
+	PhoneNumber *string         `json:"phoneNumber,omitempty" validate:"omitempty,e164"`
+	Name        *string         `json:"name,omitempty"`
+	Avatar      *string         `json:"avatar,omitempty" validate:"omitempty,uuid"`
+	AvatarFile  *graphql.Upload `json:"avatarFile,omitempty"`
+	BirthDate   *time.Time      `json:"birthDate,omitempty"`
+	Bio         *string         `json:"bio,omitempty"`
+	Active      *bool           `json:"active,omitempty"`
+	Role        *UserRole       `json:"role,omitempty"`
+}
+
 type UpdatedByUser struct {
 	ID     int64   `json:"id" sql:"primary_key" alias:"updated_by_user.id"`
 	Name   string  `json:"name" alias:"updated_by_user.name"`
