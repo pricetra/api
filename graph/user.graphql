@@ -4,6 +4,8 @@ extend type Mutation {
   resendEmailVerificationCode(email: String!): Boolean!
   updateProfile(input: UpdateUser!): User! @isAuthenticated
   logout: Boolean! @isAuthenticated
+  updateUserById(userId: String!, input: UpdateUserFull!): User!
+    @isAuthenticated(role: "SUPER_ADMIN")
 }
 
 extend type Query {
@@ -19,6 +21,19 @@ extend type Query {
     device: AuthDeviceType
   ): Auth!
   me: User! @isAuthenticated
+  getAllUsers(paginator: PaginatorInput!, filters: UserFilter): PaginatedUsers! @isAuthenticated(role: "ADMIN")
+}
+
+type PaginatedUsers {
+  users: [User!]!
+  paginator: Paginator!
+}
+
+input UserFilter {
+  name: String
+  email: String
+  id: ID
+  role: UserRole
 }
 
 input CreateAccountInput {
@@ -30,10 +45,22 @@ input CreateAccountInput {
 
 input UpdateUser {
   name: String
-  avatar: String @goTag(key: "validate", value:"omitempty,uuid")
+  avatar: String @goTag(key: "validate", value: "omitempty,uuid")
   avatarFile: Upload
   birthDate: Time
   bio: String
+}
+
+input UpdateUserFull {
+  email: String @goTag(key: "validate", value: "omitempty,email")
+  phoneNumber: String @goTag(key: "validate", value: "omitempty,e164")
+  name: String
+  avatar: String @goTag(key: "validate", value: "omitempty,uuid")
+  avatarFile: Upload
+  birthDate: Time
+  bio: String
+  active: Boolean
+  role: UserRole
 }
 
 enum UserRole {

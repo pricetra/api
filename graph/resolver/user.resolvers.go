@@ -8,6 +8,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/cloudinary/cloudinary-go/v2/api/uploader"
 	"github.com/pricetra/api/database/jet/postgres/public/model"
@@ -100,6 +101,23 @@ func (r *mutationResolver) Logout(ctx context.Context) (bool, error) {
 	return err == nil, err
 }
 
+// UpdateUserByID is the resolver for the updateUserById field.
+func (r *mutationResolver) UpdateUserByID(ctx context.Context, userID string, input gmodel.UpdateUserFull) (*gmodel.User, error) {
+	id, err := strconv.Atoi(userID)
+	if err != nil {
+		return nil, fmt.Errorf("invalid user id")
+	}
+	user, err := r.Service.FindUserById(ctx, int64(id))
+	if err != nil {
+		return nil, fmt.Errorf("user was not found")
+	}
+	updated_user, err := r.Service.UpdateUserFull(ctx, user, input)
+	if err != nil {
+		return nil, err
+	}
+	return &updated_user, nil
+}
+
 // Login is the resolver for the login field.
 func (r *queryResolver) Login(ctx context.Context, email string, password string, ipAddress *string, device *gmodel.AuthDeviceType) (*gmodel.Auth, error) {
 	var mapped_device model.AuthDeviceType
@@ -128,4 +146,13 @@ func (r *queryResolver) GoogleOAuth(ctx context.Context, accessToken string, ipA
 func (r *queryResolver) Me(ctx context.Context) (*gmodel.User, error) {
 	auth_user := r.Service.GetAuthUserFromContext(ctx)
 	return &auth_user, nil
+}
+
+// GetAllUsers is the resolver for the getAllUsers field.
+func (r *queryResolver) GetAllUsers(ctx context.Context, paginator gmodel.PaginatorInput, filters *gmodel.UserFilter) (*gmodel.PaginatedUsers, error) {
+	result, err := r.Service.PaginatedUsers(ctx, paginator, filters)
+	if err != nil {
+		return nil, err
+	}
+	return &result, nil
 }

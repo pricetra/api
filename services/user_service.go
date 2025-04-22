@@ -449,42 +449,78 @@ func (Service) GetAuthUserFromContext(ctx context.Context) gmodel.User {
 	return ctx.Value(types.AuthUserKey).(gmodel.User)
 }
 
-func (service Service) UpdateUser(ctx context.Context, user gmodel.User, input gmodel.UpdateUser) (updated_user gmodel.User, err error) {
+func (s Service) UpdateUserFull(ctx context.Context, user gmodel.User, input gmodel.UpdateUserFull) (updated_user gmodel.User, err error) {
+	u := model.User{}
 	columns := postgres.ColumnList{}
+	if input.Email != nil {
+		columns = append(columns, table.User.Email)
+		u.Email = *input.Email
+	}
+	if input.PhoneNumber != nil {
+		columns = append(columns, table.User.PhoneNumber)
+		u.PhoneNumber = input.PhoneNumber
+	}
 	if input.Name != nil {
 		columns = append(columns, table.User.Name)
-		user.Name = *input.Name
+		u.Name = *input.Name
 	}
 	if input.Avatar != nil {
 		if err := uuid.Validate(*input.Avatar); err != nil {
 			return updated_user, err
 		}
 		columns = append(columns, table.User.Avatar)
-		user.Avatar = input.Avatar
+		u.Avatar = input.Avatar
 	} else if input.AvatarFile != nil {
 		// user didn't provide avatar but provided a file so let's create one
 		columns = append(columns, table.User.Avatar)
 		avatar_id := uuid.NewString()
-		user.Avatar = &avatar_id
+		u.Avatar = &avatar_id
 	}
 	if input.BirthDate != nil {
 		columns = append(columns, table.User.BirthDate)
-		user.BirthDate = input.BirthDate
+		u.BirthDate = input.BirthDate
 	}
-	user.UpdatedAt = time.Now()
+	if input.Active != nil {
+		columns = append(columns, table.User.Active)
+		u.Active = *input.Active
+	}
+	// Don't update user if their role is already "SUPER_ADMIN"
+	if input.Role != nil && user.Role != gmodel.UserRoleSuperAdmin {
+		columns = append(columns, table.User.Role)
+		role := model.UserRoleType_Consumer
+		if err := role.Scan(input.Role.String()); err != nil {
+			return gmodel.User{}, err
+		}
+		u.Role = role
+	}
+	if len(columns) == 0 {
+		return user, nil
+	}
+	columns = append(columns, table.User.UpdatedAt)
+	u.UpdatedAt = time.Now()
 	qb := table.User.
-		UPDATE(columns, table.User.UpdatedAt).
-		MODEL(user).
+		UPDATE(columns).
+		MODEL(u).
 		WHERE(table.User.ID.EQ(postgres.Int(user.ID))).
 		RETURNING(table.User.AllColumns)
 	
-	if err = qb.QueryContext(ctx, service.DbOrTxQueryable(), &updated_user); err != nil {
+	if err = qb.QueryContext(ctx, s.DbOrTxQueryable(), &updated_user); err != nil {
 		return gmodel.User{}, err
 	}
 	if user.AuthStateID == nil {
 		return updated_user, nil
 	}
-	return service.FindAuthUserById(ctx, user.ID, *user.AuthStateID)
+	return s.FindAuthUserById(ctx, user.ID, *user.AuthStateID)
+}
+
+func (service Service) UpdateUser(ctx context.Context, user gmodel.User, input gmodel.UpdateUser) (updated_user gmodel.User, err error) {
+	return service.UpdateUserFull(ctx, user, gmodel.UpdateUserFull{
+		Name: input.Name,
+		Avatar: input.Avatar,
+		AvatarFile: input.AvatarFile,
+		BirthDate: input.BirthDate,
+		Bio: input.Bio,
+	})
 }
 
 func (service Service) Logout(ctx context.Context, user gmodel.User, auth_state_id int64) error {
@@ -541,4 +577,57 @@ func (Service) RoleValue(role gmodel.UserRole) int {
 
 func (s Service) IsRoleAuthorized(minimum_required_role gmodel.UserRole, user_role gmodel.UserRole) bool {
 	return s.RoleValue(user_role) >= s.RoleValue(minimum_required_role)
+}
+
+func (s Service) PaginatedUsers(ctx context.Context, paginator_input gmodel.PaginatorInput, filters *gmodel.UserFilter) (result gmodel.PaginatedUsers, err error) {
+	sql_table := table.User
+	where_clause := postgres.Bool(true)
+
+	if filters != nil {
+		if filters.ID != nil {
+			where_clause = where_clause.
+				AND(table.User.ID.EQ(postgres.Int(*filters.ID)))
+		}
+		if filters.Email != nil {
+			where_clause = where_clause.AND(table.User.Email.LIKE(
+				postgres.String(fmt.Sprintf("%s%%", *filters.Email)),
+			))
+		}
+		if filters.Name != nil {
+			where_clause = where_clause.AND(table.User.Name.LIKE(
+				postgres.String(fmt.Sprintf("%%%s%%", *filters.Name)),
+			))
+		}
+		if filters.Role != nil {
+			var role model.UserRoleType
+			if err := role.Scan(filters.Role.String()); err != nil {
+				return gmodel.PaginatedUsers{}, err
+			}
+			where_clause = where_clause.
+				AND(table.User.Role.EQ(postgres.RawString("$role", map[string]any{
+					"$role": role.String(),
+				})))
+		}
+	}
+
+	paginator, err := s.Paginate(ctx, paginator_input, sql_table, table.User.ID, where_clause)
+	if err != nil {
+		return gmodel.PaginatedUsers{
+			Users: []*gmodel.User{},
+			Paginator: &gmodel.Paginator{},
+		}, nil
+	}
+	qb := table.User.
+		SELECT(table.User.AllColumns).
+		FROM(sql_table).
+		WHERE(where_clause).
+		LIMIT(int64(paginator.Limit)).
+		OFFSET(int64(paginator.Offset)).
+		ORDER_BY(table.User.ID.DESC())
+
+	if err := qb.QueryContext(ctx, s.DbOrTxQueryable(), &result.Users); err != nil {
+		return gmodel.PaginatedUsers{}, err
+	}
+	result.Paginator = &paginator.Paginator
+	return result, nil
 }
