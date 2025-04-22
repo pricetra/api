@@ -147,3 +147,8 @@ func (r *queryResolver) Me(ctx context.Context) (*gmodel.User, error) {
 	auth_user := r.Service.GetAuthUserFromContext(ctx)
 	return &auth_user, nil
 }
+
+// GetAllUsers is the resolver for the getAllUsers field.
+func (r *queryResolver) GetAllUsers(ctx context.Context, filters *gmodel.UserFilter) (*gmodel.PaginatedUsers, error) {
+	panic(fmt.Errorf("not implemented: GetAllUsers - getAllUsers"))
+}

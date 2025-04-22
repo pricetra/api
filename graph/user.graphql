@@ -21,6 +21,19 @@ extend type Query {
     device: AuthDeviceType
   ): Auth!
   me: User! @isAuthenticated
+  getAllUsers(filters: UserFilter): PaginatedUsers!
+}
+
+type PaginatedUsers {
+  users: [User!]!
+  paginator: Paginator!
+}
+
+input UserFilter {
+  name: String
+  email: String
+  id: ID
+  role: UserRole
 }
 
 input CreateAccountInput {

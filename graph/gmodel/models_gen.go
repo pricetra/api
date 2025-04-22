@@ -159,6 +159,11 @@ type PaginatedProducts struct {
 	Paginator *Paginator `json:"paginator"`
 }
 
+type PaginatedUsers struct {
+	Users     []*User    `json:"users"`
+	Paginator *Paginator `json:"paginator"`
+}
+
 type Paginator struct {
 	Next     *int `json:"next,omitempty"`
 	Page     int  `json:"page"`
@@ -286,6 +291,13 @@ type User struct {
 	AuthDevice   *AuthDeviceType   `json:"authDevice,omitempty" alias:"auth_state.device_type"`
 	AuthStateID  *int64            `json:"authStateId,omitempty" alias:"auth_state.id"`
 	Role         UserRole          `json:"role"`
+}
+
+type UserFilter struct {
+	Name  *string   `json:"name,omitempty"`
+	Email *string   `json:"email,omitempty"`
+	ID    *int64    `json:"id,omitempty"`
+	Role  *UserRole `json:"role,omitempty"`
 }
 
 type UserShallow struct {

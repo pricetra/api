@@ -156,6 +156,11 @@ type ComplexityRoot struct {
 		Products  func(childComplexity int) int
 	}
 
+	PaginatedUsers struct {
+		Paginator func(childComplexity int) int
+		Users     func(childComplexity int) int
+	}
+
 	Paginator struct {
 		Limit    func(childComplexity int) int
 		Next     func(childComplexity int) int
@@ -210,6 +215,7 @@ type ComplexityRoot struct {
 		FindBranchesByDistance func(childComplexity int, lat float64, lon float64, radiusMeters int) int
 		FindStore              func(childComplexity int, id int64) int
 		GetAllCountries        func(childComplexity int) int
+		GetAllUsers            func(childComplexity int, filters *gmodel.UserFilter) int
 		GetCategories          func(childComplexity int, depth *int, parentID *int64) int
 		GoogleOAuth            func(childComplexity int, accessToken string, ipAddress *string, device *gmodel.AuthDeviceType) int
 		Login                  func(childComplexity int, email string, password string, ipAddress *string, device *gmodel.AuthDeviceType) int
@@ -288,6 +294,7 @@ type QueryResolver interface {
 	Login(ctx context.Context, email string, password string, ipAddress *string, device *gmodel.AuthDeviceType) (*gmodel.Auth, error)
 	GoogleOAuth(ctx context.Context, accessToken string, ipAddress *string, device *gmodel.AuthDeviceType) (*gmodel.Auth, error)
 	Me(ctx context.Context) (*gmodel.User, error)
+	GetAllUsers(ctx context.Context, filters *gmodel.UserFilter) (*gmodel.PaginatedUsers, error)
 }
 
 type executableSchema struct {
@@ -856,6 +863,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.PaginatedProducts.Products(childComplexity), true
 
+	case "PaginatedUsers.paginator":
+		if e.complexity.PaginatedUsers.Paginator == nil {
+			break
+		}
+
+		return e.complexity.PaginatedUsers.Paginator(childComplexity), true
+
+	case "PaginatedUsers.users":
+		if e.complexity.PaginatedUsers.Users == nil {
+			break
+		}
+
+		return e.complexity.PaginatedUsers.Users(childComplexity), true
+
 	case "Paginator.limit":
 		if e.complexity.Paginator.Limit == nil {
 			break
@@ -1194,6 +1215,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.GetAllCountries(childComplexity), true
 
+	case "Query.getAllUsers":
+		if e.complexity.Query.GetAllUsers == nil {
+			break
+		}
+
+		args, err := ec.field_Query_getAllUsers_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetAllUsers(childComplexity, args["filters"].(*gmodel.UserFilter)), true
+
 	case "Query.getCategories":
 		if e.complexity.Query.GetCategories == nil {
 			break
@@ -1478,6 +1511,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputUpdateProduct,
 		ec.unmarshalInputUpdateUser,
 		ec.unmarshalInputUpdateUserFull,
+		ec.unmarshalInputUserFilter,
 	)
 	first := true
 
@@ -1925,6 +1959,21 @@ func (ec *executionContext) field_Query_findStore_args(ctx context.Context, rawA
 		}
 	}
 	args["id"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_getAllUsers_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *gmodel.UserFilter
+	if tmp, ok := rawArgs["filters"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("filters"))
+		arg0, err = ec.unmarshalOUserFilter2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐUserFilter(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["filters"] = arg0
 	return args, nil
 }
 
@@ -5930,6 +5979,138 @@ func (ec *executionContext) fieldContext_PaginatedProducts_paginator(ctx context
 	return fc, nil
 }
 
+func (ec *executionContext) _PaginatedUsers_users(ctx context.Context, field graphql.CollectedField, obj *gmodel.PaginatedUsers) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PaginatedUsers_users(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Users, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*gmodel.User)
+	fc.Result = res
+	return ec.marshalNUser2ᚕᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐUserᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PaginatedUsers_users(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PaginatedUsers",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_User_id(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_User_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_User_updatedAt(ctx, field)
+			case "email":
+				return ec.fieldContext_User_email(ctx, field)
+			case "phoneNumber":
+				return ec.fieldContext_User_phoneNumber(ctx, field)
+			case "name":
+				return ec.fieldContext_User_name(ctx, field)
+			case "avatar":
+				return ec.fieldContext_User_avatar(ctx, field)
+			case "birthDate":
+				return ec.fieldContext_User_birthDate(ctx, field)
+			case "bio":
+				return ec.fieldContext_User_bio(ctx, field)
+			case "active":
+				return ec.fieldContext_User_active(ctx, field)
+			case "authPlatform":
+				return ec.fieldContext_User_authPlatform(ctx, field)
+			case "authDevice":
+				return ec.fieldContext_User_authDevice(ctx, field)
+			case "authStateId":
+				return ec.fieldContext_User_authStateId(ctx, field)
+			case "role":
+				return ec.fieldContext_User_role(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PaginatedUsers_paginator(ctx context.Context, field graphql.CollectedField, obj *gmodel.PaginatedUsers) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PaginatedUsers_paginator(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Paginator, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*gmodel.Paginator)
+	fc.Result = res
+	return ec.marshalNPaginator2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐPaginator(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PaginatedUsers_paginator(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PaginatedUsers",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "next":
+				return ec.fieldContext_Paginator_next(ctx, field)
+			case "page":
+				return ec.fieldContext_Paginator_page(ctx, field)
+			case "prev":
+				return ec.fieldContext_Paginator_prev(ctx, field)
+			case "total":
+				return ec.fieldContext_Paginator_total(ctx, field)
+			case "limit":
+				return ec.fieldContext_Paginator_limit(ctx, field)
+			case "numPages":
+				return ec.fieldContext_Paginator_numPages(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Paginator", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Paginator_next(ctx context.Context, field graphql.CollectedField, obj *gmodel.Paginator) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Paginator_next(ctx, field)
 	if err != nil {
@@ -8686,6 +8867,67 @@ func (ec *executionContext) fieldContext_Query_me(ctx context.Context, field gra
 			}
 			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
 		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_getAllUsers(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_getAllUsers(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetAllUsers(rctx, fc.Args["filters"].(*gmodel.UserFilter))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*gmodel.PaginatedUsers)
+	fc.Result = res
+	return ec.marshalNPaginatedUsers2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐPaginatedUsers(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_getAllUsers(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "users":
+				return ec.fieldContext_PaginatedUsers_users(ctx, field)
+			case "paginator":
+				return ec.fieldContext_PaginatedUsers_paginator(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type PaginatedUsers", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_getAllUsers_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
 	}
 	return fc, nil
 }
@@ -12569,6 +12811,54 @@ func (ec *executionContext) unmarshalInputUpdateUserFull(ctx context.Context, ob
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputUserFilter(ctx context.Context, obj interface{}) (gmodel.UserFilter, error) {
+	var it gmodel.UserFilter
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"name", "email", "id", "role"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "name":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Name = data
+		case "email":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("email"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Email = data
+		case "id":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+			data, err := ec.unmarshalOID2ᚖint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ID = data
+		case "role":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("role"))
+			data, err := ec.unmarshalOUserRole2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐUserRole(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Role = data
+		}
+	}
+
+	return it, nil
+}
+
 // endregion **************************** input.gotpl *****************************
 
 // region    ************************** interface.gotpl ***************************
@@ -13310,6 +13600,50 @@ func (ec *executionContext) _PaginatedProducts(ctx context.Context, sel ast.Sele
 	return out
 }
 
+var paginatedUsersImplementors = []string{"PaginatedUsers"}
+
+func (ec *executionContext) _PaginatedUsers(ctx context.Context, sel ast.SelectionSet, obj *gmodel.PaginatedUsers) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, paginatedUsersImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("PaginatedUsers")
+		case "users":
+			out.Values[i] = ec._PaginatedUsers_users(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "paginator":
+			out.Values[i] = ec._PaginatedUsers_paginator(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var paginatorImplementors = []string{"Paginator"}
 
 func (ec *executionContext) _Paginator(ctx context.Context, sel ast.SelectionSet, obj *gmodel.Paginator) graphql.Marshaler {
@@ -13854,6 +14188,28 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_me(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "getAllUsers":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getAllUsers(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -14931,6 +15287,20 @@ func (ec *executionContext) marshalNPaginatedProducts2ᚖgithubᚗcomᚋpricetra
 	return ec._PaginatedProducts(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNPaginatedUsers2githubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐPaginatedUsers(ctx context.Context, sel ast.SelectionSet, v gmodel.PaginatedUsers) graphql.Marshaler {
+	return ec._PaginatedUsers(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNPaginatedUsers2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐPaginatedUsers(ctx context.Context, sel ast.SelectionSet, v *gmodel.PaginatedUsers) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._PaginatedUsers(ctx, sel, v)
+}
+
 func (ec *executionContext) marshalNPaginator2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐPaginator(ctx context.Context, sel ast.SelectionSet, v *gmodel.Paginator) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -15163,6 +15533,50 @@ func (ec *executionContext) unmarshalNUpdateUserFull2githubᚗcomᚋpricetraᚋa
 
 func (ec *executionContext) marshalNUser2githubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v gmodel.User) graphql.Marshaler {
 	return ec._User(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNUser2ᚕᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐUserᚄ(ctx context.Context, sel ast.SelectionSet, v []*gmodel.User) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNUser2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐUser(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
 }
 
 func (ec *executionContext) marshalNUser2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v *gmodel.User) graphql.Marshaler {
@@ -15678,6 +16092,14 @@ func (ec *executionContext) marshalOUpload2ᚖgithubᚗcomᚋ99designsᚋgqlgen�
 	}
 	res := graphql.MarshalUpload(*v)
 	return res
+}
+
+func (ec *executionContext) unmarshalOUserFilter2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐUserFilter(ctx context.Context, v interface{}) (*gmodel.UserFilter, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputUserFilter(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalOUserRole2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐUserRole(ctx context.Context, v interface{}) (*gmodel.UserRole, error) {
