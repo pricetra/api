@@ -578,3 +578,56 @@ func (Service) RoleValue(role gmodel.UserRole) int {
 func (s Service) IsRoleAuthorized(minimum_required_role gmodel.UserRole, user_role gmodel.UserRole) bool {
 	return s.RoleValue(user_role) >= s.RoleValue(minimum_required_role)
 }
+
+func (s Service) PaginatedUsers(ctx context.Context, paginator_input gmodel.PaginatorInput, filters *gmodel.UserFilter) (result gmodel.PaginatedUsers, err error) {
+	sql_table := table.User
+	where_clause := postgres.Bool(true)
+
+	if filters != nil {
+		if filters.ID != nil {
+			where_clause = where_clause.
+				AND(table.User.ID.EQ(postgres.Int(*filters.ID)))
+		}
+		if filters.Email != nil {
+			where_clause = where_clause.AND(table.User.Email.LIKE(
+				postgres.String(fmt.Sprintf("%s%%", *filters.Email)),
+			))
+		}
+		if filters.Name != nil {
+			where_clause = where_clause.AND(table.User.Name.LIKE(
+				postgres.String(fmt.Sprintf("%%%s%%", *filters.Name)),
+			))
+		}
+		if filters.Role != nil {
+			var role model.UserRoleType
+			if err := role.Scan(filters.Role.String()); err != nil {
+				return gmodel.PaginatedUsers{}, err
+			}
+			where_clause = where_clause.
+				AND(table.User.Role.EQ(postgres.RawString("$role", map[string]any{
+					"$role": role.String(),
+				})))
+		}
+	}
+
+	paginator, err := s.Paginate(ctx, paginator_input, sql_table, table.User.ID, where_clause)
+	if err != nil {
+		return gmodel.PaginatedUsers{
+			Users: []*gmodel.User{},
+			Paginator: &gmodel.Paginator{},
+		}, nil
+	}
+	qb := table.User.
+		SELECT(table.User.AllColumns).
+		FROM(sql_table).
+		WHERE(where_clause).
+		LIMIT(int64(paginator.Limit)).
+		OFFSET(int64(paginator.Offset)).
+		ORDER_BY(table.User.ID.DESC())
+
+	if err := qb.QueryContext(ctx, s.DbOrTxQueryable(), &result.Users); err != nil {
+		return gmodel.PaginatedUsers{}, err
+	}
+	result.Paginator = &paginator.Paginator
+	return result, nil
+}

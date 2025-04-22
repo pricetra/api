@@ -215,7 +215,7 @@ type ComplexityRoot struct {
 		FindBranchesByDistance func(childComplexity int, lat float64, lon float64, radiusMeters int) int
 		FindStore              func(childComplexity int, id int64) int
 		GetAllCountries        func(childComplexity int) int
-		GetAllUsers            func(childComplexity int, filters *gmodel.UserFilter) int
+		GetAllUsers            func(childComplexity int, paginator gmodel.PaginatorInput, filters *gmodel.UserFilter) int
 		GetCategories          func(childComplexity int, depth *int, parentID *int64) int
 		GoogleOAuth            func(childComplexity int, accessToken string, ipAddress *string, device *gmodel.AuthDeviceType) int
 		Login                  func(childComplexity int, email string, password string, ipAddress *string, device *gmodel.AuthDeviceType) int
@@ -294,7 +294,7 @@ type QueryResolver interface {
 	Login(ctx context.Context, email string, password string, ipAddress *string, device *gmodel.AuthDeviceType) (*gmodel.Auth, error)
 	GoogleOAuth(ctx context.Context, accessToken string, ipAddress *string, device *gmodel.AuthDeviceType) (*gmodel.Auth, error)
 	Me(ctx context.Context) (*gmodel.User, error)
-	GetAllUsers(ctx context.Context, filters *gmodel.UserFilter) (*gmodel.PaginatedUsers, error)
+	GetAllUsers(ctx context.Context, paginator gmodel.PaginatorInput, filters *gmodel.UserFilter) (*gmodel.PaginatedUsers, error)
 }
 
 type executableSchema struct {
@@ -1225,7 +1225,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.GetAllUsers(childComplexity, args["filters"].(*gmodel.UserFilter)), true
+		return e.complexity.Query.GetAllUsers(childComplexity, args["paginator"].(gmodel.PaginatorInput), args["filters"].(*gmodel.UserFilter)), true
 
 	case "Query.getCategories":
 		if e.complexity.Query.GetCategories == nil {
@@ -1965,15 +1965,24 @@ func (ec *executionContext) field_Query_findStore_args(ctx context.Context, rawA
 func (ec *executionContext) field_Query_getAllUsers_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 *gmodel.UserFilter
-	if tmp, ok := rawArgs["filters"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("filters"))
-		arg0, err = ec.unmarshalOUserFilter2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐUserFilter(ctx, tmp)
+	var arg0 gmodel.PaginatorInput
+	if tmp, ok := rawArgs["paginator"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("paginator"))
+		arg0, err = ec.unmarshalNPaginatorInput2githubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐPaginatorInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["filters"] = arg0
+	args["paginator"] = arg0
+	var arg1 *gmodel.UserFilter
+	if tmp, ok := rawArgs["filters"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("filters"))
+		arg1, err = ec.unmarshalOUserFilter2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐUserFilter(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["filters"] = arg1
 	return args, nil
 }
 
@@ -8884,8 +8893,32 @@ func (ec *executionContext) _Query_getAllUsers(ctx context.Context, field graphq
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().GetAllUsers(rctx, fc.Args["filters"].(*gmodel.UserFilter))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().GetAllUsers(rctx, fc.Args["paginator"].(gmodel.PaginatorInput), fc.Args["filters"].(*gmodel.UserFilter))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			role, err := ec.unmarshalOUserRole2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐUserRole(ctx, "ADMIN")
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.IsAuthenticated == nil {
+				return nil, errors.New("directive isAuthenticated is not implemented")
+			}
+			return ec.directives.IsAuthenticated(ctx, nil, directive0, role)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*gmodel.PaginatedUsers); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/pricetra/api/graph/gmodel.PaginatedUsers`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)

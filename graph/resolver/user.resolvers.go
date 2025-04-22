@@ -149,6 +149,10 @@ func (r *queryResolver) Me(ctx context.Context) (*gmodel.User, error) {
 }
 
 // GetAllUsers is the resolver for the getAllUsers field.
-func (r *queryResolver) GetAllUsers(ctx context.Context, filters *gmodel.UserFilter) (*gmodel.PaginatedUsers, error) {
-	panic(fmt.Errorf("not implemented: GetAllUsers - getAllUsers"))
+func (r *queryResolver) GetAllUsers(ctx context.Context, paginator gmodel.PaginatorInput, filters *gmodel.UserFilter) (*gmodel.PaginatedUsers, error) {
+	result, err := r.Service.PaginatedUsers(ctx, paginator, filters)
+	if err != nil {
+		return nil, err
+	}
+	return &result, nil
 }

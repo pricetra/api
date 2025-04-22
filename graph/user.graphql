@@ -21,7 +21,7 @@ extend type Query {
     device: AuthDeviceType
   ): Auth!
   me: User! @isAuthenticated
-  getAllUsers(filters: UserFilter): PaginatedUsers!
+  getAllUsers(paginator: PaginatorInput!, filters: UserFilter): PaginatedUsers! @isAuthenticated(role: "ADMIN")
 }
 
 type PaginatedUsers {
