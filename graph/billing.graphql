@@ -1,6 +1,7 @@
 extend type Query {
   myProductBillingData(paginator: PaginatorInput!): PaginatedProductBilling!
     @isAuthenticated
+  productBillingDataByUserId(userId: ID!, paginator: PaginatorInput!): PaginatedProductBilling! @isAuthenticated(role: "ADMIN")
 }
 
 type ProductBilling {

@@ -6,6 +6,7 @@ package gresolver
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/pricetra/api/graph"
 	"github.com/pricetra/api/graph/gmodel"
@@ -14,6 +15,19 @@ import (
 // MyProductBillingData is the resolver for the myProductBillingData field.
 func (r *queryResolver) MyProductBillingData(ctx context.Context, paginator gmodel.PaginatorInput) (*gmodel.PaginatedProductBilling, error) {
 	user := r.Service.GetAuthUserFromContext(ctx)
+	res, err := r.Service.FindProductBillingByUser(ctx, paginator, user)
+	if err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+// ProductBillingDataByUserID is the resolver for the productBillingDataByUserId field.
+func (r *queryResolver) ProductBillingDataByUserID(ctx context.Context, userID int64, paginator gmodel.PaginatorInput) (*gmodel.PaginatedProductBilling, error) {
+	user, err := r.Service.FindUserById(ctx, userID)
+	if err != nil {
+		return nil, fmt.Errorf("could not find user with id")
+	}
 	res, err := r.Service.FindProductBillingByUser(ctx, paginator, user)
 	if err != nil {
 		return nil, err
