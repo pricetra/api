@@ -206,21 +206,22 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		AllBranches            func(childComplexity int, storeID int64) int
-		AllBrands              func(childComplexity int) int
-		AllProducts            func(childComplexity int, paginator gmodel.PaginatorInput, search *gmodel.ProductSearch) int
-		AllStores              func(childComplexity int) int
-		BarcodeScan            func(childComplexity int, barcode string) int
-		FindBranch             func(childComplexity int, storeID int64, id int64) int
-		FindBranchesByDistance func(childComplexity int, lat float64, lon float64, radiusMeters int) int
-		FindStore              func(childComplexity int, id int64) int
-		GetAllCountries        func(childComplexity int) int
-		GetAllUsers            func(childComplexity int, paginator gmodel.PaginatorInput, filters *gmodel.UserFilter) int
-		GetCategories          func(childComplexity int, depth *int, parentID *int64) int
-		GoogleOAuth            func(childComplexity int, accessToken string, ipAddress *string, device *gmodel.AuthDeviceType) int
-		Login                  func(childComplexity int, email string, password string, ipAddress *string, device *gmodel.AuthDeviceType) int
-		Me                     func(childComplexity int) int
-		MyProductBillingData   func(childComplexity int, paginator gmodel.PaginatorInput) int
+		AllBranches                func(childComplexity int, storeID int64) int
+		AllBrands                  func(childComplexity int) int
+		AllProducts                func(childComplexity int, paginator gmodel.PaginatorInput, search *gmodel.ProductSearch) int
+		AllStores                  func(childComplexity int) int
+		BarcodeScan                func(childComplexity int, barcode string) int
+		FindBranch                 func(childComplexity int, storeID int64, id int64) int
+		FindBranchesByDistance     func(childComplexity int, lat float64, lon float64, radiusMeters int) int
+		FindStore                  func(childComplexity int, id int64) int
+		GetAllCountries            func(childComplexity int) int
+		GetAllUsers                func(childComplexity int, paginator gmodel.PaginatorInput, filters *gmodel.UserFilter) int
+		GetCategories              func(childComplexity int, depth *int, parentID *int64) int
+		GoogleOAuth                func(childComplexity int, accessToken string, ipAddress *string, device *gmodel.AuthDeviceType) int
+		Login                      func(childComplexity int, email string, password string, ipAddress *string, device *gmodel.AuthDeviceType) int
+		Me                         func(childComplexity int) int
+		MyProductBillingData       func(childComplexity int, paginator gmodel.PaginatorInput) int
+		ProductBillingDataByUserID func(childComplexity int, userID int64, paginator gmodel.PaginatorInput) int
 	}
 
 	Store struct {
@@ -281,6 +282,7 @@ type MutationResolver interface {
 }
 type QueryResolver interface {
 	MyProductBillingData(ctx context.Context, paginator gmodel.PaginatorInput) (*gmodel.PaginatedProductBilling, error)
+	ProductBillingDataByUserID(ctx context.Context, userID int64, paginator gmodel.PaginatorInput) (*gmodel.PaginatedProductBilling, error)
 	AllBranches(ctx context.Context, storeID int64) ([]*gmodel.Branch, error)
 	FindBranch(ctx context.Context, storeID int64, id int64) (*gmodel.Branch, error)
 	FindBranchesByDistance(ctx context.Context, lat float64, lon float64, radiusMeters int) ([]*gmodel.Branch, error)
@@ -1282,6 +1284,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.MyProductBillingData(childComplexity, args["paginator"].(gmodel.PaginatorInput)), true
 
+	case "Query.productBillingDataByUserId":
+		if e.complexity.Query.ProductBillingDataByUserID == nil {
+			break
+		}
+
+		args, err := ec.field_Query_productBillingDataByUserId_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.ProductBillingDataByUserID(childComplexity, args["userId"].(int64), args["paginator"].(gmodel.PaginatorInput)), true
+
 	case "Store.createdBy":
 		if e.complexity.Store.CreatedBy == nil {
 			break
@@ -2097,6 +2111,30 @@ func (ec *executionContext) field_Query_myProductBillingData_args(ctx context.Co
 		}
 	}
 	args["paginator"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_productBillingDataByUserId_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 int64
+	if tmp, ok := rawArgs["userId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userId"))
+		arg0, err = ec.unmarshalNID2int64(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["userId"] = arg0
+	var arg1 gmodel.PaginatorInput
+	if tmp, ok := rawArgs["paginator"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("paginator"))
+		arg1, err = ec.unmarshalNPaginatorInput2githubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐPaginatorInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["paginator"] = arg1
 	return args, nil
 }
 
@@ -7773,6 +7811,91 @@ func (ec *executionContext) fieldContext_Query_myProductBillingData(ctx context.
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Query_myProductBillingData_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_productBillingDataByUserId(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_productBillingDataByUserId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().ProductBillingDataByUserID(rctx, fc.Args["userId"].(int64), fc.Args["paginator"].(gmodel.PaginatorInput))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			role, err := ec.unmarshalOUserRole2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐUserRole(ctx, "ADMIN")
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.IsAuthenticated == nil {
+				return nil, errors.New("directive isAuthenticated is not implemented")
+			}
+			return ec.directives.IsAuthenticated(ctx, nil, directive0, role)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*gmodel.PaginatedProductBilling); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/pricetra/api/graph/gmodel.PaginatedProductBilling`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*gmodel.PaginatedProductBilling)
+	fc.Result = res
+	return ec.marshalNPaginatedProductBilling2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐPaginatedProductBilling(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_productBillingDataByUserId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "data":
+				return ec.fieldContext_PaginatedProductBilling_data(ctx, field)
+			case "paginator":
+				return ec.fieldContext_PaginatedProductBilling_paginator(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type PaginatedProductBilling", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_productBillingDataByUserId_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -13935,6 +14058,28 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_myProductBillingData(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "productBillingDataByUserId":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_productBillingDataByUserId(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}

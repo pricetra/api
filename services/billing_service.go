@@ -81,7 +81,10 @@ func (s Service) FindProductBillingByUser(ctx context.Context, paginator_input g
 
 	paginator, err := s.Paginate(ctx, paginator_input, my_table, table.ProductBilling.ID, where_clause)
 	if err != nil {
-		return gmodel.PaginatedProductBilling{}, nil
+		return gmodel.PaginatedProductBilling{
+			Data: []*gmodel.ProductBilling{},
+			Paginator: &gmodel.Paginator{},
+		}, nil
 	}
 
 	qb := table.ProductBilling.
