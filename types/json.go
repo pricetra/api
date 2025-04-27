@@ -15,6 +15,7 @@ type Tokens struct {
 	JwtKey string
 	EmailServer EmailServer
 	Cloudinary CloudinaryTokens `json:"cloudinary"`
+	UPCitemdbUserKey string
 	// To add other tokens create a struct and add them here,
 	// make sure to also update ./tokens.json
 }

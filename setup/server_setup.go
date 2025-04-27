@@ -44,6 +44,7 @@ func NewServer(db_conn *sql.DB, router *chi.Mux) *types.ServerBase {
 			ApiKey: os.Getenv("CLOUDINARY_API_KEY"),
 			ApiSecret: os.Getenv("CLOUDINARY_API_SECRET"),
 		},
+		UPCitemdbUserKey: os.Getenv("UPCITEMDB_USER_KEY"),
 	}
 
 	// Setup Cloudinary CDN

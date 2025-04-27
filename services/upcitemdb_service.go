@@ -17,7 +17,13 @@ import (
 
 // Docs: https://www.upcitemdb.com/api/explorer#!/lookup/get_trial_lookup
 const UPCItemdb_API_ROOT = "https://api.upcitemdb.com/prod"
-const UPCItemdb_API = UPCItemdb_API_ROOT + "/trial"
+
+func (s Service) GetUPCItemdbApiUrl() string {
+	if s.Tokens.UPCitemdbUserKey == "" {
+		return UPCItemdb_API_ROOT + "/trial"
+	}
+	return UPCItemdb_API_ROOT + "/v1"
+}
 
 type UPCItemDbJsonResultItem struct {
 	Ean string `json:"ean"`
