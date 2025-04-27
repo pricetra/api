@@ -8,8 +8,12 @@ extend type Query {
 }
 
 extend type Mutation {
-  createProduct(input: CreateProduct!): Product! @isAuthenticated(role: "CONTRIBUTOR")
-  updateProduct(id: ID!, input: UpdateProduct!): Product! @isAuthenticated(role: "CONTRIBUTOR")
+  createProduct(input: CreateProduct!): Product!
+    @isAuthenticated(role: "CONTRIBUTOR")
+  updateProduct(id: ID!, input: UpdateProduct!): Product!
+    @isAuthenticated(role: "CONTRIBUTOR")
+  saveProductsFromUPCItemDb(input: SaveExternalProductInput!): [Product!]!
+    @isAuthenticated(role: "SUPER_ADMIN")
 }
 
 type PaginatedProducts {
@@ -81,4 +85,12 @@ input ProductSearch {
   query: String
   category: String
   categoryId: ID
+}
+
+input SaveExternalProductInput {
+  numPagesToQuery: Int!
+  search: String!
+  category: String
+  brand: String
+  upc: String
 }
