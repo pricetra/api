@@ -178,7 +178,12 @@ func (s Service) CategoryRecursiveInsert(ctx context.Context, category_str strin
 		}
 		categories[i], err = s.CreateCategory(ctx, input)
 		if err != nil {
-			return gmodel.Category{}, err
+			// Category could already exist with a different path
+			// so we will use it instead
+			categories[i], err = s.FindCategoryByExactName(ctx, category_name)
+			if err != nil {
+				return gmodel.Category{}, err
+			}
 		}
 	}
 	return categories[len(categories) - 1], nil

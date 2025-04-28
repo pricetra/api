@@ -67,7 +67,7 @@ func (ob UPCItemDbJsonResultItem) ToCreateProduct(ctx context.Context, service S
 	}
 	category, err := service.CategoryRecursiveInsert(ctx, ob_category)
 	if err != nil {
-		panic(err)
+		category, _ = service.FindCategoryByExactName(ctx, ob_category)
 	}
 	return gmodel.CreateProduct{
 		Name: ob.Title,
