@@ -12,7 +12,7 @@ extend type Mutation {
     @isAuthenticated(role: "CONTRIBUTOR")
   updateProduct(id: ID!, input: UpdateProduct!): Product!
     @isAuthenticated(role: "CONTRIBUTOR")
-  saveProductsFromUPCItemDb(input: SaveExternalProductInput!): [Product!]!
+  saveProductsFromUPCItemDb(input: SaveExternalProductInput!): SearchResult!
     @isAuthenticated(role: "SUPER_ADMIN")
 }
 
@@ -47,6 +47,12 @@ type Product {
   createdBy: CreatedByUser
   updatedById: ID
   updatedBy: UpdatedByUser
+}
+
+type SearchResult {
+  total: Int!
+  added: Int!
+  failed: Int!
 }
 
 input CreateProduct {

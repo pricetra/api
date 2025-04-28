@@ -230,6 +230,12 @@ type SaveExternalProductInput struct {
 	Upc             *string `json:"upc,omitempty"`
 }
 
+type SearchResult struct {
+	Total  int `json:"total"`
+	Added  int `json:"added"`
+	Failed int `json:"failed"`
+}
+
 type Store struct {
 	ID          int64          `json:"id" sql:"primary_key"`
 	Name        string         `json:"name"`

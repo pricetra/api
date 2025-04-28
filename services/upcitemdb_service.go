@@ -131,12 +131,12 @@ func (s Service) UPCItemdbSearch(ctx context.Context, search gmodel.SaveExternal
 	return s.FetchUPCItemdb(ctx, "/search?" + query_params.Encode())
 }
 
-func (s Service) UPCItemdbSaveSearchProducts(ctx context.Context, user gmodel.User, search gmodel.SaveExternalProductInput) (products []*gmodel.Product, err error) {
+func (s Service) UPCItemdbSaveSearchProducts(ctx context.Context, user gmodel.User, search gmodel.SaveExternalProductInput) (res gmodel.SearchResult, err error) {
 	source := model.ProductSourceType_Upcitemdb
 	offset := 0
 	for i := 0; i < search.NumPagesToQuery; i++ {
 		if i != 0 && offset == 0 {
-			fmt.Println("added ", len(products), ". done.")
+			fmt.Println("added ", res.Total, ". done.")
 			break
 		}
 
@@ -149,23 +149,28 @@ func (s Service) UPCItemdbSaveSearchProducts(ctx context.Context, user gmodel.Us
 				time.Sleep(10 * time.Second)
 				continue
 			}
-			return nil, err
+			return res, err
 		}
 
 		offset = results.Offset
 		for _, result := range results.Items {
+			res.Total += 1
+
 			if result.Upc == "" || result.Brand == "" || result.Title == "" || len(result.Images) == 0 {
+				res.Failed += 1
 				log.Printf("skipping %+v\n", result)
 				continue
 			}
 			log.Println(result.Upc)
 			if s.BarcodeExists(ctx, result.Upc) {
+				res.Failed += 1
 				log.Println("already exists. skipping.")
 				continue
 			}
 			input := result.ToCreateProduct(ctx, s, nil)
 			product, err := s.CreateProduct(ctx, user, input, &source)
 			if err != nil {
+				res.Failed += 1
 				log.Println("could not add product", err)
 				continue
 			}
@@ -179,10 +184,10 @@ func (s Service) UPCItemdbSaveSearchProducts(ctx context.Context, user gmodel.Us
 					log.Println("could not upload remote product image URL.", err.Error())
 				}
 			}
-			products = append(products, &product)
+			res.Added += 1
 		}
 		log.Printf("Waiting....\n\n")
-		time.Sleep(10 * time.Second)
+		time.Sleep(5 * time.Second)
 	}
-	return products, nil
+	return res, nil
 }

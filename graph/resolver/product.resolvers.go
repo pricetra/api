@@ -65,9 +65,13 @@ func (r *mutationResolver) UpdateProduct(ctx context.Context, id int64, input gm
 }
 
 // SaveProductsFromUPCItemDb is the resolver for the saveProductsFromUPCItemDb field.
-func (r *mutationResolver) SaveProductsFromUPCItemDb(ctx context.Context, input gmodel.SaveExternalProductInput) ([]*gmodel.Product, error) {
+func (r *mutationResolver) SaveProductsFromUPCItemDb(ctx context.Context, input gmodel.SaveExternalProductInput) (*gmodel.SearchResult, error) {
 	user := r.Service.GetAuthUserFromContext(ctx)
-	return r.Service.UPCItemdbSaveSearchProducts(ctx, user, input)
+	res, err := r.Service.UPCItemdbSaveSearchProducts(ctx, user, input)
+	if err != nil {
+		return nil, err
+	}
+	return &res, nil
 }
 
 // BarcodeScan is the resolver for the barcodeScan field.
