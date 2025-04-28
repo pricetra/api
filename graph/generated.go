@@ -140,6 +140,7 @@ type ComplexityRoot struct {
 		CreateStore                 func(childComplexity int, input gmodel.CreateStore) int
 		Logout                      func(childComplexity int) int
 		ResendEmailVerificationCode func(childComplexity int, email string) int
+		SaveProductsFromUPCItemDb   func(childComplexity int, input gmodel.SaveExternalProductInput) int
 		UpdateProduct               func(childComplexity int, id int64, input gmodel.UpdateProduct) int
 		UpdateProfile               func(childComplexity int, input gmodel.UpdateUser) int
 		UpdateUserByID              func(childComplexity int, userID string, input gmodel.UpdateUserFull) int
@@ -224,6 +225,12 @@ type ComplexityRoot struct {
 		ProductBillingDataByUserID func(childComplexity int, userID int64, paginator gmodel.PaginatorInput) int
 	}
 
+	SearchResult struct {
+		Added  func(childComplexity int) int
+		Failed func(childComplexity int) int
+		Total  func(childComplexity int) int
+	}
+
 	Store struct {
 		CreatedBy   func(childComplexity int) int
 		CreatedByID func(childComplexity int) int
@@ -272,6 +279,7 @@ type MutationResolver interface {
 	CreateCategory(ctx context.Context, input gmodel.CreateCategory) (*gmodel.Category, error)
 	CreateProduct(ctx context.Context, input gmodel.CreateProduct) (*gmodel.Product, error)
 	UpdateProduct(ctx context.Context, id int64, input gmodel.UpdateProduct) (*gmodel.Product, error)
+	SaveProductsFromUPCItemDb(ctx context.Context, input gmodel.SaveExternalProductInput) (*gmodel.SearchResult, error)
 	CreateStore(ctx context.Context, input gmodel.CreateStore) (*gmodel.Store, error)
 	CreateAccount(ctx context.Context, input gmodel.CreateAccountInput) (*gmodel.User, error)
 	VerifyEmail(ctx context.Context, verificationCode string) (*gmodel.User, error)
@@ -789,6 +797,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.ResendEmailVerificationCode(childComplexity, args["email"].(string)), true
 
+	case "Mutation.saveProductsFromUPCItemDb":
+		if e.complexity.Mutation.SaveProductsFromUPCItemDb == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_saveProductsFromUPCItemDb_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.SaveProductsFromUPCItemDb(childComplexity, args["input"].(gmodel.SaveExternalProductInput)), true
+
 	case "Mutation.updateProduct":
 		if e.complexity.Mutation.UpdateProduct == nil {
 			break
@@ -1296,6 +1316,27 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.ProductBillingDataByUserID(childComplexity, args["userId"].(int64), args["paginator"].(gmodel.PaginatorInput)), true
 
+	case "SearchResult.added":
+		if e.complexity.SearchResult.Added == nil {
+			break
+		}
+
+		return e.complexity.SearchResult.Added(childComplexity), true
+
+	case "SearchResult.failed":
+		if e.complexity.SearchResult.Failed == nil {
+			break
+		}
+
+		return e.complexity.SearchResult.Failed(childComplexity), true
+
+	case "SearchResult.total":
+		if e.complexity.SearchResult.Total == nil {
+			break
+		}
+
+		return e.complexity.SearchResult.Total(childComplexity), true
+
 	case "Store.createdBy":
 		if e.complexity.Store.CreatedBy == nil {
 			break
@@ -1522,6 +1563,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputCreateStore,
 		ec.unmarshalInputPaginatorInput,
 		ec.unmarshalInputProductSearch,
+		ec.unmarshalInputSaveExternalProductInput,
 		ec.unmarshalInputUpdateProduct,
 		ec.unmarshalInputUpdateUser,
 		ec.unmarshalInputUpdateUserFull,
@@ -1754,6 +1796,21 @@ func (ec *executionContext) field_Mutation_resendEmailVerificationCode_args(ctx 
 		}
 	}
 	args["email"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_saveProductsFromUPCItemDb_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 gmodel.SaveExternalProductInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNSaveExternalProductInput2githubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐSaveExternalProductInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
 	return args, nil
 }
 
@@ -5154,6 +5211,93 @@ func (ec *executionContext) fieldContext_Mutation_updateProduct(ctx context.Cont
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_updateProduct_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_saveProductsFromUPCItemDb(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_saveProductsFromUPCItemDb(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().SaveProductsFromUPCItemDb(rctx, fc.Args["input"].(gmodel.SaveExternalProductInput))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			role, err := ec.unmarshalOUserRole2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐUserRole(ctx, "SUPER_ADMIN")
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.IsAuthenticated == nil {
+				return nil, errors.New("directive isAuthenticated is not implemented")
+			}
+			return ec.directives.IsAuthenticated(ctx, nil, directive0, role)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*gmodel.SearchResult); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/pricetra/api/graph/gmodel.SearchResult`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*gmodel.SearchResult)
+	fc.Result = res
+	return ec.marshalNSearchResult2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐSearchResult(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_saveProductsFromUPCItemDb(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "total":
+				return ec.fieldContext_SearchResult_total(ctx, field)
+			case "added":
+				return ec.fieldContext_SearchResult_added(ctx, field)
+			case "failed":
+				return ec.fieldContext_SearchResult_failed(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type SearchResult", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_saveProductsFromUPCItemDb_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -9217,6 +9361,138 @@ func (ec *executionContext) fieldContext_Query___schema(ctx context.Context, fie
 	return fc, nil
 }
 
+func (ec *executionContext) _SearchResult_total(ctx context.Context, field graphql.CollectedField, obj *gmodel.SearchResult) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SearchResult_total(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Total, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SearchResult_total(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SearchResult",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SearchResult_added(ctx context.Context, field graphql.CollectedField, obj *gmodel.SearchResult) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SearchResult_added(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Added, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SearchResult_added(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SearchResult",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _SearchResult_failed(ctx context.Context, field graphql.CollectedField, obj *gmodel.SearchResult) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_SearchResult_failed(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Failed, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_SearchResult_failed(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "SearchResult",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Store_id(ctx context.Context, field graphql.CollectedField, obj *gmodel.Store) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Store_id(ctx, field)
 	if err != nil {
@@ -12718,6 +12994,68 @@ func (ec *executionContext) unmarshalInputProductSearch(ctx context.Context, obj
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputSaveExternalProductInput(ctx context.Context, obj interface{}) (gmodel.SaveExternalProductInput, error) {
+	var it gmodel.SaveExternalProductInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"numPagesToQuery", "search", "category", "brand", "upc", "offset"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "numPagesToQuery":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("numPagesToQuery"))
+			data, err := ec.unmarshalNInt2int(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NumPagesToQuery = data
+		case "search":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("search"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Search = data
+		case "category":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("category"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Category = data
+		case "brand":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("brand"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Brand = data
+		case "upc":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("upc"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Upc = data
+		case "offset":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("offset"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Offset = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputUpdateProduct(ctx context.Context, obj interface{}) (gmodel.UpdateProduct, error) {
 	var it gmodel.UpdateProduct
 	asMap := map[string]interface{}{}
@@ -13596,6 +13934,13 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "saveProductsFromUPCItemDb":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_saveProductsFromUPCItemDb(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "createStore":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_createStore(ctx, field)
@@ -14408,6 +14753,55 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Query___schema(ctx, field)
 			})
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var searchResultImplementors = []string{"SearchResult"}
+
+func (ec *executionContext) _SearchResult(ctx context.Context, sel ast.SelectionSet, obj *gmodel.SearchResult) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, searchResultImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("SearchResult")
+		case "total":
+			out.Values[i] = ec._SearchResult_total(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "added":
+			out.Values[i] = ec._SearchResult_added(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "failed":
+			out.Values[i] = ec._SearchResult_failed(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -15604,6 +15998,25 @@ func (ec *executionContext) marshalNProductBilling2ᚖgithubᚗcomᚋpricetraᚋ
 		return graphql.Null
 	}
 	return ec._ProductBilling(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNSaveExternalProductInput2githubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐSaveExternalProductInput(ctx context.Context, v interface{}) (gmodel.SaveExternalProductInput, error) {
+	res, err := ec.unmarshalInputSaveExternalProductInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNSearchResult2githubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐSearchResult(ctx context.Context, sel ast.SelectionSet, v gmodel.SearchResult) graphql.Marshaler {
+	return ec._SearchResult(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNSearchResult2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐSearchResult(ctx context.Context, sel ast.SelectionSet, v *gmodel.SearchResult) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._SearchResult(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNStore2githubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐStore(ctx context.Context, sel ast.SelectionSet, v gmodel.Store) graphql.Marshaler {

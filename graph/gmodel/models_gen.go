@@ -222,6 +222,21 @@ type ProductSearch struct {
 type Query struct {
 }
 
+type SaveExternalProductInput struct {
+	NumPagesToQuery int     `json:"numPagesToQuery"`
+	Search          string  `json:"search"`
+	Category        *string `json:"category,omitempty"`
+	Brand           *string `json:"brand,omitempty"`
+	Upc             *string `json:"upc,omitempty"`
+	Offset          *int    `json:"offset,omitempty"`
+}
+
+type SearchResult struct {
+	Total  int `json:"total"`
+	Added  int `json:"added"`
+	Failed int `json:"failed"`
+}
+
 type Store struct {
 	ID          int64          `json:"id" sql:"primary_key"`
 	Name        string         `json:"name"`

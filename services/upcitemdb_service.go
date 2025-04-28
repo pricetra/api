@@ -4,13 +4,26 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
+	"net/url"
 	"strings"
+	"time"
 
+	"github.com/cloudinary/cloudinary-go/v2/api/uploader"
+	"github.com/pricetra/api/database/jet/postgres/public/model"
 	"github.com/pricetra/api/graph/gmodel"
 )
 
-const UPCItemdb_API = "https://api.upcitemdb.com/prod"
+// Docs: https://www.upcitemdb.com/api/explorer#!/lookup/get_trial_lookup
+const UPCItemdb_API_ROOT = "https://api.upcitemdb.com/prod"
+
+func (s Service) GetUPCItemdbApiUrl() string {
+	if s.Tokens.UPCitemdbUserKey == "" {
+		return UPCItemdb_API_ROOT + "/trial"
+	}
+	return UPCItemdb_API_ROOT + "/v1"
+}
 
 type UPCItemDbJsonResultItem struct {
 	Ean string `json:"ean"`
@@ -71,22 +84,114 @@ func (ob UPCItemDbJsonResultItem) ToCreateProduct(ctx context.Context, service S
 	}
 }
 
-func (s Service) UPCItemDbLookupWithUpcCode(upc string) (result UPCItemDbJsonResult, err error) {
-	res, err := http.Get(fmt.Sprintf("%s/trial/lookup?upc=%s", UPCItemdb_API, upc))
+func (s Service) FetchUPCItemdb(ctx context.Context, endpoint string) (result UPCItemDbJsonResult, err error) {
+	client := http.Client{}
+	url := fmt.Sprintf("%s%s", s.GetUPCItemdbApiUrl(), endpoint)
+	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
 	if err != nil {
-		return result, err
+		return UPCItemDbJsonResult{}, err
 	}
 
+	if s.Tokens.UPCitemdbUserKey != "" {
+		req.Header = http.Header{
+			"user_key": {s.Tokens.UPCitemdbUserKey},
+		}
+	}
+	res, err := client.Do(req)
+	if err != nil {
+		return UPCItemDbJsonResult{}, err
+	}
 	if err := json.NewDecoder(res.Body).Decode(&result); err != nil {
 		return UPCItemDbJsonResult{}, err
 	}
 
 	if result.Code != "OK" {
-		message := ""
-		if result.Message != nil {
-			message = *result.Message
-		}
-		return UPCItemDbJsonResult{}, fmt.Errorf("%s - %s", result.Code, message)
+		return UPCItemDbJsonResult{}, fmt.Errorf(result.Code)
 	}
 	return result, nil
+}
+
+func (s Service) UPCItemDbLookupWithUpcCode(ctx context.Context, upc string) (result UPCItemDbJsonResult, err error) {
+	return s.FetchUPCItemdb(ctx, "/lookup?upc=" + upc)
+}
+
+func (s Service) UPCItemdbSearch(ctx context.Context, search gmodel.SaveExternalProductInput, offset *int) (result UPCItemDbJsonResult, err error) {
+	// See https://www.upcitemdb.com/api/explorer#!/search/get_trial_search
+	query_params := url.Values{}
+	query_params.Add("s", search.Search)
+	if offset != nil {
+		query_params.Add("offset", fmt.Sprint(*offset))
+	}
+	if search.Brand != nil {
+		query_params.Add("brand", *search.Brand)
+	}
+	if search.Category != nil {
+		query_params.Add("category", *search.Category)
+	}
+	return s.FetchUPCItemdb(ctx, "/search?" + query_params.Encode())
+}
+
+func (s Service) UPCItemdbSaveSearchProducts(ctx context.Context, user gmodel.User, search gmodel.SaveExternalProductInput) (res gmodel.SearchResult, err error) {
+	source := model.ProductSourceType_Upcitemdb
+	offset := 0
+	if search.Offset != nil {
+		offset = *search.Offset
+	}
+	for i := 0; i < search.NumPagesToQuery; i++ {
+		if i != 0 && offset == 0 {
+			fmt.Println("added ", res.Total, ". done.")
+			break
+		}
+
+		log.Println("iteration: ", i + 1)
+		results, err := s.UPCItemdbSearch(ctx, search, &offset)
+		if err != nil {
+			if err.Error() == "TOO_FAST" {
+				log.Println(err.Error(), "waiting 10 seconds")
+				i = i - 1
+				time.Sleep(10 * time.Second)
+				continue
+			}
+			log.Println(err.Error())
+			return res, nil
+		}
+
+		offset = results.Offset
+		for _, result := range results.Items {
+			res.Total += 1
+
+			if result.Upc == "" || result.Brand == "" || result.Title == "" || len(result.Images) == 0 {
+				res.Failed += 1
+				log.Printf("skipping %+v\n", result)
+				continue
+			}
+			log.Println(result.Upc)
+			if s.BarcodeExists(ctx, result.Upc) {
+				res.Failed += 1
+				log.Println("already exists. skipping.")
+				continue
+			}
+			input := result.ToCreateProduct(ctx, s, nil)
+			product, err := s.CreateProduct(ctx, user, input, &source)
+			if err != nil {
+				res.Failed += 1
+				log.Println("could not add product", err)
+				continue
+			}
+			// Upload image...
+			if input.Image != nil {
+				_, err := s.ImageUrlUpload(ctx, *input.Image, uploader.UploadParams{
+					PublicID: product.Code,
+					Tags:     []string{"PRODUCT"},
+				})
+				if err != nil {
+					log.Println("could not upload remote product image URL.", err.Error())
+				}
+			}
+			res.Added += 1
+		}
+		log.Printf("Waiting....\n\n")
+		time.Sleep(5 * time.Second)
+	}
+	return res, nil
 }
