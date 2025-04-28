@@ -78,7 +78,7 @@ func (r *queryResolver) BarcodeScan(ctx context.Context, barcode string) (*gmode
 		return &product, nil
 	}
 
-	result, err := r.Service.UPCItemDbLookupWithUpcCode(barcode)
+	result, err := r.Service.UPCItemDbLookupWithUpcCode(ctx, barcode)
 	if err != nil {
 		return nil, err
 	}

@@ -84,31 +84,38 @@ func (ob UPCItemDbJsonResultItem) ToCreateProduct(ctx context.Context, service S
 	}
 }
 
-func (Service) FetchUPCItemdb(endpoint string) (result UPCItemDbJsonResult, err error) {
-	res, err := http.Get(fmt.Sprintf("%s%s", UPCItemdb_API, endpoint))
+func (s Service) FetchUPCItemdb(ctx context.Context, endpoint string) (result UPCItemDbJsonResult, err error) {
+	client := http.Client{}
+	url := fmt.Sprintf("%s%s", s.GetUPCItemdbApiUrl(), endpoint)
+	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
 	if err != nil {
-		return result, err
+		return UPCItemDbJsonResult{}, err
 	}
 
+	if s.Tokens.UPCitemdbUserKey != "" {
+		req.Header = http.Header{
+			"user_key": {s.Tokens.UPCitemdbUserKey},
+		}
+	}
+	res, err := client.Do(req)
+	if err != nil {
+		return UPCItemDbJsonResult{}, err
+	}
 	if err := json.NewDecoder(res.Body).Decode(&result); err != nil {
 		return UPCItemDbJsonResult{}, err
 	}
 
 	if result.Code != "OK" {
-		message := ""
-		if result.Message != nil {
-			message = *result.Message
-		}
-		return UPCItemDbJsonResult{}, fmt.Errorf("%s - %s", result.Code, message)
+		return UPCItemDbJsonResult{}, fmt.Errorf(result.Code)
 	}
 	return result, nil
 }
 
-func (s Service) UPCItemDbLookupWithUpcCode(upc string) (result UPCItemDbJsonResult, err error) {
-	return s.FetchUPCItemdb(fmt.Sprintf("/lookup?upc=%s", upc))
+func (s Service) UPCItemDbLookupWithUpcCode(ctx context.Context, upc string) (result UPCItemDbJsonResult, err error) {
+	return s.FetchUPCItemdb(ctx, "/lookup?upc=" + upc)
 }
 
-func (s Service) UPCItemdbSearch(search gmodel.SaveExternalProductInput, offset *int) (result UPCItemDbJsonResult, err error) {
+func (s Service) UPCItemdbSearch(ctx context.Context, search gmodel.SaveExternalProductInput, offset *int) (result UPCItemDbJsonResult, err error) {
 	// See https://www.upcitemdb.com/api/explorer#!/search/get_trial_search
 	query_params := url.Values{}
 	query_params.Add("s", search.Search)
@@ -121,7 +128,7 @@ func (s Service) UPCItemdbSearch(search gmodel.SaveExternalProductInput, offset 
 	if search.Category != nil {
 		query_params.Add("category", *search.Category)
 	}
-	return s.FetchUPCItemdb("/search?" + query_params.Encode())
+	return s.FetchUPCItemdb(ctx, "/search?" + query_params.Encode())
 }
 
 func (s Service) UPCItemdbSaveSearchProducts(ctx context.Context, user gmodel.User, search gmodel.SaveExternalProductInput) (products []*gmodel.Product, err error) {
@@ -129,16 +136,21 @@ func (s Service) UPCItemdbSaveSearchProducts(ctx context.Context, user gmodel.Us
 	offset := 0
 	for i := 0; i < search.NumPagesToQuery; i++ {
 		if i != 0 && offset == 0 {
+			fmt.Println("added ", len(products), ". done.")
 			break
 		}
 
-		log.Println("Iteration: ", i)
-		results, err := s.UPCItemdbSearch(search, &offset)
+		log.Println("iteration: ", i + 1)
+		results, err := s.UPCItemdbSearch(ctx, search, &offset)
 		if err != nil {
+			if err.Error() == "TOO_FAST" {
+				log.Println(err.Error(), "waiting 10 seconds")
+				i = i - 1
+				time.Sleep(10 * time.Second)
+				continue
+			}
 			return nil, err
 		}
-
-		log.Printf("%+v\n", results)
 
 		offset = results.Offset
 		for _, result := range results.Items {
@@ -146,12 +158,12 @@ func (s Service) UPCItemdbSaveSearchProducts(ctx context.Context, user gmodel.Us
 				log.Printf("skipping %+v\n", result)
 				continue
 			}
+			log.Println(result.Upc)
 			if s.BarcodeExists(ctx, result.Upc) {
-				log.Println(result.Upc, "already exists. skipping.")
+				log.Println("already exists. skipping.")
 				continue
 			}
 			input := result.ToCreateProduct(ctx, s, nil)
-			input.Name = strings.ToTitle(input.Name)
 			product, err := s.CreateProduct(ctx, user, input, &source)
 			if err != nil {
 				log.Println("could not add product", err)
@@ -169,6 +181,7 @@ func (s Service) UPCItemdbSaveSearchProducts(ctx context.Context, user gmodel.Us
 			}
 			products = append(products, &product)
 		}
+		log.Printf("Waiting....\n\n")
 		time.Sleep(10 * time.Second)
 	}
 	return products, nil
