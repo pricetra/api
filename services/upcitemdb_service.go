@@ -160,7 +160,7 @@ func (s Service) UPCItemdbSaveSearchProducts(ctx context.Context, user gmodel.Us
 		for _, result := range results.Items {
 			res.Total += 1
 
-			if result.Upc == "" || result.Brand == "" || result.Title == "" || len(result.Images) == 0 {
+			if result.Upc == "" || result.Brand == "" || result.Title == "" || result.Category == nil || len(result.Images) == 0 {
 				res.Failed += 1
 				log.Printf("skipping %+v\n", result)
 				continue
@@ -175,7 +175,7 @@ func (s Service) UPCItemdbSaveSearchProducts(ctx context.Context, user gmodel.Us
 			product, err := s.CreateProduct(ctx, user, input, &source)
 			if err != nil {
 				res.Failed += 1
-				log.Println("could not add product", err)
+				log.Printf("could not add product. %s. %+v. %+v", err, result, input)
 				continue
 			}
 			// Upload image...
@@ -190,7 +190,7 @@ func (s Service) UPCItemdbSaveSearchProducts(ctx context.Context, user gmodel.Us
 			}
 			res.Added += 1
 		}
-		log.Printf("Waiting....\n\n")
+		log.Printf("Waiting.... Next offset: %d\n\n", offset)
 		time.Sleep(5 * time.Second)
 	}
 	return res, nil
