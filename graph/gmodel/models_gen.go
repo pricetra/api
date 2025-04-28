@@ -228,6 +228,7 @@ type SaveExternalProductInput struct {
 	Category        *string `json:"category,omitempty"`
 	Brand           *string `json:"brand,omitempty"`
 	Upc             *string `json:"upc,omitempty"`
+	Offset          *int    `json:"offset,omitempty"`
 }
 
 type SearchResult struct {

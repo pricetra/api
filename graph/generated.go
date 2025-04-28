@@ -13001,7 +13001,7 @@ func (ec *executionContext) unmarshalInputSaveExternalProductInput(ctx context.C
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"numPagesToQuery", "search", "category", "brand", "upc"}
+	fieldsInOrder := [...]string{"numPagesToQuery", "search", "category", "brand", "upc", "offset"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -13043,6 +13043,13 @@ func (ec *executionContext) unmarshalInputSaveExternalProductInput(ctx context.C
 				return it, err
 			}
 			it.Upc = data
+		case "offset":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("offset"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Offset = data
 		}
 	}
 

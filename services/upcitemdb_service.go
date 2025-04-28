@@ -134,6 +134,9 @@ func (s Service) UPCItemdbSearch(ctx context.Context, search gmodel.SaveExternal
 func (s Service) UPCItemdbSaveSearchProducts(ctx context.Context, user gmodel.User, search gmodel.SaveExternalProductInput) (res gmodel.SearchResult, err error) {
 	source := model.ProductSourceType_Upcitemdb
 	offset := 0
+	if search.Offset != nil {
+		offset = *search.Offset
+	}
 	for i := 0; i < search.NumPagesToQuery; i++ {
 		if i != 0 && offset == 0 {
 			fmt.Println("added ", res.Total, ". done.")
@@ -149,7 +152,8 @@ func (s Service) UPCItemdbSaveSearchProducts(ctx context.Context, user gmodel.Us
 				time.Sleep(10 * time.Second)
 				continue
 			}
-			return res, err
+			log.Println(err.Error())
+			return res, nil
 		}
 
 		offset = results.Offset

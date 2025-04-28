@@ -99,4 +99,5 @@ input SaveExternalProductInput {
   category: String
   brand: String
   upc: String
+  offset: Int
 }
