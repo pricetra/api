@@ -1,5 +1,5 @@
 extend type Mutation {
-  createPrice(input: CreatePrice!): Price!
+  createPrice(input: CreatePrice!): Price! @isAuthenticated
 }
 
 type Price {
