@@ -1,0 +1,56 @@
+package services
+
+import (
+	"context"
+	"fmt"
+
+	"github.com/pricetra/api/database/jet/postgres/public/model"
+	"github.com/pricetra/api/database/jet/postgres/public/table"
+	"github.com/pricetra/api/graph/gmodel"
+)
+
+func (s Service) CreatePrice(ctx context.Context, user gmodel.User, input gmodel.CreatePrice) (price gmodel.Price, err error) {
+	product, err := s.FindProductById(ctx, input.ProductID)
+	if err != nil {
+		return gmodel.Price{}, fmt.Errorf("could not find product")
+	}
+	branch, err := s.FindBranchById(ctx, input.BranchID)
+	if err != nil {
+		return gmodel.Price{}, fmt.Errorf("could not find branch")
+	}
+	stock, err := s.FindOrCreateStock(ctx, user, product.ID, branch.ID, branch.StoreID)
+	if err != nil {
+		return gmodel.Price{}, err
+	}
+
+	currency_code := "USD"
+	if input.CurrencyCode != nil {
+		currency_code = *input.CurrencyCode
+	}
+	qb := table.Price.INSERT(
+		table.Price.Amount,
+		table.Price.CurrencyCode,
+		table.Price.ProductID,
+		table.Price.BranchID,
+		table.Price.StoreID,
+		table.Price.CreatedByID,
+		table.Price.UpdatedByID,
+	).MODEL(model.Price{
+		Amount: input.Amount,
+		CurrencyCode: currency_code,
+		ProductID: product.ID,
+		StoreID: branch.StoreID,
+		BranchID: branch.ID,
+		StockID: stock.ID,
+		CreatedByID: &user.ID,
+		UpdatedByID: &user.ID,
+	}).RETURNING(table.Price.AllColumns)
+	if err = qb.QueryContext(ctx, s.DbOrTxQueryable(), &price); err != nil {
+		return gmodel.Price{}, err
+	}
+
+	price.Product = &product
+	price.Branch = &branch
+	price.Store = branch.Store
+	return price, nil
+}

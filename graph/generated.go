@@ -136,6 +136,7 @@ type ComplexityRoot struct {
 		CreateAccount               func(childComplexity int, input gmodel.CreateAccountInput) int
 		CreateBranch                func(childComplexity int, input gmodel.CreateBranch) int
 		CreateCategory              func(childComplexity int, input gmodel.CreateCategory) int
+		CreatePrice                 func(childComplexity int, input gmodel.CreatePrice) int
 		CreateProduct               func(childComplexity int, input gmodel.CreateProduct) int
 		CreateStore                 func(childComplexity int, input gmodel.CreateStore) int
 		Logout                      func(childComplexity int) int
@@ -311,6 +312,7 @@ type ComplexityRoot struct {
 type MutationResolver interface {
 	CreateBranch(ctx context.Context, input gmodel.CreateBranch) (*gmodel.Branch, error)
 	CreateCategory(ctx context.Context, input gmodel.CreateCategory) (*gmodel.Category, error)
+	CreatePrice(ctx context.Context, input gmodel.CreatePrice) (*gmodel.Price, error)
 	CreateProduct(ctx context.Context, input gmodel.CreateProduct) (*gmodel.Product, error)
 	UpdateProduct(ctx context.Context, id int64, input gmodel.UpdateProduct) (*gmodel.Product, error)
 	SaveProductsFromUPCItemDb(ctx context.Context, input gmodel.SaveExternalProductInput) (*gmodel.SearchResult, error)
@@ -787,6 +789,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.CreateCategory(childComplexity, args["input"].(gmodel.CreateCategory)), true
+
+	case "Mutation.createPrice":
+		if e.complexity.Mutation.CreatePrice == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_createPrice_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.CreatePrice(childComplexity, args["input"].(gmodel.CreatePrice)), true
 
 	case "Mutation.createProduct":
 		if e.complexity.Mutation.CreateProduct == nil {
@@ -1789,6 +1803,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputCreateAddress,
 		ec.unmarshalInputCreateBranch,
 		ec.unmarshalInputCreateCategory,
+		ec.unmarshalInputCreatePrice,
 		ec.unmarshalInputCreateProduct,
 		ec.unmarshalInputCreateStock,
 		ec.unmarshalInputCreateStore,
@@ -1979,6 +1994,21 @@ func (ec *executionContext) field_Mutation_createCategory_args(ctx context.Conte
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 		arg0, err = ec.unmarshalNCreateCategory2githubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐCreateCategory(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_createPrice_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 gmodel.CreatePrice
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNCreatePrice2githubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐCreatePrice(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -5202,6 +5232,93 @@ func (ec *executionContext) fieldContext_Mutation_createCategory(ctx context.Con
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_createCategory_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_createPrice(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_createPrice(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().CreatePrice(rctx, fc.Args["input"].(gmodel.CreatePrice))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*gmodel.Price)
+	fc.Result = res
+	return ec.marshalNPrice2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐPrice(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_createPrice(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Price_id(ctx, field)
+			case "amount":
+				return ec.fieldContext_Price_amount(ctx, field)
+			case "currencyCode":
+				return ec.fieldContext_Price_currencyCode(ctx, field)
+			case "productId":
+				return ec.fieldContext_Price_productId(ctx, field)
+			case "product":
+				return ec.fieldContext_Price_product(ctx, field)
+			case "storeId":
+				return ec.fieldContext_Price_storeId(ctx, field)
+			case "store":
+				return ec.fieldContext_Price_store(ctx, field)
+			case "branchId":
+				return ec.fieldContext_Price_branchId(ctx, field)
+			case "branch":
+				return ec.fieldContext_Price_branch(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Price_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Price_updatedAt(ctx, field)
+			case "createdById":
+				return ec.fieldContext_Price_createdById(ctx, field)
+			case "createdBy":
+				return ec.fieldContext_Price_createdBy(ctx, field)
+			case "updatedById":
+				return ec.fieldContext_Price_updatedById(ctx, field)
+			case "updatedBy":
+				return ec.fieldContext_Price_updatedBy(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Price", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_createPrice_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -14387,6 +14504,54 @@ func (ec *executionContext) unmarshalInputCreateCategory(ctx context.Context, ob
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputCreatePrice(ctx context.Context, obj interface{}) (gmodel.CreatePrice, error) {
+	var it gmodel.CreatePrice
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"productId", "branchId", "amount", "currencyCode"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "productId":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("productId"))
+			data, err := ec.unmarshalNID2int64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ProductID = data
+		case "branchId":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("branchId"))
+			data, err := ec.unmarshalNID2int64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.BranchID = data
+		case "amount":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("amount"))
+			data, err := ec.unmarshalNFloat2float64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Amount = data
+		case "currencyCode":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("currencyCode"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CurrencyCode = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputCreateProduct(ctx context.Context, obj interface{}) (gmodel.CreateProduct, error) {
 	var it gmodel.CreateProduct
 	asMap := map[string]interface{}{}
@@ -15584,6 +15749,13 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		case "createCategory":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_createCategory(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "createPrice":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_createPrice(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
@@ -17563,6 +17735,11 @@ func (ec *executionContext) unmarshalNCreateCategory2githubᚗcomᚋpricetraᚋa
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
+func (ec *executionContext) unmarshalNCreatePrice2githubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐCreatePrice(ctx context.Context, v interface{}) (gmodel.CreatePrice, error) {
+	res, err := ec.unmarshalInputCreatePrice(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalNCreateProduct2githubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐCreateProduct(ctx context.Context, v interface{}) (gmodel.CreateProduct, error) {
 	res, err := ec.unmarshalInputCreateProduct(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -17720,6 +17897,20 @@ func (ec *executionContext) marshalNPaginator2ᚖgithubᚗcomᚋpricetraᚋapi�
 func (ec *executionContext) unmarshalNPaginatorInput2githubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐPaginatorInput(ctx context.Context, v interface{}) (gmodel.PaginatorInput, error) {
 	res, err := ec.unmarshalInputPaginatorInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNPrice2githubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐPrice(ctx context.Context, sel ast.SelectionSet, v gmodel.Price) graphql.Marshaler {
+	return ec._Price(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNPrice2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐPrice(ctx context.Context, sel ast.SelectionSet, v *gmodel.Price) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._Price(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNProduct2githubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐProduct(ctx context.Context, sel ast.SelectionSet, v gmodel.Product) graphql.Marshaler {

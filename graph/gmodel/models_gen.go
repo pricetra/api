@@ -107,6 +107,13 @@ type CreateCategory struct {
 	ParentPath []int  `json:"parentPath"`
 }
 
+type CreatePrice struct {
+	ProductID    int64   `json:"productId"`
+	BranchID     int64   `json:"branchId"`
+	Amount       float64 `json:"amount"`
+	CurrencyCode *string `json:"currencyCode,omitempty"`
+}
+
 type CreateProduct struct {
 	Name                 string          `json:"name" validate:"required"`
 	Image                *string         `json:"image,omitempty"`

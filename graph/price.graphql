@@ -1,3 +1,7 @@
+extend type Mutation {
+  createPrice(input: CreatePrice!): Price!
+}
+
 type Price {
   id: ID! @goTag(key: "sql", value: "primary_key")
   amount: Float!
@@ -14,4 +18,11 @@ type Price {
   createdBy: CreatedByUser
   updatedById: ID
   updatedBy: UpdatedByUser
+}
+
+input CreatePrice {
+  productId: ID!
+  branchId: ID!
+  amount: Float!
+  currencyCode: String
 }
