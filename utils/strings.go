@@ -31,7 +31,7 @@ func PostgresArrayToIntArray(p_array string) []int {
 	for i, v := range str_array {
 		int_array[i], err = strconv.Atoi(v)
 		if err != nil {
-			panic("could not process value as int")
+			int_array[i] = 0
 		}
 	}
 	return int_array
