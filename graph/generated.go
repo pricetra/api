@@ -1823,6 +1823,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputCreateProduct,
 		ec.unmarshalInputCreateStock,
 		ec.unmarshalInputCreateStore,
+		ec.unmarshalInputLocationInput,
 		ec.unmarshalInputPaginatorInput,
 		ec.unmarshalInputProductSearch,
 		ec.unmarshalInputSaveExternalProductInput,
@@ -14905,6 +14906,47 @@ func (ec *executionContext) unmarshalInputCreateStore(ctx context.Context, obj i
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputLocationInput(ctx context.Context, obj interface{}) (gmodel.LocationInput, error) {
+	var it gmodel.LocationInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"latitude", "longitude", "radiusMeters"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "latitude":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("latitude"))
+			data, err := ec.unmarshalNFloat2float64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Latitude = data
+		case "longitude":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("longitude"))
+			data, err := ec.unmarshalNFloat2float64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Longitude = data
+		case "radiusMeters":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("radiusMeters"))
+			data, err := ec.unmarshalNInt2int(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.RadiusMeters = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputPaginatorInput(ctx context.Context, obj interface{}) (gmodel.PaginatorInput, error) {
 	var it gmodel.PaginatorInput
 	asMap := map[string]interface{}{}
@@ -14946,7 +14988,7 @@ func (ec *executionContext) unmarshalInputProductSearch(ctx context.Context, obj
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"query", "category", "categoryId"}
+	fieldsInOrder := [...]string{"query", "category", "categoryId", "branchId", "location"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -14974,6 +15016,20 @@ func (ec *executionContext) unmarshalInputProductSearch(ctx context.Context, obj
 				return it, err
 			}
 			it.CategoryID = data
+		case "branchId":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("branchId"))
+			data, err := ec.unmarshalOID2ᚖint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.BranchID = data
+		case "location":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("location"))
+			data, err := ec.unmarshalOLocationInput2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐLocationInput(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Location = data
 		}
 	}
 
@@ -18760,6 +18816,14 @@ func (ec *executionContext) marshalOInt2ᚖint(ctx context.Context, sel ast.Sele
 	}
 	res := graphql.MarshalInt(*v)
 	return res
+}
+
+func (ec *executionContext) unmarshalOLocationInput2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐLocationInput(ctx context.Context, v interface{}) (*gmodel.LocationInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputLocationInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalOProduct2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐProduct(ctx context.Context, sel ast.SelectionSet, v *gmodel.Product) graphql.Marshaler {

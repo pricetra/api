@@ -91,6 +91,8 @@ input ProductSearch {
   query: String
   category: String
   categoryId: ID
+  branchId: ID
+  location: LocationInput
 }
 
 input SaveExternalProductInput {

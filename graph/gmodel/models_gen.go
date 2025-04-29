@@ -159,6 +159,12 @@ type Currency struct {
 	NumToBasic   *int   `json:"numToBasic,omitempty"`
 }
 
+type LocationInput struct {
+	Latitude     float64 `json:"latitude" validate:"required,latitude"`
+	Longitude    float64 `json:"longitude" validate:"required,longitude"`
+	RadiusMeters int     `json:"radiusMeters" validate:"required"`
+}
+
 type Mutation struct {
 }
 
@@ -247,9 +253,11 @@ type ProductBilling struct {
 }
 
 type ProductSearch struct {
-	Query      *string `json:"query,omitempty"`
-	Category   *string `json:"category,omitempty"`
-	CategoryID *int64  `json:"categoryId,omitempty"`
+	Query      *string        `json:"query,omitempty"`
+	Category   *string        `json:"category,omitempty"`
+	CategoryID *int64         `json:"categoryId,omitempty"`
+	BranchID   *int64         `json:"branchId,omitempty"`
+	Location   *LocationInput `json:"location,omitempty"`
 }
 
 type Query struct {
