@@ -33,6 +33,7 @@ func (s Service) CreatePrice(ctx context.Context, user gmodel.User, input gmodel
 		table.Price.ProductID,
 		table.Price.BranchID,
 		table.Price.StoreID,
+		table.Price.StockID,
 		table.Price.CreatedByID,
 		table.Price.UpdatedByID,
 	).MODEL(model.Price{
