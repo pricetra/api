@@ -107,6 +107,13 @@ type CreateCategory struct {
 	ParentPath []int  `json:"parentPath"`
 }
 
+type CreatePrice struct {
+	ProductID    int64   `json:"productId"`
+	BranchID     int64   `json:"branchId"`
+	Amount       float64 `json:"amount"`
+	CurrencyCode *string `json:"currencyCode,omitempty"`
+}
+
 type CreateProduct struct {
 	Name                 string          `json:"name" validate:"required"`
 	Image                *string         `json:"image,omitempty"`
@@ -121,6 +128,12 @@ type CreateProduct struct {
 	LowestRecordedPrice  *float64        `json:"lowestRecordedPrice,omitempty"`
 	HighestRecordedPrice *float64        `json:"highestRecordedPrice,omitempty"`
 	ImageFile            *graphql.Upload `json:"imageFile,omitempty"`
+}
+
+type CreateStock struct {
+	ProductID int64 `json:"productId"`
+	StoreID   int64 `json:"storeId"`
+	BranchID  int64 `json:"branchId"`
 }
 
 type CreateStore struct {
@@ -176,6 +189,26 @@ type Paginator struct {
 type PaginatorInput struct {
 	Limit int `json:"limit" validate:"required,gt=0,lt=200"`
 	Page  int `json:"page" validate:"required,gt=0"`
+}
+
+type Price struct {
+	ID           int64          `json:"id" sql:"primary_key"`
+	Amount       float64        `json:"amount"`
+	CurrencyCode string         `json:"currencyCode"`
+	ProductID    int64          `json:"productId"`
+	Product      *Product       `json:"product,omitempty"`
+	StockID      int64          `json:"stockId"`
+	Stock        *Stock         `json:"stock,omitempty"`
+	StoreID      int64          `json:"storeId"`
+	Store        *Store         `json:"store,omitempty"`
+	BranchID     int64          `json:"branchId"`
+	Branch       *Branch        `json:"branch,omitempty"`
+	CreatedAt    time.Time      `json:"createdAt"`
+	UpdatedAt    time.Time      `json:"updatedAt"`
+	CreatedByID  *int64         `json:"createdById,omitempty"`
+	CreatedBy    *CreatedByUser `json:"createdBy,omitempty"`
+	UpdatedByID  *int64         `json:"updatedById,omitempty"`
+	UpdatedBy    *UpdatedByUser `json:"updatedBy,omitempty"`
 }
 
 type Product struct {
@@ -235,6 +268,22 @@ type SearchResult struct {
 	Total  int `json:"total"`
 	Added  int `json:"added"`
 	Failed int `json:"failed"`
+}
+
+type Stock struct {
+	ID          int64          `json:"id" sql:"primary_key"`
+	ProductID   int64          `json:"productId"`
+	Product     *Product       `json:"product,omitempty"`
+	StoreID     int64          `json:"storeId"`
+	Store       *Store         `json:"store,omitempty"`
+	BranchID    int64          `json:"branchId"`
+	Branch      *Branch        `json:"branch,omitempty"`
+	CreatedAt   time.Time      `json:"createdAt"`
+	UpdatedAt   time.Time      `json:"updatedAt"`
+	CreatedByID *int64         `json:"createdById,omitempty"`
+	CreatedBy   *CreatedByUser `json:"createdBy,omitempty"`
+	UpdatedByID *int64         `json:"updatedById,omitempty"`
+	UpdatedBy   *UpdatedByUser `json:"updatedBy,omitempty"`
 }
 
 type Store struct {

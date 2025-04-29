@@ -1,0 +1,30 @@
+extend type Mutation {
+  createPrice(input: CreatePrice!): Price! @isAuthenticated
+}
+
+type Price {
+  id: ID! @goTag(key: "sql", value: "primary_key")
+  amount: Float!
+  currencyCode: String!
+  productId: ID!
+  product: Product
+  stockId: ID!
+  stock: Stock
+  storeId: ID!
+  store: Store
+  branchId: ID!
+  branch: Branch
+  createdAt: Time!
+  updatedAt: Time!
+  createdById: ID
+  createdBy: CreatedByUser
+  updatedById: ID
+  updatedBy: UpdatedByUser
+}
+
+input CreatePrice {
+  productId: ID!
+  branchId: ID!
+  amount: Float!
+  currencyCode: String
+}

@@ -12,12 +12,13 @@ import (
 )
 
 type Stock struct {
-	ID          int64 `sql:"primary_key"`
-	ProductID   int64
-	StoreID     int64
-	BranchID    int64
-	CreatedByID *int64
-	UpdatedByID *int64
-	CreatedAt   time.Time
-	UpdatedAt   time.Time
+	ID            int64 `sql:"primary_key"`
+	ProductID     int64
+	StoreID       int64
+	BranchID      int64
+	CreatedByID   *int64
+	UpdatedByID   *int64
+	CreatedAt     time.Time
+	UpdatedAt     time.Time
+	LatestPriceID *int64
 }
