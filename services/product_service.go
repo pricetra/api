@@ -153,10 +153,9 @@ func (s Service) PaginatedProducts(ctx context.Context, paginator_input gmodel.P
 		}
 
 		if search.Category != nil {
-			col := utils.BuildFullTableName(table.Category.ExpandedPathname)
-			clause := postgres.RawBool(col + " like $category", map[string]any{
-				"$category": fmt.Sprintf("%%%s%%", *search.Category),
-			})
+			clause := table.Category.ExpandedPathname.LIKE(
+				postgres.String(fmt.Sprintf("%%%s%%", *search.Category)),
+			)
 			where_clause = where_clause.AND(clause)
 		}
 
