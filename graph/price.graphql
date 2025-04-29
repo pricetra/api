@@ -8,6 +8,8 @@ type Price {
   currencyCode: String!
   productId: ID!
   product: Product
+  stockId: ID!
+  stock: Stock
   storeId: ID!
   store: Store
   branchId: ID!

@@ -50,6 +50,8 @@ func (s Service) CreatePrice(ctx context.Context, user gmodel.User, input gmodel
 		return gmodel.Price{}, err
 	}
 
+	updated_stock, _ := s.UpdateStockWithLatestPrice(ctx, user, stock.ID, price.ID)
+	price.Stock = &updated_stock
 	price.Product = &product
 	price.Branch = &branch
 	price.Store = branch.Store

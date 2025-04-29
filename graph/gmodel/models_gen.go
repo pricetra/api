@@ -197,6 +197,8 @@ type Price struct {
 	CurrencyCode string         `json:"currencyCode"`
 	ProductID    int64          `json:"productId"`
 	Product      *Product       `json:"product,omitempty"`
+	StockID      int64          `json:"stockId"`
+	Stock        *Stock         `json:"stock,omitempty"`
 	StoreID      int64          `json:"storeId"`
 	Store        *Store         `json:"store,omitempty"`
 	BranchID     int64          `json:"branchId"`

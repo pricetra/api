@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"time"
 
 	"github.com/go-jet/jet/v2/postgres"
 	"github.com/pricetra/api/database/jet/postgres/public/model"
@@ -83,4 +84,24 @@ func (s Service) FindOrCreateStock(
 		return gmodel.Stock{}, err
 	}
 	return stock, nil
+}
+
+func (s Service) UpdateStockWithLatestPrice(ctx context.Context, user gmodel.User, stock_id int64, price_id int64) (updated_stock gmodel.Stock, err error) {
+	qb := table.Stock.
+		UPDATE(
+			table.Stock.LatestPriceID,
+			table.Stock.UpdatedByID,
+			table.Stock.UpdatedAt,
+		).MODEL(model.Stock{
+			LatestPriceID: &price_id,
+			UpdatedByID: &user.ID,
+			UpdatedAt: time.Now(),
+		}).WHERE(
+			table.Stock.ID.EQ(postgres.Int(stock_id)),
+		).RETURNING(table.Stock.AllColumns)
+	db := s.DbOrTxQueryable()
+	if err = qb.QueryContext(ctx, db, &updated_stock); err != nil {
+		return gmodel.Stock{}, err
+	}
+	return updated_stock, nil
 }

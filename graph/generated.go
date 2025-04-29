@@ -183,6 +183,8 @@ type ComplexityRoot struct {
 		ID           func(childComplexity int) int
 		Product      func(childComplexity int) int
 		ProductID    func(childComplexity int) int
+		Stock        func(childComplexity int) int
+		StockID      func(childComplexity int) int
 		Store        func(childComplexity int) int
 		StoreID      func(childComplexity int) int
 		UpdatedAt    func(childComplexity int) int
@@ -1058,6 +1060,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Price.ProductID(childComplexity), true
+
+	case "Price.stock":
+		if e.complexity.Price.Stock == nil {
+			break
+		}
+
+		return e.complexity.Price.Stock(childComplexity), true
+
+	case "Price.stockId":
+		if e.complexity.Price.StockID == nil {
+			break
+		}
+
+		return e.complexity.Price.StockID(childComplexity), true
 
 	case "Price.store":
 		if e.complexity.Price.Store == nil {
@@ -5307,6 +5323,10 @@ func (ec *executionContext) fieldContext_Mutation_createPrice(ctx context.Contex
 				return ec.fieldContext_Price_productId(ctx, field)
 			case "product":
 				return ec.fieldContext_Price_product(ctx, field)
+			case "stockId":
+				return ec.fieldContext_Price_stockId(ctx, field)
+			case "stock":
+				return ec.fieldContext_Price_stock(ctx, field)
 			case "storeId":
 				return ec.fieldContext_Price_storeId(ctx, field)
 			case "store":
@@ -7184,6 +7204,119 @@ func (ec *executionContext) fieldContext_Price_product(ctx context.Context, fiel
 				return ec.fieldContext_Product_updatedBy(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Product", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Price_stockId(ctx context.Context, field graphql.CollectedField, obj *gmodel.Price) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Price_stockId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.StockID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int64)
+	fc.Result = res
+	return ec.marshalNID2int64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Price_stockId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Price",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Price_stock(ctx context.Context, field graphql.CollectedField, obj *gmodel.Price) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Price_stock(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Stock, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*gmodel.Stock)
+	fc.Result = res
+	return ec.marshalOStock2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐStock(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Price_stock(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Price",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Stock_id(ctx, field)
+			case "productId":
+				return ec.fieldContext_Stock_productId(ctx, field)
+			case "product":
+				return ec.fieldContext_Stock_product(ctx, field)
+			case "storeId":
+				return ec.fieldContext_Stock_storeId(ctx, field)
+			case "store":
+				return ec.fieldContext_Stock_store(ctx, field)
+			case "branchId":
+				return ec.fieldContext_Stock_branchId(ctx, field)
+			case "branch":
+				return ec.fieldContext_Stock_branch(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Stock_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Stock_updatedAt(ctx, field)
+			case "createdById":
+				return ec.fieldContext_Stock_createdById(ctx, field)
+			case "createdBy":
+				return ec.fieldContext_Stock_createdBy(ctx, field)
+			case "updatedById":
+				return ec.fieldContext_Stock_updatedById(ctx, field)
+			case "updatedBy":
+				return ec.fieldContext_Stock_updatedBy(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Stock", field.Name)
 		},
 	}
 	return fc, nil
@@ -16096,6 +16229,13 @@ func (ec *executionContext) _Price(ctx context.Context, sel ast.SelectionSet, ob
 			}
 		case "product":
 			out.Values[i] = ec._Price_product(ctx, field, obj)
+		case "stockId":
+			out.Values[i] = ec._Price_stockId(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "stock":
+			out.Values[i] = ec._Price_stock(ctx, field, obj)
 		case "storeId":
 			out.Values[i] = ec._Price_storeId(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -18635,6 +18775,13 @@ func (ec *executionContext) unmarshalOProductSearch2ᚖgithubᚗcomᚋpricetra�
 	}
 	res, err := ec.unmarshalInputProductSearch(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOStock2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐStock(ctx context.Context, sel ast.SelectionSet, v *gmodel.Stock) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._Stock(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalOStore2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐStore(ctx context.Context, sel ast.SelectionSet, v *gmodel.Store) graphql.Marshaler {
