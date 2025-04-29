@@ -17,14 +17,15 @@ type stockTable struct {
 	postgres.Table
 
 	// Columns
-	ID          postgres.ColumnInteger
-	ProductID   postgres.ColumnInteger
-	StoreID     postgres.ColumnInteger
-	BranchID    postgres.ColumnInteger
-	CreatedByID postgres.ColumnInteger
-	UpdatedByID postgres.ColumnInteger
-	CreatedAt   postgres.ColumnTimestampz
-	UpdatedAt   postgres.ColumnTimestampz
+	ID            postgres.ColumnInteger
+	ProductID     postgres.ColumnInteger
+	StoreID       postgres.ColumnInteger
+	BranchID      postgres.ColumnInteger
+	CreatedByID   postgres.ColumnInteger
+	UpdatedByID   postgres.ColumnInteger
+	CreatedAt     postgres.ColumnTimestampz
+	UpdatedAt     postgres.ColumnTimestampz
+	LatestPriceID postgres.ColumnInteger
 
 	AllColumns     postgres.ColumnList
 	MutableColumns postgres.ColumnList
@@ -65,30 +66,32 @@ func newStockTable(schemaName, tableName, alias string) *StockTable {
 
 func newStockTableImpl(schemaName, tableName, alias string) stockTable {
 	var (
-		IDColumn          = postgres.IntegerColumn("id")
-		ProductIDColumn   = postgres.IntegerColumn("product_id")
-		StoreIDColumn     = postgres.IntegerColumn("store_id")
-		BranchIDColumn    = postgres.IntegerColumn("branch_id")
-		CreatedByIDColumn = postgres.IntegerColumn("created_by_id")
-		UpdatedByIDColumn = postgres.IntegerColumn("updated_by_id")
-		CreatedAtColumn   = postgres.TimestampzColumn("created_at")
-		UpdatedAtColumn   = postgres.TimestampzColumn("updated_at")
-		allColumns        = postgres.ColumnList{IDColumn, ProductIDColumn, StoreIDColumn, BranchIDColumn, CreatedByIDColumn, UpdatedByIDColumn, CreatedAtColumn, UpdatedAtColumn}
-		mutableColumns    = postgres.ColumnList{ProductIDColumn, StoreIDColumn, BranchIDColumn, CreatedByIDColumn, UpdatedByIDColumn, CreatedAtColumn, UpdatedAtColumn}
+		IDColumn            = postgres.IntegerColumn("id")
+		ProductIDColumn     = postgres.IntegerColumn("product_id")
+		StoreIDColumn       = postgres.IntegerColumn("store_id")
+		BranchIDColumn      = postgres.IntegerColumn("branch_id")
+		CreatedByIDColumn   = postgres.IntegerColumn("created_by_id")
+		UpdatedByIDColumn   = postgres.IntegerColumn("updated_by_id")
+		CreatedAtColumn     = postgres.TimestampzColumn("created_at")
+		UpdatedAtColumn     = postgres.TimestampzColumn("updated_at")
+		LatestPriceIDColumn = postgres.IntegerColumn("latest_price_id")
+		allColumns          = postgres.ColumnList{IDColumn, ProductIDColumn, StoreIDColumn, BranchIDColumn, CreatedByIDColumn, UpdatedByIDColumn, CreatedAtColumn, UpdatedAtColumn, LatestPriceIDColumn}
+		mutableColumns      = postgres.ColumnList{ProductIDColumn, StoreIDColumn, BranchIDColumn, CreatedByIDColumn, UpdatedByIDColumn, CreatedAtColumn, UpdatedAtColumn, LatestPriceIDColumn}
 	)
 
 	return stockTable{
 		Table: postgres.NewTable(schemaName, tableName, alias, allColumns...),
 
 		//Columns
-		ID:          IDColumn,
-		ProductID:   ProductIDColumn,
-		StoreID:     StoreIDColumn,
-		BranchID:    BranchIDColumn,
-		CreatedByID: CreatedByIDColumn,
-		UpdatedByID: UpdatedByIDColumn,
-		CreatedAt:   CreatedAtColumn,
-		UpdatedAt:   UpdatedAtColumn,
+		ID:            IDColumn,
+		ProductID:     ProductIDColumn,
+		StoreID:       StoreIDColumn,
+		BranchID:      BranchIDColumn,
+		CreatedByID:   CreatedByIDColumn,
+		UpdatedByID:   UpdatedByIDColumn,
+		CreatedAt:     CreatedAtColumn,
+		UpdatedAt:     UpdatedAtColumn,
+		LatestPriceID: LatestPriceIDColumn,
 
 		AllColumns:     allColumns,
 		MutableColumns: mutableColumns,
