@@ -13,8 +13,10 @@ var ProductBillingType = &struct {
 	Create postgres.StringExpression
 	Update postgres.StringExpression
 	Scan   postgres.StringExpression
+	Price  postgres.StringExpression
 }{
 	Create: postgres.NewEnumValue("CREATE"),
 	Update: postgres.NewEnumValue("UPDATE"),
 	Scan:   postgres.NewEnumValue("SCAN"),
+	Price:  postgres.NewEnumValue("PRICE"),
 }

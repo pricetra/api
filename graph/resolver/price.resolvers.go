@@ -7,15 +7,27 @@ package gresolver
 import (
 	"context"
 
+	"github.com/pricetra/api/database/jet/postgres/public/model"
 	"github.com/pricetra/api/graph/gmodel"
 )
 
 // CreatePrice is the resolver for the createPrice field.
 func (r *mutationResolver) CreatePrice(ctx context.Context, input gmodel.CreatePrice) (*gmodel.Price, error) {
 	user := r.Service.GetAuthUserFromContext(ctx)
+
+	// Get old price
+	old_price, old_price_err := r.Service.LatestPriceForProduct(ctx, input.ProductID, input.BranchID)
+
 	price, err := r.Service.CreatePrice(ctx, user, input)
 	if err != nil {
 		return nil, err
+	}
+	price_enum := model.ProductBillingType_Price
+
+	if old_price_err != nil {
+		r.Service.CreateProductBilling(ctx, user, price_enum, *price.Product, input, nil)
+	} else {
+		r.Service.CreateProductBilling(ctx, user, price_enum, *price.Product, input, old_price)
 	}
 	return &price, nil
 }

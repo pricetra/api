@@ -135,6 +135,11 @@ func (s Service) PaginatedProducts(ctx context.Context, paginator_input gmodel.P
 	created_user_table, updated_user_table, cols := s.CreatedAndUpdatedUserTable()
 	tables := table.Product.
 		INNER_JOIN(table.Category, table.Category.ID.EQ(table.Product.CategoryID)).
+		INNER_JOIN(table.Stock, table.Stock.ProductID.EQ(table.Product.ID)).
+		INNER_JOIN(table.Store, table.Store.ID.EQ(table.Stock.StoreID)).
+		INNER_JOIN(table.Branch, table.Branch.ID.EQ(table.Stock.BranchID)).
+		INNER_JOIN(table.Price, table.Price.ID.EQ(table.Stock.LatestPriceID)).
+		INNER_JOIN(table.Address, table.Address.ID.EQ(table.Branch.AddressID)).
 		LEFT_JOIN(created_user_table, created_user_table.ID.EQ(table.Product.CreatedByID)).
 		LEFT_JOIN(updated_user_table, updated_user_table.ID.EQ(table.Product.UpdatedByID))
 
@@ -142,6 +147,20 @@ func (s Service) PaginatedProducts(ctx context.Context, paginator_input gmodel.P
 	order_by := []postgres.OrderByClause{}
 
 	if search != nil {
+		if search.BranchID != nil {
+			where_clause = where_clause.AND(
+				table.Branch.ID.EQ(postgres.Int(*search.BranchID)),
+			)
+		}
+
+		if search.Location != nil {
+			l := search.Location
+			distance_cols := s.GetDistanceCols(l.Latitude, l.Longitude, l.RadiusMeters)
+			cols = append(cols, distance_cols.DistanceColumn)
+			where_clause = where_clause.AND(distance_cols.DistanceWhereClauseWithRadius)
+			order_by = append(order_by, postgres.FloatColumn(distance_cols.DistanceColumnName).ASC())
+		}
+
 		if search.CategoryID != nil {
 			clause := postgres.RawBool(
 				fmt.Sprintf("$id = any(%s)", utils.BuildFullTableName(table.Category.Path)), 
@@ -198,7 +217,15 @@ func (s Service) PaginatedProducts(ctx context.Context, paginator_input gmodel.P
 		}, nil
 	}
 
-	cols = append(cols, table.Category.AllColumns)
+	cols = append(
+		cols,
+		table.Category.AllColumns,
+		table.Stock.AllColumns,
+		table.Store.AllColumns,
+		table.Branch.AllColumns,
+		table.Price.AllColumns,
+		table.Address.AllColumns,
+	)
 	qb := table.Product.
 		SELECT(table.Product.AllColumns, cols...).
 		FROM(tables).

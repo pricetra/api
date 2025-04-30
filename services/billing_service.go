@@ -41,6 +41,13 @@ func (s Service) CreateProductBilling(
 		return model.ProductBilling{}, err
 	}
 
+	insert_cols := postgres.ColumnList{
+		table.ProductBilling.UserID,
+		table.ProductBilling.ProductID,
+		table.ProductBilling.Rate,
+		table.ProductBilling.BillingRateType,
+		table.ProductBilling.NewData,
+	}
 	new_data_json, err := toJsonString(new_data)
 	if err != nil {
 		return model.ProductBilling{}, err
@@ -49,16 +56,13 @@ func (s Service) CreateProductBilling(
 	if err != nil {
 		return model.ProductBilling{}, err
 	}
+	if old_data_json != nil {
+		insert_cols = append(insert_cols, table.ProductBilling.OldData)
+	}
 
 	qb := table.ProductBilling.
-		INSERT(
-			table.ProductBilling.UserID,
-			table.ProductBilling.ProductID,
-			table.ProductBilling.Rate,
-			table.ProductBilling.BillingRateType,
-			table.ProductBilling.NewData,
-			table.ProductBilling.OldData,
-		).MODEL(model.ProductBilling{
+		INSERT(insert_cols).
+		MODEL(model.ProductBilling{
 			UserID: user.ID,
 			ProductID: product.ID,
 			Rate: cur_rate.Rate,

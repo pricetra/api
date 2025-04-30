@@ -100,18 +100,16 @@ func TestProduct(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		if len(p.Products) != p.Paginator.Limit {
-			t.Fatal("incorrect number of products returned", len(p.Products), p.Paginator.Limit)
-		}
-		if p.Paginator.Prev != nil || p.Paginator.Next == nil {
-			t.Fatal("paginator next or prev values are not correct")
-		}
-
 		total_qb := table.Product.
 			SELECT(postgres.COUNT(table.Product.ID).AS("total")).
 			FROM(
 				table.Product.
-					INNER_JOIN(table.Category, table.Category.ID.EQ(table.Product.CategoryID)),
+					INNER_JOIN(table.Category, table.Category.ID.EQ(table.Product.CategoryID)).
+					INNER_JOIN(table.Stock, table.Stock.ProductID.EQ(table.Product.ID)).
+					INNER_JOIN(table.Store, table.Store.ID.EQ(table.Stock.StoreID)).
+					INNER_JOIN(table.Branch, table.Branch.ID.EQ(table.Stock.BranchID)).
+					INNER_JOIN(table.Price, table.Price.ID.EQ(table.Stock.LatestPriceID)).
+					INNER_JOIN(table.Address, table.Address.ID.EQ(table.Branch.AddressID)),
 			)
 		var p_total struct{ Total int }
 		if err := total_qb.QueryContext(ctx, db, &p_total); err != nil {

@@ -15,6 +15,7 @@ const (
 	ProductBillingType_Create ProductBillingType = "CREATE"
 	ProductBillingType_Update ProductBillingType = "UPDATE"
 	ProductBillingType_Scan   ProductBillingType = "SCAN"
+	ProductBillingType_Price  ProductBillingType = "PRICE"
 )
 
 func (e *ProductBillingType) Scan(value interface{}) error {
@@ -35,6 +36,8 @@ func (e *ProductBillingType) Scan(value interface{}) error {
 		*e = ProductBillingType_Update
 	case "SCAN":
 		*e = ProductBillingType_Scan
+	case "PRICE":
+		*e = ProductBillingType_Price
 	default:
 		return errors.New("jet: Invalid scan value '" + enumValue + "' for ProductBillingType enum")
 	}

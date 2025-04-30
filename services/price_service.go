@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/go-jet/jet/v2/postgres"
 	"github.com/pricetra/api/database/jet/postgres/public/model"
 	"github.com/pricetra/api/database/jet/postgres/public/table"
 	"github.com/pricetra/api/graph/gmodel"
@@ -55,5 +56,23 @@ func (s Service) CreatePrice(ctx context.Context, user gmodel.User, input gmodel
 	price.Product = &product
 	price.Branch = &branch
 	price.Store = branch.Store
+	return price, nil
+}
+
+func (s Service) LatestPriceForProduct(ctx context.Context, product_id int64, branch_id int64) (price gmodel.Price, err error) {
+	qb := table.Price.
+		SELECT(table.Price.AllColumns).
+		FROM(table.Price).
+		WHERE(
+			postgres.AND(
+				table.Price.ProductID.EQ(postgres.Int(product_id)),
+				table.Price.BranchID.EQ(postgres.Int(branch_id)),
+			),
+		).
+		ORDER_BY(table.Price.ID.DESC()).
+		LIMIT(1)
+	if err = qb.QueryContext(ctx, s.DbOrTxQueryable(), &price); err != nil {
+		return gmodel.Price{}, err
+	}
 	return price, nil
 }

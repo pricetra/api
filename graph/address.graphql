@@ -30,3 +30,9 @@ type Address {
   updatedById: ID
   updatedBy: UpdatedByUser
 }
+
+input LocationInput {
+  latitude: Float! @goTag(key: "validate", value: "required,latitude")
+  longitude: Float! @goTag(key: "validate", value: "required,longitude")
+  radiusMeters: Int! @goTag(key: "validate", value: "required")
+}

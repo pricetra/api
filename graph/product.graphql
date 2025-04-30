@@ -38,6 +38,7 @@ type Product {
   model: String
   categoryId: ID!
   category: Category
+  stock: Stock
   weight: String
   lowestRecordedPrice: Float
   highestRecordedPrice: Float
@@ -91,6 +92,8 @@ input ProductSearch {
   query: String
   category: String
   categoryId: ID
+  branchId: ID
+  location: LocationInput
 }
 
 input SaveExternalProductInput {
