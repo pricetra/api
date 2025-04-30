@@ -38,6 +38,7 @@ type Product {
   model: String
   categoryId: ID!
   category: Category
+  stock: Stock
   weight: String
   lowestRecordedPrice: Float
   highestRecordedPrice: Float

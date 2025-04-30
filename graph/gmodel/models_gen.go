@@ -229,6 +229,7 @@ type Product struct {
 	Model                *string        `json:"model,omitempty"`
 	CategoryID           int64          `json:"categoryId"`
 	Category             *Category      `json:"category,omitempty"`
+	Stock                *Stock         `json:"stock,omitempty"`
 	Weight               *string        `json:"weight,omitempty"`
 	LowestRecordedPrice  *float64       `json:"lowestRecordedPrice,omitempty"`
 	HighestRecordedPrice *float64       `json:"highestRecordedPrice,omitempty"`
@@ -279,19 +280,21 @@ type SearchResult struct {
 }
 
 type Stock struct {
-	ID          int64          `json:"id" sql:"primary_key"`
-	ProductID   int64          `json:"productId"`
-	Product     *Product       `json:"product,omitempty"`
-	StoreID     int64          `json:"storeId"`
-	Store       *Store         `json:"store,omitempty"`
-	BranchID    int64          `json:"branchId"`
-	Branch      *Branch        `json:"branch,omitempty"`
-	CreatedAt   time.Time      `json:"createdAt"`
-	UpdatedAt   time.Time      `json:"updatedAt"`
-	CreatedByID *int64         `json:"createdById,omitempty"`
-	CreatedBy   *CreatedByUser `json:"createdBy,omitempty"`
-	UpdatedByID *int64         `json:"updatedById,omitempty"`
-	UpdatedBy   *UpdatedByUser `json:"updatedBy,omitempty"`
+	ID            int64          `json:"id" sql:"primary_key"`
+	ProductID     int64          `json:"productId"`
+	Product       *Product       `json:"product,omitempty"`
+	StoreID       int64          `json:"storeId"`
+	Store         *Store         `json:"store,omitempty"`
+	BranchID      int64          `json:"branchId"`
+	Branch        *Branch        `json:"branch,omitempty"`
+	LatestPriceID int64          `json:"latestPriceId"`
+	LatestPrice   *Price         `json:"latestPrice,omitempty"`
+	CreatedAt     time.Time      `json:"createdAt"`
+	UpdatedAt     time.Time      `json:"updatedAt"`
+	CreatedByID   *int64         `json:"createdById,omitempty"`
+	CreatedBy     *CreatedByUser `json:"createdBy,omitempty"`
+	UpdatedByID   *int64         `json:"updatedById,omitempty"`
+	UpdatedBy     *UpdatedByUser `json:"updatedBy,omitempty"`
 }
 
 type Store struct {

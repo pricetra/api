@@ -6,6 +6,8 @@ type Stock {
   store: Store
   branchId: ID!
   branch: Branch
+  latestPriceId: ID!
+  latestPrice: Price
   createdAt: Time!
   updatedAt: Time!
   createdById: ID
