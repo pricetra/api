@@ -17,6 +17,10 @@ jet:
 test:
 	go test ./tests
 
+# Email server open api codegen
+email-server-schema: wget 'http://localhost:3001/v3/api-docs' -O ./email-server-schema.json
+email-server-codegen: 
+
 # Server
 run:
 	go run server.go
