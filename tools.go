@@ -12,4 +12,7 @@ import (
 
 	_ "github.com/99designs/gqlgen"
 	_ "github.com/99designs/gqlgen/graphql/introspection"
+
+	_ "github.com/go-jet/jet/v2"
+	_ "github.com/go-jet/jet/v2/cmd/jet"
 )
