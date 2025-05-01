@@ -10,8 +10,20 @@ import (
 
 	"github.com/pricetra/api/database/jet/postgres/public/model"
 	"github.com/pricetra/api/graph/gmodel"
-	"github.com/sendgrid/rest"
+	"github.com/pricetra/api/oapi"
 )
+
+func (s Service) NewEmailClient() (*oapi.ClientWithResponses, error) {
+	return oapi.NewClientWithResponses(
+		s.Tokens.EmailServer.Url, 
+		oapi.WithRequestEditorFn(
+			func(ctx context.Context, req *http.Request) error {
+				req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", s.Tokens.EmailServer.ApiKey))
+				return nil
+			},
+		),
+	)
+}
 
 func (s Service) NewEmailPostRequest(ctx context.Context, endpoint string, input map[string]string) (*http.Request, error)  {
 	if !strings.HasPrefix(endpoint, "/") {
@@ -35,30 +47,18 @@ func (s Service) SendEmailVerification(
 	ctx context.Context,
 	user gmodel.User,
 	email_verification model.EmailVerification,
-) (response *rest.Response, err error) {
-	req, err := s.NewEmailPostRequest(ctx, "/email-verification", map[string]string{
-		"recipientEmail": user.Email,
-		"name": user.Name,
-		"code": email_verification.Code,
+) (*oapi.SendEmailVerificationCodeResponse, error) {
+	client, err := s.NewEmailClient()
+	if err != nil {
+		return nil, err
+	}
+	res, err := client.SendEmailVerificationCodeWithResponse(ctx, oapi.EmailVerificationRequest{
+		RecipientEmail: &user.Email,
+		Name: &user.Name,
+		Code: &email_verification.Code,
 	})
 	if err != nil {
 		return nil, err
 	}
-
-	client := &http.Client{}
-	res, err := client.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	defer res.Body.Close()
-
-	if !(res.StatusCode >= 200 && res.StatusCode < 300) {
-		return nil, fmt.Errorf(res.Status)
-	}
-
-	json.NewDecoder(res.Body).Decode(&response)
-	if err != nil {
-		return nil, err
-	}
-	return response, nil
+	return res, nil
 }

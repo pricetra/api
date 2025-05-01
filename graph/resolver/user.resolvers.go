@@ -31,7 +31,7 @@ func (r *mutationResolver) CreateAccount(ctx context.Context, input gmodel.Creat
 	if err != nil {
 		return nil, err
 	}
-	if email_res.StatusCode == http.StatusBadRequest {
+	if email_res.StatusCode() == http.StatusBadRequest {
 		return nil, fmt.Errorf("could not send email. %s", email_res.Body)
 	}
 	return &new_user, nil
@@ -61,7 +61,7 @@ func (r *mutationResolver) ResendEmailVerificationCode(ctx context.Context, emai
 	if email_err != nil {
 		return false, email_err
 	}
-	if email_res.StatusCode == http.StatusBadRequest {
+	if email_res.StatusCode() == http.StatusBadRequest {
 		return false, fmt.Errorf("could not send email. %s", email_res.Body)
 	}
 	return email_verification.ID > 0, nil
