@@ -14,6 +14,7 @@ import (
 	gresolver "github.com/pricetra/api/graph/resolver"
 	"github.com/pricetra/api/services"
 	"github.com/pricetra/api/types"
+	"googlemaps.github.io/maps"
 )
 
 const GRAPH_ENDPOINT string = "/graphql"
@@ -45,6 +46,7 @@ func NewServer(db_conn *sql.DB, router *chi.Mux) *types.ServerBase {
 			ApiSecret: os.Getenv("CLOUDINARY_API_SECRET"),
 		},
 		UPCitemdbUserKey: os.Getenv("UPCITEMDB_USER_KEY"),
+		GoogleMapsApiKey: os.Getenv("GOOGLE_MAPS_API_KEY"),
 	}
 
 	// Setup Cloudinary CDN
@@ -57,11 +59,18 @@ func NewServer(db_conn *sql.DB, router *chi.Mux) *types.ServerBase {
 		panic(err)
 	}
 
+	// Setup Google maps client
+	maps_client, err := maps.NewClient(maps.WithAPIKey(server.Tokens.GoogleMapsApiKey))
+	if err != nil {
+		panic(err)
+	}
+
 	service := services.Service{
 		DB: server.DB,
 		StructValidator: server.StructValidator,
 		Tokens: server.Tokens,
 		Cloudinary: cloudinary,
+		GoogleMapsClient: maps_client,
 	}
 
 	// Startup utils...
