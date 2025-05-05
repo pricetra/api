@@ -8,6 +8,7 @@ import (
 	"github.com/pricetra/api/database/jet/postgres/public/model"
 	"github.com/pricetra/api/database/jet/postgres/public/table"
 	"github.com/pricetra/api/graph/gmodel"
+	"github.com/pricetra/api/utils"
 )
 
 func (service Service) AddressExists(
@@ -80,11 +81,7 @@ type DistanceColumns struct {
 
 func (s Service) GetDistanceCols(lat float64, lon float64, radius_meters int) DistanceColumns {
 	var d DistanceColumns
-	d.AddressCoordinatesColumnName = fmt.Sprintf(
-		"%s.%s",
-		table.Address.Coordinates.TableName(),
-		table.Address.Coordinates.Name(),
-	)
+	d.AddressCoordinatesColumnName = utils.BuildFullTableName(table.Address.Coordinates)
 	d.DistanceColumnName = fmt.Sprintf("%s.%s", table.Address.Coordinates.TableName(), "distance")
 	d.DistanceColumn = postgres.RawString(
 		fmt.Sprintf(
