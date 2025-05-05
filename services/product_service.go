@@ -132,6 +132,7 @@ func (s Service) FindAllProducts(ctx context.Context) (products []gmodel.Product
 }
 
 func (s Service) PaginatedProducts(ctx context.Context, paginator_input gmodel.PaginatorInput, search *gmodel.ProductSearch) (paginated_products gmodel.PaginatedProducts, err error) {
+	db := s.DbOrTxQueryable()
 	created_user_table, updated_user_table, cols := s.CreatedAndUpdatedUserTable()
 	tables := table.Product.
 		INNER_JOIN(table.Category, table.Category.ID.EQ(table.Product.CategoryID)).
@@ -233,9 +234,8 @@ func (s Service) PaginatedProducts(ctx context.Context, paginator_input gmodel.P
 		ORDER_BY(order_by...).
 		LIMIT(int64(sql_paginator.Limit)).
 		OFFSET(int64(sql_paginator.Offset))
-	err = qb.QueryContext(ctx, s.DbOrTxQueryable(), &paginated_products.Products)
-	if err != nil {
-		return paginated_products, err
+	if err := qb.QueryContext(ctx, db, &paginated_products.Products); err != nil {
+		return gmodel.PaginatedProducts{}, err
 	}
 
 	paginated_products.Paginator = &sql_paginator.Paginator

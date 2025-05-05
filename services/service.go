@@ -7,6 +7,7 @@ import (
 	"github.com/go-jet/jet/v2/qrm"
 	"github.com/go-playground/validator/v10"
 	"github.com/pricetra/api/types"
+	"googlemaps.github.io/maps"
 )
 
 type Service struct {
@@ -15,6 +16,7 @@ type Service struct {
 	StructValidator *validator.Validate
 	Tokens *types.Tokens
 	Cloudinary *cloudinary.Cloudinary
+	GoogleMapsClient *maps.Client
 }
 
 // Returns a transaction if present.

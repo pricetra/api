@@ -3,12 +3,63 @@ package services
 import (
 	"context"
 	"fmt"
+	"strconv"
 
 	"github.com/go-jet/jet/v2/postgres"
 	"github.com/pricetra/api/database/jet/postgres/public/model"
 	"github.com/pricetra/api/database/jet/postgres/public/table"
 	"github.com/pricetra/api/graph/gmodel"
+	"googlemaps.github.io/maps"
 )
+
+func (s Service) CreateBranchFromFullAddress(ctx context.Context, user gmodel.User, store_id int64, full_address string) (branch gmodel.Branch, err error) {
+	store, err := s.FindStore(ctx, store_id)
+	if err != nil {
+		return branch, fmt.Errorf("store id is invalid")
+	}
+
+	data, err := s.GoogleMapsClient.Geocode(ctx, &maps.GeocodingRequest{
+		Address: full_address,
+	})
+	if err != nil || len(data) == 0 {
+		return gmodel.Branch{}, fmt.Errorf("could not parse raw address")
+	}
+
+	res := data[0];
+	address := gmodel.CreateAddress{
+		Latitude: res.Geometry.Location.Lat,
+		Longitude: res.Geometry.Location.Lng,
+		MapsLink: fmt.Sprintf(
+			"https://www.google.com/maps/search/?api=1&query=%f%%2C%f&query_place_id=%s", 
+			res.Geometry.Location.Lat, 
+			res.Geometry.Location.Lng, 
+			res.PlaceID,
+		),
+		FullAddress: res.FormattedAddress,
+	}
+	for _, component := range res.AddressComponents {
+		switch component.Types[0] {
+		case "locality":
+			address.City = component.LongName
+		case "administrative_area_level_1":
+			address.AdministrativeDivision = component.LongName
+		case "country":
+			address.CountryCode = component.ShortName
+		case "postal_code":
+			zip_code, err := strconv.Atoi(component.LongName)
+			if err != nil {
+				return gmodel.Branch{}, err
+			}
+			address.ZipCode = zip_code
+		}
+	}
+
+	return s.CreateBranch(ctx, user, gmodel.CreateBranch{
+		Name: fmt.Sprintf("%s %s", store.Name, address.City),
+		Address: &address,
+		StoreID: store_id,
+	})
+}
 
 func (s Service) CreateBranch(ctx context.Context, user gmodel.User, input gmodel.CreateBranch) (branch gmodel.Branch, err error) {
 	if err := s.StructValidator.StructCtx(ctx, input); err != nil {

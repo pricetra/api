@@ -25,5 +25,6 @@ extend type Query {
 }
 
 extend type Mutation {
+  createBranchWithFullAddress(storeId: ID!, fullAddress: String!): Branch! @isAuthenticated(role: "ADMIN")
   createBranch(input: CreateBranch!): Branch! @isAuthenticated(role: "ADMIN")
 }
