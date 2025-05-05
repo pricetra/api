@@ -11,6 +11,16 @@ import (
 	"github.com/pricetra/api/graph/gmodel"
 )
 
+// CreateBranchWithFullAddress is the resolver for the createBranchWithFullAddress field.
+func (r *mutationResolver) CreateBranchWithFullAddress(ctx context.Context, storeID int64, fullAddress string) (*gmodel.Branch, error) {
+	user := r.Service.GetAuthUserFromContext(ctx)
+	branch, err := r.Service.CreateBranchFromFullAddress(ctx, user, storeID, fullAddress)
+	if err != nil {
+		return nil, err
+	}
+	return &branch, nil
+}
+
 // CreateBranch is the resolver for the createBranch field.
 func (r *mutationResolver) CreateBranch(ctx context.Context, input gmodel.CreateBranch) (*gmodel.Branch, error) {
 	user := r.Service.GetAuthUserFromContext(ctx)
