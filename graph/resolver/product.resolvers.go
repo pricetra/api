@@ -130,8 +130,21 @@ func (r *queryResolver) AllBrands(ctx context.Context) ([]*gmodel.Brand, error) 
 		return nil, err
 	}
 	res := make([]*gmodel.Brand, len(brands))
-	for i, _ := range res {
+	for i := range res {
 		res[i] = &brands[i]
 	}
 	return res, nil
+}
+
+// Product is the resolver for the product field.
+func (r *queryResolver) Product(ctx context.Context, id int64) (*gmodel.Product, error) {
+	if !r.Service.ProductExists(ctx, id) {
+		return nil, fmt.Errorf("invalid product id")
+	}
+
+	product, err := r.Service.FindProductById(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	return &product, nil
 }
