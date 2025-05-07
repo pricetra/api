@@ -1,3 +1,8 @@
+extend type Query {
+  getProductStocks(productId: ID!, location: LocationInput): [Stock!]!
+    @isAuthenticated
+}
+
 type Stock {
   id: ID! @goTag(key: "sql", value: "primary_key")
   productId: ID!
