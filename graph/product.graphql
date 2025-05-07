@@ -5,6 +5,7 @@ extend type Query {
     search: ProductSearch
   ): PaginatedProducts! @isAuthenticated
   allBrands: [Brand!]! @isAuthenticated
+  product(id: ID!): Product! @isAuthenticated
 }
 
 extend type Mutation {

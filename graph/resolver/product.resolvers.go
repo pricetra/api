@@ -135,3 +135,12 @@ func (r *queryResolver) AllBrands(ctx context.Context) ([]*gmodel.Brand, error) 
 	}
 	return res, nil
 }
+
+// Product is the resolver for the product field.
+func (r *queryResolver) Product(ctx context.Context, id int64) (*gmodel.Product, error) {
+	product, err := r.Service.FindProductById(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	return &product, nil
+}

@@ -246,6 +246,7 @@ type ComplexityRoot struct {
 		Login                      func(childComplexity int, email string, password string, ipAddress *string, device *gmodel.AuthDeviceType) int
 		Me                         func(childComplexity int) int
 		MyProductBillingData       func(childComplexity int, paginator gmodel.PaginatorInput) int
+		Product                    func(childComplexity int, id int64) int
 		ProductBillingDataByUserID func(childComplexity int, userID int64, paginator gmodel.PaginatorInput) int
 	}
 
@@ -343,6 +344,7 @@ type QueryResolver interface {
 	BarcodeScan(ctx context.Context, barcode string) (*gmodel.Product, error)
 	AllProducts(ctx context.Context, paginator gmodel.PaginatorInput, search *gmodel.ProductSearch) (*gmodel.PaginatedProducts, error)
 	AllBrands(ctx context.Context) ([]*gmodel.Brand, error)
+	Product(ctx context.Context, id int64) (*gmodel.Product, error)
 	GetProductStocks(ctx context.Context, productID int64, location *gmodel.LocationInput) ([]*gmodel.Stock, error)
 	AllStores(ctx context.Context) ([]*gmodel.Store, error)
 	FindStore(ctx context.Context, id int64) (*gmodel.Store, error)
@@ -1511,6 +1513,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.MyProductBillingData(childComplexity, args["paginator"].(gmodel.PaginatorInput)), true
 
+	case "Query.product":
+		if e.complexity.Query.Product == nil {
+			break
+		}
+
+		args, err := ec.field_Query_product_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.Product(childComplexity, args["id"].(int64)), true
+
 	case "Query.productBillingDataByUserId":
 		if e.complexity.Query.ProductBillingDataByUserID == nil {
 			break
@@ -2572,6 +2586,21 @@ func (ec *executionContext) field_Query_productBillingDataByUserId_args(ctx cont
 		}
 	}
 	args["paginator"] = arg1
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_product_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 int64
+	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		arg0, err = ec.unmarshalNID2int64(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
 	return args, nil
 }
 
@@ -10287,6 +10316,125 @@ func (ec *executionContext) fieldContext_Query_allBrands(ctx context.Context, fi
 	return fc, nil
 }
 
+func (ec *executionContext) _Query_product(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_product(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().Product(rctx, fc.Args["id"].(int64))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.IsAuthenticated == nil {
+				return nil, errors.New("directive isAuthenticated is not implemented")
+			}
+			return ec.directives.IsAuthenticated(ctx, nil, directive0, nil)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*gmodel.Product); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/pricetra/api/graph/gmodel.Product`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*gmodel.Product)
+	fc.Result = res
+	return ec.marshalNProduct2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐProduct(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_product(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Product_id(ctx, field)
+			case "name":
+				return ec.fieldContext_Product_name(ctx, field)
+			case "image":
+				return ec.fieldContext_Product_image(ctx, field)
+			case "description":
+				return ec.fieldContext_Product_description(ctx, field)
+			case "url":
+				return ec.fieldContext_Product_url(ctx, field)
+			case "brand":
+				return ec.fieldContext_Product_brand(ctx, field)
+			case "code":
+				return ec.fieldContext_Product_code(ctx, field)
+			case "color":
+				return ec.fieldContext_Product_color(ctx, field)
+			case "model":
+				return ec.fieldContext_Product_model(ctx, field)
+			case "categoryId":
+				return ec.fieldContext_Product_categoryId(ctx, field)
+			case "category":
+				return ec.fieldContext_Product_category(ctx, field)
+			case "stock":
+				return ec.fieldContext_Product_stock(ctx, field)
+			case "weight":
+				return ec.fieldContext_Product_weight(ctx, field)
+			case "lowestRecordedPrice":
+				return ec.fieldContext_Product_lowestRecordedPrice(ctx, field)
+			case "highestRecordedPrice":
+				return ec.fieldContext_Product_highestRecordedPrice(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Product_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Product_updatedAt(ctx, field)
+			case "createdById":
+				return ec.fieldContext_Product_createdById(ctx, field)
+			case "createdBy":
+				return ec.fieldContext_Product_createdBy(ctx, field)
+			case "updatedById":
+				return ec.fieldContext_Product_updatedById(ctx, field)
+			case "updatedBy":
+				return ec.fieldContext_Product_updatedBy(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Product", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_product_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Query_getProductStocks(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Query_getProductStocks(ctx, field)
 	if err != nil {
@@ -17274,6 +17422,28 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_allBrands(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "product":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_product(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
