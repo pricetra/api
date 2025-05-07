@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/go-jet/jet/v2/postgres"
@@ -107,6 +108,10 @@ func (s Service) UpdateStockWithLatestPrice(ctx context.Context, user gmodel.Use
 }
 
 func (s Service) GetStocksForProduct(ctx context.Context, product_id int64, location *gmodel.LocationInput) (stocks []gmodel.Stock, err error) {
+	if !s.ProductExists(ctx, product_id) {
+		return nil, fmt.Errorf("invalid product id")
+	}
+
 	created_at_table, updated_at_table, cols := s.CreatedAndUpdatedUserTable()
 	cols = append(
 		cols,

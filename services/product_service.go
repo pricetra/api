@@ -115,6 +115,19 @@ func (s Service) BarcodeExists(ctx context.Context, barcode string) bool {
 	return err == nil
 }
 
+func (s Service) ProductExists(ctx context.Context, id int64) bool {
+	qb := table.Product.
+		SELECT(table.Product.ID.AS("id")).
+		FROM(table.Product).
+		WHERE(table.Product.ID.EQ(postgres.Int(id))).
+		LIMIT(1)
+	var product struct{
+		ID int64
+	}
+	err := qb.QueryContext(ctx, s.DbOrTxQueryable(), &product)
+	return err == nil
+}
+
 func (s Service) FindAllProducts(ctx context.Context) (products []gmodel.Product, err error) {
 	created_user_table, updated_user_table, cols := s.CreatedAndUpdatedUserTable()
 	cols = append(cols, table.Category.AllColumns)
