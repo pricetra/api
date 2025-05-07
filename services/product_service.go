@@ -147,15 +147,15 @@ func (s Service) FindAllProducts(ctx context.Context) (products []gmodel.Product
 func (s Service) PaginatedProducts(ctx context.Context, paginator_input gmodel.PaginatorInput, search *gmodel.ProductSearch) (paginated_products gmodel.PaginatedProducts, err error) {
 	db := s.DbOrTxQueryable()
 	created_user_table, updated_user_table, cols := s.CreatedAndUpdatedUserTable()
-	tables := table.Product.
+	tables := table.Stock.
+		INNER_JOIN(table.Product, table.Product.ID.EQ(table.Stock.ProductID)).
 		INNER_JOIN(table.Category, table.Category.ID.EQ(table.Product.CategoryID)).
-		INNER_JOIN(table.Stock, table.Stock.ProductID.EQ(table.Product.ID)).
 		INNER_JOIN(table.Store, table.Store.ID.EQ(table.Stock.StoreID)).
 		INNER_JOIN(table.Branch, table.Branch.ID.EQ(table.Stock.BranchID)).
 		INNER_JOIN(table.Price, table.Price.ID.EQ(table.Stock.LatestPriceID)).
 		INNER_JOIN(table.Address, table.Address.ID.EQ(table.Branch.AddressID)).
-		LEFT_JOIN(created_user_table, created_user_table.ID.EQ(table.Product.CreatedByID)).
-		LEFT_JOIN(updated_user_table, updated_user_table.ID.EQ(table.Product.UpdatedByID))
+		LEFT_JOIN(created_user_table, created_user_table.ID.EQ(table.Price.CreatedByID)).
+		LEFT_JOIN(updated_user_table, updated_user_table.ID.EQ(table.Price.UpdatedByID))
 
 	where_clause := postgres.Bool(true)
 	order_by := []postgres.OrderByClause{}
