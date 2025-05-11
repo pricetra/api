@@ -1,5 +1,5 @@
 extend type Query {
-  barcodeScan(barcode: String!): Product! @isAuthenticated
+  barcodeScan(barcode: String!, searchMode: Boolean): Product! @isAuthenticated
   allProducts(
     paginator: PaginatorInput!
     search: ProductSearch

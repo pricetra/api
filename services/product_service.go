@@ -102,6 +102,21 @@ func (s Service) FindProductWithCode(ctx context.Context, barcode string) (produ
 	return product, err
 }
 
+func (s Service) BarcodeSearch(ctx context.Context, barcode string) (product gmodel.Product, err error) {
+	qb := table.Product.
+		SELECT(
+			table.Product.AllColumns,
+			table.Category.AllColumns,
+		).
+		FROM(
+			table.Product.
+				INNER_JOIN(table.Category, table.Category.ID.EQ(table.Product.CategoryID)),
+		).
+		WHERE(table.Product.Code.LIKE(postgres.String(fmt.Sprintf("%%%s%%", barcode))))
+	err = qb.QueryContext(ctx, s.DbOrTxQueryable(), &product)
+	return product, err
+}
+
 func (s Service) BarcodeExists(ctx context.Context, barcode string) bool {
 	qb := table.Product.
 		SELECT(table.Product.Code.AS("code")).

@@ -234,7 +234,7 @@ type ComplexityRoot struct {
 		AllBrands                  func(childComplexity int) int
 		AllProducts                func(childComplexity int, paginator gmodel.PaginatorInput, search *gmodel.ProductSearch) int
 		AllStores                  func(childComplexity int) int
-		BarcodeScan                func(childComplexity int, barcode string) int
+		BarcodeScan                func(childComplexity int, barcode string, searchMode *bool) int
 		FindBranch                 func(childComplexity int, storeID int64, id int64) int
 		FindBranchesByDistance     func(childComplexity int, lat float64, lon float64, radiusMeters int) int
 		FindStore                  func(childComplexity int, id int64) int
@@ -341,7 +341,7 @@ type QueryResolver interface {
 	FindBranchesByDistance(ctx context.Context, lat float64, lon float64, radiusMeters int) ([]*gmodel.Branch, error)
 	GetCategories(ctx context.Context, depth *int, parentID *int64) ([]*gmodel.Category, error)
 	GetAllCountries(ctx context.Context) ([]*gmodel.Country, error)
-	BarcodeScan(ctx context.Context, barcode string) (*gmodel.Product, error)
+	BarcodeScan(ctx context.Context, barcode string, searchMode *bool) (*gmodel.Product, error)
 	AllProducts(ctx context.Context, paginator gmodel.PaginatorInput, search *gmodel.ProductSearch) (*gmodel.PaginatedProducts, error)
 	AllBrands(ctx context.Context) ([]*gmodel.Brand, error)
 	Product(ctx context.Context, id int64) (*gmodel.Product, error)
@@ -1389,7 +1389,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.BarcodeScan(childComplexity, args["barcode"].(string)), true
+		return e.complexity.Query.BarcodeScan(childComplexity, args["barcode"].(string), args["searchMode"].(*bool)), true
 
 	case "Query.findBranch":
 		if e.complexity.Query.FindBranch == nil {
@@ -2328,6 +2328,15 @@ func (ec *executionContext) field_Query_barcodeScan_args(ctx context.Context, ra
 		}
 	}
 	args["barcode"] = arg0
+	var arg1 *bool
+	if tmp, ok := rawArgs["searchMode"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("searchMode"))
+		arg1, err = ec.unmarshalOBoolean2ᚖbool(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["searchMode"] = arg1
 	return args, nil
 }
 
@@ -10061,7 +10070,7 @@ func (ec *executionContext) _Query_barcodeScan(ctx context.Context, field graphq
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		directive0 := func(rctx context.Context) (interface{}, error) {
 			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Query().BarcodeScan(rctx, fc.Args["barcode"].(string))
+			return ec.resolvers.Query().BarcodeScan(rctx, fc.Args["barcode"].(string), fc.Args["searchMode"].(*bool))
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
 			if ec.directives.IsAuthenticated == nil {

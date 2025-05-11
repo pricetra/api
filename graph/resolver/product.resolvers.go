@@ -75,8 +75,17 @@ func (r *mutationResolver) SaveProductsFromUPCItemDb(ctx context.Context, input 
 }
 
 // BarcodeScan is the resolver for the barcodeScan field.
-func (r *queryResolver) BarcodeScan(ctx context.Context, barcode string) (*gmodel.Product, error) {
+func (r *queryResolver) BarcodeScan(ctx context.Context, barcode string, searchMode *bool) (*gmodel.Product, error) {
 	user := r.Service.GetAuthUserFromContext(ctx)
+
+	if searchMode != nil && *searchMode {
+		product, err := r.Service.BarcodeSearch(ctx, barcode)
+		if err != nil {
+			return nil, err
+		}
+		return &product, nil
+	}
+
 	product, err := r.Service.FindProductWithCode(ctx, barcode)
 	if err == nil {
 		return &product, nil
