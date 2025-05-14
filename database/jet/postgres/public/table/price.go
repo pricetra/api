@@ -17,17 +17,23 @@ type priceTable struct {
 	postgres.Table
 
 	// Columns
-	ID           postgres.ColumnInteger
-	Amount       postgres.ColumnFloat
-	CurrencyCode postgres.ColumnString
-	ProductID    postgres.ColumnInteger
-	StoreID      postgres.ColumnInteger
-	BranchID     postgres.ColumnInteger
-	StockID      postgres.ColumnInteger
-	CreatedByID  postgres.ColumnInteger
-	UpdatedByID  postgres.ColumnInteger
-	CreatedAt    postgres.ColumnTimestampz
-	UpdatedAt    postgres.ColumnTimestampz
+	ID            postgres.ColumnInteger
+	Amount        postgres.ColumnFloat
+	CurrencyCode  postgres.ColumnString
+	ProductID     postgres.ColumnInteger
+	StoreID       postgres.ColumnInteger
+	BranchID      postgres.ColumnInteger
+	StockID       postgres.ColumnInteger
+	CreatedByID   postgres.ColumnInteger
+	UpdatedByID   postgres.ColumnInteger
+	CreatedAt     postgres.ColumnTimestampz
+	UpdatedAt     postgres.ColumnTimestampz
+	Sale          postgres.ColumnBool
+	OriginalPrice postgres.ColumnFloat
+	Condition     postgres.ColumnString
+	UnitType      postgres.ColumnString
+	ImageID       postgres.ColumnString
+	ExpiresAt     postgres.ColumnTimestampz
 
 	AllColumns     postgres.ColumnList
 	MutableColumns postgres.ColumnList
@@ -68,36 +74,48 @@ func newPriceTable(schemaName, tableName, alias string) *PriceTable {
 
 func newPriceTableImpl(schemaName, tableName, alias string) priceTable {
 	var (
-		IDColumn           = postgres.IntegerColumn("id")
-		AmountColumn       = postgres.FloatColumn("amount")
-		CurrencyCodeColumn = postgres.StringColumn("currency_code")
-		ProductIDColumn    = postgres.IntegerColumn("product_id")
-		StoreIDColumn      = postgres.IntegerColumn("store_id")
-		BranchIDColumn     = postgres.IntegerColumn("branch_id")
-		StockIDColumn      = postgres.IntegerColumn("stock_id")
-		CreatedByIDColumn  = postgres.IntegerColumn("created_by_id")
-		UpdatedByIDColumn  = postgres.IntegerColumn("updated_by_id")
-		CreatedAtColumn    = postgres.TimestampzColumn("created_at")
-		UpdatedAtColumn    = postgres.TimestampzColumn("updated_at")
-		allColumns         = postgres.ColumnList{IDColumn, AmountColumn, CurrencyCodeColumn, ProductIDColumn, StoreIDColumn, BranchIDColumn, StockIDColumn, CreatedByIDColumn, UpdatedByIDColumn, CreatedAtColumn, UpdatedAtColumn}
-		mutableColumns     = postgres.ColumnList{AmountColumn, CurrencyCodeColumn, ProductIDColumn, StoreIDColumn, BranchIDColumn, StockIDColumn, CreatedByIDColumn, UpdatedByIDColumn, CreatedAtColumn, UpdatedAtColumn}
+		IDColumn            = postgres.IntegerColumn("id")
+		AmountColumn        = postgres.FloatColumn("amount")
+		CurrencyCodeColumn  = postgres.StringColumn("currency_code")
+		ProductIDColumn     = postgres.IntegerColumn("product_id")
+		StoreIDColumn       = postgres.IntegerColumn("store_id")
+		BranchIDColumn      = postgres.IntegerColumn("branch_id")
+		StockIDColumn       = postgres.IntegerColumn("stock_id")
+		CreatedByIDColumn   = postgres.IntegerColumn("created_by_id")
+		UpdatedByIDColumn   = postgres.IntegerColumn("updated_by_id")
+		CreatedAtColumn     = postgres.TimestampzColumn("created_at")
+		UpdatedAtColumn     = postgres.TimestampzColumn("updated_at")
+		SaleColumn          = postgres.BoolColumn("sale")
+		OriginalPriceColumn = postgres.FloatColumn("original_price")
+		ConditionColumn     = postgres.StringColumn("condition")
+		UnitTypeColumn      = postgres.StringColumn("unit_type")
+		ImageIDColumn       = postgres.StringColumn("image_id")
+		ExpiresAtColumn     = postgres.TimestampzColumn("expires_at")
+		allColumns          = postgres.ColumnList{IDColumn, AmountColumn, CurrencyCodeColumn, ProductIDColumn, StoreIDColumn, BranchIDColumn, StockIDColumn, CreatedByIDColumn, UpdatedByIDColumn, CreatedAtColumn, UpdatedAtColumn, SaleColumn, OriginalPriceColumn, ConditionColumn, UnitTypeColumn, ImageIDColumn, ExpiresAtColumn}
+		mutableColumns      = postgres.ColumnList{AmountColumn, CurrencyCodeColumn, ProductIDColumn, StoreIDColumn, BranchIDColumn, StockIDColumn, CreatedByIDColumn, UpdatedByIDColumn, CreatedAtColumn, UpdatedAtColumn, SaleColumn, OriginalPriceColumn, ConditionColumn, UnitTypeColumn, ImageIDColumn, ExpiresAtColumn}
 	)
 
 	return priceTable{
 		Table: postgres.NewTable(schemaName, tableName, alias, allColumns...),
 
 		//Columns
-		ID:           IDColumn,
-		Amount:       AmountColumn,
-		CurrencyCode: CurrencyCodeColumn,
-		ProductID:    ProductIDColumn,
-		StoreID:      StoreIDColumn,
-		BranchID:     BranchIDColumn,
-		StockID:      StockIDColumn,
-		CreatedByID:  CreatedByIDColumn,
-		UpdatedByID:  UpdatedByIDColumn,
-		CreatedAt:    CreatedAtColumn,
-		UpdatedAt:    UpdatedAtColumn,
+		ID:            IDColumn,
+		Amount:        AmountColumn,
+		CurrencyCode:  CurrencyCodeColumn,
+		ProductID:     ProductIDColumn,
+		StoreID:       StoreIDColumn,
+		BranchID:      BranchIDColumn,
+		StockID:       StockIDColumn,
+		CreatedByID:   CreatedByIDColumn,
+		UpdatedByID:   UpdatedByIDColumn,
+		CreatedAt:     CreatedAtColumn,
+		UpdatedAt:     UpdatedAtColumn,
+		Sale:          SaleColumn,
+		OriginalPrice: OriginalPriceColumn,
+		Condition:     ConditionColumn,
+		UnitType:      UnitTypeColumn,
+		ImageID:       ImageIDColumn,
+		ExpiresAt:     ExpiresAtColumn,
 
 		AllColumns:     allColumns,
 		MutableColumns: mutableColumns,
