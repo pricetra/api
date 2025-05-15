@@ -15666,7 +15666,7 @@ func (ec *executionContext) unmarshalInputCreatePrice(ctx context.Context, obj i
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"productId", "branchId", "amount", "currencyCode", "sale", "originalPrice", "condition", "unitType", "imageId", "expiresAt"}
+	fieldsInOrder := [...]string{"productId", "branchId", "amount", "currencyCode", "sale", "originalPrice", "condition", "unitType", "imageId", "expiresAt", "imageFile"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -15743,6 +15743,13 @@ func (ec *executionContext) unmarshalInputCreatePrice(ctx context.Context, obj i
 				return it, err
 			}
 			it.ExpiresAt = data
+		case "imageFile":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("imageFile"))
+			data, err := ec.unmarshalOUpload2ᚖgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚐUpload(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ImageFile = data
 		}
 	}
 

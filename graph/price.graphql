@@ -39,5 +39,5 @@ input CreatePrice {
   unitType: String!
   imageId: String
   expiresAt: Time
-  imageFile: File
+  imageFile: Upload
 }
