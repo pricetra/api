@@ -15666,7 +15666,7 @@ func (ec *executionContext) unmarshalInputCreatePrice(ctx context.Context, obj i
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"productId", "branchId", "amount", "currencyCode"}
+	fieldsInOrder := [...]string{"productId", "branchId", "amount", "currencyCode", "sale", "originalPrice", "condition", "unitType", "imageId", "expiresAt"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -15701,6 +15701,48 @@ func (ec *executionContext) unmarshalInputCreatePrice(ctx context.Context, obj i
 				return it, err
 			}
 			it.CurrencyCode = data
+		case "sale":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("sale"))
+			data, err := ec.unmarshalNBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Sale = data
+		case "originalPrice":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("originalPrice"))
+			data, err := ec.unmarshalOFloat2ᚖfloat64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.OriginalPrice = data
+		case "condition":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("condition"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Condition = data
+		case "unitType":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("unitType"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UnitType = data
+		case "imageId":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("imageId"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ImageID = data
+		case "expiresAt":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("expiresAt"))
+			data, err := ec.unmarshalOTime2ᚖtimeᚐTime(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ExpiresAt = data
 		}
 	}
 

@@ -108,10 +108,16 @@ type CreateCategory struct {
 }
 
 type CreatePrice struct {
-	ProductID    int64   `json:"productId"`
-	BranchID     int64   `json:"branchId"`
-	Amount       float64 `json:"amount"`
-	CurrencyCode *string `json:"currencyCode,omitempty"`
+	ProductID     int64      `json:"productId"`
+	BranchID      int64      `json:"branchId"`
+	Amount        float64    `json:"amount"`
+	CurrencyCode  *string    `json:"currencyCode,omitempty"`
+	Sale          bool       `json:"sale"`
+	OriginalPrice *float64   `json:"originalPrice,omitempty"`
+	Condition     *string    `json:"condition,omitempty"`
+	UnitType      string     `json:"unitType"`
+	ImageID       *string    `json:"imageId,omitempty"`
+	ExpiresAt     *time.Time `json:"expiresAt,omitempty"`
 }
 
 type CreateProduct struct {

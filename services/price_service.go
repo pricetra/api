@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/go-jet/jet/v2/postgres"
 	"github.com/pricetra/api/database/jet/postgres/public/model"
@@ -24,6 +25,11 @@ func (s Service) CreatePrice(ctx context.Context, user gmodel.User, input gmodel
 		return gmodel.Price{}, err
 	}
 
+	if input.Sale && input.ExpiresAt == nil {
+		next_week := time.Now().Add(time.Hour * 24 * 7)
+		input.ExpiresAt = &next_week
+	}
+
 	currency_code := "USD"
 	if input.CurrencyCode != nil {
 		currency_code = *input.CurrencyCode
@@ -35,6 +41,12 @@ func (s Service) CreatePrice(ctx context.Context, user gmodel.User, input gmodel
 		table.Price.BranchID,
 		table.Price.StoreID,
 		table.Price.StockID,
+		table.Price.Sale,
+		table.Price.OriginalPrice,
+		table.Price.Condition,
+		table.Price.UnitType,
+		table.Price.ImageID,
+		table.Price.ExpiresAt,
 		table.Price.CreatedByID,
 		table.Price.UpdatedByID,
 	).MODEL(model.Price{
@@ -44,6 +56,12 @@ func (s Service) CreatePrice(ctx context.Context, user gmodel.User, input gmodel
 		StoreID: branch.StoreID,
 		BranchID: branch.ID,
 		StockID: stock.ID,
+		Sale: input.Sale,
+		OriginalPrice: input.OriginalPrice,
+		Condition: input.Condition,
+		UnitType: input.UnitType,
+		ImageID: input.ImageID,
+		ExpiresAt: input.ExpiresAt,
 		CreatedByID: &user.ID,
 		UpdatedByID: &user.ID,
 	}).RETURNING(table.Price.AllColumns)

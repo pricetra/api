@@ -33,4 +33,11 @@ input CreatePrice {
   branchId: ID!
   amount: Float!
   currencyCode: String
+  sale: Boolean!
+  originalPrice: Float
+  condition: String
+  unitType: String!
+  imageId: String
+  expiresAt: Time
+  imageFile: File
 }
