@@ -25,6 +25,16 @@ func (s Service) CreatePrice(ctx context.Context, user gmodel.User, input gmodel
 		return gmodel.Price{}, err
 	}
 
+	// if original price is provided then add that first as an entry
+	if input.Sale && input.OriginalPrice != nil {
+		s.CreatePrice(ctx, user, gmodel.CreatePrice{
+			ProductID: input.ProductID,
+			Amount: *input.OriginalPrice,
+			BranchID: input.BranchID,
+			CurrencyCode: input.CurrencyCode,
+		})
+	}
+
 	if input.Sale && input.ExpiresAt == nil {
 		next_week := time.Now().Add(time.Hour * 24 * 7)
 		input.ExpiresAt = &next_week
