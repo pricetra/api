@@ -108,10 +108,17 @@ type CreateCategory struct {
 }
 
 type CreatePrice struct {
-	ProductID    int64   `json:"productId"`
-	BranchID     int64   `json:"branchId"`
-	Amount       float64 `json:"amount"`
-	CurrencyCode *string `json:"currencyCode,omitempty"`
+	ProductID     int64           `json:"productId"`
+	BranchID      int64           `json:"branchId"`
+	Amount        float64         `json:"amount"`
+	CurrencyCode  *string         `json:"currencyCode,omitempty"`
+	Sale          bool            `json:"sale"`
+	OriginalPrice *float64        `json:"originalPrice,omitempty"`
+	Condition     *string         `json:"condition,omitempty"`
+	UnitType      string          `json:"unitType"`
+	ImageID       *string         `json:"imageId,omitempty"`
+	ExpiresAt     *time.Time      `json:"expiresAt,omitempty"`
+	ImageFile     *graphql.Upload `json:"imageFile,omitempty"`
 }
 
 type CreateProduct struct {
@@ -198,23 +205,29 @@ type PaginatorInput struct {
 }
 
 type Price struct {
-	ID           int64          `json:"id" sql:"primary_key"`
-	Amount       float64        `json:"amount"`
-	CurrencyCode string         `json:"currencyCode"`
-	ProductID    int64          `json:"productId"`
-	Product      *Product       `json:"product,omitempty"`
-	StockID      int64          `json:"stockId"`
-	Stock        *Stock         `json:"stock,omitempty"`
-	StoreID      int64          `json:"storeId"`
-	Store        *Store         `json:"store,omitempty"`
-	BranchID     int64          `json:"branchId"`
-	Branch       *Branch        `json:"branch,omitempty"`
-	CreatedAt    time.Time      `json:"createdAt"`
-	UpdatedAt    time.Time      `json:"updatedAt"`
-	CreatedByID  *int64         `json:"createdById,omitempty"`
-	CreatedBy    *CreatedByUser `json:"createdBy,omitempty"`
-	UpdatedByID  *int64         `json:"updatedById,omitempty"`
-	UpdatedBy    *UpdatedByUser `json:"updatedBy,omitempty"`
+	ID            int64          `json:"id" sql:"primary_key"`
+	Amount        float64        `json:"amount"`
+	CurrencyCode  string         `json:"currencyCode"`
+	ProductID     int64          `json:"productId"`
+	Product       *Product       `json:"product,omitempty"`
+	StockID       int64          `json:"stockId"`
+	Stock         *Stock         `json:"stock,omitempty"`
+	StoreID       int64          `json:"storeId"`
+	Store         *Store         `json:"store,omitempty"`
+	BranchID      int64          `json:"branchId"`
+	Branch        *Branch        `json:"branch,omitempty"`
+	Sale          bool           `json:"sale"`
+	OriginalPrice *float64       `json:"originalPrice,omitempty"`
+	Condition     *string        `json:"condition,omitempty"`
+	UnitType      string         `json:"unitType"`
+	ImageID       *string        `json:"imageId,omitempty"`
+	ExpiresAt     *time.Time     `json:"expiresAt,omitempty"`
+	CreatedAt     time.Time      `json:"createdAt"`
+	UpdatedAt     time.Time      `json:"updatedAt"`
+	CreatedByID   *int64         `json:"createdById,omitempty"`
+	CreatedBy     *CreatedByUser `json:"createdBy,omitempty"`
+	UpdatedByID   *int64         `json:"updatedById,omitempty"`
+	UpdatedBy     *UpdatedByUser `json:"updatedBy,omitempty"`
 }
 
 type Product struct {

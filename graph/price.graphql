@@ -14,6 +14,12 @@ type Price {
   store: Store
   branchId: ID!
   branch: Branch
+  sale: Boolean!
+  originalPrice: Float
+  condition: String
+  unitType: String!
+  imageId: String
+  expiresAt: Time
   createdAt: Time!
   updatedAt: Time!
   createdById: ID
@@ -27,4 +33,11 @@ input CreatePrice {
   branchId: ID!
   amount: Float!
   currencyCode: String
+  sale: Boolean!
+  originalPrice: Float
+  condition: String
+  unitType: String!
+  imageId: String
+  expiresAt: Time
+  imageFile: Upload
 }
