@@ -234,7 +234,7 @@ func (s Service) PaginatedProducts(ctx context.Context, paginator_input gmodel.P
 			}
 		}
 	}
-	order_by = append(order_by, table.Product.UpdatedAt.DESC())
+	order_by = append(order_by, table.Price.CreatedAt.DESC(), table.Product.UpdatedAt.DESC())
 
 	// get pagination data
 	sql_paginator, err := s.Paginate(ctx, paginator_input, tables, table.Product.ID, where_clause)
