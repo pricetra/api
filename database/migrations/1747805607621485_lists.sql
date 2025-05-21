@@ -54,6 +54,7 @@ create table "product_list" (
     "user_id" bigint references "user"("id") on delete cascade not null,
     "list_id" bigint references "list"("id") on delete cascade not null,
     "product_id" bigint references "product"("id") on delete cascade not null,
+    "stock_id" bigint references "stock"("id") on delete set null,
     "created_at" timestamp with time zone default now() not null
 );
 

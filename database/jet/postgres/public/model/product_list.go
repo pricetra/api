@@ -16,5 +16,6 @@ type ProductList struct {
 	UserID    int64
 	ListID    int64
 	ProductID int64
+	StockID   *int64
 	CreatedAt time.Time
 }

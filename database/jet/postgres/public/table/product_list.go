@@ -21,6 +21,7 @@ type productListTable struct {
 	UserID    postgres.ColumnInteger
 	ListID    postgres.ColumnInteger
 	ProductID postgres.ColumnInteger
+	StockID   postgres.ColumnInteger
 	CreatedAt postgres.ColumnTimestampz
 
 	AllColumns     postgres.ColumnList
@@ -66,9 +67,10 @@ func newProductListTableImpl(schemaName, tableName, alias string) productListTab
 		UserIDColumn    = postgres.IntegerColumn("user_id")
 		ListIDColumn    = postgres.IntegerColumn("list_id")
 		ProductIDColumn = postgres.IntegerColumn("product_id")
+		StockIDColumn   = postgres.IntegerColumn("stock_id")
 		CreatedAtColumn = postgres.TimestampzColumn("created_at")
-		allColumns      = postgres.ColumnList{IDColumn, UserIDColumn, ListIDColumn, ProductIDColumn, CreatedAtColumn}
-		mutableColumns  = postgres.ColumnList{UserIDColumn, ListIDColumn, ProductIDColumn, CreatedAtColumn}
+		allColumns      = postgres.ColumnList{IDColumn, UserIDColumn, ListIDColumn, ProductIDColumn, StockIDColumn, CreatedAtColumn}
+		mutableColumns  = postgres.ColumnList{UserIDColumn, ListIDColumn, ProductIDColumn, StockIDColumn, CreatedAtColumn}
 	)
 
 	return productListTable{
@@ -79,6 +81,7 @@ func newProductListTableImpl(schemaName, tableName, alias string) productListTab
 		UserID:    UserIDColumn,
 		ListID:    ListIDColumn,
 		ProductID: ProductIDColumn,
+		StockID:   StockIDColumn,
 		CreatedAt: CreatedAtColumn,
 
 		AllColumns:     allColumns,
