@@ -55,7 +55,7 @@ func (s Service) FindAllListsByUserId(ctx context.Context, user gmodel.User, lis
 	where_clause := table.List.UserID.EQ(postgres.Int(user.ID))
 	if list_type != nil {
 		where_clause = where_clause.
-			AND(table.List.Type.EQ(postgres.String(list_type.String())))
+			AND(table.List.Type.EQ(postgres.NewEnumValue(list_type.String())))
 	}
 	qb := table.List.
 		SELECT(
