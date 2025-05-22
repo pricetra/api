@@ -1,0 +1,38 @@
+enum ListType {
+  FAVORITES
+  WATCH_LIST
+  PERSONAL
+}
+
+type List {
+  id: ID!
+  name: String!
+  type: ListType!
+  userId: ID!
+  productList: [ProductList!]
+  createdAt: Time!
+}
+
+type ProductList {
+  id: ID!
+  userId: ID!
+  listId: ID!
+  list: List
+  productId: ID!
+  product: Product
+  stockId: ID!
+  stock: Stock
+  createdAt: Time!
+}
+
+extend type Query {
+  getAllLists(listType: ListType): [List!]! @isAuthenticated
+}
+
+extend type Mutation {
+  createList(name: String!): List! @isAuthenticated
+  deleteList(listId: ID!): List! @isAuthenticated
+
+  addToList(listId: ID!, productId: ID!, stockId: ID): ProductList! @isAuthenticated
+  removeFromList(listId: ID!, productListId: ID!): ProductList! @isAuthenticated
+}

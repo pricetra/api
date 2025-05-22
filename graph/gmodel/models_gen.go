@@ -166,6 +166,15 @@ type Currency struct {
 	NumToBasic   *int   `json:"numToBasic,omitempty"`
 }
 
+type List struct {
+	ID          int64          `json:"id"`
+	Name        string         `json:"name"`
+	Type        ListType       `json:"type"`
+	UserID      int64          `json:"userId"`
+	ProductList []*ProductList `json:"productList,omitempty"`
+	CreatedAt   time.Time      `json:"createdAt"`
+}
+
 type LocationInput struct {
 	Latitude     float64 `json:"latitude" validate:"required,latitude"`
 	Longitude    float64 `json:"longitude" validate:"required,longitude"`
@@ -264,6 +273,18 @@ type ProductBilling struct {
 	Rate            float64      `json:"rate"`
 	BillingRateType string       `json:"billingRateType"`
 	PaidAt          *time.Time   `json:"paidAt,omitempty"`
+}
+
+type ProductList struct {
+	ID        int64     `json:"id"`
+	UserID    int64     `json:"userId"`
+	ListID    int64     `json:"listId"`
+	List      *List     `json:"list,omitempty"`
+	ProductID int64     `json:"productId"`
+	Product   *Product  `json:"product,omitempty"`
+	StockID   int64     `json:"stockId"`
+	Stock     *Stock    `json:"stock,omitempty"`
+	CreatedAt time.Time `json:"createdAt"`
 }
 
 type ProductSearch struct {
@@ -482,6 +503,49 @@ func (e *AuthPlatformType) UnmarshalGQL(v interface{}) error {
 }
 
 func (e AuthPlatformType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type ListType string
+
+const (
+	ListTypeFavorites ListType = "FAVORITES"
+	ListTypeWatchList ListType = "WATCH_LIST"
+	ListTypePersonal  ListType = "PERSONAL"
+)
+
+var AllListType = []ListType{
+	ListTypeFavorites,
+	ListTypeWatchList,
+	ListTypePersonal,
+}
+
+func (e ListType) IsValid() bool {
+	switch e {
+	case ListTypeFavorites, ListTypeWatchList, ListTypePersonal:
+		return true
+	}
+	return false
+}
+
+func (e ListType) String() string {
+	return string(e)
+}
+
+func (e *ListType) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = ListType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid ListType", str)
+	}
+	return nil
+}
+
+func (e ListType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
