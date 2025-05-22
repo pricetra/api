@@ -225,6 +225,7 @@ type ComplexityRoot struct {
 		HighestRecordedPrice func(childComplexity int) int
 		ID                   func(childComplexity int) int
 		Image                func(childComplexity int) int
+		Lists                func(childComplexity int) int
 		LowestRecordedPrice  func(childComplexity int) int
 		Model                func(childComplexity int) int
 		Name                 func(childComplexity int) int
@@ -1382,6 +1383,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Product.Image(childComplexity), true
+
+	case "Product.lists":
+		if e.complexity.Product.Lists == nil {
+			break
+		}
+
+		return e.complexity.Product.Lists(childComplexity), true
 
 	case "Product.lowestRecordedPrice":
 		if e.complexity.Product.LowestRecordedPrice == nil {
@@ -6704,6 +6712,8 @@ func (ec *executionContext) fieldContext_Mutation_createProduct(ctx context.Cont
 				return ec.fieldContext_Product_updatedById(ctx, field)
 			case "updatedBy":
 				return ec.fieldContext_Product_updatedBy(ctx, field)
+			case "lists":
+				return ec.fieldContext_Product_lists(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Product", field.Name)
 		},
@@ -6827,6 +6837,8 @@ func (ec *executionContext) fieldContext_Mutation_updateProduct(ctx context.Cont
 				return ec.fieldContext_Product_updatedById(ctx, field)
 			case "updatedBy":
 				return ec.fieldContext_Product_updatedBy(ctx, field)
+			case "lists":
+				return ec.fieldContext_Product_lists(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Product", field.Name)
 		},
@@ -7735,6 +7747,8 @@ func (ec *executionContext) fieldContext_PaginatedProducts_products(ctx context.
 				return ec.fieldContext_Product_updatedById(ctx, field)
 			case "updatedBy":
 				return ec.fieldContext_Product_updatedBy(ctx, field)
+			case "lists":
+				return ec.fieldContext_Product_lists(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Product", field.Name)
 		},
@@ -8444,6 +8458,8 @@ func (ec *executionContext) fieldContext_Price_product(ctx context.Context, fiel
 				return ec.fieldContext_Product_updatedById(ctx, field)
 			case "updatedBy":
 				return ec.fieldContext_Product_updatedBy(ctx, field)
+			case "lists":
+				return ec.fieldContext_Product_lists(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Product", field.Name)
 		},
@@ -10256,6 +10272,61 @@ func (ec *executionContext) fieldContext_Product_updatedBy(ctx context.Context, 
 	return fc, nil
 }
 
+func (ec *executionContext) _Product_lists(ctx context.Context, field graphql.CollectedField, obj *gmodel.Product) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Product_lists(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Lists, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*gmodel.List)
+	fc.Result = res
+	return ec.marshalOList2ᚕᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐListᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Product_lists(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Product",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_List_id(ctx, field)
+			case "name":
+				return ec.fieldContext_List_name(ctx, field)
+			case "type":
+				return ec.fieldContext_List_type(ctx, field)
+			case "userId":
+				return ec.fieldContext_List_userId(ctx, field)
+			case "productList":
+				return ec.fieldContext_List_productList(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_List_createdAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type List", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _ProductBilling_id(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductBilling) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_ProductBilling_id(ctx, field)
 	if err != nil {
@@ -10422,6 +10493,8 @@ func (ec *executionContext) fieldContext_ProductBilling_product(ctx context.Cont
 				return ec.fieldContext_Product_updatedById(ctx, field)
 			case "updatedBy":
 				return ec.fieldContext_Product_updatedBy(ctx, field)
+			case "lists":
+				return ec.fieldContext_Product_lists(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Product", field.Name)
 		},
@@ -11006,6 +11079,8 @@ func (ec *executionContext) fieldContext_ProductList_product(ctx context.Context
 				return ec.fieldContext_Product_updatedById(ctx, field)
 			case "updatedBy":
 				return ec.fieldContext_Product_updatedBy(ctx, field)
+			case "lists":
+				return ec.fieldContext_Product_lists(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Product", field.Name)
 		},
@@ -11895,6 +11970,8 @@ func (ec *executionContext) fieldContext_Query_barcodeScan(ctx context.Context, 
 				return ec.fieldContext_Product_updatedById(ctx, field)
 			case "updatedBy":
 				return ec.fieldContext_Product_updatedBy(ctx, field)
+			case "lists":
+				return ec.fieldContext_Product_lists(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Product", field.Name)
 		},
@@ -12165,6 +12242,8 @@ func (ec *executionContext) fieldContext_Query_product(ctx context.Context, fiel
 				return ec.fieldContext_Product_updatedById(ctx, field)
 			case "updatedBy":
 				return ec.fieldContext_Product_updatedBy(ctx, field)
+			case "lists":
+				return ec.fieldContext_Product_lists(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Product", field.Name)
 		},
@@ -13197,6 +13276,8 @@ func (ec *executionContext) fieldContext_Stock_product(ctx context.Context, fiel
 				return ec.fieldContext_Product_updatedById(ctx, field)
 			case "updatedBy":
 				return ec.fieldContext_Product_updatedBy(ctx, field)
+			case "lists":
+				return ec.fieldContext_Product_lists(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Product", field.Name)
 		},
@@ -19018,6 +19099,8 @@ func (ec *executionContext) _Product(ctx context.Context, sel ast.SelectionSet, 
 			out.Values[i] = ec._Product_updatedById(ctx, field, obj)
 		case "updatedBy":
 			out.Values[i] = ec._Product_updatedBy(ctx, field, obj)
+		case "lists":
+			out.Values[i] = ec._Product_lists(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -21686,6 +21769,53 @@ func (ec *executionContext) marshalOInt2ᚖint(ctx context.Context, sel ast.Sele
 	}
 	res := graphql.MarshalInt(*v)
 	return res
+}
+
+func (ec *executionContext) marshalOList2ᚕᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐListᚄ(ctx context.Context, sel ast.SelectionSet, v []*gmodel.List) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNList2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐList(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
 }
 
 func (ec *executionContext) marshalOList2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐList(ctx context.Context, sel ast.SelectionSet, v *gmodel.List) graphql.Marshaler {

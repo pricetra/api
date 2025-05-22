@@ -167,7 +167,7 @@ type Currency struct {
 }
 
 type List struct {
-	ID          int64          `json:"id"`
+	ID          int64          `json:"id" sql:"primary_key"`
 	Name        string         `json:"name"`
 	Type        ListType       `json:"type"`
 	UserID      int64          `json:"userId"`
@@ -261,6 +261,7 @@ type Product struct {
 	CreatedBy            *CreatedByUser `json:"createdBy,omitempty"`
 	UpdatedByID          *int64         `json:"updatedById,omitempty"`
 	UpdatedBy            *UpdatedByUser `json:"updatedBy,omitempty"`
+	Lists                []*List        `json:"lists,omitempty"`
 }
 
 type ProductBilling struct {
@@ -276,7 +277,7 @@ type ProductBilling struct {
 }
 
 type ProductList struct {
-	ID        int64     `json:"id"`
+	ID        int64     `json:"id" sql:"primary_key"`
 	UserID    int64     `json:"userId"`
 	ListID    int64     `json:"listId"`
 	List      *List     `json:"list,omitempty"`

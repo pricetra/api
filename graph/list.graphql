@@ -5,7 +5,7 @@ enum ListType {
 }
 
 type List {
-  id: ID!
+  id: ID! @goTag(key: "sql", value: "primary_key")
   name: String!
   type: ListType!
   userId: ID!
@@ -14,7 +14,7 @@ type List {
 }
 
 type ProductList {
-  id: ID!
+  id: ID! @goTag(key: "sql", value: "primary_key")
   userId: ID!
   listId: ID!
   list: List
