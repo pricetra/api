@@ -21,7 +21,6 @@ type ProductList {
   productId: ID!
   product: Product
   stockId: ID!
-  stock: Stock
   createdAt: Time!
 }
 

@@ -283,7 +283,6 @@ type ProductList struct {
 	ProductID int64     `json:"productId"`
 	Product   *Product  `json:"product,omitempty"`
 	StockID   int64     `json:"stockId"`
-	Stock     *Stock    `json:"stock,omitempty"`
 	CreatedAt time.Time `json:"createdAt"`
 }
 
