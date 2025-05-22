@@ -10,11 +10,11 @@ package enum
 import "github.com/go-jet/jet/v2/postgres"
 
 var ListType = &struct {
-	Favorites    postgres.StringExpression
-	ShoppingList postgres.StringExpression
-	Personal     postgres.StringExpression
+	Favorites postgres.StringExpression
+	WatchList postgres.StringExpression
+	Personal  postgres.StringExpression
 }{
-	Favorites:    postgres.NewEnumValue("FAVORITES"),
-	ShoppingList: postgres.NewEnumValue("SHOPPING_LIST"),
-	Personal:     postgres.NewEnumValue("PERSONAL"),
+	Favorites: postgres.NewEnumValue("FAVORITES"),
+	WatchList: postgres.NewEnumValue("WATCH_LIST"),
+	Personal:  postgres.NewEnumValue("PERSONAL"),
 }

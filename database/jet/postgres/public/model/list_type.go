@@ -12,9 +12,9 @@ import "errors"
 type ListType string
 
 const (
-	ListType_Favorites    ListType = "FAVORITES"
-	ListType_ShoppingList ListType = "SHOPPING_LIST"
-	ListType_Personal     ListType = "PERSONAL"
+	ListType_Favorites ListType = "FAVORITES"
+	ListType_WatchList ListType = "WATCH_LIST"
+	ListType_Personal  ListType = "PERSONAL"
 )
 
 func (e *ListType) Scan(value interface{}) error {
@@ -31,8 +31,8 @@ func (e *ListType) Scan(value interface{}) error {
 	switch enumValue {
 	case "FAVORITES":
 		*e = ListType_Favorites
-	case "SHOPPING_LIST":
-		*e = ListType_ShoppingList
+	case "WATCH_LIST":
+		*e = ListType_WatchList
 	case "PERSONAL":
 		*e = ListType_Personal
 	default:

@@ -1,4 +1,4 @@
-create type "list_type" as enum ('FAVORITES', 'SHOPPING_LIST', 'PERSONAL');
+create type "list_type" as enum ('FAVORITES', 'WATCH_LIST', 'PERSONAL');
 
 create table "list" (
     "id" bigserial unique primary key,
@@ -13,9 +13,9 @@ insert into "list" ("name", "type", "user_id")
 select 'Favorites', 'FAVORITES'::"list_type", "user"."id"
 from "user";
 
--- Create a "Shopping List" list for every user
+-- Create a "Watch List" list for every user
 insert into "list" ("name", "type", "user_id")
-select 'Shopping List', 'SHOPPING_LIST'::"list_type", "user"."id"
+select 'Watch List', 'WATCH_LIST'::"list_type", "user"."id"
 from "user";
 
 
@@ -28,11 +28,11 @@ values (
         'FAVORITES'::"list_type",
         new.id
     );
--- Insert "Shopping List"
+-- Insert "Watch List"
 insert into list (name, type, user_id)
 values (
-        'Shopping List',
-        'SHOPPING_LIST'::"list_type",
+        'Watch List',
+        'WATCH_LIST'::"list_type",
         new.id
     );
 return new;
@@ -55,13 +55,5 @@ create table "product_list" (
     "list_id" bigint references "list"("id") on delete cascade not null,
     "product_id" bigint references "product"("id") on delete cascade not null,
     "stock_id" bigint references "stock"("id") on delete set null,
-    "created_at" timestamp with time zone default now() not null
-);
-
-create table "branch_list" (
-    "id" bigserial unique primary key,
-    "user_id" bigint references "user"("id") on delete cascade not null,
-    "list_id" bigint references "list"("id") on delete cascade not null,
-    "branch_id" bigint references "branch"("id") on delete cascade not null,
     "created_at" timestamp with time zone default now() not null
 );
