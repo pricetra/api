@@ -1,4 +1,5 @@
 extend type Query {
+  stock(stockId: ID!): Stock! @isAuthenticated
   getProductStocks(productId: ID!, location: LocationInput): [Stock!]!
     @isAuthenticated
 }

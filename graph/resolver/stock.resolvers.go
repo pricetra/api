@@ -6,9 +6,19 @@ package gresolver
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/pricetra/api/graph/gmodel"
 )
+
+// Stock is the resolver for the stock field.
+func (r *queryResolver) Stock(ctx context.Context, stockID int64) (*gmodel.Stock, error) {
+	stock, err := r.Service.FindStockById(ctx, stockID)
+	if err != nil {
+		return nil, fmt.Errorf("could not fetch stock with the provided stockId")
+	}
+	return &stock, nil
+}
 
 // GetProductStocks is the resolver for the getProductStocks field.
 func (r *queryResolver) GetProductStocks(ctx context.Context, productID int64, location *gmodel.LocationInput) ([]*gmodel.Stock, error) {

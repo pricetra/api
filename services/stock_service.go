@@ -32,9 +32,28 @@ func (s Service) CreateStock(ctx context.Context, user gmodel.User, input gmodel
 }
 
 func (s Service) FindStockById(ctx context.Context, id int64) (stock gmodel.Stock, err error) {
+	created_at_table, updated_at_table, cols := s.CreatedAndUpdatedUserTable()
 	qb := table.Stock.
-		SELECT(table.Stock.AllColumns).
-		FROM(table.Stock).
+		SELECT(
+			table.Stock.AllColumns,
+			append(
+				cols,
+				table.Branch.AllColumns,
+				table.Store.AllColumns,
+				table.Address.AllColumns,
+				table.Price.AllColumns,
+			)...,
+		).
+		FROM(
+			table.Stock.
+				INNER_JOIN(table.Product, table.Product.ID.EQ(table.Stock.ProductID)).
+				INNER_JOIN(table.Branch, table.Branch.ID.EQ(table.Stock.BranchID)).
+				INNER_JOIN(table.Store, table.Store.ID.EQ(table.Stock.StoreID)).
+				INNER_JOIN(table.Address, table.Address.ID.EQ(table.Branch.AddressID)).
+				INNER_JOIN(table.Price, table.Price.ID.EQ(table.Stock.LatestPriceID)).
+				LEFT_JOIN(created_at_table, created_at_table.ID.EQ(table.Price.CreatedByID)).
+				LEFT_JOIN(updated_at_table, updated_at_table.ID.EQ(table.Price.UpdatedByID)),
+		).
 		WHERE(table.Stock.ID.EQ(postgres.Int(id))).
 		LIMIT(1)
 	if err = qb.QueryContext(ctx, s.DbOrTxQueryable(), &stock); err != nil {
