@@ -6,6 +6,7 @@ package gresolver
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/pricetra/api/graph/gmodel"
 )
@@ -48,6 +49,16 @@ func (r *mutationResolver) RemoveFromList(ctx context.Context, listID int64, pro
 		return nil, err
 	}
 	return &product_list, nil
+}
+
+// AddBranchToList is the resolver for the addBranchToList field.
+func (r *mutationResolver) AddBranchToList(ctx context.Context, listID int64, branchID int64) (*gmodel.BranchList, error) {
+	panic(fmt.Errorf("not implemented: AddBranchToList - addBranchToList"))
+}
+
+// RemoveBranchFromList is the resolver for the removeBranchFromList field.
+func (r *mutationResolver) RemoveBranchFromList(ctx context.Context, listID int64, branchListID int64) (*gmodel.BranchList, error) {
+	panic(fmt.Errorf("not implemented: RemoveBranchFromList - removeBranchFromList"))
 }
 
 // GetAllLists is the resolver for the getAllLists field.

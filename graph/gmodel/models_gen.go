@@ -55,6 +55,16 @@ type Branch struct {
 	UpdatedBy   *UpdatedByUser `json:"updatedBy,omitempty"`
 }
 
+type BranchList struct {
+	ID        int64     `json:"id" sql:"primary_key"`
+	UserID    int64     `json:"userId"`
+	ListID    int64     `json:"listId"`
+	List      *List     `json:"list,omitempty"`
+	BranchID  int64     `json:"branchId"`
+	Branch    *Branch   `json:"branch,omitempty"`
+	CreatedAt time.Time `json:"createdAt"`
+}
+
 type Brand struct {
 	Brand    string `json:"brand" alias:"product.brand"`
 	Products int64  `json:"products"`
@@ -172,6 +182,7 @@ type List struct {
 	Type        ListType       `json:"type"`
 	UserID      int64          `json:"userId"`
 	ProductList []*ProductList `json:"productList,omitempty"`
+	BranchList  []*BranchList  `json:"branchList,omitempty"`
 	CreatedAt   time.Time      `json:"createdAt"`
 }
 
