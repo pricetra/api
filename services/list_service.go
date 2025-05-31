@@ -145,7 +145,7 @@ func (s Service) FindProductListById( ctx context.Context, user gmodel.User, pro
 	return product_list, nil
 }
 
-func (s Service) AddToList(
+func (s Service) AddProductToList(
 	ctx context.Context,
 	user gmodel.User,
 	list_id int64,
@@ -197,7 +197,7 @@ func (s Service) AddToList(
 	return product_list, nil
 }
 
-func (s Service) RemoveFromList(ctx context.Context, user gmodel.User, list_id int64, product_list_id int64) (product_list gmodel.ProductList, err error) {
+func (s Service) RemoveProductFromList(ctx context.Context, user gmodel.User, list_id int64, product_list_id int64) (product_list gmodel.ProductList, err error) {
 	list, err := s.FindListByIdAndUserId(ctx, list_id, user.ID)
 	if err != nil {
 		return gmodel.ProductList{}, fmt.Errorf("invalid list")

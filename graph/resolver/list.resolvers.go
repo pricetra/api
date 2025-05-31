@@ -34,7 +34,7 @@ func (r *mutationResolver) DeleteList(ctx context.Context, listID int64) (*gmode
 // AddToList is the resolver for the addToList field.
 func (r *mutationResolver) AddToList(ctx context.Context, listID int64, productID int64, stockID *int64) (*gmodel.ProductList, error) {
 	user := r.Service.GetAuthUserFromContext(ctx)
-	product_list, err := r.Service.AddToList(ctx, user, listID, productID, stockID)
+	product_list, err := r.Service.AddProductToList(ctx, user, listID, productID, stockID)
 	if err != nil {
 		return nil, err
 	}
@@ -44,7 +44,7 @@ func (r *mutationResolver) AddToList(ctx context.Context, listID int64, productI
 // RemoveFromList is the resolver for the removeFromList field.
 func (r *mutationResolver) RemoveFromList(ctx context.Context, listID int64, productListID int64) (*gmodel.ProductList, error) {
 	user := r.Service.GetAuthUserFromContext(ctx)
-	product_list, err := r.Service.RemoveFromList(ctx, user, listID, productListID)
+	product_list, err := r.Service.RemoveProductFromList(ctx, user, listID, productListID)
 	if err != nil {
 		return nil, err
 	}
