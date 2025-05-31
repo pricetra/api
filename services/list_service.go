@@ -57,6 +57,7 @@ func (s Service) FindAllListsByUserId(ctx context.Context, user gmodel.User, lis
 		where_clause = where_clause.
 			AND(table.List.Type.EQ(postgres.NewEnumValue(list_type.String())))
 	}
+	branch_list_branch_table := table.Branch.AS("branch_list_branch")
 	qb := table.List.
 		SELECT(
 			table.List.AllColumns,
@@ -64,7 +65,8 @@ func (s Service) FindAllListsByUserId(ctx context.Context, user gmodel.User, lis
 			table.Product.AllColumns,
 			table.Stock.AllColumns,
 			table.Price.AllColumns,
-			table.Branch.AllColumns,
+			table.BranchList.AllColumns,
+			branch_list_branch_table.AllColumns,
 			table.Store.AllColumns,
 			table.Address.AllColumns,
 		).
@@ -73,15 +75,18 @@ func (s Service) FindAllListsByUserId(ctx context.Context, user gmodel.User, lis
 			LEFT_JOIN(table.Product, table.Product.ID.EQ(table.ProductList.ProductID)).
 			LEFT_JOIN(table.Stock, table.Stock.ID.EQ(table.ProductList.StockID)).
 			LEFT_JOIN(table.Price, table.Price.ID.EQ(table.Stock.LatestPriceID)).
-			LEFT_JOIN(table.Branch, table.Branch.ID.EQ(table.Stock.BranchID)).
-			LEFT_JOIN(table.Store, table.Store.ID.EQ(table.Stock.StoreID)).
-			LEFT_JOIN(table.Address, table.Address.ID.EQ(table.Branch.AddressID)),
+			LEFT_JOIN(table.BranchList, table.BranchList.ListID.EQ(table.List.ID)).
+			LEFT_JOIN(branch_list_branch_table, branch_list_branch_table.ID.EQ(table.BranchList.BranchID)).
+			LEFT_JOIN(table.Store, table.Store.ID.EQ(branch_list_branch_table.StoreID)).
+			LEFT_JOIN(table.Address, table.Address.ID.EQ(branch_list_branch_table.AddressID)),
 		).
 		WHERE(where_clause).
 		ORDER_BY(
 			table.List.CreatedAt.ASC(),
 			table.ProductList.CreatedAt.DESC(),
+			table.BranchList.CreatedAt.DESC(),
 		)
+	fmt.Println(qb.DebugSql())
 	if err = qb.QueryContext(ctx, s.DbOrTxQueryable(), &lists); err != nil {
 		return nil, err
 	}
