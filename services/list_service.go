@@ -86,7 +86,6 @@ func (s Service) FindAllListsByUserId(ctx context.Context, user gmodel.User, lis
 			table.ProductList.CreatedAt.DESC(),
 			table.BranchList.CreatedAt.DESC(),
 		)
-	fmt.Println(qb.DebugSql())
 	if err = qb.QueryContext(ctx, s.DbOrTxQueryable(), &lists); err != nil {
 		return nil, err
 	}
