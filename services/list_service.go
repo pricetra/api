@@ -131,6 +131,26 @@ func (s Service) FindProductListWithProductId(
 	return product_list, nil
 }
 
+func (s Service) FindBranchListWithBranchId(
+	ctx context.Context,
+	user gmodel.User,
+	list_id int64,
+	branch_id int64,
+) (branch_list gmodel.BranchList, err error) {
+	qb := table.BranchList.
+		SELECT(table.BranchList.AllColumns).
+		FROM(table.BranchList).
+		WHERE(
+			table.BranchList.ListID.EQ(postgres.Int(list_id)).
+			AND(table.BranchList.UserID.EQ(postgres.Int(user.ID))).
+			AND(table.BranchList.BranchID.EQ(postgres.Int(branch_id))),
+		).LIMIT(1)
+	if err = qb.QueryContext(ctx, s.DbOrTxQueryable(), &branch_list); err != nil {
+		return gmodel.BranchList{}, err
+	}
+	return branch_list, nil
+}
+
 func (s Service) FindProductListById( ctx context.Context, user gmodel.User, product_list_id int64) (product_list gmodel.ProductList, err error) {
 	qb := table.ProductList.
 		SELECT(table.ProductList.AllColumns).
@@ -141,6 +161,20 @@ func (s Service) FindProductListById( ctx context.Context, user gmodel.User, pro
 		).LIMIT(1)
 	if err = qb.QueryContext(ctx, s.DbOrTxQueryable(), &product_list); err != nil {
 		return gmodel.ProductList{}, err
+	}
+	return product_list, nil
+}
+
+func (s Service) FindBranchListById( ctx context.Context, user gmodel.User, branch_list_id int64) (product_list gmodel.BranchList, err error) {
+	qb := table.BranchList.
+		SELECT(table.BranchList.AllColumns).
+		FROM(table.BranchList).
+		WHERE(
+			table.BranchList.ID.EQ(postgres.Int(branch_list_id)).
+			AND(table.BranchList.UserID.EQ(postgres.Int(user.ID))),
+		).LIMIT(1)
+	if err = qb.QueryContext(ctx, s.DbOrTxQueryable(), &product_list); err != nil {
+		return gmodel.BranchList{}, err
 	}
 	return product_list, nil
 }
@@ -219,4 +253,63 @@ func (s Service) RemoveProductFromList(ctx context.Context, user gmodel.User, li
 		return gmodel.ProductList{}, err
 	}
 	return product_list, nil
+}
+
+func (s Service) AddBranchToList(
+	ctx context.Context,
+	user gmodel.User,
+	list_id int64,
+	branch_id int64,
+) (branch_list gmodel.BranchList, err error) {
+	list, err := s.FindListByIdAndUserId(ctx, list_id, user.ID)
+	if err != nil {
+		return gmodel.BranchList{}, fmt.Errorf("invalid list")
+	}
+
+	branch, err := s.FindBranchById(ctx, branch_id)
+	if err != nil {
+		return gmodel.BranchList{}, fmt.Errorf("could not find branch")
+	}
+
+	existing_branch_list, err := s.FindBranchListWithBranchId(ctx, user, list.ID, branch_id)
+	if err == nil {
+		return existing_branch_list, nil
+	}
+	qb := table.BranchList.INSERT(
+		table.BranchList.UserID,
+		table.BranchList.ListID,
+		table.BranchList.BranchID,
+	).MODEL(model.BranchList{
+		UserID: user.ID,
+		ListID: list.ID,
+		BranchID: branch.ID,
+	}).RETURNING(table.BranchList.AllColumns)
+	if err := qb.QueryContext(ctx, s.DbOrTxQueryable(), &branch_list); err != nil {
+		return gmodel.BranchList{}, err
+	}
+	return branch_list, nil
+}
+
+func (s Service) RemoveBranchFromList(ctx context.Context, user gmodel.User, list_id int64, branch_list_id int64) (branch_list gmodel.BranchList, err error) {
+	list, err := s.FindListByIdAndUserId(ctx, list_id, user.ID)
+	if err != nil {
+		return gmodel.BranchList{}, fmt.Errorf("invalid list")
+	}
+
+	branch_list, err = s.FindBranchListById(ctx, user, branch_list_id)
+	if err != nil {
+		return gmodel.BranchList{}, fmt.Errorf("could not find branch list")
+	}
+	if branch_list.ListID != list.ID {
+		return gmodel.BranchList{}, fmt.Errorf("list does not match branch list provided")
+	}
+
+	qb := table.BranchList.
+		DELETE().
+		WHERE(table.BranchList.ID.EQ(postgres.Int(branch_list.ID))).
+		RETURNING(table.BranchList.AllColumns)
+	if err := qb.QueryContext(ctx, s.DbOrTxQueryable(), &branch_list); err != nil {
+		return gmodel.BranchList{}, err
+	}
+	return branch_list, nil
 }
