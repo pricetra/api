@@ -63,6 +63,7 @@ func (s Service) FindAllListsByUserId(ctx context.Context, user gmodel.User, lis
 			table.List.AllColumns,
 			table.ProductList.AllColumns,
 			table.Product.AllColumns,
+			table.Category.AllColumns,
 			table.Stock.AllColumns,
 			table.Price.AllColumns,
 			table.BranchList.AllColumns,
@@ -73,6 +74,7 @@ func (s Service) FindAllListsByUserId(ctx context.Context, user gmodel.User, lis
 		FROM(table.List.
 			LEFT_JOIN(table.ProductList, table.ProductList.ListID.EQ(table.List.ID)).
 			LEFT_JOIN(table.Product, table.Product.ID.EQ(table.ProductList.ProductID)).
+			LEFT_JOIN(table.Category, table.Category.ID.EQ(table.Product.CategoryID)).
 			LEFT_JOIN(table.Stock, table.Stock.ID.EQ(table.ProductList.StockID)).
 			LEFT_JOIN(table.Price, table.Price.ID.EQ(table.Stock.LatestPriceID)).
 			LEFT_JOIN(table.BranchList, table.BranchList.ListID.EQ(table.List.ID)).
