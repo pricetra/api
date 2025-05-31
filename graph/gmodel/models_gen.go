@@ -61,7 +61,7 @@ type BranchList struct {
 	ListID    int64     `json:"listId"`
 	List      *List     `json:"list,omitempty"`
 	BranchID  int64     `json:"branchId"`
-	Branch    *Branch   `json:"branch,omitempty" alias:"branch_list_branch"`
+	Branch    *Branch   `json:"branch,omitempty"`
 	CreatedAt time.Time `json:"createdAt"`
 }
 
