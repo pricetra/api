@@ -52,44 +52,74 @@ func (s Service) FindListByIdAndUserId(ctx context.Context, list_id int64, user_
 }
 
 func (s Service) FindAllListsByUserId(ctx context.Context, user gmodel.User, list_type *gmodel.ListType) (lists []gmodel.List, err error) {
+	db := s.DbOrTxQueryable()
 	where_clause := table.List.UserID.EQ(postgres.Int(user.ID))
 	if list_type != nil {
 		where_clause = where_clause.
 			AND(table.List.Type.EQ(postgres.NewEnumValue(list_type.String())))
 	}
-	branch_list_branch_table := table.Branch.AS("branch_list_branch")
 	qb := table.List.
-		SELECT(
-			table.List.AllColumns,
-			table.ProductList.AllColumns,
-			table.Product.AllColumns,
-			table.Category.AllColumns,
-			table.Stock.AllColumns,
-			table.Price.AllColumns,
-			table.BranchList.AllColumns,
-			branch_list_branch_table.AllColumns,
-			table.Store.AllColumns,
-			table.Address.AllColumns,
-		).
-		FROM(table.List.
-			LEFT_JOIN(table.ProductList, table.ProductList.ListID.EQ(table.List.ID)).
-			LEFT_JOIN(table.Product, table.Product.ID.EQ(table.ProductList.ProductID)).
-			LEFT_JOIN(table.Category, table.Category.ID.EQ(table.Product.CategoryID)).
-			LEFT_JOIN(table.Stock, table.Stock.ID.EQ(table.ProductList.StockID)).
-			LEFT_JOIN(table.Price, table.Price.ID.EQ(table.Stock.LatestPriceID)).
-			LEFT_JOIN(table.BranchList, table.BranchList.ListID.EQ(table.List.ID)).
-			LEFT_JOIN(branch_list_branch_table, branch_list_branch_table.ID.EQ(table.BranchList.BranchID)).
-			LEFT_JOIN(table.Store, table.Store.ID.EQ(branch_list_branch_table.StoreID)).
-			LEFT_JOIN(table.Address, table.Address.ID.EQ(branch_list_branch_table.AddressID)),
-		).
+		SELECT(table.List.AllColumns).
+		FROM(table.List).
 		WHERE(where_clause).
-		ORDER_BY(
-			table.List.CreatedAt.ASC(),
-			table.ProductList.CreatedAt.DESC(),
-			table.BranchList.CreatedAt.DESC(),
-		)
-	if err = qb.QueryContext(ctx, s.DbOrTxQueryable(), &lists); err != nil {
+		ORDER_BY(table.List.CreatedAt.ASC())
+	if err = qb.QueryContext(ctx, db, &lists); err != nil {
 		return nil, err
+	}
+
+	// TODO: Ideally this should all be taken care on the db side...
+	for i, list := range lists {
+		// Products
+		product_list_qb := table.ProductList.
+			SELECT(
+				table.ProductList.AllColumns,
+				table.Product.AllColumns,
+				table.Category.AllColumns,
+				table.Stock.AllColumns,
+				table.Price.AllColumns,
+			).
+			FROM(
+				table.ProductList.
+					INNER_JOIN(table.Product, table.Product.ID.EQ(table.ProductList.ProductID)).
+					INNER_JOIN(table.Category, table.Category.ID.EQ(table.Product.CategoryID)).
+					LEFT_JOIN(table.Stock, table.Stock.ID.EQ(table.ProductList.StockID)).
+					LEFT_JOIN(table.Price, table.Price.ID.EQ(table.Stock.LatestPriceID)),
+			).
+			WHERE(table.ProductList.ListID.EQ(postgres.Int(list.ID))).
+			ORDER_BY(table.ProductList.CreatedAt.DESC())
+		if err := product_list_qb.QueryContext(ctx, db, &lists[i].ProductList); err != nil {
+			return nil, err
+		}
+
+		// Cleanup zero-value struct for stock. For some reason even when stock_id is null
+		// Jet maps it as a zero-valued gmodel.Stock{}
+		// TODO: Take care of this on the db side
+		for j, pl := range lists[i].ProductList {
+			if pl.StockID != nil {
+				continue
+			}
+			lists[i].ProductList[j].Stock = nil
+		}
+
+		// Branches
+		branch_list_qb := table.BranchList.
+			SELECT(
+				table.BranchList.AllColumns,
+				table.Branch.AllColumns,
+				table.Store.AllColumns,
+				table.Address.AllColumns,
+			).
+			FROM(
+				table.BranchList.
+					INNER_JOIN(table.Branch, table.Branch.ID.EQ(table.BranchList.BranchID)).
+					INNER_JOIN(table.Store, table.Store.ID.EQ(table.Branch.StoreID)).
+					INNER_JOIN(table.Address, table.Address.ID.EQ(table.Branch.AddressID)),
+			).
+			WHERE(table.BranchList.ListID.EQ(postgres.Int(list.ID))).
+			ORDER_BY(table.BranchList.CreatedAt.DESC())
+		if err := branch_list_qb.QueryContext(ctx, db, &lists[i].BranchList); err != nil {
+			return nil, err
+		}
 	}
 	return lists, nil
 }

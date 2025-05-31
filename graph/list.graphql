@@ -32,7 +32,7 @@ type BranchList {
   listId: ID!
   list: List
   branchId: ID!
-  branch: Branch @goTag(key: "alias", value: "branch_list_branch")
+  branch: Branch
   createdAt: Time!
 }
 
