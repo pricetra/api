@@ -33,7 +33,7 @@ func (r *mutationResolver) DeleteList(ctx context.Context, listID int64) (*gmode
 // AddToList is the resolver for the addToList field.
 func (r *mutationResolver) AddToList(ctx context.Context, listID int64, productID int64, stockID *int64) (*gmodel.ProductList, error) {
 	user := r.Service.GetAuthUserFromContext(ctx)
-	product_list, err := r.Service.AddToList(ctx, user, listID, productID, stockID)
+	product_list, err := r.Service.AddProductToList(ctx, user, listID, productID, stockID)
 	if err != nil {
 		return nil, err
 	}
@@ -43,11 +43,31 @@ func (r *mutationResolver) AddToList(ctx context.Context, listID int64, productI
 // RemoveFromList is the resolver for the removeFromList field.
 func (r *mutationResolver) RemoveFromList(ctx context.Context, listID int64, productListID int64) (*gmodel.ProductList, error) {
 	user := r.Service.GetAuthUserFromContext(ctx)
-	product_list, err := r.Service.RemoveFromList(ctx, user, listID, productListID)
+	product_list, err := r.Service.RemoveProductFromList(ctx, user, listID, productListID)
 	if err != nil {
 		return nil, err
 	}
 	return &product_list, nil
+}
+
+// AddBranchToList is the resolver for the addBranchToList field.
+func (r *mutationResolver) AddBranchToList(ctx context.Context, listID int64, branchID int64) (*gmodel.BranchList, error) {
+	user := r.Service.GetAuthUserFromContext(ctx)
+	branch_list, err := r.Service.AddBranchToList(ctx, user, listID, branchID)
+	if err != nil {
+		return nil, err
+	}
+	return &branch_list, nil
+}
+
+// RemoveBranchFromList is the resolver for the removeBranchFromList field.
+func (r *mutationResolver) RemoveBranchFromList(ctx context.Context, listID int64, branchListID int64) (*gmodel.BranchList, error) {
+	user := r.Service.GetAuthUserFromContext(ctx)
+	branch_list, err := r.Service.RemoveBranchFromList(ctx, user, listID, branchListID)
+	if err != nil {
+		return nil, err
+	}
+	return &branch_list, nil
 }
 
 // GetAllLists is the resolver for the getAllLists field.

@@ -10,6 +10,7 @@ type List {
   type: ListType!
   userId: ID!
   productList: [ProductList!]
+  branchList: [BranchList!]
   createdAt: Time!
 }
 
@@ -20,7 +21,18 @@ type ProductList {
   list: List
   productId: ID!
   product: Product
-  stockId: ID!
+  stock: Stock
+  stockId: ID
+  createdAt: Time!
+}
+
+type BranchList {
+  id: ID! @goTag(key: "sql", value: "primary_key")
+  userId: ID!
+  listId: ID!
+  list: List
+  branchId: ID!
+  branch: Branch @goTag(key: "alias", value: "branch_list_branch")
   createdAt: Time!
 }
 
@@ -32,6 +44,11 @@ extend type Mutation {
   createList(name: String!): List! @isAuthenticated
   deleteList(listId: ID!): List! @isAuthenticated
 
-  addToList(listId: ID!, productId: ID!, stockId: ID): ProductList! @isAuthenticated
+  addToList(listId: ID!, productId: ID!, stockId: ID): ProductList!
+    @isAuthenticated
   removeFromList(listId: ID!, productListId: ID!): ProductList! @isAuthenticated
+
+  addBranchToList(listId: ID!, branchId: ID!): BranchList! @isAuthenticated
+  removeBranchFromList(listId: ID!, branchListId: ID!): BranchList!
+    @isAuthenticated
 }
