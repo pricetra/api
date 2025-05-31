@@ -294,7 +294,8 @@ type ProductList struct {
 	List      *List     `json:"list,omitempty"`
 	ProductID int64     `json:"productId"`
 	Product   *Product  `json:"product,omitempty"`
-	StockID   int64     `json:"stockId"`
+	Stock     *Stock    `json:"stock,omitempty"`
+	StockID   *int64    `json:"stockId,omitempty"`
 	CreatedAt time.Time `json:"createdAt"`
 }
 
