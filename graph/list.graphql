@@ -36,8 +36,20 @@ type BranchList {
   createdAt: Time!
 }
 
+type BranchListWithPrices {
+  id: ID! @goTag(key: "sql", value: "primary_key")
+  branchId: ID!
+  branch: Branch
+  stock: Stock
+  approximatePrice: Float
+  createdAt: Time!
+}
+
 extend type Query {
   getAllLists(listType: ListType): [List!]! @isAuthenticated
+
+  getFavoriteBranchesWithPrices(productId: ID!): [BranchListWithPrices!]!
+    @isAuthenticated
 }
 
 extend type Mutation {

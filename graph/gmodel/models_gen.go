@@ -65,6 +65,15 @@ type BranchList struct {
 	CreatedAt time.Time `json:"createdAt"`
 }
 
+type BranchListWithPrices struct {
+	ID               int64     `json:"id" sql:"primary_key"`
+	BranchID         int64     `json:"branchId"`
+	Branch           *Branch   `json:"branch,omitempty"`
+	Stock            *Stock    `json:"stock,omitempty"`
+	ApproximatePrice *float64  `json:"approximatePrice,omitempty"`
+	CreatedAt        time.Time `json:"createdAt"`
+}
+
 type Brand struct {
 	Brand    string `json:"brand" alias:"product.brand"`
 	Products int64  `json:"products"`
