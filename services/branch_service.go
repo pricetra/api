@@ -215,3 +215,81 @@ func (s Service) FindBranchesByCoordinates(ctx context.Context, lat float64, lon
 	err = qb.QueryContext(ctx, s.DbOrTxQueryable(), &branches)
 	return branches, err
 }
+
+func (s Service) AllFavoriteBranchProductPrices(ctx context.Context, user gmodel.User, product_id int64) (branches []gmodel.BranchListWithPrices, err error) {
+	if !s.ProductExists(ctx, product_id) {
+		return nil, fmt.Errorf("invalid product")
+	}
+
+	db := s.DbOrTxQueryable()
+	branch_list := table.BranchList.AS("branch_list_with_prices")
+	qb := table.List.SELECT(
+			branch_list.AllColumns,
+			table.Branch.AllColumns,
+			table.Address.AllColumns,
+			table.Store.AllColumns,
+			table.Stock.AllColumns,
+			table.Price.AllColumns,
+		).
+		FROM(table.List.
+			INNER_JOIN(branch_list, branch_list.ListID.EQ(table.List.ID)).
+			INNER_JOIN(table.Branch, table.Branch.ID.EQ(branch_list.BranchID)).
+			INNER_JOIN(table.Address, table.Address.ID.EQ(table.Branch.AddressID)).
+			INNER_JOIN(table.Store, table.Store.ID.EQ(table.Branch.StoreID)).
+			LEFT_JOIN(table.Stock, 
+				table.Stock.ProductID.EQ(postgres.Int(product_id)).
+				AND(table.Stock.BranchID.EQ(table.Branch.ID)),
+			).
+			LEFT_JOIN(table.Price, table.Price.ID.EQ(table.Stock.LatestPriceID)),
+		).
+		WHERE(
+			table.List.UserID.EQ(postgres.Int(user.ID)).
+			AND(table.List.Type.EQ(postgres.NewEnumValue(
+				model.ListType_Favorites.String(),
+			))),
+		).
+		ORDER_BY(branch_list.CreatedAt.DESC())
+	if err := qb.QueryContext(ctx, db, &branches); err != nil {
+		return nil, err
+	}
+
+	for i, bl := range branches {
+		if bl.Stock != nil && bl.Stock.ID != 0 {
+			continue
+		}
+		if bl.Branch == nil || bl.Branch.Address == nil {
+			return nil, fmt.Errorf("unexpected error")
+		}
+		// since a stock is not present we can use
+		// stocks from other branches
+		distance_cols := s.GetDistanceCols(bl.Branch.Address.Latitude, bl.Branch.Address.Longitude, 32187)
+		branch_qb := table.Branch.
+			SELECT(postgres.AVG(table.Price.Amount).AS("avg")).
+			FROM(
+				table.Branch.
+					INNER_JOIN(table.Address, table.Address.ID.EQ(table.Branch.AddressID)).
+					INNER_JOIN(
+						table.Stock, 
+						table.Stock.BranchID.EQ(table.Branch.ID).
+							AND(table.Stock.ProductID.EQ(postgres.Int(product_id))),
+					).
+					INNER_JOIN(table.Price, table.Price.ID.EQ(table.Stock.LatestPriceID)),
+			).
+			WHERE(
+				table.Branch.StoreID.EQ(postgres.Int(bl.Branch.StoreID)).
+				AND(table.Address.AdministrativeDivision.EQ(
+					postgres.String(bl.Branch.Address.AdministrativeDivision),
+				)).
+				AND(distance_cols.DistanceWhereClauseWithRadius),
+			)
+		avg := struct{Avg float64}{}
+		if err := branch_qb.QueryContext(ctx, db, &avg); err != nil {
+			return nil, err
+		}
+		branches[i].Stock = nil
+		if avg.Avg != 0 {
+			branches[i].ApproximatePrice = &avg.Avg
+		}
+	}
+	return branches, nil
+}

@@ -84,3 +84,17 @@ func (r *queryResolver) GetAllLists(ctx context.Context, listType *gmodel.ListTy
 	}
 	return res, nil
 }
+
+// GetFavoriteBranchesWithPrices is the resolver for the getFavoriteBranchesWithPrices field.
+func (r *queryResolver) GetFavoriteBranchesWithPrices(ctx context.Context, productID int64) ([]*gmodel.BranchListWithPrices, error) {
+	user := r.Service.GetAuthUserFromContext(ctx)
+	data, err := r.Service.AllFavoriteBranchProductPrices(ctx, user, productID)
+	if err != nil {
+		return nil, err
+	}
+	res := make([]*gmodel.BranchListWithPrices, len(data))
+	for i := range data {
+		res[i] = &data[i]
+	}
+	return res, nil
+}
