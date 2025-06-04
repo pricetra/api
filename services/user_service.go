@@ -21,6 +21,7 @@ import (
 )
 
 const EMAIL_VERIFICATION_CODE_LEN = 6
+const PASSWORD_RESET_CODE_LEN = 10
 
 // Returns `false` if user email does not exist. Otherwise `true`
 func (service Service) UserEmailExists(ctx context.Context, email string) bool {
@@ -630,4 +631,36 @@ func (s Service) PaginatedUsers(ctx context.Context, paginator_input gmodel.Pagi
 	}
 	result.Paginator = &paginator.Paginator
 	return result, nil
+}
+
+func (s Service) CreatePasswordResetEntry(
+	ctx context.Context,
+	user gmodel.User,
+) (password_reset model.PasswordReset, err error) {
+	s.TX, err = s.DB.BeginTx(ctx, nil)
+	if err != nil {
+		return model.PasswordReset{}, err
+	}
+	defer s.TX.Rollback()
+
+	// Delete all existing rows for user...
+	qb := table.PasswordReset.
+		DELETE().
+		WHERE(table.PasswordReset.UserID.EQ(postgres.Int(user.ID)))
+	if err = qb.QueryContext(ctx, s.DbOrTxQueryable(), nil); err != nil {
+		return model.PasswordReset{}, err
+	}
+
+	code := randstr.Base62(PASSWORD_RESET_CODE_LEN)
+	query := table.PasswordReset.INSERT(
+		table.PasswordReset.UserID,
+		table.PasswordReset.Code,
+	).MODEL(model.PasswordReset{
+		UserID: user.ID,
+		Code: code,
+	}).RETURNING(table.PasswordReset.AllColumns)
+	if err = query.QueryContext(ctx, s.DbOrTxQueryable(), &password_reset); err != nil {
+		return model.PasswordReset{}, err
+	}
+	return password_reset, nil
 }
