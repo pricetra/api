@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/go-jet/jet/v2/postgres"
@@ -21,7 +22,7 @@ import (
 )
 
 const EMAIL_VERIFICATION_CODE_LEN = 6
-const PASSWORD_RESET_CODE_LEN = 10
+const PASSWORD_RESET_CODE_LEN = 6
 
 // Returns `false` if user email does not exist. Otherwise `true`
 func (service Service) UserEmailExists(ctx context.Context, email string) bool {
@@ -647,11 +648,11 @@ func (s Service) CreatePasswordResetEntry(
 	qb := table.PasswordReset.
 		DELETE().
 		WHERE(table.PasswordReset.UserID.EQ(postgres.Int(user.ID)))
-	if err = qb.QueryContext(ctx, s.DbOrTxQueryable(), nil); err != nil {
+	if _, err = qb.ExecContext(ctx, s.TX); err != nil {
 		return model.PasswordReset{}, err
 	}
 
-	code := randstr.Base62(PASSWORD_RESET_CODE_LEN)
+	code := strings.ToUpper(randstr.Base62(PASSWORD_RESET_CODE_LEN))
 	query := table.PasswordReset.INSERT(
 		table.PasswordReset.UserID,
 		table.PasswordReset.Code,
@@ -661,6 +662,9 @@ func (s Service) CreatePasswordResetEntry(
 	}).RETURNING(table.PasswordReset.AllColumns)
 	if err = query.QueryContext(ctx, s.DbOrTxQueryable(), &password_reset); err != nil {
 		return model.PasswordReset{}, err
+	}
+	if err := s.TX.Commit(); err != nil {
+		return model.PasswordReset{}, fmt.Errorf("could not commit changes")
 	}
 	return password_reset, nil
 }
