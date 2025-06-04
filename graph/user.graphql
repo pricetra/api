@@ -6,6 +6,7 @@ extend type Mutation {
   logout: Boolean! @isAuthenticated
   updateUserById(userId: String!, input: UpdateUserFull!): User!
     @isAuthenticated(role: "SUPER_ADMIN")
+  requestPasswordReset: Boolean! @isAuthenticated
 }
 
 extend type Query {

@@ -118,6 +118,21 @@ func (r *mutationResolver) UpdateUserByID(ctx context.Context, userID string, in
 	return &updated_user, nil
 }
 
+// RequestPasswordReset is the resolver for the requestPasswordReset field.
+func (r *mutationResolver) RequestPasswordReset(ctx context.Context) (bool, error) {
+	s := r.Service
+	user := s.GetAuthUserFromContext(ctx)
+	password_reset, err := s.CreatePasswordResetEntry(ctx, user)
+	if err != nil {
+		return false, err
+	}
+	res, err := r.Service.SendPasswordResetCode(ctx, user, password_reset)
+	if err != nil || res.StatusCode() == http.StatusBadRequest {
+		return false, fmt.Errorf("could not send password reset code to email")
+	}
+	return true, nil
+}
+
 // Login is the resolver for the login field.
 func (r *queryResolver) Login(ctx context.Context, email string, password string, ipAddress *string, device *gmodel.AuthDeviceType) (*gmodel.Auth, error) {
 	var mapped_device model.AuthDeviceType
