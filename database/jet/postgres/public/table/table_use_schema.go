@@ -21,6 +21,7 @@ func UseSchema(schema string) {
 	EmailVerification = EmailVerification.FromSchema(schema)
 	List = List.FromSchema(schema)
 	Migration = Migration.FromSchema(schema)
+	PasswordReset = PasswordReset.FromSchema(schema)
 	Price = Price.FromSchema(schema)
 	Product = Product.FromSchema(schema)
 	ProductBilling = ProductBilling.FromSchema(schema)
