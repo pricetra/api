@@ -766,6 +766,12 @@ func (s Service) ResetPassword(
 		return model.User{}, err
 	}
 	
+	s.TX, err = s.DB.BeginTx(ctx, nil)
+	if err != nil {
+		return model.User{}, err
+	}
+	defer s.TX.Rollback()
+
 	new_hashed_password, err := s.HashPassword(new_password)
 	if err != nil {
 		return model.User{}, err
@@ -781,11 +787,24 @@ func (s Service) ResetPassword(
 		}).
 		WHERE(table.User.ID.EQ(postgres.Int(password_reset.UserID))).
 		RETURNING(table.User.AllColumns)
-	if err = qb.QueryContext(ctx, s.DbOrTxQueryable(), &user); err != nil {
+	if err = qb.QueryContext(ctx, s.TX, &user); err != nil {
 		return model.User{}, err
 	}
+	// Delete password_reset rows for user
+	password_reset_del := table.PasswordReset.
+		DELETE().
+		WHERE(table.PasswordReset.ID.EQ(
+			postgres.Int(password_reset.ID),
+		))
+	if _, err = password_reset_del.ExecContext(ctx, s.TX); err != nil {
+		return model.User{}, fmt.Errorf("could not delete reset entry")
+	}
+	// Logout of all devices for user
 	if err = s.LogoutAllForUser(ctx, user.ID); err != nil {
 		return model.User{}, fmt.Errorf("could not logout for user")
+	}
+	if err = s.TX.Commit(); err != nil {
+		return model.User{}, fmt.Errorf("could not complete transaction")
 	}
 	return user, nil
 }
