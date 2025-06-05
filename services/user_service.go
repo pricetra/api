@@ -23,6 +23,7 @@ import (
 
 const EMAIL_VERIFICATION_CODE_LEN = 6
 const PASSWORD_RESET_CODE_LEN = 6
+const PASSWORD_RESET_MAX_TRIES = 10
 
 // Returns `false` if user email does not exist. Otherwise `true`
 func (service Service) UserEmailExists(ctx context.Context, email string) bool {
@@ -337,7 +338,7 @@ func (service Service) VerifyUserEmail(ctx context.Context, verification_code st
 		return gmodel.User{}, err
 	}
 
-	if time.Until(email_verification.CreatedAt).Abs() > time.Hour {
+	if time.Until(email_verification.CreatedAt).Abs() > (10 * time.Minute) {
 		// Delete verification entry since it's expired
 		del_query := table.EmailVerification.
 			DELETE().
@@ -634,6 +635,16 @@ func (s Service) PaginatedUsers(ctx context.Context, paginator_input gmodel.Pagi
 	return result, nil
 }
 
+func (s Service) LogoutAllForUser(ctx context.Context, user_id int64) error {
+	qb := table.AuthState.
+		DELETE().
+		WHERE(table.AuthState.UserID.EQ(postgres.Int(user_id)))
+	if _, err := qb.ExecContext(ctx, s.DB); err != nil {
+		return err
+	}
+	return nil
+}
+
 func (s Service) CreatePasswordResetEntry(
 	ctx context.Context,
 	user gmodel.User,
@@ -667,4 +678,95 @@ func (s Service) CreatePasswordResetEntry(
 		return model.PasswordReset{}, fmt.Errorf("could not commit changes")
 	}
 	return password_reset, nil
+}
+
+func (s Service) ValidatePasswordResetCode(
+	ctx context.Context,
+	email string,
+	code string,
+) (password_reset model.PasswordReset, err error) {
+	s.TX, err = s.DB.BeginTx(ctx, nil)
+	if err != nil {
+		return model.PasswordReset{}, err
+	}
+	defer s.TX.Rollback()
+
+	qb := table.PasswordReset.
+		SELECT(table.PasswordReset.AllColumns).
+		FROM(
+			table.PasswordReset.
+				INNER_JOIN(table.User, table.User.ID.EQ(table.PasswordReset.UserID)),
+		).
+		WHERE(
+			table.PasswordReset.Code.EQ(postgres.String(code)).
+				AND(table.User.Email.EQ(postgres.String(email))),
+		).
+		LIMIT(1)
+	if err = qb.QueryContext(ctx, s.TX, &password_reset); err != nil {
+		return model.PasswordReset{}, err
+	}
+	if password_reset.Tries > PASSWORD_RESET_MAX_TRIES {
+		// Delete entry if tries limit is reached
+		qb := table.PasswordReset.
+			DELETE().
+			WHERE(table.PasswordReset.ID.EQ(
+				postgres.Int(password_reset.ID),
+			))
+		if _, err = qb.ExecContext(ctx, s.TX); err != nil {
+			return model.PasswordReset{}, err
+		}
+		if err = s.TX.Commit(); err != nil {
+			return model.PasswordReset{}, fmt.Errorf("could not complete action")
+		}
+		return model.PasswordReset{}, fmt.Errorf("maximum number of tries reached for verification")
+	}
+
+	// Update # of tries
+	update_qb := table.PasswordReset.
+		UPDATE(table.PasswordReset.Tries).
+		MODEL(model.PasswordReset{Tries: password_reset.Tries + 1}).
+		WHERE(table.PasswordReset.ID.EQ(postgres.Int(password_reset.ID))).
+		RETURNING(table.PasswordReset.AllColumns)
+	if err = update_qb.QueryContext(ctx, s.TX, &password_reset); err != nil {
+		return model.PasswordReset{}, err
+	}
+	if err = s.TX.Commit(); err != nil {
+		return model.PasswordReset{}, fmt.Errorf("could not complete action")
+	}
+	return password_reset, nil
+}
+
+func (s Service) ResetPassword(
+	ctx context.Context,
+	email string,
+	code string,
+	new_password string,
+) (user model.User, err error) {
+	password_reset, err := s.ValidatePasswordResetCode(ctx, email, code)
+	if err != nil {
+		return model.User{}, err
+	}
+	
+	new_hashed_password, err := s.HashPassword(new_password)
+	if err != nil {
+		return model.User{}, err
+	}
+	qb := table.User.
+		UPDATE(
+			table.User.Password,
+			table.User.UpdatedAt,
+		).
+		MODEL(model.User{
+			Password: &new_hashed_password,
+			UpdatedAt: time.Now(),
+		}).
+		WHERE(table.User.ID.EQ(postgres.Int(password_reset.UserID))).
+		RETURNING(table.User.AllColumns)
+	if err = qb.QueryContext(ctx, s.DbOrTxQueryable(), &user); err != nil {
+		return model.User{}, err
+	}
+	if err = s.LogoutAllForUser(ctx, user.ID); err != nil {
+		return model.User{}, fmt.Errorf("could not logout for user")
+	}
+	return user, nil
 }
