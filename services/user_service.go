@@ -694,19 +694,32 @@ func (s Service) ValidatePasswordResetCode(
 	}
 	defer s.TX.Rollback()
 
+	var user gmodel.User
+	if user, err = s.FindUserByEmail(ctx, email); err != nil {
+		return model.PasswordReset{}, fmt.Errorf("invalid email")
+	}
 	qb := table.PasswordReset.
 		SELECT(table.PasswordReset.AllColumns).
-		FROM(
-			table.PasswordReset.
-				INNER_JOIN(table.User, table.User.ID.EQ(table.PasswordReset.UserID)),
-		).
+		FROM(table.PasswordReset).
 		WHERE(
 			table.PasswordReset.Code.EQ(postgres.String(code)).
-				AND(table.User.Email.EQ(postgres.String(email))),
+				AND(table.PasswordReset.UserID.EQ(postgres.Int(user.ID))),
 		).
 		LIMIT(1)
 	if err = qb.QueryContext(ctx, s.TX, &password_reset); err != nil {
-		return model.PasswordReset{}, err
+		// Update # of tries
+		update_qb := table.PasswordReset.
+			UPDATE(table.PasswordReset.Tries).
+			SET(table.PasswordReset.Tries.SET(table.PasswordReset.Tries.ADD(postgres.Int(1)))).
+			WHERE(table.PasswordReset.UserID.EQ(postgres.Int(user.ID))).
+			RETURNING(table.PasswordReset.AllColumns)
+		if _, err = update_qb.ExecContext(ctx, s.TX); err != nil {
+			return model.PasswordReset{}, fmt.Errorf("something went wrong during update")
+		}
+		if err = s.TX.Commit(); err != nil {
+			return model.PasswordReset{}, fmt.Errorf("could not complete transaction")
+		}
+		return model.PasswordReset{}, fmt.Errorf("invalid reset code")
 	}
 
 	delete_reset_entries := func() error {
@@ -724,10 +737,10 @@ func (s Service) ValidatePasswordResetCode(
 		}
 		return nil
 	}
-	if time.Until(password_reset.CreatedAt) > (30 * time.Minute) {
+	if time.Since(password_reset.CreatedAt) > (30 * time.Minute) {
 		// Delete entry if tries limit is reached
 		if err := delete_reset_entries(); err != nil {
-			return model.PasswordReset{}, err
+			return model.PasswordReset{}, fmt.Errorf("something went wrong during delete action")
 		}
 		return model.PasswordReset{}, fmt.Errorf("password reset code has expired")
 	}
@@ -739,18 +752,6 @@ func (s Service) ValidatePasswordResetCode(
 		return model.PasswordReset{}, fmt.Errorf("maximum number of tries reached for verification")
 	}
 
-	// Update # of tries
-	update_qb := table.PasswordReset.
-		UPDATE(table.PasswordReset.Tries).
-		MODEL(model.PasswordReset{Tries: password_reset.Tries + 1}).
-		WHERE(table.PasswordReset.ID.EQ(postgres.Int(password_reset.ID))).
-		RETURNING(table.PasswordReset.AllColumns)
-	if err = update_qb.QueryContext(ctx, s.TX, &password_reset); err != nil {
-		return model.PasswordReset{}, err
-	}
-	if err = s.TX.Commit(); err != nil {
-		return model.PasswordReset{}, fmt.Errorf("could not complete action")
-	}
 	return password_reset, nil
 }
 
