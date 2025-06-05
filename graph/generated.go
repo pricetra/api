@@ -286,7 +286,7 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		AllBranches                   func(childComplexity int, storeID int64) int
+		AllBranches                   func(childComplexity int, storeID int64, location *gmodel.LocationInput) int
 		AllBrands                     func(childComplexity int) int
 		AllProducts                   func(childComplexity int, paginator gmodel.PaginatorInput, search *gmodel.ProductSearch) int
 		AllStores                     func(childComplexity int) int
@@ -404,7 +404,7 @@ type MutationResolver interface {
 type QueryResolver interface {
 	MyProductBillingData(ctx context.Context, paginator gmodel.PaginatorInput) (*gmodel.PaginatedProductBilling, error)
 	ProductBillingDataByUserID(ctx context.Context, userID int64, paginator gmodel.PaginatorInput) (*gmodel.PaginatedProductBilling, error)
-	AllBranches(ctx context.Context, storeID int64) ([]*gmodel.Branch, error)
+	AllBranches(ctx context.Context, storeID int64, location *gmodel.LocationInput) ([]*gmodel.Branch, error)
 	FindBranch(ctx context.Context, storeID int64, id int64) (*gmodel.Branch, error)
 	FindBranchesByDistance(ctx context.Context, lat float64, lon float64, radiusMeters int) ([]*gmodel.Branch, error)
 	GetCategories(ctx context.Context, depth *int, parentID *int64) ([]*gmodel.Category, error)
@@ -1771,7 +1771,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.AllBranches(childComplexity, args["storeId"].(int64)), true
+		return e.complexity.Query.AllBranches(childComplexity, args["storeId"].(int64), args["location"].(*gmodel.LocationInput)), true
 
 	case "Query.allBrands":
 		if e.complexity.Query.AllBrands == nil {
@@ -2941,6 +2941,15 @@ func (ec *executionContext) field_Query_allBranches_args(ctx context.Context, ra
 		}
 	}
 	args["storeId"] = arg0
+	var arg1 *gmodel.LocationInput
+	if tmp, ok := rawArgs["location"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("location"))
+		arg1, err = ec.unmarshalOLocationInput2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐLocationInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["location"] = arg1
 	return args, nil
 }
 
@@ -12813,7 +12822,7 @@ func (ec *executionContext) _Query_allBranches(ctx context.Context, field graphq
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		directive0 := func(rctx context.Context) (interface{}, error) {
 			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Query().AllBranches(rctx, fc.Args["storeId"].(int64))
+			return ec.resolvers.Query().AllBranches(rctx, fc.Args["storeId"].(int64), fc.Args["location"].(*gmodel.LocationInput))
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
 			if ec.directives.IsAuthenticated == nil {
@@ -19203,7 +19212,7 @@ func (ec *executionContext) unmarshalInputLocationInput(ctx context.Context, obj
 			it.Longitude = data
 		case "radiusMeters":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("radiusMeters"))
-			data, err := ec.unmarshalNInt2int(ctx, v)
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}

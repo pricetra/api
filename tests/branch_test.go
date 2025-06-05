@@ -76,7 +76,7 @@ func TestBranch(t *testing.T) {
 	})
 
 	t.Run("find branches for store", func(t *testing.T) {
-		branches, err := service.FindBranchesByStoreId(ctx, store.ID)
+		branches, err := service.FindBranchesByStoreId(ctx, store.ID, nil)
 		if err != nil {
 			t.Fatal(err)
 		}
