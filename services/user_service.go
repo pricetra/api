@@ -708,7 +708,8 @@ func (s Service) ValidatePasswordResetCode(
 	if err = qb.QueryContext(ctx, s.TX, &password_reset); err != nil {
 		return model.PasswordReset{}, err
 	}
-	if password_reset.Tries > PASSWORD_RESET_MAX_TRIES {
+
+	delete_reset_entries := func() error {
 		// Delete entry if tries limit is reached
 		qb := table.PasswordReset.
 			DELETE().
@@ -716,10 +717,24 @@ func (s Service) ValidatePasswordResetCode(
 				postgres.Int(password_reset.ID),
 			))
 		if _, err = qb.ExecContext(ctx, s.TX); err != nil {
-			return model.PasswordReset{}, err
+			return err
 		}
 		if err = s.TX.Commit(); err != nil {
-			return model.PasswordReset{}, fmt.Errorf("could not complete action")
+			return fmt.Errorf("could not complete action")
+		}
+		return nil
+	}
+	if time.Until(password_reset.CreatedAt) > (30 * time.Minute) {
+		// Delete entry if tries limit is reached
+		if err := delete_reset_entries(); err != nil {
+			return model.PasswordReset{}, err
+		}
+		return model.PasswordReset{}, fmt.Errorf("password reset code has expired")
+	}
+	if password_reset.Tries > PASSWORD_RESET_MAX_TRIES {
+		// Delete entry if tries limit is reached
+		if err := delete_reset_entries(); err != nil {
+			return model.PasswordReset{}, err
 		}
 		return model.PasswordReset{}, fmt.Errorf("maximum number of tries reached for verification")
 	}
