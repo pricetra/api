@@ -16,4 +16,5 @@ type PasswordReset struct {
 	Code      string
 	UserID    int64
 	CreatedAt time.Time
+	Tries     int32
 }

@@ -21,6 +21,7 @@ type passwordResetTable struct {
 	Code      postgres.ColumnString
 	UserID    postgres.ColumnInteger
 	CreatedAt postgres.ColumnTimestampz
+	Tries     postgres.ColumnInteger
 
 	AllColumns     postgres.ColumnList
 	MutableColumns postgres.ColumnList
@@ -65,8 +66,9 @@ func newPasswordResetTableImpl(schemaName, tableName, alias string) passwordRese
 		CodeColumn      = postgres.StringColumn("code")
 		UserIDColumn    = postgres.IntegerColumn("user_id")
 		CreatedAtColumn = postgres.TimestampzColumn("created_at")
-		allColumns      = postgres.ColumnList{IDColumn, CodeColumn, UserIDColumn, CreatedAtColumn}
-		mutableColumns  = postgres.ColumnList{CodeColumn, UserIDColumn, CreatedAtColumn}
+		TriesColumn     = postgres.IntegerColumn("tries")
+		allColumns      = postgres.ColumnList{IDColumn, CodeColumn, UserIDColumn, CreatedAtColumn, TriesColumn}
+		mutableColumns  = postgres.ColumnList{CodeColumn, UserIDColumn, CreatedAtColumn, TriesColumn}
 	)
 
 	return passwordResetTable{
@@ -77,6 +79,7 @@ func newPasswordResetTableImpl(schemaName, tableName, alias string) passwordRese
 		Code:      CodeColumn,
 		UserID:    UserIDColumn,
 		CreatedAt: CreatedAtColumn,
+		Tries:     TriesColumn,
 
 		AllColumns:     allColumns,
 		MutableColumns: mutableColumns,
