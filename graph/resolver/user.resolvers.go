@@ -118,6 +118,28 @@ func (r *mutationResolver) UpdateUserByID(ctx context.Context, userID string, in
 	return &updated_user, nil
 }
 
+// RequestPasswordReset is the resolver for the requestPasswordReset field.
+func (r *mutationResolver) RequestPasswordReset(ctx context.Context, email string) (bool, error) {
+	password_reset, user, err := r.Service.CreatePasswordResetEntry(ctx, email)
+	if err != nil {
+		return false, err
+	}
+	res, err := r.Service.SendPasswordResetCode(ctx, user, password_reset)
+	if err != nil || res.StatusCode() == http.StatusBadRequest {
+		return false, fmt.Errorf("could not send password reset code to email")
+	}
+	return true, nil
+}
+
+// UpdatePasswordWithResetCode is the resolver for the updatePasswordWithResetCode field.
+func (r *mutationResolver) UpdatePasswordWithResetCode(ctx context.Context, email string, code string, newPassword string) (bool, error) {
+	_, err := r.Service.ResetPassword(ctx, email, code, newPassword)
+	if err != nil {
+		return false, err
+	}
+	return true, nil
+}
+
 // Login is the resolver for the login field.
 func (r *queryResolver) Login(ctx context.Context, email string, password string, ipAddress *string, device *gmodel.AuthDeviceType) (*gmodel.Auth, error) {
 	var mapped_device model.AuthDeviceType
@@ -155,4 +177,13 @@ func (r *queryResolver) GetAllUsers(ctx context.Context, paginator gmodel.Pagina
 		return nil, err
 	}
 	return &result, nil
+}
+
+// VerifyPasswordResetCode is the resolver for the verifyPasswordResetCode field.
+func (r *queryResolver) VerifyPasswordResetCode(ctx context.Context, email string, code string) (bool, error) {
+	_, err := r.Service.ValidatePasswordResetCode(ctx, email, code)
+	if err != nil {
+		return false, err
+	}
+	return true, nil
 }

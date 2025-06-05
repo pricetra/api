@@ -62,3 +62,26 @@ func (s Service) SendEmailVerification(
 	}
 	return res, nil
 }
+
+func (s Service) SendPasswordResetCode(
+	ctx context.Context,
+	user gmodel.User,
+	password_reset model.PasswordReset,
+) (*oapi.SendPasswordResetCodeResponse, error) {
+	client, err := s.NewEmailClient()
+	if err != nil {
+		return nil, err
+	}
+	var avatar_url *string = nil
+	if user.Avatar != nil {
+		url := CLOUDINARY_UPLOAD_BASE + "/" + *user.Avatar
+		avatar_url = &url
+	} 
+	res, err := client.SendPasswordResetCodeWithResponse(ctx, oapi.PasswordResetRequest{
+		RecipientEmail: &user.Email,
+		FullName: &user.Name,
+		Code: &password_reset.Code,
+		AvatarUrl: avatar_url,
+	})
+	return res, err
+}

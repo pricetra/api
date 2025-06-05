@@ -6,6 +6,12 @@ extend type Mutation {
   logout: Boolean! @isAuthenticated
   updateUserById(userId: String!, input: UpdateUserFull!): User!
     @isAuthenticated(role: "SUPER_ADMIN")
+  requestPasswordReset(email: String!): Boolean!
+  updatePasswordWithResetCode(
+    email: String!
+    code: String!
+    newPassword: String!
+  ): Boolean!
 }
 
 extend type Query {
@@ -21,7 +27,9 @@ extend type Query {
     device: AuthDeviceType
   ): Auth!
   me: User! @isAuthenticated
-  getAllUsers(paginator: PaginatorInput!, filters: UserFilter): PaginatedUsers! @isAuthenticated(role: "ADMIN")
+  getAllUsers(paginator: PaginatorInput!, filters: UserFilter): PaginatedUsers!
+    @isAuthenticated(role: "ADMIN")
+  verifyPasswordResetCode(email: String!, code: String!): Boolean!
 }
 
 type PaginatedUsers {

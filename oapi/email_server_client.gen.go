@@ -29,8 +29,30 @@ type EmailVerificationRequest struct {
 	RecipientEmail *string `json:"recipientEmail,omitempty"`
 }
 
+// PasswordResetRequest defines model for PasswordResetRequest.
+type PasswordResetRequest struct {
+	AvatarUrl      *string `json:"avatarUrl,omitempty"`
+	Code           *string `json:"code,omitempty"`
+	FullName       *string `json:"fullName,omitempty"`
+	RecipientEmail *string `json:"recipientEmail,omitempty"`
+}
+
+// PasswordResetResponse defines model for PasswordResetResponse.
+type PasswordResetResponse struct {
+	AvatarUrl      *string `json:"avatarUrl,omitempty"`
+	Code           *string `json:"code,omitempty"`
+	Content        *string `json:"content,omitempty"`
+	FullName       *string `json:"fullName,omitempty"`
+	RecipientEmail *string `json:"recipientEmail,omitempty"`
+	Status         *string `json:"status,omitempty"`
+	Subject        *string `json:"subject,omitempty"`
+}
+
 // SendEmailVerificationCodeJSONRequestBody defines body for SendEmailVerificationCode for application/json ContentType.
 type SendEmailVerificationCodeJSONRequestBody = EmailVerificationRequest
+
+// SendPasswordResetCodeJSONRequestBody defines body for SendPasswordResetCode for application/json ContentType.
+type SendPasswordResetCodeJSONRequestBody = PasswordResetRequest
 
 // RequestEditorFn  is the function signature for the RequestEditor callback function
 type RequestEditorFn func(ctx context.Context, req *http.Request) error
@@ -109,6 +131,11 @@ type ClientInterface interface {
 	SendEmailVerificationCodeWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
 
 	SendEmailVerificationCode(ctx context.Context, body SendEmailVerificationCodeJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// SendPasswordResetCodeWithBody request with any body
+	SendPasswordResetCodeWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	SendPasswordResetCode(ctx context.Context, body SendPasswordResetCodeJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 }
 
 func (c *Client) SendEmailVerificationCodeWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -125,6 +152,30 @@ func (c *Client) SendEmailVerificationCodeWithBody(ctx context.Context, contentT
 
 func (c *Client) SendEmailVerificationCode(ctx context.Context, body SendEmailVerificationCodeJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewSendEmailVerificationCodeRequest(c.Server, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) SendPasswordResetCodeWithBody(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSendPasswordResetCodeRequestWithBody(c.Server, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) SendPasswordResetCode(ctx context.Context, body SendPasswordResetCodeJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewSendPasswordResetCodeRequest(c.Server, body)
 	if err != nil {
 		return nil, err
 	}
@@ -156,6 +207,46 @@ func NewSendEmailVerificationCodeRequestWithBody(server string, contentType stri
 	}
 
 	operationPath := fmt.Sprintf("/email-verification")
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("POST", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
+// NewSendPasswordResetCodeRequest calls the generic SendPasswordResetCode builder with application/json body
+func NewSendPasswordResetCodeRequest(server string, body SendPasswordResetCodeJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewSendPasswordResetCodeRequestWithBody(server, "application/json", bodyReader)
+}
+
+// NewSendPasswordResetCodeRequestWithBody generates requests for SendPasswordResetCode with any type of body
+func NewSendPasswordResetCodeRequestWithBody(server string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/password-reset")
 	if operationPath[0] == '/' {
 		operationPath = "." + operationPath
 	}
@@ -222,6 +313,11 @@ type ClientWithResponsesInterface interface {
 	SendEmailVerificationCodeWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SendEmailVerificationCodeResponse, error)
 
 	SendEmailVerificationCodeWithResponse(ctx context.Context, body SendEmailVerificationCodeJSONRequestBody, reqEditors ...RequestEditorFn) (*SendEmailVerificationCodeResponse, error)
+
+	// SendPasswordResetCodeWithBodyWithResponse request with any body
+	SendPasswordResetCodeWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SendPasswordResetCodeResponse, error)
+
+	SendPasswordResetCodeWithResponse(ctx context.Context, body SendPasswordResetCodeJSONRequestBody, reqEditors ...RequestEditorFn) (*SendPasswordResetCodeResponse, error)
 }
 
 type SendEmailVerificationCodeResponse struct {
@@ -245,6 +341,27 @@ func (r SendEmailVerificationCodeResponse) StatusCode() int {
 	return 0
 }
 
+type SendPasswordResetCodeResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+}
+
+// Status returns HTTPResponse.Status
+func (r SendPasswordResetCodeResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r SendPasswordResetCodeResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 // SendEmailVerificationCodeWithBodyWithResponse request with arbitrary body returning *SendEmailVerificationCodeResponse
 func (c *ClientWithResponses) SendEmailVerificationCodeWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SendEmailVerificationCodeResponse, error) {
 	rsp, err := c.SendEmailVerificationCodeWithBody(ctx, contentType, body, reqEditors...)
@@ -262,6 +379,23 @@ func (c *ClientWithResponses) SendEmailVerificationCodeWithResponse(ctx context.
 	return ParseSendEmailVerificationCodeResponse(rsp)
 }
 
+// SendPasswordResetCodeWithBodyWithResponse request with arbitrary body returning *SendPasswordResetCodeResponse
+func (c *ClientWithResponses) SendPasswordResetCodeWithBodyWithResponse(ctx context.Context, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*SendPasswordResetCodeResponse, error) {
+	rsp, err := c.SendPasswordResetCodeWithBody(ctx, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSendPasswordResetCodeResponse(rsp)
+}
+
+func (c *ClientWithResponses) SendPasswordResetCodeWithResponse(ctx context.Context, body SendPasswordResetCodeJSONRequestBody, reqEditors ...RequestEditorFn) (*SendPasswordResetCodeResponse, error) {
+	rsp, err := c.SendPasswordResetCode(ctx, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParseSendPasswordResetCodeResponse(rsp)
+}
+
 // ParseSendEmailVerificationCodeResponse parses an HTTP response from a SendEmailVerificationCodeWithResponse call
 func ParseSendEmailVerificationCodeResponse(rsp *http.Response) (*SendEmailVerificationCodeResponse, error) {
 	bodyBytes, err := io.ReadAll(rsp.Body)
@@ -271,6 +405,22 @@ func ParseSendEmailVerificationCodeResponse(rsp *http.Response) (*SendEmailVerif
 	}
 
 	response := &SendEmailVerificationCodeResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	return response, nil
+}
+
+// ParseSendPasswordResetCodeResponse parses an HTTP response from a SendPasswordResetCodeWithResponse call
+func ParseSendPasswordResetCodeResponse(rsp *http.Response) (*SendPasswordResetCodeResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &SendPasswordResetCodeResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
 	}
