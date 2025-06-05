@@ -647,20 +647,23 @@ func (s Service) LogoutAllForUser(ctx context.Context, user_id int64) error {
 
 func (s Service) CreatePasswordResetEntry(
 	ctx context.Context,
-	user gmodel.User,
-) (password_reset model.PasswordReset, err error) {
+	email string,
+) (password_reset model.PasswordReset, user gmodel.User, err error) {
 	s.TX, err = s.DB.BeginTx(ctx, nil)
 	if err != nil {
-		return model.PasswordReset{}, err
+		return model.PasswordReset{}, gmodel.User{}, err
 	}
 	defer s.TX.Rollback()
 
+	if user, err = s.FindUserByEmail(ctx, email); err != nil {
+		return model.PasswordReset{}, gmodel.User{}, fmt.Errorf("invalid email")
+	}
 	// Delete all existing rows for user...
 	qb := table.PasswordReset.
 		DELETE().
 		WHERE(table.PasswordReset.UserID.EQ(postgres.Int(user.ID)))
 	if _, err = qb.ExecContext(ctx, s.TX); err != nil {
-		return model.PasswordReset{}, err
+		return model.PasswordReset{}, gmodel.User{}, err
 	}
 
 	code := strings.ToUpper(randstr.Base62(PASSWORD_RESET_CODE_LEN))
@@ -672,12 +675,12 @@ func (s Service) CreatePasswordResetEntry(
 		Code: code,
 	}).RETURNING(table.PasswordReset.AllColumns)
 	if err = query.QueryContext(ctx, s.DbOrTxQueryable(), &password_reset); err != nil {
-		return model.PasswordReset{}, err
+		return model.PasswordReset{}, gmodel.User{}, err
 	}
 	if err := s.TX.Commit(); err != nil {
-		return model.PasswordReset{}, fmt.Errorf("could not commit changes")
+		return model.PasswordReset{}, gmodel.User{}, fmt.Errorf("could not commit changes")
 	}
-	return password_reset, nil
+	return password_reset, user, nil
 }
 
 func (s Service) ValidatePasswordResetCode(
