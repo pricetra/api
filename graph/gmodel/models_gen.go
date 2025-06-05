@@ -198,7 +198,7 @@ type List struct {
 type LocationInput struct {
 	Latitude     float64 `json:"latitude" validate:"required,latitude"`
 	Longitude    float64 `json:"longitude" validate:"required,longitude"`
-	RadiusMeters int     `json:"radiusMeters" validate:"required"`
+	RadiusMeters *int    `json:"radiusMeters,omitempty"`
 }
 
 type Mutation struct {

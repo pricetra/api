@@ -131,13 +131,22 @@ func (s Service) FindBranchById(ctx context.Context, id int64) (branch gmodel.Br
 	return branch, err
 }
 
-func (s Service) FindBranchesByStoreId(ctx context.Context, store_id int64) (branches []gmodel.Branch, err error) {
+func (s Service) FindBranchesByStoreId(ctx context.Context, store_id int64, location *gmodel.LocationInput) (branches []gmodel.Branch, err error) {
 	created_user_table, updated_user_table, user_cols := s.CreatedAndUpdatedUserTable()
 	columns := []postgres.Projection{
 		table.Address.AllColumns,
 		table.Country.Name,
 	}
 	columns = append(columns, user_cols...)
+	where_clause := table.Branch.StoreID.EQ(postgres.Int(store_id))
+	order_by := []postgres.OrderByClause{}
+	if location != nil {
+		dist := s.GetDistanceCols(location.Latitude, location.Longitude, location.RadiusMeters)
+		columns = append(columns, dist.DistanceColumn)
+		order_by = append(order_by, postgres.FloatColumn(dist.DistanceColumnName).ASC())
+		where_clause = where_clause.AND(dist.DistanceWhereClauseWithRadius)
+	}
+	order_by = append(order_by, table.Branch.CreatedAt.DESC())
 	qb := table.Branch.
 		SELECT(
 			table.Branch.AllColumns,
@@ -150,8 +159,8 @@ func (s Service) FindBranchesByStoreId(ctx context.Context, store_id int64) (bra
 				LEFT_JOIN(created_user_table, created_user_table.ID.EQ(table.Branch.CreatedByID)).
 				LEFT_JOIN(updated_user_table, updated_user_table.ID.EQ(table.Branch.UpdatedByID)),
 		).
-		WHERE(table.Branch.StoreID.EQ(postgres.Int(store_id))).
-		ORDER_BY(table.Branch.CreatedAt.DESC())
+		WHERE(where_clause).
+		ORDER_BY(order_by...)
 	err = qb.QueryContext(ctx, s.DbOrTxQueryable(), &branches)
 	return branches, err
 }
@@ -186,7 +195,7 @@ func (s Service) FindBranchByBranchIdAndStoreId(ctx context.Context, branch_id i
 
 func (s Service) FindBranchesByCoordinates(ctx context.Context, lat float64, lon float64, radius_meters int) (branches []gmodel.Branch, err error) {
 	created_user_table, updated_user_table, user_cols := s.CreatedAndUpdatedUserTable()
-	distance_cols := s.GetDistanceCols(lat, lon, radius_meters)
+	distance_cols := s.GetDistanceCols(lat, lon, &radius_meters)
 	columns := []postgres.Projection{
 		table.Store.AllColumns,
 		table.Address.AllColumns,
@@ -262,7 +271,8 @@ func (s Service) AllFavoriteBranchProductPrices(ctx context.Context, user gmodel
 		}
 		// since a stock is not present we can use
 		// stocks from other branches
-		distance_cols := s.GetDistanceCols(bl.Branch.Address.Latitude, bl.Branch.Address.Longitude, 32187)
+		dist := 32187 // 20 miles
+		distance_cols := s.GetDistanceCols(bl.Branch.Address.Latitude, bl.Branch.Address.Longitude, &dist)
 		branch_qb := table.Branch.
 			SELECT(postgres.AVG(table.Price.Amount).AS("avg")).
 			FROM(
