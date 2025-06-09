@@ -102,7 +102,11 @@ func (s Service) FindProductWithCode(ctx context.Context, barcode string) (produ
 	return product, err
 }
 
-func (s Service) BarcodeSearch(ctx context.Context, barcode string) (product gmodel.Product, err error) {
+func (s Service) BarcodeSearch(ctx context.Context, barcode string, exact bool) (product gmodel.Product, err error) {
+	where_clause := table.Product.Code.EQ(postgres.String(barcode))
+	if !exact {
+		where_clause = table.Product.Code.LIKE(postgres.String(fmt.Sprintf("%%%s%%", barcode)))
+	}
 	qb := table.Product.
 		SELECT(
 			table.Product.AllColumns,
@@ -112,7 +116,7 @@ func (s Service) BarcodeSearch(ctx context.Context, barcode string) (product gmo
 			table.Product.
 				INNER_JOIN(table.Category, table.Category.ID.EQ(table.Product.CategoryID)),
 		).
-		WHERE(table.Product.Code.LIKE(postgres.String(fmt.Sprintf("%%%s%%", barcode))))
+		WHERE(where_clause)
 	err = qb.QueryContext(ctx, s.DbOrTxQueryable(), &product)
 	return product, err
 }

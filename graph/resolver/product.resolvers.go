@@ -8,6 +8,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"strings"
 
 	"github.com/cloudinary/cloudinary-go/v2/api/uploader"
 	"github.com/pricetra/api/database/jet/postgres/public/model"
@@ -79,9 +80,13 @@ func (r *queryResolver) BarcodeScan(ctx context.Context, barcode string, searchM
 	user := r.Service.GetAuthUserFromContext(ctx)
 
 	if searchMode != nil && *searchMode {
-		product, err := r.Service.BarcodeSearch(ctx, barcode)
+		is_exact := strings.HasPrefix(barcode, "*")
+		if is_exact {
+			barcode = barcode[1:]
+		}
+		product, err := r.Service.BarcodeSearch(ctx, barcode, is_exact)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("no results found for this barcode")
 		}
 		return &product, nil
 	}
