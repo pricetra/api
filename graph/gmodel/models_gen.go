@@ -386,6 +386,7 @@ type UpdateUser struct {
 	AvatarFile *graphql.Upload `json:"avatarFile,omitempty"`
 	BirthDate  *time.Time      `json:"birthDate,omitempty"`
 	Bio        *string         `json:"bio,omitempty"`
+	Address    *string         `json:"address,omitempty"`
 }
 
 type UpdateUserFull struct {

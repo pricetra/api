@@ -57,6 +57,7 @@ input UpdateUser {
   avatarFile: Upload
   birthDate: Time
   bio: String
+  address: String
 }
 
 input UpdateUserFull {

@@ -496,13 +496,14 @@ func (s Service) UpdateUserFull(ctx context.Context, user gmodel.User, input gmo
 		}
 		u.Role = role
 	}
+	var address gmodel.Address
 	if input.Address != nil {
 		columns = append(columns, table.User.AddressID)
 		address_input, err := s.FullAddressToCreateAddress(ctx, *input.Address)
 		if err != nil {
 			return gmodel.User{}, err
 		}
-		address, err := s.CreateAddress(ctx, &user, address_input)
+		address, err = s.CreateAddress(ctx, &user, address_input)
 		if err != nil {
 			return gmodel.User{}, fmt.Errorf("could not create address")
 		}
@@ -523,6 +524,9 @@ func (s Service) UpdateUserFull(ctx context.Context, user gmodel.User, input gmo
 		return gmodel.User{}, err
 	}
 	if user.AuthStateID == nil {
+		if input.Address != nil {
+			updated_user.Address = &address
+		}
 		return updated_user, nil
 	}
 	return s.FindAuthUserById(ctx, user.ID, *user.AuthStateID)
@@ -535,6 +539,7 @@ func (service Service) UpdateUser(ctx context.Context, user gmodel.User, input g
 		AvatarFile: input.AvatarFile,
 		BirthDate: input.BirthDate,
 		Bio: input.Bio,
+		Address: input.Address,
 	})
 }
 
