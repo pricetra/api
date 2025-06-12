@@ -23,4 +23,5 @@ type User struct {
 	BirthDate   *time.Time
 	Active      bool
 	Role        UserRoleType
+	AddressID   *int64
 }

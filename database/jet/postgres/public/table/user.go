@@ -28,6 +28,7 @@ type userTable struct {
 	BirthDate   postgres.ColumnDate
 	Active      postgres.ColumnBool
 	Role        postgres.ColumnString
+	AddressID   postgres.ColumnInteger
 
 	AllColumns     postgres.ColumnList
 	MutableColumns postgres.ColumnList
@@ -79,8 +80,9 @@ func newUserTableImpl(schemaName, tableName, alias string) userTable {
 		BirthDateColumn   = postgres.DateColumn("birth_date")
 		ActiveColumn      = postgres.BoolColumn("active")
 		RoleColumn        = postgres.StringColumn("role")
-		allColumns        = postgres.ColumnList{IDColumn, CreatedAtColumn, UpdatedAtColumn, EmailColumn, PhoneNumberColumn, NameColumn, PasswordColumn, AvatarColumn, BirthDateColumn, ActiveColumn, RoleColumn}
-		mutableColumns    = postgres.ColumnList{CreatedAtColumn, UpdatedAtColumn, EmailColumn, PhoneNumberColumn, NameColumn, PasswordColumn, AvatarColumn, BirthDateColumn, ActiveColumn, RoleColumn}
+		AddressIDColumn   = postgres.IntegerColumn("address_id")
+		allColumns        = postgres.ColumnList{IDColumn, CreatedAtColumn, UpdatedAtColumn, EmailColumn, PhoneNumberColumn, NameColumn, PasswordColumn, AvatarColumn, BirthDateColumn, ActiveColumn, RoleColumn, AddressIDColumn}
+		mutableColumns    = postgres.ColumnList{CreatedAtColumn, UpdatedAtColumn, EmailColumn, PhoneNumberColumn, NameColumn, PasswordColumn, AvatarColumn, BirthDateColumn, ActiveColumn, RoleColumn, AddressIDColumn}
 	)
 
 	return userTable{
@@ -98,6 +100,7 @@ func newUserTableImpl(schemaName, tableName, alias string) userTable {
 		BirthDate:   BirthDateColumn,
 		Active:      ActiveColumn,
 		Role:        RoleColumn,
+		AddressID:   AddressIDColumn,
 
 		AllColumns:     allColumns,
 		MutableColumns: mutableColumns,
