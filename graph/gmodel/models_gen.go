@@ -314,6 +314,7 @@ type ProductSearch struct {
 	CategoryID *int64         `json:"categoryId,omitempty"`
 	BranchID   *int64         `json:"branchId,omitempty"`
 	Location   *LocationInput `json:"location,omitempty"`
+	StoreID    *int64         `json:"storeId,omitempty"`
 }
 
 type Query struct {
