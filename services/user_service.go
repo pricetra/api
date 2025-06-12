@@ -496,6 +496,18 @@ func (s Service) UpdateUserFull(ctx context.Context, user gmodel.User, input gmo
 		}
 		u.Role = role
 	}
+	if input.Address != nil {
+		columns = append(columns, table.User.AddressID)
+		address_input, err := s.FullAddressToCreateAddress(ctx, *input.Address)
+		if err != nil {
+			return gmodel.User{}, err
+		}
+		address, err := s.CreateAddress(ctx, &user, address_input)
+		if err != nil {
+			return gmodel.User{}, fmt.Errorf("could not create address")
+		}
+		u.AddressID = &address.ID
+	}
 	if len(columns) == 0 {
 		return user, nil
 	}

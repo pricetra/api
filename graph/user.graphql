@@ -69,6 +69,7 @@ input UpdateUserFull {
   bio: String
   active: Boolean
   role: UserRole
+  address: String
 }
 
 enum UserRole {
@@ -109,6 +110,8 @@ type User {
     @goTag(key: "alias", value: "auth_state.device_type")
   authStateId: ID @goTag(key: "alias", value: "auth_state.id")
   role: UserRole!
+  addressId: ID
+  address: Address
 }
 
 type UserShallow {
