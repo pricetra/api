@@ -354,6 +354,8 @@ type ComplexityRoot struct {
 
 	User struct {
 		Active       func(childComplexity int) int
+		Address      func(childComplexity int) int
+		AddressID    func(childComplexity int) int
 		AuthDevice   func(childComplexity int) int
 		AuthPlatform func(childComplexity int) int
 		AuthStateID  func(childComplexity int) int
@@ -2221,6 +2223,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.User.Active(childComplexity), true
+
+	case "User.address":
+		if e.complexity.User.Address == nil {
+			break
+		}
+
+		return e.complexity.User.Address(childComplexity), true
+
+	case "User.addressId":
+		if e.complexity.User.AddressID == nil {
+			break
+		}
+
+		return e.complexity.User.AddressID(childComplexity), true
 
 	case "User.authDevice":
 		if e.complexity.User.AuthDevice == nil {
@@ -4330,6 +4346,10 @@ func (ec *executionContext) fieldContext_Auth_user(ctx context.Context, field gr
 				return ec.fieldContext_User_authStateId(ctx, field)
 			case "role":
 				return ec.fieldContext_User_role(ctx, field)
+			case "addressId":
+				return ec.fieldContext_User_addressId(ctx, field)
+			case "address":
+				return ec.fieldContext_User_address(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
 		},
@@ -8389,6 +8409,10 @@ func (ec *executionContext) fieldContext_Mutation_createAccount(ctx context.Cont
 				return ec.fieldContext_User_authStateId(ctx, field)
 			case "role":
 				return ec.fieldContext_User_role(ctx, field)
+			case "addressId":
+				return ec.fieldContext_User_addressId(ctx, field)
+			case "address":
+				return ec.fieldContext_User_address(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
 		},
@@ -8474,6 +8498,10 @@ func (ec *executionContext) fieldContext_Mutation_verifyEmail(ctx context.Contex
 				return ec.fieldContext_User_authStateId(ctx, field)
 			case "role":
 				return ec.fieldContext_User_role(ctx, field)
+			case "addressId":
+				return ec.fieldContext_User_addressId(ctx, field)
+			case "address":
+				return ec.fieldContext_User_address(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
 		},
@@ -8634,6 +8662,10 @@ func (ec *executionContext) fieldContext_Mutation_updateProfile(ctx context.Cont
 				return ec.fieldContext_User_authStateId(ctx, field)
 			case "role":
 				return ec.fieldContext_User_role(ctx, field)
+			case "addressId":
+				return ec.fieldContext_User_addressId(ctx, field)
+			case "address":
+				return ec.fieldContext_User_address(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
 		},
@@ -8807,6 +8839,10 @@ func (ec *executionContext) fieldContext_Mutation_updateUserById(ctx context.Con
 				return ec.fieldContext_User_authStateId(ctx, field)
 			case "role":
 				return ec.fieldContext_User_role(ctx, field)
+			case "addressId":
+				return ec.fieldContext_User_addressId(ctx, field)
+			case "address":
+				return ec.fieldContext_User_address(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
 		},
@@ -9272,6 +9308,10 @@ func (ec *executionContext) fieldContext_PaginatedUsers_users(ctx context.Contex
 				return ec.fieldContext_User_authStateId(ctx, field)
 			case "role":
 				return ec.fieldContext_User_role(ctx, field)
+			case "addressId":
+				return ec.fieldContext_User_addressId(ctx, field)
+			case "address":
+				return ec.fieldContext_User_address(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
 		},
@@ -14420,6 +14460,10 @@ func (ec *executionContext) fieldContext_Query_me(ctx context.Context, field gra
 				return ec.fieldContext_User_authStateId(ctx, field)
 			case "role":
 				return ec.fieldContext_User_role(ctx, field)
+			case "addressId":
+				return ec.fieldContext_User_addressId(ctx, field)
+			case "address":
+				return ec.fieldContext_User_address(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
 		},
@@ -16738,6 +16782,124 @@ func (ec *executionContext) fieldContext_User_role(ctx context.Context, field gr
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type UserRole does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _User_addressId(ctx context.Context, field graphql.CollectedField, obj *gmodel.User) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_User_addressId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.AddressID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int64)
+	fc.Result = res
+	return ec.marshalOID2ᚖint64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_User_addressId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "User",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _User_address(ctx context.Context, field graphql.CollectedField, obj *gmodel.User) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_User_address(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Address, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*gmodel.Address)
+	fc.Result = res
+	return ec.marshalOAddress2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐAddress(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_User_address(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "User",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Address_id(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Address_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Address_updatedAt(ctx, field)
+			case "latitude":
+				return ec.fieldContext_Address_latitude(ctx, field)
+			case "longitude":
+				return ec.fieldContext_Address_longitude(ctx, field)
+			case "distance":
+				return ec.fieldContext_Address_distance(ctx, field)
+			case "mapsLink":
+				return ec.fieldContext_Address_mapsLink(ctx, field)
+			case "fullAddress":
+				return ec.fieldContext_Address_fullAddress(ctx, field)
+			case "city":
+				return ec.fieldContext_Address_city(ctx, field)
+			case "administrativeDivision":
+				return ec.fieldContext_Address_administrativeDivision(ctx, field)
+			case "zipCode":
+				return ec.fieldContext_Address_zipCode(ctx, field)
+			case "countryCode":
+				return ec.fieldContext_Address_countryCode(ctx, field)
+			case "country":
+				return ec.fieldContext_Address_country(ctx, field)
+			case "createdById":
+				return ec.fieldContext_Address_createdById(ctx, field)
+			case "createdBy":
+				return ec.fieldContext_Address_createdBy(ctx, field)
+			case "updatedById":
+				return ec.fieldContext_Address_updatedById(ctx, field)
+			case "updatedBy":
+				return ec.fieldContext_Address_updatedBy(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Address", field.Name)
 		},
 	}
 	return fc, nil
@@ -19499,7 +19661,7 @@ func (ec *executionContext) unmarshalInputUpdateUser(ctx context.Context, obj in
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"name", "avatar", "avatarFile", "birthDate", "bio"}
+	fieldsInOrder := [...]string{"name", "avatar", "avatarFile", "birthDate", "bio", "address"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -19541,6 +19703,13 @@ func (ec *executionContext) unmarshalInputUpdateUser(ctx context.Context, obj in
 				return it, err
 			}
 			it.Bio = data
+		case "address":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("address"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Address = data
 		}
 	}
 
@@ -19554,7 +19723,7 @@ func (ec *executionContext) unmarshalInputUpdateUserFull(ctx context.Context, ob
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"email", "phoneNumber", "name", "avatar", "avatarFile", "birthDate", "bio", "active", "role"}
+	fieldsInOrder := [...]string{"email", "phoneNumber", "name", "avatar", "avatarFile", "birthDate", "bio", "active", "role", "address"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -19624,6 +19793,13 @@ func (ec *executionContext) unmarshalInputUpdateUserFull(ctx context.Context, ob
 				return it, err
 			}
 			it.Role = data
+		case "address":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("address"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Address = data
 		}
 	}
 
@@ -21972,6 +22148,10 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "addressId":
+			out.Values[i] = ec._User_addressId(ctx, field, obj)
+		case "address":
+			out.Values[i] = ec._User_address(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -23645,6 +23825,13 @@ func (ec *executionContext) marshalN__TypeKind2string(ctx context.Context, sel a
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) marshalOAddress2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐAddress(ctx context.Context, sel ast.SelectionSet, v *gmodel.Address) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._Address(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalOAuthDeviceType2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐAuthDeviceType(ctx context.Context, v interface{}) (*gmodel.AuthDeviceType, error) {

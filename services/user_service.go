@@ -65,18 +65,24 @@ func (service Service) FindAuthUserById(ctx context.Context, user_id int64, auth
 	qb := table.User.
 		SELECT(
 			table.User.AllColumns,
-			table.AuthState.ID, 
+			table.AuthState.ID,
 			table.AuthState.Platform,
 			table.AuthState.DeviceType,
+			table.Address.AllColumns,
+			table.Country.Name,
 		).
-		FROM(table.User.LEFT_JOIN(
-			table.AuthState, 
-			table.User.ID.EQ(table.AuthState.UserID),
-		)).
-		WHERE(postgres.AND(
-			table.User.ID.EQ(postgres.Int(user_id)),
-			table.AuthState.ID.EQ(postgres.Int(auth_state_id)),
-		)).LIMIT(1)
+		FROM(
+			table.User.
+				LEFT_JOIN(table.AuthState, table.User.ID.EQ(table.AuthState.UserID)).
+				LEFT_JOIN(table.Address, table.Address.ID.EQ(table.User.AddressID)).
+				LEFT_JOIN(table.Country, table.Country.Code.EQ(table.Address.CountryCode)),
+		).
+		WHERE(
+			table.User.ID.
+				EQ(postgres.Int64(user_id)).
+				AND(table.AuthState.ID.EQ(postgres.Int64(auth_state_id))),
+		).
+		LIMIT(1)
 	err = qb.QueryContext(ctx, service.DbOrTxQueryable(), &user)
 	return user, err
 } 
@@ -403,16 +409,16 @@ func (Service) GenerateJWT(key string, user *gmodel.User) (string, error) {
 	return token, nil
 }
 
-func (service Service) VerifyJwt(ctx context.Context, authorization types.AuthorizationKeyType) (gmodel.User, error) {
+func (s Service) VerifyJwt(ctx context.Context, authorization types.AuthorizationKeyType) (user gmodel.User, err error) {
 	jwt_raw, err := authorization.GetToken()
 	if err != nil {
 		return gmodel.User{}, err
 	}
-	if service.Tokens == nil {
+	if s.Tokens == nil {
 		return gmodel.User{}, fmt.Errorf("tokens value is nil")
 	}
 
-	claims, err := utils.GetJwtClaims(jwt_raw, service.Tokens.JwtKey)
+	claims, err := utils.GetJwtClaims(jwt_raw, s.Tokens.JwtKey)
 	if err != nil {
 		return gmodel.User{}, err
 	}
@@ -420,29 +426,11 @@ func (service Service) VerifyJwt(ctx context.Context, authorization types.Author
 		return gmodel.User{}, fmt.Errorf("token expired")
 	}
 
-	authStateId := int64(claims["authStateId"].(float64))
-	userId := int64(claims["id"].(float64))
+	auth_state_id := int64(claims["authStateId"].(float64))
+	user_id := int64(claims["id"].(float64))
 	email := claims["email"].(string)
-	query := table.User.
-		SELECT(
-			table.User.AllColumns,
-			table.AuthState.ID,
-			table.AuthState.Platform,
-			table.AuthState.DeviceType,
-		).
-		FROM(table.User.LEFT_JOIN(
-			table.AuthState, 
-			table.User.ID.EQ(table.AuthState.UserID),
-		)).
-		WHERE(
-			table.User.ID.
-				EQ(postgres.Int64(userId)).
-				AND(table.User.Email.EQ(postgres.String(email))).
-				AND(table.AuthState.ID.EQ(postgres.Int64(authStateId))),
-		).
-		LIMIT(1)
-	var user gmodel.User
-	if err := query.QueryContext(ctx, service.DbOrTxQueryable(), &user); err != nil {
+	user, err = s.FindAuthUserById(ctx, user_id, auth_state_id)
+	if err != nil || email != user.Email {
 		return gmodel.User{}, fmt.Errorf("one or more invalid claim values")
 	}
 	return user, nil
@@ -496,6 +484,19 @@ func (s Service) UpdateUserFull(ctx context.Context, user gmodel.User, input gmo
 		}
 		u.Role = role
 	}
+	var address gmodel.Address
+	if input.Address != nil {
+		columns = append(columns, table.User.AddressID)
+		address_input, err := s.FullAddressToCreateAddress(ctx, *input.Address)
+		if err != nil {
+			return gmodel.User{}, err
+		}
+		address, err = s.CreateAddress(ctx, &user, address_input)
+		if err != nil {
+			return gmodel.User{}, fmt.Errorf("could not create address")
+		}
+		u.AddressID = &address.ID
+	}
 	if len(columns) == 0 {
 		return user, nil
 	}
@@ -511,6 +512,9 @@ func (s Service) UpdateUserFull(ctx context.Context, user gmodel.User, input gmo
 		return gmodel.User{}, err
 	}
 	if user.AuthStateID == nil {
+		if input.Address != nil {
+			updated_user.Address = &address
+		}
 		return updated_user, nil
 	}
 	return s.FindAuthUserById(ctx, user.ID, *user.AuthStateID)
@@ -523,6 +527,7 @@ func (service Service) UpdateUser(ctx context.Context, user gmodel.User, input g
 		AvatarFile: input.AvatarFile,
 		BirthDate: input.BirthDate,
 		Bio: input.Bio,
+		Address: input.Address,
 	})
 }
 

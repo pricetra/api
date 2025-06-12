@@ -386,6 +386,7 @@ type UpdateUser struct {
 	AvatarFile *graphql.Upload `json:"avatarFile,omitempty"`
 	BirthDate  *time.Time      `json:"birthDate,omitempty"`
 	Bio        *string         `json:"bio,omitempty"`
+	Address    *string         `json:"address,omitempty"`
 }
 
 type UpdateUserFull struct {
@@ -398,6 +399,7 @@ type UpdateUserFull struct {
 	Bio         *string         `json:"bio,omitempty"`
 	Active      *bool           `json:"active,omitempty"`
 	Role        *UserRole       `json:"role,omitempty"`
+	Address     *string         `json:"address,omitempty"`
 }
 
 type UpdatedByUser struct {
@@ -422,6 +424,8 @@ type User struct {
 	AuthDevice   *AuthDeviceType   `json:"authDevice,omitempty" alias:"auth_state.device_type"`
 	AuthStateID  *int64            `json:"authStateId,omitempty" alias:"auth_state.id"`
 	Role         UserRole          `json:"role"`
+	AddressID    *int64            `json:"addressId,omitempty"`
+	Address      *Address          `json:"address,omitempty"`
 }
 
 type UserFilter struct {
