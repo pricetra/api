@@ -96,6 +96,7 @@ input ProductSearch {
   categoryId: ID
   branchId: ID
   location: LocationInput
+  storeId: ID
 }
 
 input SaveExternalProductInput {

@@ -180,6 +180,12 @@ func (s Service) PaginatedProducts(ctx context.Context, paginator_input gmodel.P
 	order_by := []postgres.OrderByClause{}
 
 	if search != nil {
+		if search.StoreID != nil {
+			where_clause = where_clause.AND(
+				table.Store.ID.EQ(postgres.Int(*search.StoreID)),
+			)
+		}
+
 		if search.BranchID != nil {
 			where_clause = where_clause.AND(
 				table.Branch.ID.EQ(postgres.Int(*search.BranchID)),

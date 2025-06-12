@@ -36,16 +36,22 @@ func (s Service) CreateStore(ctx context.Context, user gmodel.User, input gmodel
 }
 
 func (s Service) GetAllStores(ctx context.Context) (stores []gmodel.Store, err error) {
-	created_user_table, updated_user_table, user_cols := s.CreatedAndUpdatedUserTable()
+	created_user_table, updated_user_table, cols := s.CreatedAndUpdatedUserTable()
+
+	stock_count_col_name := "stock_count"
+	stock_count_col := postgres.COUNT(table.Stock.ID)
+	cols = append(cols, stock_count_col.AS(stock_count_col_name))
 	qb := table.Store.SELECT(
 		table.Store.AllColumns,
-		user_cols...,
+		cols...,
 	).FROM(
 		table.Store.
+			LEFT_JOIN(table.Stock, table.Stock.StoreID.EQ(table.Store.ID)).
 			LEFT_JOIN(created_user_table, created_user_table.ID.EQ(table.Store.CreatedByID)).
 			LEFT_JOIN(updated_user_table, updated_user_table.ID.EQ(table.Store.UpdatedByID)),
 	).
-	ORDER_BY(table.Store.CreatedAt.DESC())
+	GROUP_BY(table.Store.ID, created_user_table.ID, updated_user_table.ID).
+	ORDER_BY(stock_count_col.DESC(), table.Store.CreatedAt.ASC())
 	err = qb.QueryContext(ctx, s.DbOrTxQueryable(), &stores)
 	return stores, err
 }
