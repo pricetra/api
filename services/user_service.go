@@ -491,9 +491,9 @@ func (s Service) UpdateUserFull(ctx context.Context, user gmodel.User, input gmo
 		if err != nil {
 			return gmodel.User{}, err
 		}
-		address, err = s.CreateAddress(ctx, &user, address_input)
+		address, err = s.FindOrCreateAddress(ctx, &user, address_input)
 		if err != nil {
-			return gmodel.User{}, fmt.Errorf("could not create address")
+			return gmodel.User{}, err
 		}
 		u.AddressID = &address.ID
 	}
