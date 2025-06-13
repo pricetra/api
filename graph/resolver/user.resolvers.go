@@ -81,11 +81,11 @@ func (r *mutationResolver) UpdateProfile(ctx context.Context, input gmodel.Updat
 			Tags:     []string{"USER_PROFILE"},
 		})
 		if err != nil {
-			return nil, fmt.Errorf("could not upload avatar to CDN")
+			return nil, fmt.Errorf("profile saved, but the avatar could not be uploaded to CDN")
 		}
 	}
 	// Delete old avatar
-	if user.Avatar != nil {
+	if input.AvatarFile != nil || input.Avatar != nil {
 		r.Service.DeleteImageUpload(ctx, *user.Avatar)
 	}
 	return &updated_user, nil
