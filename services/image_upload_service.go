@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/99designs/gqlgen/graphql"
+	"github.com/cloudinary/cloudinary-go/v2/api/admin"
 	"github.com/cloudinary/cloudinary-go/v2/api/uploader"
 )
 
@@ -33,5 +34,14 @@ func (service Service) DeleteImageUpload(
 	return service.Cloudinary.Upload.Destroy(ctx, uploader.DestroyParams{
 		PublicID: upload_id,
 		Invalidate: &invalidate,
+	})
+}
+
+func (s Service) GetImageUpload(
+	ctx context.Context,
+	upload_id string,
+) (*admin.AssetResult, error) {
+	return s.Cloudinary.Admin.AssetByAssetID(ctx, admin.AssetByAssetIDParams{
+		AssetID: upload_id,
 	})
 }
