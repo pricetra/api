@@ -85,7 +85,7 @@ func (r *mutationResolver) UpdateProfile(ctx context.Context, input gmodel.Updat
 		}
 	}
 	// Delete old avatar
-	if input.AvatarFile != nil || input.Avatar != nil {
+	if updated_user.Avatar != nil && user.Avatar != nil && *updated_user.Avatar != *user.Avatar {
 		r.Service.DeleteImageUpload(ctx, *user.Avatar)
 	}
 	return &updated_user, nil
