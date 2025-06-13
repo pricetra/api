@@ -63,11 +63,15 @@ func (r *mutationResolver) AddBranchToList(ctx context.Context, listID int64, br
 
 // BulkAddBranchesToList is the resolver for the bulkAddBranchesToList field.
 func (r *mutationResolver) BulkAddBranchesToList(ctx context.Context, listID int64, branchIds []int64) (branches []*gmodel.BranchList, err error) {
+	rollback := func () {
+		r.Service.TX.Rollback()
+		r.Service.TX = nil
+	}
 	user := r.Service.GetAuthUserFromContext(ctx)
 	if r.Service.TX, err = r.Service.DB.BeginTx(ctx, nil); err != nil {
 		return nil, fmt.Errorf("transaction failed")
 	}
-	defer r.Service.TX.Rollback()
+	defer rollback()
 
 	branches = make([]*gmodel.BranchList, len(branchIds))
 	for i, branch_id := range branchIds {
