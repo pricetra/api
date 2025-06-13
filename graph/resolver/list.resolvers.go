@@ -6,6 +6,7 @@ package gresolver
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/pricetra/api/graph/gmodel"
 )
@@ -58,6 +59,28 @@ func (r *mutationResolver) AddBranchToList(ctx context.Context, listID int64, br
 		return nil, err
 	}
 	return &branch_list, nil
+}
+
+// BulkAddBranchesToList is the resolver for the bulkAddBranchesToList field.
+func (r *mutationResolver) BulkAddBranchesToList(ctx context.Context, listID int64, branchIds []int64) (branches []*gmodel.BranchList, err error) {
+	user := r.Service.GetAuthUserFromContext(ctx)
+	if r.Service.TX, err = r.Service.DB.BeginTx(ctx, nil); err != nil {
+		return nil, fmt.Errorf("transaction failed")
+	}
+	defer r.Service.TX.Rollback()
+
+	branches = make([]*gmodel.BranchList, len(branches))
+	for i, branch_id := range branchIds {
+		branch_list, err := r.Service.AddBranchToList(ctx, user, listID, branch_id)
+		if err != nil {
+			return nil, fmt.Errorf("could not add branch to list")
+		}
+		branches[i] = &branch_list
+	}
+	if err = r.Service.TX.Commit(); err != nil {
+		return nil, fmt.Errorf("could not commit transaction")
+	}
+	return branches, nil
 }
 
 // RemoveBranchFromList is the resolver for the removeBranchFromList field.

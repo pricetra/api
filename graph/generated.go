@@ -164,6 +164,7 @@ type ComplexityRoot struct {
 	Mutation struct {
 		AddBranchToList             func(childComplexity int, listID int64, branchID int64) int
 		AddToList                   func(childComplexity int, listID int64, productID int64, stockID *int64) int
+		BulkAddBranchesToList       func(childComplexity int, listID int64, branchIds []int64) int
 		CreateAccount               func(childComplexity int, input gmodel.CreateAccountInput) int
 		CreateBranch                func(childComplexity int, input gmodel.CreateBranch) int
 		CreateBranchWithFullAddress func(childComplexity int, storeID int64, fullAddress string) int
@@ -388,6 +389,7 @@ type MutationResolver interface {
 	AddToList(ctx context.Context, listID int64, productID int64, stockID *int64) (*gmodel.ProductList, error)
 	RemoveFromList(ctx context.Context, listID int64, productListID int64) (*gmodel.ProductList, error)
 	AddBranchToList(ctx context.Context, listID int64, branchID int64) (*gmodel.BranchList, error)
+	BulkAddBranchesToList(ctx context.Context, listID int64, branchIds []int64) ([]*gmodel.BranchList, error)
 	RemoveBranchFromList(ctx context.Context, listID int64, branchListID int64) (*gmodel.BranchList, error)
 	CreatePrice(ctx context.Context, input gmodel.CreatePrice) (*gmodel.Price, error)
 	CreateProduct(ctx context.Context, input gmodel.CreateProduct) (*gmodel.Product, error)
@@ -1002,6 +1004,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.AddToList(childComplexity, args["listId"].(int64), args["productId"].(int64), args["stockId"].(*int64)), true
+
+	case "Mutation.bulkAddBranchesToList":
+		if e.complexity.Mutation.BulkAddBranchesToList == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_bulkAddBranchesToList_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.BulkAddBranchesToList(childComplexity, args["listId"].(int64), args["branchIds"].([]int64)), true
 
 	case "Mutation.createAccount":
 		if e.complexity.Mutation.CreateAccount == nil {
@@ -2579,6 +2593,30 @@ func (ec *executionContext) field_Mutation_addToList_args(ctx context.Context, r
 		}
 	}
 	args["stockId"] = arg2
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_bulkAddBranchesToList_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 int64
+	if tmp, ok := rawArgs["listId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("listId"))
+		arg0, err = ec.unmarshalNID2int64(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["listId"] = arg0
+	var arg1 []int64
+	if tmp, ok := rawArgs["branchIds"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("branchIds"))
+		arg1, err = ec.unmarshalNID2ᚕint64ᚄ(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["branchIds"] = arg1
 	return args, nil
 }
 
@@ -7688,6 +7726,97 @@ func (ec *executionContext) fieldContext_Mutation_addBranchToList(ctx context.Co
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_addBranchToList_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_bulkAddBranchesToList(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_bulkAddBranchesToList(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().BulkAddBranchesToList(rctx, fc.Args["listId"].(int64), fc.Args["branchIds"].([]int64))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.IsAuthenticated == nil {
+				return nil, errors.New("directive isAuthenticated is not implemented")
+			}
+			return ec.directives.IsAuthenticated(ctx, nil, directive0, nil)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.([]*gmodel.BranchList); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*github.com/pricetra/api/graph/gmodel.BranchList`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*gmodel.BranchList)
+	fc.Result = res
+	return ec.marshalNBranchList2ᚕᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐBranchListᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_bulkAddBranchesToList(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_BranchList_id(ctx, field)
+			case "userId":
+				return ec.fieldContext_BranchList_userId(ctx, field)
+			case "listId":
+				return ec.fieldContext_BranchList_listId(ctx, field)
+			case "list":
+				return ec.fieldContext_BranchList_list(ctx, field)
+			case "branchId":
+				return ec.fieldContext_BranchList_branchId(ctx, field)
+			case "branch":
+				return ec.fieldContext_BranchList_branch(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_BranchList_createdAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type BranchList", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_bulkAddBranchesToList_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -20644,6 +20773,13 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "bulkAddBranchesToList":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_bulkAddBranchesToList(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "removeBranchFromList":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_removeBranchFromList(ctx, field)
@@ -22704,6 +22840,50 @@ func (ec *executionContext) marshalNBranchList2githubᚗcomᚋpricetraᚋapiᚋg
 	return ec._BranchList(ctx, sel, &v)
 }
 
+func (ec *executionContext) marshalNBranchList2ᚕᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐBranchListᚄ(ctx context.Context, sel ast.SelectionSet, v []*gmodel.BranchList) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNBranchList2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐBranchList(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
 func (ec *executionContext) marshalNBranchList2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐBranchList(ctx context.Context, sel ast.SelectionSet, v *gmodel.BranchList) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -22997,6 +23177,38 @@ func (ec *executionContext) marshalNID2int64(ctx context.Context, sel ast.Select
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) unmarshalNID2ᚕint64ᚄ(ctx context.Context, v interface{}) ([]int64, error) {
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]int64, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNID2int64(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) marshalNID2ᚕint64ᚄ(ctx context.Context, sel ast.SelectionSet, v []int64) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	for i := range v {
+		ret[i] = ec.marshalNID2int64(ctx, sel, v[i])
+	}
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
 }
 
 func (ec *executionContext) unmarshalNInt2int(ctx context.Context, v interface{}) (int, error) {
