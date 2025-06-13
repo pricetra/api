@@ -69,7 +69,7 @@ func (r *mutationResolver) BulkAddBranchesToList(ctx context.Context, listID int
 	}
 	defer r.Service.TX.Rollback()
 
-	branches = make([]*gmodel.BranchList, len(branches))
+	branches = make([]*gmodel.BranchList, len(branchIds))
 	for i, branch_id := range branchIds {
 		branch_list, err := r.Service.AddBranchToList(ctx, user, listID, branch_id)
 		if err != nil {
