@@ -33,6 +33,22 @@ func (service Service) AddressExists(
 	return err == nil
 }
 
+func (s Service) FindAddressByCoords(
+	ctx context.Context, 
+	lat float64, 
+	lon float64,
+) (address gmodel.Address, err error) {
+	qb := table.Address.
+		SELECT(table.Address.AllColumns).
+		FROM(table.Address).
+		WHERE(
+			table.Address.Latitude.EQ(postgres.Float(lat)).
+			AND(table.Address.Longitude.EQ(postgres.Float(lon))),
+		).LIMIT(1)
+	err = qb.QueryContext(ctx, s.DbOrTxQueryable(), &address)
+	return address, err
+}
+
 func (service Service) CreateAddress(ctx context.Context, user *gmodel.User, input gmodel.CreateAddress) (gmodel.Address, error) {
 	var country_code model.CountryCodeAlpha2 = model.CountryCodeAlpha2(input.CountryCode)
 	if country_code.Scan(input.CountryCode) != nil {
@@ -72,6 +88,18 @@ func (service Service) CreateAddress(ctx context.Context, user *gmodel.User, inp
 		return gmodel.Address{}, err
 	}
 	return address, nil
+}
+
+func (s Service) FindOrCreateAddress(
+	ctx context.Context,
+	user *gmodel.User,
+	input gmodel.CreateAddress,
+) (address gmodel.Address, err error) {
+	address, err = s.FindAddressByCoords(ctx, input.Latitude, input.Longitude)
+	if err == nil {
+		return address, nil
+	}
+	return s.CreateAddress(ctx, user, input)
 }
 
 type DistanceColumns struct {
