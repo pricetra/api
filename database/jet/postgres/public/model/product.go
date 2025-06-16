@@ -31,4 +31,5 @@ type Product struct {
 	Source               ProductSourceType
 	CategoryID           *int64
 	SearchVector         *string
+	Views                int64
 }
