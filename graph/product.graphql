@@ -5,7 +5,7 @@ extend type Query {
     search: ProductSearch
   ): PaginatedProducts! @isAuthenticated
   allBrands: [Brand!]! @isAuthenticated
-  product(id: ID!): Product! @isAuthenticated
+  product(id: ID!, viewerTrail: ViewerTrailInput): Product! @isAuthenticated
 }
 
 extend type Mutation {
@@ -50,6 +50,7 @@ type Product {
   updatedById: ID
   updatedBy: UpdatedByUser
   lists: [List!]
+  views: Int!
 }
 
 type SearchResult {
@@ -106,4 +107,9 @@ input SaveExternalProductInput {
   brand: String
   upc: String
   offset: Int
+}
+
+input ViewerTrailInput {
+  stockId: ID
+  origin: String
 }

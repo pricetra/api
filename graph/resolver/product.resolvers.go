@@ -13,6 +13,7 @@ import (
 	"github.com/cloudinary/cloudinary-go/v2/api/uploader"
 	"github.com/pricetra/api/database/jet/postgres/public/model"
 	"github.com/pricetra/api/graph/gmodel"
+	"github.com/pricetra/api/services"
 )
 
 // CreateProduct is the resolver for the createProduct field.
@@ -151,7 +152,8 @@ func (r *queryResolver) AllBrands(ctx context.Context) ([]*gmodel.Brand, error) 
 }
 
 // Product is the resolver for the product field.
-func (r *queryResolver) Product(ctx context.Context, id int64) (*gmodel.Product, error) {
+func (r *queryResolver) Product(ctx context.Context, id int64, viewerTrail *gmodel.ViewerTrailInput) (*gmodel.Product, error) {
+	user := r.Service.GetAuthUserFromContext(ctx)
 	if !r.Service.ProductExists(ctx, id) {
 		return nil, fmt.Errorf("invalid product id")
 	}
@@ -160,5 +162,21 @@ func (r *queryResolver) Product(ctx context.Context, id int64) (*gmodel.Product,
 	if err != nil {
 		return nil, err
 	}
+
+	go func() (model.ProductView, error) {
+		ctx := context.Background()
+		var platform *gmodel.AuthDeviceType
+		if user.AuthDevice != nil {
+			platform = user.AuthDevice
+		}
+		trail_input := services.ViewerTrailFull{
+			UserID: &user.ID,
+			Platform: platform,
+		}
+		if viewerTrail != nil {
+			trail_input.ViewerTrailInput = *viewerTrail
+		}
+		return r.Service.AddProductViewer(ctx, product.ID, trail_input)
+	}()
 	return &product, nil
 }

@@ -282,6 +282,7 @@ type Product struct {
 	UpdatedByID          *int64         `json:"updatedById,omitempty"`
 	UpdatedBy            *UpdatedByUser `json:"updatedBy,omitempty"`
 	Lists                []*List        `json:"lists,omitempty"`
+	Views                int            `json:"views"`
 }
 
 type ProductBilling struct {
@@ -440,6 +441,11 @@ type UserShallow struct {
 	Name   string  `json:"name" alias:"user.name"`
 	Avatar *string `json:"avatar,omitempty" alias:"user.avatar"`
 	Active *bool   `json:"active,omitempty" alias:"user.active"`
+}
+
+type ViewerTrailInput struct {
+	StockID *int64  `json:"stockId,omitempty"`
+	Origin  *string `json:"origin,omitempty"`
 }
 
 type AuthDeviceType string
