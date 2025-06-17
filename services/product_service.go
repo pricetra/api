@@ -380,3 +380,68 @@ func (s Service) FindAllBrands(ctx context.Context) (brands []gmodel.Brand, err 
 	}
 	return brands, nil
 }
+
+type ViewerTrailFull struct {
+	gmodel.ViewerTrailInput
+	UserID *int64
+	Platform *gmodel.AuthDeviceType
+}
+
+func (s Service) AddProductViewer(
+	ctx context.Context,
+	product_id int64,
+	viewer_trail ViewerTrailFull,
+) (viewer model.ProductView, err error) {
+	if s.TX, err = s.DB.BeginTx(ctx, nil); err != nil {
+		return model.ProductView{}, err
+	}
+	defer s.TX.Rollback()
+
+	cols := postgres.ColumnList{
+		table.ProductView.ProductID,
+	}
+	platform := model.AuthDeviceType_Other
+	if viewer_trail.Origin != nil {
+		cols = append(cols, table.ProductView.Origin)
+	}
+	if viewer_trail.StockID != nil {
+		cols = append(cols, table.ProductView.StockID)
+	}
+	if viewer_trail.UserID != nil {
+		cols = append(cols, table.ProductView.UserID)
+	}
+	if viewer_trail.Platform != nil {
+		cols = append(cols, table.ProductView.Platform)
+		if platform.Scan(viewer_trail.Platform.String()) != nil {
+			platform = model.AuthDeviceType_Unknown
+		}
+	}
+	create_view := table.ProductView.
+		INSERT(cols).
+		MODEL(model.ProductView{
+			ProductID: product_id,
+			StockID: viewer_trail.StockID,
+			UserID: viewer_trail.UserID,
+			Origin: viewer_trail.Origin,
+			Platform: platform,
+		}).
+		RETURNING(table.ProductView.AllColumns)
+	if err = create_view.QueryContext(ctx, s.TX, &viewer); err != nil {
+		return model.ProductView{}, err
+	}
+
+	update_product := table.Product.
+		UPDATE(table.Product.Views, table.Product.UpdatedAt).
+		SET(
+			table.Product.Views.SET(table.Product.Views.ADD(postgres.Int(1))),
+			table.Product.UpdatedAt.SET(postgres.NOW()),
+		).
+		WHERE(table.Product.ID.EQ(postgres.Int(product_id)))
+	if _, err = update_product.ExecContext(ctx, s.TX); err != nil {
+		return model.ProductView{}, err
+	}
+	if err = s.TX.Commit(); err != nil {
+		return model.ProductView{}, err
+	}
+	return viewer, nil
+}
