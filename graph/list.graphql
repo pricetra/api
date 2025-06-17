@@ -60,9 +60,12 @@ extend type Mutation {
   addToList(listId: ID!, productId: ID!, stockId: ID): ProductList!
     @isAuthenticated
   removeFromList(listId: ID!, productListId: ID!): ProductList! @isAuthenticated
+  removeFromListWithProductId(listId: ID!, productId: ID!): ProductList!
+    @isAuthenticated
 
   addBranchToList(listId: ID!, branchId: ID!): BranchList! @isAuthenticated
-  bulkAddBranchesToList(listId: ID!, branchIds: [ID!]!): [BranchList!]! @isAuthenticated
+  bulkAddBranchesToList(listId: ID!, branchIds: [ID!]!): [BranchList!]!
+    @isAuthenticated
   removeBranchFromList(listId: ID!, branchListId: ID!): BranchList!
     @isAuthenticated
 }

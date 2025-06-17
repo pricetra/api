@@ -311,6 +311,31 @@ func (s Service) RemoveProductFromList(ctx context.Context, user gmodel.User, li
 	return product_list, nil
 }
 
+func (s Service) RemoveProductFromListWitProductId(ctx context.Context, user gmodel.User, list_id int64, product_id int64) (product_list gmodel.ProductList, err error) {
+	list, err := s.FindListByIdAndUserId(ctx, list_id, user.ID)
+	if err != nil {
+		return gmodel.ProductList{}, fmt.Errorf("invalid list")
+	}
+
+	product, err := s.FindProductById(ctx, product_id)
+	if err != nil {
+		return gmodel.ProductList{}, fmt.Errorf("invalid product")
+	}
+
+	qb := table.ProductList.
+		DELETE().
+		WHERE(
+			table.ProductList.ListID.EQ(postgres.Int(list.ID)).
+			AND(table.ProductList.ProductID.EQ(postgres.Int(product.ID))).
+			AND(table.ProductList.UserID.EQ(postgres.Int(user.ID))),
+		).
+		RETURNING(table.ProductList.AllColumns)
+	if err := qb.QueryContext(ctx, s.DbOrTxQueryable(), &product_list); err != nil {
+		return gmodel.ProductList{}, err
+	}
+	return product_list, nil
+}
+
 func (s Service) AddBranchToList(
 	ctx context.Context,
 	user gmodel.User,
