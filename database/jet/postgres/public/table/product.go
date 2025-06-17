@@ -36,6 +36,7 @@ type productTable struct {
 	Source               postgres.ColumnString
 	CategoryID           postgres.ColumnInteger
 	SearchVector         postgres.ColumnString
+	Views                postgres.ColumnInteger
 
 	AllColumns     postgres.ColumnList
 	MutableColumns postgres.ColumnList
@@ -95,8 +96,9 @@ func newProductTableImpl(schemaName, tableName, alias string) productTable {
 		SourceColumn               = postgres.StringColumn("source")
 		CategoryIDColumn           = postgres.IntegerColumn("category_id")
 		SearchVectorColumn         = postgres.StringColumn("search_vector")
-		allColumns                 = postgres.ColumnList{IDColumn, NameColumn, ImageColumn, DescriptionColumn, URLColumn, BrandColumn, CodeColumn, ColorColumn, ModelColumn, WeightColumn, LowestRecordedPriceColumn, HighestRecordedPriceColumn, CreatedByIDColumn, UpdatedByIDColumn, CreatedAtColumn, UpdatedAtColumn, SourceColumn, CategoryIDColumn, SearchVectorColumn}
-		mutableColumns             = postgres.ColumnList{NameColumn, ImageColumn, DescriptionColumn, URLColumn, BrandColumn, CodeColumn, ColorColumn, ModelColumn, WeightColumn, LowestRecordedPriceColumn, HighestRecordedPriceColumn, CreatedByIDColumn, UpdatedByIDColumn, CreatedAtColumn, UpdatedAtColumn, SourceColumn, CategoryIDColumn}
+		ViewsColumn                = postgres.IntegerColumn("views")
+		allColumns                 = postgres.ColumnList{IDColumn, NameColumn, ImageColumn, DescriptionColumn, URLColumn, BrandColumn, CodeColumn, ColorColumn, ModelColumn, WeightColumn, LowestRecordedPriceColumn, HighestRecordedPriceColumn, CreatedByIDColumn, UpdatedByIDColumn, CreatedAtColumn, UpdatedAtColumn, SourceColumn, CategoryIDColumn, SearchVectorColumn, ViewsColumn}
+		mutableColumns             = postgres.ColumnList{NameColumn, ImageColumn, DescriptionColumn, URLColumn, BrandColumn, CodeColumn, ColorColumn, ModelColumn, WeightColumn, LowestRecordedPriceColumn, HighestRecordedPriceColumn, CreatedByIDColumn, UpdatedByIDColumn, CreatedAtColumn, UpdatedAtColumn, SourceColumn, CategoryIDColumn, ViewsColumn}
 	)
 
 	return productTable{
@@ -122,6 +124,7 @@ func newProductTableImpl(schemaName, tableName, alias string) productTable {
 		Source:               SourceColumn,
 		CategoryID:           CategoryIDColumn,
 		SearchVector:         SearchVectorColumn,
+		Views:                ViewsColumn,
 
 		AllColumns:     allColumns,
 		MutableColumns: mutableColumns,

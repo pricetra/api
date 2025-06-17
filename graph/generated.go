@@ -259,6 +259,7 @@ type ComplexityRoot struct {
 		UpdatedAt            func(childComplexity int) int
 		UpdatedBy            func(childComplexity int) int
 		UpdatedByID          func(childComplexity int) int
+		Views                func(childComplexity int) int
 		Weight               func(childComplexity int) int
 	}
 
@@ -305,7 +306,7 @@ type ComplexityRoot struct {
 		Login                         func(childComplexity int, email string, password string, ipAddress *string, device *gmodel.AuthDeviceType) int
 		Me                            func(childComplexity int) int
 		MyProductBillingData          func(childComplexity int, paginator gmodel.PaginatorInput) int
-		Product                       func(childComplexity int, id int64) int
+		Product                       func(childComplexity int, id int64, viewerTrail *gmodel.ViewerTrailInput) int
 		ProductBillingDataByUserID    func(childComplexity int, userID int64, paginator gmodel.PaginatorInput) int
 		Stock                         func(childComplexity int, stockID int64) int
 		VerifyPasswordResetCode       func(childComplexity int, email string, code string) int
@@ -418,7 +419,7 @@ type QueryResolver interface {
 	BarcodeScan(ctx context.Context, barcode string, searchMode *bool) (*gmodel.Product, error)
 	AllProducts(ctx context.Context, paginator gmodel.PaginatorInput, search *gmodel.ProductSearch) (*gmodel.PaginatedProducts, error)
 	AllBrands(ctx context.Context) ([]*gmodel.Brand, error)
-	Product(ctx context.Context, id int64) (*gmodel.Product, error)
+	Product(ctx context.Context, id int64, viewerTrail *gmodel.ViewerTrailInput) (*gmodel.Product, error)
 	Stock(ctx context.Context, stockID int64) (*gmodel.Stock, error)
 	GetProductStocks(ctx context.Context, productID int64, location *gmodel.LocationInput) ([]*gmodel.Stock, error)
 	AllStores(ctx context.Context) ([]*gmodel.Store, error)
@@ -1644,6 +1645,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Product.UpdatedByID(childComplexity), true
 
+	case "Product.views":
+		if e.complexity.Product.Views == nil {
+			break
+		}
+
+		return e.complexity.Product.Views(childComplexity), true
+
 	case "Product.weight":
 		if e.complexity.Product.Weight == nil {
 			break
@@ -1983,7 +1991,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.Product(childComplexity, args["id"].(int64)), true
+		return e.complexity.Query.Product(childComplexity, args["id"].(int64), args["viewerTrail"].(*gmodel.ViewerTrailInput)), true
 
 	case "Query.productBillingDataByUserId":
 		if e.complexity.Query.ProductBillingDataByUserID == nil {
@@ -2395,6 +2403,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputUpdateUser,
 		ec.unmarshalInputUpdateUserFull,
 		ec.unmarshalInputUserFilter,
+		ec.unmarshalInputViewerTrailInput,
 	)
 	first := true
 
@@ -3355,6 +3364,15 @@ func (ec *executionContext) field_Query_product_args(ctx context.Context, rawArg
 		}
 	}
 	args["id"] = arg0
+	var arg1 *gmodel.ViewerTrailInput
+	if tmp, ok := rawArgs["viewerTrail"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("viewerTrail"))
+		arg1, err = ec.unmarshalOViewerTrailInput2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐViewerTrailInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["viewerTrail"] = arg1
 	return args, nil
 }
 
@@ -8144,6 +8162,8 @@ func (ec *executionContext) fieldContext_Mutation_createProduct(ctx context.Cont
 				return ec.fieldContext_Product_updatedBy(ctx, field)
 			case "lists":
 				return ec.fieldContext_Product_lists(ctx, field)
+			case "views":
+				return ec.fieldContext_Product_views(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Product", field.Name)
 		},
@@ -8269,6 +8289,8 @@ func (ec *executionContext) fieldContext_Mutation_updateProduct(ctx context.Cont
 				return ec.fieldContext_Product_updatedBy(ctx, field)
 			case "lists":
 				return ec.fieldContext_Product_lists(ctx, field)
+			case "views":
+				return ec.fieldContext_Product_views(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Product", field.Name)
 		},
@@ -9305,6 +9327,8 @@ func (ec *executionContext) fieldContext_PaginatedProducts_products(ctx context.
 				return ec.fieldContext_Product_updatedBy(ctx, field)
 			case "lists":
 				return ec.fieldContext_Product_lists(ctx, field)
+			case "views":
+				return ec.fieldContext_Product_views(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Product", field.Name)
 		},
@@ -10020,6 +10044,8 @@ func (ec *executionContext) fieldContext_Price_product(ctx context.Context, fiel
 				return ec.fieldContext_Product_updatedBy(ctx, field)
 			case "lists":
 				return ec.fieldContext_Product_lists(ctx, field)
+			case "views":
+				return ec.fieldContext_Product_views(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Product", field.Name)
 		},
@@ -11889,6 +11915,50 @@ func (ec *executionContext) fieldContext_Product_lists(ctx context.Context, fiel
 	return fc, nil
 }
 
+func (ec *executionContext) _Product_views(ctx context.Context, field graphql.CollectedField, obj *gmodel.Product) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Product_views(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Views, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Product_views(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Product",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _ProductBilling_id(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductBilling) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_ProductBilling_id(ctx, field)
 	if err != nil {
@@ -12057,6 +12127,8 @@ func (ec *executionContext) fieldContext_ProductBilling_product(ctx context.Cont
 				return ec.fieldContext_Product_updatedBy(ctx, field)
 			case "lists":
 				return ec.fieldContext_Product_lists(ctx, field)
+			case "views":
+				return ec.fieldContext_Product_views(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Product", field.Name)
 		},
@@ -12645,6 +12717,8 @@ func (ec *executionContext) fieldContext_ProductList_product(ctx context.Context
 				return ec.fieldContext_Product_updatedBy(ctx, field)
 			case "lists":
 				return ec.fieldContext_Product_lists(ctx, field)
+			case "views":
+				return ec.fieldContext_Product_views(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Product", field.Name)
 		},
@@ -13697,6 +13771,8 @@ func (ec *executionContext) fieldContext_Query_barcodeScan(ctx context.Context, 
 				return ec.fieldContext_Product_updatedBy(ctx, field)
 			case "lists":
 				return ec.fieldContext_Product_lists(ctx, field)
+			case "views":
+				return ec.fieldContext_Product_views(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Product", field.Name)
 		},
@@ -13881,7 +13957,7 @@ func (ec *executionContext) _Query_product(ctx context.Context, field graphql.Co
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		directive0 := func(rctx context.Context) (interface{}, error) {
 			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Query().Product(rctx, fc.Args["id"].(int64))
+			return ec.resolvers.Query().Product(rctx, fc.Args["id"].(int64), fc.Args["viewerTrail"].(*gmodel.ViewerTrailInput))
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
 			if ec.directives.IsAuthenticated == nil {
@@ -13969,6 +14045,8 @@ func (ec *executionContext) fieldContext_Query_product(ctx context.Context, fiel
 				return ec.fieldContext_Product_updatedBy(ctx, field)
 			case "lists":
 				return ec.fieldContext_Product_lists(ctx, field)
+			case "views":
+				return ec.fieldContext_Product_views(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Product", field.Name)
 		},
@@ -15169,6 +15247,8 @@ func (ec *executionContext) fieldContext_Stock_product(ctx context.Context, fiel
 				return ec.fieldContext_Product_updatedBy(ctx, field)
 			case "lists":
 				return ec.fieldContext_Product_lists(ctx, field)
+			case "views":
+				return ec.fieldContext_Product_views(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Product", field.Name)
 		},
@@ -19983,6 +20063,40 @@ func (ec *executionContext) unmarshalInputUserFilter(ctx context.Context, obj in
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputViewerTrailInput(ctx context.Context, obj interface{}) (gmodel.ViewerTrailInput, error) {
+	var it gmodel.ViewerTrailInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"stockId", "origin"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "stockId":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("stockId"))
+			data, err := ec.unmarshalOID2ᚖint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.StockID = data
+		case "origin":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("origin"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Origin = data
+		}
+	}
+
+	return it, nil
+}
+
 // endregion **************************** input.gotpl *****************************
 
 // region    ************************** interface.gotpl ***************************
@@ -21286,6 +21400,11 @@ func (ec *executionContext) _Product(ctx context.Context, sel ast.SelectionSet, 
 			out.Values[i] = ec._Product_updatedBy(ctx, field, obj)
 		case "lists":
 			out.Values[i] = ec._Product_lists(ctx, field, obj)
+		case "views":
+			out.Values[i] = ec._Product_views(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -24510,6 +24629,14 @@ func (ec *executionContext) marshalOUserShallow2ᚖgithubᚗcomᚋpricetraᚋapi
 		return graphql.Null
 	}
 	return ec._UserShallow(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOViewerTrailInput2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐViewerTrailInput(ctx context.Context, v interface{}) (*gmodel.ViewerTrailInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputViewerTrailInput(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalO__EnumValue2ᚕgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐEnumValueᚄ(ctx context.Context, sel ast.SelectionSet, v []introspection.EnumValue) graphql.Marshaler {
