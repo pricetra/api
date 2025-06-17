@@ -51,6 +51,16 @@ func (r *mutationResolver) RemoveFromList(ctx context.Context, listID int64, pro
 	return &product_list, nil
 }
 
+// RemoveFromListWithProductID is the resolver for the removeFromListWithProductId field.
+func (r *mutationResolver) RemoveFromListWithProductID(ctx context.Context, listID int64, productID int64) (*gmodel.ProductList, error) {
+	user := r.Service.GetAuthUserFromContext(ctx)
+	product_list, err := r.Service.RemoveProductFromListWitProductId(ctx, user, listID, productID)
+	if err != nil {
+		return nil, err
+	}
+	return &product_list, nil
+}
+
 // AddBranchToList is the resolver for the addBranchToList field.
 func (r *mutationResolver) AddBranchToList(ctx context.Context, listID int64, branchID int64) (*gmodel.BranchList, error) {
 	user := r.Service.GetAuthUserFromContext(ctx)

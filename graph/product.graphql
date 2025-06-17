@@ -49,7 +49,7 @@ type Product {
   createdBy: CreatedByUser
   updatedById: ID
   updatedBy: UpdatedByUser
-  lists: [List!]
+  productList: [ProductList!]!
   views: Int!
 }
 

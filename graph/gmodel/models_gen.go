@@ -281,7 +281,7 @@ type Product struct {
 	CreatedBy            *CreatedByUser `json:"createdBy,omitempty"`
 	UpdatedByID          *int64         `json:"updatedById,omitempty"`
 	UpdatedBy            *UpdatedByUser `json:"updatedBy,omitempty"`
-	Lists                []*List        `json:"lists,omitempty"`
+	ProductList          []*ProductList `json:"productList"`
 	Views                int            `json:"views"`
 }
 
@@ -302,6 +302,7 @@ type ProductList struct {
 	UserID    int64     `json:"userId"`
 	ListID    int64     `json:"listId"`
 	List      *List     `json:"list,omitempty"`
+	Type      *ListType `json:"type,omitempty" alias:"list_type"`
 	ProductID int64     `json:"productId"`
 	Product   *Product  `json:"product,omitempty"`
 	Stock     *Stock    `json:"stock,omitempty"`

@@ -162,6 +162,31 @@ func (s Service) FindProductListWithProductId(
 	return product_list, nil
 }
 
+func (s Service) FindProductListsByUserAndProductId(
+	ctx context.Context,
+	user gmodel.User,
+	product_id int64,
+) (product_lists []gmodel.ProductList, err error) {
+	qb := table.ProductList.
+		SELECT(
+			table.ProductList.AllColumns,
+			table.List.Type.AS("product_list.list_type"),
+		).
+		FROM(
+			table.ProductList.
+				INNER_JOIN(table.List, table.List.ID.EQ(table.ProductList.ListID)),
+		).
+		WHERE(
+			table.ProductList.UserID.EQ(postgres.Int(user.ID)).
+			AND(table.ProductList.ProductID.EQ(postgres.Int(product_id))),
+		).
+		ORDER_BY(table.ProductList.CreatedAt.DESC())
+	if err = qb.QueryContext(ctx, s.DbOrTxQueryable(), &product_lists); err != nil {
+		return nil, err
+	}
+	return product_lists, nil
+}
+
 func (s Service) FindBranchListWithBranchId(
 	ctx context.Context,
 	user gmodel.User,
@@ -279,6 +304,31 @@ func (s Service) RemoveProductFromList(ctx context.Context, user gmodel.User, li
 	qb := table.ProductList.
 		DELETE().
 		WHERE(table.ProductList.ID.EQ(postgres.Int(product_list.ID))).
+		RETURNING(table.ProductList.AllColumns)
+	if err := qb.QueryContext(ctx, s.DbOrTxQueryable(), &product_list); err != nil {
+		return gmodel.ProductList{}, err
+	}
+	return product_list, nil
+}
+
+func (s Service) RemoveProductFromListWitProductId(ctx context.Context, user gmodel.User, list_id int64, product_id int64) (product_list gmodel.ProductList, err error) {
+	list, err := s.FindListByIdAndUserId(ctx, list_id, user.ID)
+	if err != nil {
+		return gmodel.ProductList{}, fmt.Errorf("invalid list")
+	}
+
+	product, err := s.FindProductById(ctx, product_id)
+	if err != nil {
+		return gmodel.ProductList{}, fmt.Errorf("invalid product")
+	}
+
+	qb := table.ProductList.
+		DELETE().
+		WHERE(
+			table.ProductList.ListID.EQ(postgres.Int(list.ID)).
+			AND(table.ProductList.ProductID.EQ(postgres.Int(product.ID))).
+			AND(table.ProductList.UserID.EQ(postgres.Int(user.ID))),
+		).
 		RETURNING(table.ProductList.AllColumns)
 	if err := qb.QueryContext(ctx, s.DbOrTxQueryable(), &product_list); err != nil {
 		return gmodel.ProductList{}, err
