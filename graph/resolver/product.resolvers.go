@@ -163,6 +163,15 @@ func (r *queryResolver) Product(ctx context.Context, id int64, viewerTrail *gmod
 		return nil, err
 	}
 
+	p_lists, err := r.Service.FindProductListsByUserAndProductId(ctx, user, product.ID)
+	if err != nil {
+		return nil, err
+	}
+	product.ProductList = make([]*gmodel.ProductList, len(p_lists))
+	for i := range p_lists {
+		product.ProductList[i] = &p_lists[i]
+	}
+
 	go func() (model.ProductView, error) {
 		ctx := context.Background()
 		var platform *gmodel.AuthDeviceType
@@ -170,7 +179,7 @@ func (r *queryResolver) Product(ctx context.Context, id int64, viewerTrail *gmod
 			platform = user.AuthDevice
 		}
 		trail_input := services.ViewerTrailFull{
-			UserID: &user.ID,
+			UserID:   &user.ID,
 			Platform: platform,
 		}
 		if viewerTrail != nil {

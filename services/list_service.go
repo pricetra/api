@@ -162,6 +162,31 @@ func (s Service) FindProductListWithProductId(
 	return product_list, nil
 }
 
+func (s Service) FindProductListsByUserAndProductId(
+	ctx context.Context,
+	user gmodel.User,
+	product_id int64,
+) (product_lists []gmodel.ProductList, err error) {
+	qb := table.ProductList.
+		SELECT(
+			table.ProductList.AllColumns,
+			table.List.Type.AS("product_list.list_type"),
+		).
+		FROM(
+			table.ProductList.
+				INNER_JOIN(table.List, table.List.ID.EQ(table.ProductList.ListID)),
+		).
+		WHERE(
+			table.ProductList.UserID.EQ(postgres.Int(user.ID)).
+			AND(table.ProductList.ProductID.EQ(postgres.Int(product_id))),
+		).
+		ORDER_BY(table.ProductList.CreatedAt.DESC())
+	if err = qb.QueryContext(ctx, s.DbOrTxQueryable(), &product_lists); err != nil {
+		return nil, err
+	}
+	return product_lists, nil
+}
+
 func (s Service) FindBranchListWithBranchId(
 	ctx context.Context,
 	user gmodel.User,

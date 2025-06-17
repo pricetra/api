@@ -19,6 +19,7 @@ type ProductList {
   userId: ID!
   listId: ID!
   list: List
+  type: ListType @goTag(key: "alias", value: "list_type")
   productId: ID!
   product: Product
   stock: Stock
