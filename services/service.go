@@ -8,6 +8,8 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/pricetra/api/types"
 	"googlemaps.github.io/maps"
+
+	expo "github.com/oliveroneill/exponent-server-sdk-golang/sdk"
 )
 
 type Service struct {
@@ -16,6 +18,7 @@ type Service struct {
 	StructValidator *validator.Validate
 	Tokens *types.Tokens
 	Cloudinary *cloudinary.Cloudinary
+	ExpoPushClient *expo.PushClient
 	GoogleMapsClient *maps.Client
 }
 

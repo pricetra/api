@@ -17,4 +17,5 @@ type Tokens struct {
 	Cloudinary CloudinaryTokens
 	UPCitemdbUserKey string
 	GoogleMapsApiKey string
+	ExpoPushNotificationClientKey string
 }
