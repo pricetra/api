@@ -412,22 +412,23 @@ type UpdatedByUser struct {
 }
 
 type User struct {
-	ID           int64             `json:"id" sql:"primary_key"`
-	CreatedAt    time.Time         `json:"createdAt"`
-	UpdatedAt    time.Time         `json:"updatedAt"`
-	Email        string            `json:"email"`
-	PhoneNumber  *string           `json:"phoneNumber,omitempty"`
-	Name         string            `json:"name"`
-	Avatar       *string           `json:"avatar,omitempty"`
-	BirthDate    *time.Time        `json:"birthDate,omitempty"`
-	Bio          *string           `json:"bio,omitempty"`
-	Active       bool              `json:"active"`
-	AuthPlatform *AuthPlatformType `json:"authPlatform,omitempty" alias:"auth_state.platform"`
-	AuthDevice   *AuthDeviceType   `json:"authDevice,omitempty" alias:"auth_state.device_type"`
-	AuthStateID  *int64            `json:"authStateId,omitempty" alias:"auth_state.id"`
-	Role         UserRole          `json:"role"`
-	AddressID    *int64            `json:"addressId,omitempty"`
-	Address      *Address          `json:"address,omitempty"`
+	ID            int64             `json:"id" sql:"primary_key"`
+	CreatedAt     time.Time         `json:"createdAt"`
+	UpdatedAt     time.Time         `json:"updatedAt"`
+	Email         string            `json:"email"`
+	PhoneNumber   *string           `json:"phoneNumber,omitempty"`
+	Name          string            `json:"name"`
+	Avatar        *string           `json:"avatar,omitempty"`
+	BirthDate     *time.Time        `json:"birthDate,omitempty"`
+	Bio           *string           `json:"bio,omitempty"`
+	Active        bool              `json:"active"`
+	AuthPlatform  *AuthPlatformType `json:"authPlatform,omitempty" alias:"auth_state.platform"`
+	AuthDevice    *AuthDeviceType   `json:"authDevice,omitempty" alias:"auth_state.device_type"`
+	AuthStateID   *int64            `json:"authStateId,omitempty" alias:"auth_state.id"`
+	ExpoPushToken *string           `json:"expoPushToken,omitempty" alias:"auth_state.expo_push_token"`
+	Role          UserRole          `json:"role"`
+	AddressID     *int64            `json:"addressId,omitempty"`
+	Address       *Address          `json:"address,omitempty"`
 }
 
 type UserFilter struct {
