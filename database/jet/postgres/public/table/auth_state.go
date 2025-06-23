@@ -17,12 +17,13 @@ type authStateTable struct {
 	postgres.Table
 
 	// Columns
-	ID         postgres.ColumnInteger
-	LoggedInAt postgres.ColumnTimestampz
-	UserID     postgres.ColumnInteger
-	IPAddress  postgres.ColumnString
-	Platform   postgres.ColumnString
-	DeviceType postgres.ColumnString
+	ID            postgres.ColumnInteger
+	LoggedInAt    postgres.ColumnTimestampz
+	UserID        postgres.ColumnInteger
+	IPAddress     postgres.ColumnString
+	Platform      postgres.ColumnString
+	DeviceType    postgres.ColumnString
+	ExpoPushToken postgres.ColumnString
 
 	AllColumns     postgres.ColumnList
 	MutableColumns postgres.ColumnList
@@ -63,26 +64,28 @@ func newAuthStateTable(schemaName, tableName, alias string) *AuthStateTable {
 
 func newAuthStateTableImpl(schemaName, tableName, alias string) authStateTable {
 	var (
-		IDColumn         = postgres.IntegerColumn("id")
-		LoggedInAtColumn = postgres.TimestampzColumn("logged_in_at")
-		UserIDColumn     = postgres.IntegerColumn("user_id")
-		IPAddressColumn  = postgres.StringColumn("ip_address")
-		PlatformColumn   = postgres.StringColumn("platform")
-		DeviceTypeColumn = postgres.StringColumn("device_type")
-		allColumns       = postgres.ColumnList{IDColumn, LoggedInAtColumn, UserIDColumn, IPAddressColumn, PlatformColumn, DeviceTypeColumn}
-		mutableColumns   = postgres.ColumnList{LoggedInAtColumn, UserIDColumn, IPAddressColumn, PlatformColumn, DeviceTypeColumn}
+		IDColumn            = postgres.IntegerColumn("id")
+		LoggedInAtColumn    = postgres.TimestampzColumn("logged_in_at")
+		UserIDColumn        = postgres.IntegerColumn("user_id")
+		IPAddressColumn     = postgres.StringColumn("ip_address")
+		PlatformColumn      = postgres.StringColumn("platform")
+		DeviceTypeColumn    = postgres.StringColumn("device_type")
+		ExpoPushTokenColumn = postgres.StringColumn("expo_push_token")
+		allColumns          = postgres.ColumnList{IDColumn, LoggedInAtColumn, UserIDColumn, IPAddressColumn, PlatformColumn, DeviceTypeColumn, ExpoPushTokenColumn}
+		mutableColumns      = postgres.ColumnList{LoggedInAtColumn, UserIDColumn, IPAddressColumn, PlatformColumn, DeviceTypeColumn, ExpoPushTokenColumn}
 	)
 
 	return authStateTable{
 		Table: postgres.NewTable(schemaName, tableName, alias, allColumns...),
 
 		//Columns
-		ID:         IDColumn,
-		LoggedInAt: LoggedInAtColumn,
-		UserID:     UserIDColumn,
-		IPAddress:  IPAddressColumn,
-		Platform:   PlatformColumn,
-		DeviceType: DeviceTypeColumn,
+		ID:            IDColumn,
+		LoggedInAt:    LoggedInAtColumn,
+		UserID:        UserIDColumn,
+		IPAddress:     IPAddressColumn,
+		Platform:      PlatformColumn,
+		DeviceType:    DeviceTypeColumn,
+		ExpoPushToken: ExpoPushTokenColumn,
 
 		AllColumns:     allColumns,
 		MutableColumns: mutableColumns,
