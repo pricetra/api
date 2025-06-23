@@ -12,6 +12,7 @@ extend type Mutation {
     code: String!
     newPassword: String!
   ): Boolean!
+  registerExpoPushToken(expoPushToken: String!): User! @isAuthenticated
 }
 
 extend type Query {

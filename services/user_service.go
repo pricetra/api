@@ -68,6 +68,7 @@ func (service Service) FindAuthUserById(ctx context.Context, user_id int64, auth
 			table.AuthState.ID,
 			table.AuthState.Platform,
 			table.AuthState.DeviceType,
+			table.AuthState.ExpoPushToken,
 			table.Address.AllColumns,
 			table.Country.Name,
 		).
@@ -812,4 +813,20 @@ func (s Service) ResetPassword(
 		return model.User{}, fmt.Errorf("could not complete transaction")
 	}
 	return user, nil
+}
+
+func (s Service) AddExpoPushTokenToAuthState(
+	ctx context.Context,
+	auth_state_id int64,
+	expo_push_token string,
+) error {
+	qb := table.AuthState.
+		UPDATE(table.AuthState.ExpoPushToken).
+		MODEL(model.AuthState{
+			ExpoPushToken: &expo_push_token,
+		}).
+		WHERE(table.AuthState.ID.EQ(postgres.Int(auth_state_id))).
+		RETURNING(table.AuthState.AllColumns)
+	var dest model.AuthState
+	return qb.QueryContext(ctx, s.DbOrTxQueryable(), &dest)
 }

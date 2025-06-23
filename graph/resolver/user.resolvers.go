@@ -140,6 +140,22 @@ func (r *mutationResolver) UpdatePasswordWithResetCode(ctx context.Context, emai
 	return true, nil
 }
 
+// RegisterExpoPushToken is the resolver for the registerExpoPushToken field.
+func (r *mutationResolver) RegisterExpoPushToken(ctx context.Context, expoPushToken string) (*gmodel.User, error) {
+	user := r.Service.GetAuthUserFromContext(ctx)
+	if user.AuthStateID == nil {
+		return nil, fmt.Errorf("no auth state attached to user")
+	}
+	if err := r.Service.AddExpoPushTokenToAuthState(ctx, *user.AuthStateID, expoPushToken); err != nil {
+		return nil, fmt.Errorf("could not register push token")
+	}
+	user, err := r.Service.FindAuthUserById(ctx, user.ID, *user.AuthStateID)
+	if err != nil {
+		return nil, fmt.Errorf("something went wrong")
+	}
+	return &user, nil
+}
+
 // Login is the resolver for the login field.
 func (r *queryResolver) Login(ctx context.Context, email string, password string, ipAddress *string, device *gmodel.AuthDeviceType) (*gmodel.Auth, error) {
 	var mapped_device model.AuthDeviceType
