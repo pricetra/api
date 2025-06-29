@@ -123,12 +123,10 @@ func (s Service) SendPriceChangePushNotifications(ctx context.Context, users []g
 	}
 	data := map[string]string{
 		"priceId": fmt.Sprint(new_price.ID),
-		"amount": fmt.Sprintf("$%.2f", new_price.Amount),
-		"prevAmount": fmt.Sprintf("$%.2f", old_price.Amount),
 		"productId": fmt.Sprint(product.ID),
-		"productTitle": product.Name,
-		"productBrand": product.Brand,
-		"productImageUrl": product.Image,
+		"stockId": fmt.Sprint(new_price.StockID),
+		"priceAmount": fmt.Sprintf("$%.2f", new_price.Amount),
+		"priceSale": fmt.Sprint(new_price.Sale),
 	}
 	res, err = s.ExpoPushClient.Publish(&expo.PushMessage{
 		To: push_tokens,
