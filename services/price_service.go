@@ -110,7 +110,6 @@ func (s Service) LatestPriceForProduct(ctx context.Context, product_id int64, br
 func (s Service) SendPriceChangePushNotifications(ctx context.Context, users []gmodel.User, new_price gmodel.Price, old_price gmodel.Price) (res expo.PushResponse, err error) {
 	push_tokens := make([]expo.ExponentPushToken, len(users))
 	for i := range users {
-		fmt.Println(users[i].Email)
 		if users[i].ExpoPushToken == nil {
 			return expo.PushResponse{}, fmt.Errorf("unexpected behavior. user did not have a push token")
 		}
