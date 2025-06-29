@@ -9,6 +9,8 @@ import (
 	"github.com/pricetra/api/database/jet/postgres/public/model"
 	"github.com/pricetra/api/database/jet/postgres/public/table"
 	"github.com/pricetra/api/graph/gmodel"
+
+	expo "github.com/oliveroneill/exponent-server-sdk-golang/sdk"
 )
 
 func (s Service) CreatePrice(ctx context.Context, user gmodel.User, input gmodel.CreatePrice) (price gmodel.Price, err error) {
@@ -103,4 +105,44 @@ func (s Service) LatestPriceForProduct(ctx context.Context, product_id int64, br
 		return gmodel.Price{}, err
 	}
 	return price, nil
+}
+
+func (s Service) SendPriceChangePushNotifications(ctx context.Context, users []gmodel.User, new_price gmodel.Price, old_price gmodel.Price) (res expo.PushResponse, err error) {
+	push_tokens := make([]expo.ExponentPushToken, len(users))
+	for i := range users {
+		fmt.Println(users[i].Email)
+		if users[i].ExpoPushToken == nil {
+			return expo.PushResponse{}, fmt.Errorf("unexpected behavior. user did not have a push token")
+		}
+		push_tokens[i] = expo.ExponentPushToken(*users[i].ExpoPushToken)
+	}
+
+	product, err := s.FindProductById(ctx, new_price.ProductID)
+	if err != nil {
+		return expo.PushResponse{}, err
+	}
+	data := map[string]string{
+		"priceId": fmt.Sprint(new_price.ID),
+		"amount": fmt.Sprintf("$%.2f", new_price.Amount),
+		"prevAmount": fmt.Sprintf("$%.2f", old_price.Amount),
+		"productId": fmt.Sprint(product.ID),
+		"productTitle": product.Name,
+		"productBrand": product.Brand,
+		"productImageUrl": product.Image,
+	}
+	res, err = s.ExpoPushClient.Publish(&expo.PushMessage{
+		To: push_tokens,
+		Badge: 0,
+		Body: fmt.Sprintf(
+			"%s was updated from $%.2f to $%.2f",
+			product.Name,
+			old_price.Amount,
+			new_price.Amount,
+		),
+		Data: data,
+	})
+	if err != nil {
+		return expo.PushResponse{}, err
+	}
+	return res, nil
 }

@@ -6,11 +6,9 @@ package gresolver
 
 import (
 	"context"
-	"fmt"
 	"log"
 
 	"github.com/go-jet/jet/v2/postgres"
-	expo "github.com/oliveroneill/exponent-server-sdk-golang/sdk"
 	"github.com/pricetra/api/database/jet/postgres/public/model"
 	"github.com/pricetra/api/database/jet/postgres/public/table"
 	"github.com/pricetra/api/graph/gmodel"
@@ -70,36 +68,9 @@ func (r *mutationResolver) CreatePrice(ctx context.Context, input gmodel.CreateP
 			log.Println(err)
 			return
 		}
-		push_tokens := make([]expo.ExponentPushToken, len(users))
-		for i := range users {
-			fmt.Println(users[i].Email)
-			if users[i].ExpoPushToken == nil {
-				log.Println("unexpected behavior. user did not have a push token")
-				return
-			}
-			push_tokens[i] = expo.ExponentPushToken(*users[i].ExpoPushToken)
-		}
-		product, err := r.Service.FindProductById(ctx, price.ProductID)
-		if err != nil {
-			return
-		}
-		data := map[string]string{
-			"priceId": fmt.Sprint(price.ID),
-			"amount": fmt.Sprintf("$%.2f", price.Amount),
-			"prevAmount": fmt.Sprintf("$%.2f", old_price.Amount),
-			"productId": fmt.Sprint(product.ID),
-			"productTitle": product.Name,
-			"productBrand": product.Brand,
-			"productImageUrl": product.Image,
-		}
-		_, err = r.Service.ExpoPushClient.Publish(&expo.PushMessage{
-			To: push_tokens,
-			Badge: 0,
-			Body: fmt.Sprintf("%s was updated to $%.2f", product.Name, price.Amount),
-			Data: data,
-		})
-		if err != nil {
-			fmt.Printf("Error: %s", err.Error())
+		
+		if _, err := r.Service.SendPriceChangePushNotifications(ctx, users, price, old_price); err != nil {
+			log.Println("Push notification error: ", err.Error())
 			return
 		}
 	}()
