@@ -39,3 +39,15 @@ func GetJwtClaims(jwt_token string, key string) (jwt.MapClaims, error) {
 	}
 	return claims, nil
 }
+
+func StructToMap[T any](v any) (dest map[string]T, err error) {
+	jsonBytes, err := json.Marshal(v)
+	if err != nil {
+		return nil, err
+	}
+
+	if err = json.Unmarshal(jsonBytes, &dest); err != nil {
+		return nil, err
+	}
+	return dest, nil
+}

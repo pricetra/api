@@ -6,8 +6,13 @@ package gresolver
 
 import (
 	"context"
+	"fmt"
+	"log"
 
+	"github.com/go-jet/jet/v2/postgres"
+	expo "github.com/oliveroneill/exponent-server-sdk-golang/sdk"
 	"github.com/pricetra/api/database/jet/postgres/public/model"
+	"github.com/pricetra/api/database/jet/postgres/public/table"
 	"github.com/pricetra/api/graph/gmodel"
 )
 
@@ -22,12 +27,81 @@ func (r *mutationResolver) CreatePrice(ctx context.Context, input gmodel.CreateP
 	if err != nil {
 		return nil, err
 	}
-	price_enum := model.ProductBillingType_Price
 
+	price_enum := model.ProductBillingType_Price
 	if old_price_err != nil {
 		r.Service.CreateProductBilling(ctx, user, price_enum, *price.Product, input, nil)
 	} else {
 		r.Service.CreateProductBilling(ctx, user, price_enum, *price.Product, input, old_price)
 	}
+
+	// Send push notification to users
+	go func() {
+		ctx := context.Background()
+		qb := table.ProductList.
+			SELECT(table.User.AllColumns, table.AuthState.AllColumns).
+			FROM(
+				table.ProductList.
+					INNER_JOIN(table.List, 
+						table.List.ID.EQ(table.ProductList.ListID).
+							AND(table.List.Type.EQ(
+								postgres.NewEnumValue(model.ListType_WatchList.String()),
+							)),
+					).
+					INNER_JOIN(table.Product, table.Product.ID.EQ(table.ProductList.ProductID)).
+					INNER_JOIN(table.Stock, table.Stock.ID.EQ(table.ProductList.StockID)).
+					INNER_JOIN(table.User, table.User.ID.EQ(table.ProductList.UserID)).
+					INNER_JOIN(table.AuthState, 
+						table.AuthState.UserID.EQ(table.User.ID).
+							AND(table.AuthState.LoggedInAt.GT_EQ(
+								postgres.NOW().SUB(postgres.INTERVAL(30, postgres.DAY)),
+							)),
+					),
+			).
+			WHERE(
+				table.Product.ID.EQ(postgres.Int(input.ProductID)).
+					AND(table.Stock.ID.EQ(postgres.Int(price.StockID))).
+					AND(table.User.ID.NOT_EQ(postgres.Int(user.ID))).
+					AND(table.AuthState.ExpoPushToken.IS_NOT_NULL()),
+			).
+			ORDER_BY(table.ProductList.CreatedAt.ASC())
+		var users []gmodel.User
+		if err := qb.QueryContext(ctx, r.Service.DB, &users); err != nil {
+			log.Println(err)
+			return
+		}
+		push_tokens := make([]expo.ExponentPushToken, len(users))
+		for i := range users {
+			fmt.Println(users[i].Email)
+			if users[i].ExpoPushToken == nil {
+				log.Println("unexpected behavior. user did not have a push token")
+				return
+			}
+			push_tokens[i] = expo.ExponentPushToken(*users[i].ExpoPushToken)
+		}
+		product, err := r.Service.FindProductById(ctx, price.ProductID)
+		if err != nil {
+			return
+		}
+		data := map[string]string{
+			"priceId": fmt.Sprint(price.ID),
+			"amount": fmt.Sprintf("$%.2f", price.Amount),
+			"prevAmount": fmt.Sprintf("$%.2f", old_price.Amount),
+			"productId": fmt.Sprint(product.ID),
+			"productTitle": product.Name,
+			"productBrand": product.Brand,
+			"productImageUrl": product.Image,
+		}
+		_, err = r.Service.ExpoPushClient.Publish(&expo.PushMessage{
+			To: push_tokens,
+			Badge: 0,
+			Body: fmt.Sprintf("%s was updated to $%.2f", product.Name, price.Amount),
+			Data: data,
+		})
+		if err != nil {
+			fmt.Printf("Error: %s", err.Error())
+			return
+		}
+	}()
 	return &price, nil
 }
