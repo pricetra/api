@@ -108,6 +108,10 @@ func (s Service) LatestPriceForProduct(ctx context.Context, product_id int64, br
 }
 
 func (s Service) SendPriceChangePushNotifications(ctx context.Context, users []gmodel.User, new_price gmodel.Price, old_price gmodel.Price) (res expo.PushResponse, err error) {
+	if len(users) == 0 {
+		return res, nil
+	}
+
 	var push_tokens []expo.ExponentPushToken
 	for i := range users {
 		if users[i].ExpoPushToken == nil {
