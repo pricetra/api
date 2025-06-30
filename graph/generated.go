@@ -175,6 +175,7 @@ type ComplexityRoot struct {
 		CreateStore                 func(childComplexity int, input gmodel.CreateStore) int
 		DeleteList                  func(childComplexity int, listID int64) int
 		Logout                      func(childComplexity int) int
+		RegisterExpoPushToken       func(childComplexity int, expoPushToken string) int
 		RemoveBranchFromList        func(childComplexity int, listID int64, branchListID int64) int
 		RemoveFromList              func(childComplexity int, listID int64, productListID int64) int
 		RemoveFromListWithProductID func(childComplexity int, listID int64, productID int64) int
@@ -357,22 +358,23 @@ type ComplexityRoot struct {
 	}
 
 	User struct {
-		Active       func(childComplexity int) int
-		Address      func(childComplexity int) int
-		AddressID    func(childComplexity int) int
-		AuthDevice   func(childComplexity int) int
-		AuthPlatform func(childComplexity int) int
-		AuthStateID  func(childComplexity int) int
-		Avatar       func(childComplexity int) int
-		Bio          func(childComplexity int) int
-		BirthDate    func(childComplexity int) int
-		CreatedAt    func(childComplexity int) int
-		Email        func(childComplexity int) int
-		ID           func(childComplexity int) int
-		Name         func(childComplexity int) int
-		PhoneNumber  func(childComplexity int) int
-		Role         func(childComplexity int) int
-		UpdatedAt    func(childComplexity int) int
+		Active        func(childComplexity int) int
+		Address       func(childComplexity int) int
+		AddressID     func(childComplexity int) int
+		AuthDevice    func(childComplexity int) int
+		AuthPlatform  func(childComplexity int) int
+		AuthStateID   func(childComplexity int) int
+		Avatar        func(childComplexity int) int
+		Bio           func(childComplexity int) int
+		BirthDate     func(childComplexity int) int
+		CreatedAt     func(childComplexity int) int
+		Email         func(childComplexity int) int
+		ExpoPushToken func(childComplexity int) int
+		ID            func(childComplexity int) int
+		Name          func(childComplexity int) int
+		PhoneNumber   func(childComplexity int) int
+		Role          func(childComplexity int) int
+		UpdatedAt     func(childComplexity int) int
 	}
 
 	UserShallow struct {
@@ -408,6 +410,7 @@ type MutationResolver interface {
 	UpdateUserByID(ctx context.Context, userID string, input gmodel.UpdateUserFull) (*gmodel.User, error)
 	RequestPasswordReset(ctx context.Context, email string) (bool, error)
 	UpdatePasswordWithResetCode(ctx context.Context, email string, code string, newPassword string) (bool, error)
+	RegisterExpoPushToken(ctx context.Context, expoPushToken string) (*gmodel.User, error)
 }
 type QueryResolver interface {
 	MyProductBillingData(ctx context.Context, paginator gmodel.PaginatorInput) (*gmodel.PaginatedProductBilling, error)
@@ -1135,6 +1138,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.Logout(childComplexity), true
+
+	case "Mutation.registerExpoPushToken":
+		if e.complexity.Mutation.RegisterExpoPushToken == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_registerExpoPushToken_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.RegisterExpoPushToken(childComplexity, args["expoPushToken"].(string)), true
 
 	case "Mutation.removeBranchFromList":
 		if e.complexity.Mutation.RemoveBranchFromList == nil {
@@ -2338,6 +2353,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.User.Email(childComplexity), true
 
+	case "User.expoPushToken":
+		if e.complexity.User.ExpoPushToken == nil {
+			break
+		}
+
+		return e.complexity.User.ExpoPushToken(childComplexity), true
+
 	case "User.id":
 		if e.complexity.User.ID == nil {
 			break
@@ -2792,6 +2814,21 @@ func (ec *executionContext) field_Mutation_deleteList_args(ctx context.Context, 
 		}
 	}
 	args["listId"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_registerExpoPushToken_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["expoPushToken"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("expoPushToken"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["expoPushToken"] = arg0
 	return args, nil
 }
 
@@ -4446,6 +4483,8 @@ func (ec *executionContext) fieldContext_Auth_user(ctx context.Context, field gr
 				return ec.fieldContext_User_authDevice(ctx, field)
 			case "authStateId":
 				return ec.fieldContext_User_authStateId(ctx, field)
+			case "expoPushToken":
+				return ec.fieldContext_User_expoPushToken(ctx, field)
 			case "role":
 				return ec.fieldContext_User_role(ctx, field)
 			case "addressId":
@@ -8707,6 +8746,8 @@ func (ec *executionContext) fieldContext_Mutation_createAccount(ctx context.Cont
 				return ec.fieldContext_User_authDevice(ctx, field)
 			case "authStateId":
 				return ec.fieldContext_User_authStateId(ctx, field)
+			case "expoPushToken":
+				return ec.fieldContext_User_expoPushToken(ctx, field)
 			case "role":
 				return ec.fieldContext_User_role(ctx, field)
 			case "addressId":
@@ -8796,6 +8837,8 @@ func (ec *executionContext) fieldContext_Mutation_verifyEmail(ctx context.Contex
 				return ec.fieldContext_User_authDevice(ctx, field)
 			case "authStateId":
 				return ec.fieldContext_User_authStateId(ctx, field)
+			case "expoPushToken":
+				return ec.fieldContext_User_expoPushToken(ctx, field)
 			case "role":
 				return ec.fieldContext_User_role(ctx, field)
 			case "addressId":
@@ -8960,6 +9003,8 @@ func (ec *executionContext) fieldContext_Mutation_updateProfile(ctx context.Cont
 				return ec.fieldContext_User_authDevice(ctx, field)
 			case "authStateId":
 				return ec.fieldContext_User_authStateId(ctx, field)
+			case "expoPushToken":
+				return ec.fieldContext_User_expoPushToken(ctx, field)
 			case "role":
 				return ec.fieldContext_User_role(ctx, field)
 			case "addressId":
@@ -9137,6 +9182,8 @@ func (ec *executionContext) fieldContext_Mutation_updateUserById(ctx context.Con
 				return ec.fieldContext_User_authDevice(ctx, field)
 			case "authStateId":
 				return ec.fieldContext_User_authStateId(ctx, field)
+			case "expoPushToken":
+				return ec.fieldContext_User_expoPushToken(ctx, field)
 			case "role":
 				return ec.fieldContext_User_role(ctx, field)
 			case "addressId":
@@ -9265,6 +9312,117 @@ func (ec *executionContext) fieldContext_Mutation_updatePasswordWithResetCode(ct
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_updatePasswordWithResetCode_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_registerExpoPushToken(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_registerExpoPushToken(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().RegisterExpoPushToken(rctx, fc.Args["expoPushToken"].(string))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.IsAuthenticated == nil {
+				return nil, errors.New("directive isAuthenticated is not implemented")
+			}
+			return ec.directives.IsAuthenticated(ctx, nil, directive0, nil)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*gmodel.User); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/pricetra/api/graph/gmodel.User`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*gmodel.User)
+	fc.Result = res
+	return ec.marshalNUser2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐUser(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_registerExpoPushToken(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_User_id(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_User_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_User_updatedAt(ctx, field)
+			case "email":
+				return ec.fieldContext_User_email(ctx, field)
+			case "phoneNumber":
+				return ec.fieldContext_User_phoneNumber(ctx, field)
+			case "name":
+				return ec.fieldContext_User_name(ctx, field)
+			case "avatar":
+				return ec.fieldContext_User_avatar(ctx, field)
+			case "birthDate":
+				return ec.fieldContext_User_birthDate(ctx, field)
+			case "bio":
+				return ec.fieldContext_User_bio(ctx, field)
+			case "active":
+				return ec.fieldContext_User_active(ctx, field)
+			case "authPlatform":
+				return ec.fieldContext_User_authPlatform(ctx, field)
+			case "authDevice":
+				return ec.fieldContext_User_authDevice(ctx, field)
+			case "authStateId":
+				return ec.fieldContext_User_authStateId(ctx, field)
+			case "expoPushToken":
+				return ec.fieldContext_User_expoPushToken(ctx, field)
+			case "role":
+				return ec.fieldContext_User_role(ctx, field)
+			case "addressId":
+				return ec.fieldContext_User_addressId(ctx, field)
+			case "address":
+				return ec.fieldContext_User_address(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_registerExpoPushToken_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -9608,6 +9766,8 @@ func (ec *executionContext) fieldContext_PaginatedUsers_users(ctx context.Contex
 				return ec.fieldContext_User_authDevice(ctx, field)
 			case "authStateId":
 				return ec.fieldContext_User_authStateId(ctx, field)
+			case "expoPushToken":
+				return ec.fieldContext_User_expoPushToken(ctx, field)
 			case "role":
 				return ec.fieldContext_User_role(ctx, field)
 			case "addressId":
@@ -14864,6 +15024,8 @@ func (ec *executionContext) fieldContext_Query_me(ctx context.Context, field gra
 				return ec.fieldContext_User_authDevice(ctx, field)
 			case "authStateId":
 				return ec.fieldContext_User_authStateId(ctx, field)
+			case "expoPushToken":
+				return ec.fieldContext_User_expoPushToken(ctx, field)
 			case "role":
 				return ec.fieldContext_User_role(ctx, field)
 			case "addressId":
@@ -17146,6 +17308,47 @@ func (ec *executionContext) fieldContext_User_authStateId(ctx context.Context, f
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _User_expoPushToken(ctx context.Context, field graphql.CollectedField, obj *gmodel.User) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_User_expoPushToken(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ExpoPushToken, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_User_expoPushToken(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "User",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -21198,6 +21401,13 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "registerExpoPushToken":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_registerExpoPushToken(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -22609,6 +22819,8 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 			out.Values[i] = ec._User_authDevice(ctx, field, obj)
 		case "authStateId":
 			out.Values[i] = ec._User_authStateId(ctx, field, obj)
+		case "expoPushToken":
+			out.Values[i] = ec._User_expoPushToken(ctx, field, obj)
 		case "role":
 			out.Values[i] = ec._User_role(ctx, field, obj)
 			if out.Values[i] == graphql.Null {

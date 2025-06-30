@@ -10,6 +10,7 @@ import (
 	"github.com/cloudinary/cloudinary-go/v2"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-playground/validator/v10"
+	expo "github.com/oliveroneill/exponent-server-sdk-golang/sdk"
 	"github.com/pricetra/api/graph"
 	gresolver "github.com/pricetra/api/graph/resolver"
 	"github.com/pricetra/api/services"
@@ -47,6 +48,7 @@ func NewServer(db_conn *sql.DB, router *chi.Mux) *types.ServerBase {
 		},
 		UPCitemdbUserKey: os.Getenv("UPCITEMDB_USER_KEY"),
 		GoogleMapsApiKey: os.Getenv("GOOGLE_MAPS_API_KEY"),
+		ExpoPushNotificationClientKey: os.Getenv("EXPO_PUSH_NOTIFICATION_CLIENT_KEY"),
 	}
 
 	// Setup Cloudinary CDN
@@ -71,6 +73,9 @@ func NewServer(db_conn *sql.DB, router *chi.Mux) *types.ServerBase {
 		Tokens: server.Tokens,
 		Cloudinary: cloudinary,
 		GoogleMapsClient: maps_client,
+		ExpoPushClient: expo.NewPushClient(&expo.ClientConfig{
+			AccessToken: server.Tokens.ExpoPushNotificationClientKey,
+		}),
 	}
 
 	// Startup utils...

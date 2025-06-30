@@ -12,6 +12,7 @@ extend type Mutation {
     code: String!
     newPassword: String!
   ): Boolean!
+  registerExpoPushToken(expoPushToken: String!): User! @isAuthenticated
 }
 
 extend type Query {
@@ -110,6 +111,7 @@ type User {
   authDevice: AuthDeviceType
     @goTag(key: "alias", value: "auth_state.device_type")
   authStateId: ID @goTag(key: "alias", value: "auth_state.id")
+  expoPushToken: String @goTag(key: "alias", value: "auth_state.expo_push_token")
   role: UserRole!
   addressId: ID
   address: Address

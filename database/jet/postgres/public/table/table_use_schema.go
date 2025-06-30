@@ -28,6 +28,7 @@ func UseSchema(schema string) {
 	ProductBillingRate = ProductBillingRate.FromSchema(schema)
 	ProductList = ProductList.FromSchema(schema)
 	ProductView = ProductView.FromSchema(schema)
+	PushNotification = PushNotification.FromSchema(schema)
 	SpatialRefSys = SpatialRefSys.FromSchema(schema)
 	Stock = Stock.FromSchema(schema)
 	Store = Store.FromSchema(schema)
