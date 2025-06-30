@@ -98,36 +98,58 @@ func (s Service) FindBranchById(ctx context.Context, id int64) (branch gmodel.Br
 	return branch, err
 }
 
-func (s Service) FindBranchesByStoreId(ctx context.Context, store_id int64, location *gmodel.LocationInput) (branches []gmodel.Branch, err error) {
+func (s Service) FindBranchesByStoreId(
+	ctx context.Context,
+	store_id int64,
+	paginator_input gmodel.PaginatorInput,
+	search *string,
+	location *gmodel.LocationInput,
+) (branches gmodel.PaginatedBranches, err error) {
 	created_user_table, updated_user_table, user_cols := s.CreatedAndUpdatedUserTable()
+	tables := table.Branch.
+		INNER_JOIN(table.Address, table.Address.ID.EQ(table.Branch.AddressID)).
+		INNER_JOIN(table.Country, table.Country.Code.EQ(table.Address.CountryCode)).
+		LEFT_JOIN(created_user_table, created_user_table.ID.EQ(table.Branch.CreatedByID)).
+		LEFT_JOIN(updated_user_table, updated_user_table.ID.EQ(table.Branch.UpdatedByID))
+
 	columns := []postgres.Projection{
 		table.Address.AllColumns,
 		table.Country.Name,
 	}
 	columns = append(columns, user_cols...)
+
 	where_clause := table.Branch.StoreID.EQ(postgres.Int(store_id))
 	order_by := []postgres.OrderByClause{}
+	if search != nil {
+		full_text_components := s.BuildFullTextSearchQueryComponents(*search)
+		columns = append(columns, full_text_components.RankColumn)
+		where_clause = where_clause.AND(full_text_components.WhereClause)
+		order_by = append(order_by, full_text_components.OrderByClause.DESC())
+	}
 	if location != nil {
 		dist := s.GetDistanceCols(location.Latitude, location.Longitude, location.RadiusMeters)
 		columns = append(columns, dist.DistanceColumn)
 		order_by = append(order_by, postgres.FloatColumn(dist.DistanceColumnName).ASC())
 		where_clause = where_clause.AND(dist.DistanceWhereClauseWithRadius)
 	}
+
+	sql_paginator, err := s.Paginate(ctx, paginator_input, tables, table.Product.ID, where_clause)
+	if err != nil {
+		// Return empty result
+		return gmodel.PaginatedBranches{
+			Branches: []*gmodel.Branch{},
+			Paginator: &gmodel.Paginator{},
+		}, nil
+	}
+
 	order_by = append(order_by, table.Branch.CreatedAt.DESC())
 	qb := table.Branch.
-		SELECT(
-			table.Branch.AllColumns,
-			columns...,
-		).
-		FROM(
-			table.Branch.
-				INNER_JOIN(table.Address, table.Address.ID.EQ(table.Branch.AddressID)).
-				INNER_JOIN(table.Country, table.Country.Code.EQ(table.Address.CountryCode)).
-				LEFT_JOIN(created_user_table, created_user_table.ID.EQ(table.Branch.CreatedByID)).
-				LEFT_JOIN(updated_user_table, updated_user_table.ID.EQ(table.Branch.UpdatedByID)),
-		).
+		SELECT(table.Branch.AllColumns, columns...).
+		FROM(tables).
 		WHERE(where_clause).
-		ORDER_BY(order_by...)
+		ORDER_BY(order_by...).
+		LIMIT(int64(sql_paginator.Limit)).
+		OFFSET(int64(sql_paginator.Offset))
 	err = qb.QueryContext(ctx, s.DbOrTxQueryable(), &branches)
 	return branches, err
 }

@@ -206,6 +206,11 @@ type LocationInput struct {
 type Mutation struct {
 }
 
+type PaginatedBranches struct {
+	Branches  []*Branch  `json:"branches"`
+	Paginator *Paginator `json:"paginator"`
+}
+
 type PaginatedProductBilling struct {
 	Data      []*ProductBilling `json:"data"`
 	Paginator *Paginator        `json:"paginator"`

@@ -190,6 +190,11 @@ type ComplexityRoot struct {
 		VerifyEmail                 func(childComplexity int, verificationCode string) int
 	}
 
+	PaginatedBranches struct {
+		Branches  func(childComplexity int) int
+		Paginator func(childComplexity int) int
+	}
+
 	PaginatedProductBilling struct {
 		Data      func(childComplexity int) int
 		Paginator func(childComplexity int) int
@@ -292,7 +297,7 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		AllBranches                   func(childComplexity int, storeID int64, location *gmodel.LocationInput) int
+		AllBranches                   func(childComplexity int, storeID int64, paginator gmodel.PaginatorInput, search *string, location *gmodel.LocationInput) int
 		AllBrands                     func(childComplexity int) int
 		AllProducts                   func(childComplexity int, paginator gmodel.PaginatorInput, search *gmodel.ProductSearch) int
 		AllStores                     func(childComplexity int) int
@@ -416,7 +421,7 @@ type MutationResolver interface {
 type QueryResolver interface {
 	MyProductBillingData(ctx context.Context, paginator gmodel.PaginatorInput) (*gmodel.PaginatedProductBilling, error)
 	ProductBillingDataByUserID(ctx context.Context, userID int64, paginator gmodel.PaginatorInput) (*gmodel.PaginatedProductBilling, error)
-	AllBranches(ctx context.Context, storeID int64, location *gmodel.LocationInput) ([]*gmodel.Branch, error)
+	AllBranches(ctx context.Context, storeID int64, paginator gmodel.PaginatorInput, search *string, location *gmodel.LocationInput) (*gmodel.PaginatedBranches, error)
 	FindBranch(ctx context.Context, storeID int64, id int64) (*gmodel.Branch, error)
 	FindBranchesByDistance(ctx context.Context, lat float64, lon float64, radiusMeters int) ([]*gmodel.Branch, error)
 	GetCategories(ctx context.Context, depth *int, parentID *int64) ([]*gmodel.Category, error)
@@ -1291,6 +1296,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.VerifyEmail(childComplexity, args["verificationCode"].(string)), true
 
+	case "PaginatedBranches.branches":
+		if e.complexity.PaginatedBranches.Branches == nil {
+			break
+		}
+
+		return e.complexity.PaginatedBranches.Branches(childComplexity), true
+
+	case "PaginatedBranches.paginator":
+		if e.complexity.PaginatedBranches.Paginator == nil {
+			break
+		}
+
+		return e.complexity.PaginatedBranches.Paginator(childComplexity), true
+
 	case "PaginatedProductBilling.data":
 		if e.complexity.PaginatedProductBilling.Data == nil {
 			break
@@ -1840,7 +1859,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.AllBranches(childComplexity, args["storeId"].(int64), args["location"].(*gmodel.LocationInput)), true
+		return e.complexity.Query.AllBranches(childComplexity, args["storeId"].(int64), args["paginator"].(gmodel.PaginatorInput), args["search"].(*string), args["location"].(*gmodel.LocationInput)), true
 
 	case "Query.allBrands":
 		if e.complexity.Query.AllBrands == nil {
@@ -3095,15 +3114,33 @@ func (ec *executionContext) field_Query_allBranches_args(ctx context.Context, ra
 		}
 	}
 	args["storeId"] = arg0
-	var arg1 *gmodel.LocationInput
-	if tmp, ok := rawArgs["location"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("location"))
-		arg1, err = ec.unmarshalOLocationInput2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐLocationInput(ctx, tmp)
+	var arg1 gmodel.PaginatorInput
+	if tmp, ok := rawArgs["paginator"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("paginator"))
+		arg1, err = ec.unmarshalNPaginatorInput2githubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐPaginatorInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["location"] = arg1
+	args["paginator"] = arg1
+	var arg2 *string
+	if tmp, ok := rawArgs["search"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("search"))
+		arg2, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["search"] = arg2
+	var arg3 *gmodel.LocationInput
+	if tmp, ok := rawArgs["location"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("location"))
+		arg3, err = ec.unmarshalOLocationInput2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐLocationInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["location"] = arg3
 	return args, nil
 }
 
@@ -9480,6 +9517,130 @@ func (ec *executionContext) fieldContext_Mutation_registerExpoPushToken(ctx cont
 	return fc, nil
 }
 
+func (ec *executionContext) _PaginatedBranches_branches(ctx context.Context, field graphql.CollectedField, obj *gmodel.PaginatedBranches) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PaginatedBranches_branches(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Branches, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*gmodel.Branch)
+	fc.Result = res
+	return ec.marshalNBranch2ᚕᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐBranchᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PaginatedBranches_branches(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PaginatedBranches",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Branch_id(ctx, field)
+			case "name":
+				return ec.fieldContext_Branch_name(ctx, field)
+			case "addressId":
+				return ec.fieldContext_Branch_addressId(ctx, field)
+			case "address":
+				return ec.fieldContext_Branch_address(ctx, field)
+			case "storeId":
+				return ec.fieldContext_Branch_storeId(ctx, field)
+			case "store":
+				return ec.fieldContext_Branch_store(ctx, field)
+			case "createdById":
+				return ec.fieldContext_Branch_createdById(ctx, field)
+			case "createdBy":
+				return ec.fieldContext_Branch_createdBy(ctx, field)
+			case "updatedById":
+				return ec.fieldContext_Branch_updatedById(ctx, field)
+			case "updatedBy":
+				return ec.fieldContext_Branch_updatedBy(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Branch", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PaginatedBranches_paginator(ctx context.Context, field graphql.CollectedField, obj *gmodel.PaginatedBranches) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PaginatedBranches_paginator(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Paginator, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*gmodel.Paginator)
+	fc.Result = res
+	return ec.marshalNPaginator2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐPaginator(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PaginatedBranches_paginator(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PaginatedBranches",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "next":
+				return ec.fieldContext_Paginator_next(ctx, field)
+			case "page":
+				return ec.fieldContext_Paginator_page(ctx, field)
+			case "prev":
+				return ec.fieldContext_Paginator_prev(ctx, field)
+			case "total":
+				return ec.fieldContext_Paginator_total(ctx, field)
+			case "limit":
+				return ec.fieldContext_Paginator_limit(ctx, field)
+			case "numPages":
+				return ec.fieldContext_Paginator_numPages(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Paginator", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _PaginatedProductBilling_data(ctx context.Context, field graphql.CollectedField, obj *gmodel.PaginatedProductBilling) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_PaginatedProductBilling_data(ctx, field)
 	if err != nil {
@@ -13475,7 +13636,7 @@ func (ec *executionContext) _Query_allBranches(ctx context.Context, field graphq
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		directive0 := func(rctx context.Context) (interface{}, error) {
 			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Query().AllBranches(rctx, fc.Args["storeId"].(int64), fc.Args["location"].(*gmodel.LocationInput))
+			return ec.resolvers.Query().AllBranches(rctx, fc.Args["storeId"].(int64), fc.Args["paginator"].(gmodel.PaginatorInput), fc.Args["search"].(*string), fc.Args["location"].(*gmodel.LocationInput))
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
 			if ec.directives.IsAuthenticated == nil {
@@ -13491,10 +13652,10 @@ func (ec *executionContext) _Query_allBranches(ctx context.Context, field graphq
 		if tmp == nil {
 			return nil, nil
 		}
-		if data, ok := tmp.([]*gmodel.Branch); ok {
+		if data, ok := tmp.(*gmodel.PaginatedBranches); ok {
 			return data, nil
 		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*github.com/pricetra/api/graph/gmodel.Branch`, tmp)
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/pricetra/api/graph/gmodel.PaginatedBranches`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -13506,9 +13667,9 @@ func (ec *executionContext) _Query_allBranches(ctx context.Context, field graphq
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*gmodel.Branch)
+	res := resTmp.(*gmodel.PaginatedBranches)
 	fc.Result = res
-	return ec.marshalNBranch2ᚕᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐBranchᚄ(ctx, field.Selections, res)
+	return ec.marshalNPaginatedBranches2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐPaginatedBranches(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_allBranches(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -13519,28 +13680,12 @@ func (ec *executionContext) fieldContext_Query_allBranches(ctx context.Context, 
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "id":
-				return ec.fieldContext_Branch_id(ctx, field)
-			case "name":
-				return ec.fieldContext_Branch_name(ctx, field)
-			case "addressId":
-				return ec.fieldContext_Branch_addressId(ctx, field)
-			case "address":
-				return ec.fieldContext_Branch_address(ctx, field)
-			case "storeId":
-				return ec.fieldContext_Branch_storeId(ctx, field)
-			case "store":
-				return ec.fieldContext_Branch_store(ctx, field)
-			case "createdById":
-				return ec.fieldContext_Branch_createdById(ctx, field)
-			case "createdBy":
-				return ec.fieldContext_Branch_createdBy(ctx, field)
-			case "updatedById":
-				return ec.fieldContext_Branch_updatedById(ctx, field)
-			case "updatedBy":
-				return ec.fieldContext_Branch_updatedBy(ctx, field)
+			case "branches":
+				return ec.fieldContext_PaginatedBranches_branches(ctx, field)
+			case "paginator":
+				return ec.fieldContext_PaginatedBranches_paginator(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type Branch", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type PaginatedBranches", field.Name)
 		},
 	}
 	defer func() {
@@ -21493,6 +21638,50 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 	return out
 }
 
+var paginatedBranchesImplementors = []string{"PaginatedBranches"}
+
+func (ec *executionContext) _PaginatedBranches(ctx context.Context, sel ast.SelectionSet, obj *gmodel.PaginatedBranches) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, paginatedBranchesImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("PaginatedBranches")
+		case "branches":
+			out.Values[i] = ec._PaginatedBranches_branches(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "paginator":
+			out.Values[i] = ec._PaginatedBranches_paginator(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var paginatedProductBillingImplementors = []string{"PaginatedProductBilling"}
 
 func (ec *executionContext) _PaginatedProductBilling(ctx context.Context, sel ast.SelectionSet, obj *gmodel.PaginatedProductBilling) graphql.Marshaler {
@@ -23943,6 +24132,20 @@ func (ec *executionContext) unmarshalNListType2githubᚗcomᚋpricetraᚋapiᚋg
 
 func (ec *executionContext) marshalNListType2githubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐListType(ctx context.Context, sel ast.SelectionSet, v gmodel.ListType) graphql.Marshaler {
 	return v
+}
+
+func (ec *executionContext) marshalNPaginatedBranches2githubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐPaginatedBranches(ctx context.Context, sel ast.SelectionSet, v gmodel.PaginatedBranches) graphql.Marshaler {
+	return ec._PaginatedBranches(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNPaginatedBranches2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐPaginatedBranches(ctx context.Context, sel ast.SelectionSet, v *gmodel.PaginatedBranches) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._PaginatedBranches(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNPaginatedProductBilling2githubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐPaginatedProductBilling(ctx context.Context, sel ast.SelectionSet, v gmodel.PaginatedProductBilling) graphql.Marshaler {
