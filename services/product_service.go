@@ -220,7 +220,7 @@ func (s Service) PaginatedProducts(ctx context.Context, paginator_input gmodel.P
 		if search.Query != nil {
 			query := strings.TrimSpace(*search.Query)
 			if query != "" {
-				full_text_components := s.BuildFullTextSearchQueryComponents(query)
+				full_text_components := s.BuildFullTextSearchQueryComponents(table.Product.SearchVector, query)
 				cols = append(cols, full_text_components.RankColumn)
 				where_clause = where_clause.AND(full_text_components.WhereClause)
 				order_by = append(order_by, full_text_components.OrderByClause.DESC())

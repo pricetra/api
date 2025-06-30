@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/go-jet/jet/v2/postgres"
-	"github.com/pricetra/api/database/jet/postgres/public/table"
 	"github.com/pricetra/api/utils"
 )
 
@@ -14,9 +13,9 @@ type FullTextSearchComponents struct {
 	OrderByClause postgres.ColumnFloat // float column using the rank column
 }
 
-func (s Service) BuildFullTextSearchQueryComponents(query string) (res FullTextSearchComponents) {
+func (s Service) BuildFullTextSearchQueryComponents(search_vector_col postgres.ColumnString, query string) (res FullTextSearchComponents) {
 	rank_col := "rank"
-	search_vector_col_name := utils.BuildFullTableName(table.Product.SearchVector)
+	search_vector_col_name := utils.BuildFullTableName(search_vector_col)
 	args := postgres.RawArgs{"$query": query}
 
 	// Rank column

@@ -121,7 +121,7 @@ func (s Service) FindBranchesByStoreId(
 	where_clause := table.Branch.StoreID.EQ(postgres.Int(store_id))
 	order_by := []postgres.OrderByClause{}
 	if search != nil {
-		full_text_components := s.BuildFullTextSearchQueryComponents(*search)
+		full_text_components := s.BuildFullTextSearchQueryComponents(table.Address.SearchVector, *search)
 		columns = append(columns, full_text_components.RankColumn)
 		where_clause = where_clause.AND(full_text_components.WhereClause)
 		order_by = append(order_by, full_text_components.OrderByClause.DESC())
