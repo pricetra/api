@@ -220,27 +220,10 @@ func (s Service) PaginatedProducts(ctx context.Context, paginator_input gmodel.P
 		if search.Query != nil {
 			query := strings.TrimSpace(*search.Query)
 			if query != "" {
-				rank_col := "rank"
-				search_vector_col_name := utils.BuildFullTableName(table.Product.SearchVector)
-				args := postgres.RawArgs{"$query": query}
-	
-				// Rank column
-				cols = append(cols, postgres.RawFloat(
-					fmt.Sprintf(
-						"ts_rank(%s, plainto_tsquery('english', $query::TEXT))",
-						search_vector_col_name,
-					),
-					args,
-				).AS(rank_col))
-	
-				// Where clause with tsquery
-				clause := postgres.RawBool(
-					fmt.Sprintf("%s @@ plainto_tsquery('english', $query::TEXT)", search_vector_col_name),
-					args,
-				)
-				where_clause = where_clause.AND(clause)
-				// Order by
-				order_by = append(order_by, postgres.FloatColumn(rank_col).DESC())
+				full_text_components := s.BuildFullTextSearchQueryComponents(query)
+				cols = append(cols, full_text_components.RankColumn)
+				where_clause = where_clause.AND(full_text_components.WhereClause)
+				order_by = append(order_by, full_text_components.OrderByClause.DESC())
 			}
 		}
 	}
