@@ -40,7 +40,7 @@ func (r *mutationResolver) CreatePrice(ctx context.Context, input gmodel.CreateP
 			SELECT(table.User.AllColumns, table.AuthState.AllColumns).
 			FROM(
 				table.ProductList.
-					INNER_JOIN(table.List, 
+					INNER_JOIN(table.List,
 						table.List.ID.EQ(table.ProductList.ListID).
 							AND(table.List.Type.EQ(
 								postgres.NewEnumValue(model.ListType_WatchList.String()),
@@ -49,7 +49,7 @@ func (r *mutationResolver) CreatePrice(ctx context.Context, input gmodel.CreateP
 					INNER_JOIN(table.Product, table.Product.ID.EQ(table.ProductList.ProductID)).
 					INNER_JOIN(table.Stock, table.Stock.ID.EQ(table.ProductList.StockID)).
 					INNER_JOIN(table.User, table.User.ID.EQ(table.ProductList.UserID)).
-					INNER_JOIN(table.AuthState, 
+					INNER_JOIN(table.AuthState,
 						table.AuthState.UserID.EQ(table.User.ID).
 							AND(table.AuthState.LoggedInAt.GT_EQ(
 								postgres.NOW().SUB(postgres.INTERVAL(30, postgres.DAY)),
@@ -68,7 +68,7 @@ func (r *mutationResolver) CreatePrice(ctx context.Context, input gmodel.CreateP
 			log.Println(err)
 			return
 		}
-		
+
 		if _, err := r.Service.SendPriceChangePushNotifications(ctx, users, price, old_price); err != nil {
 			log.Println("Push notification error: ", err.Error())
 			return
