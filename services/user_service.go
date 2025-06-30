@@ -26,42 +26,42 @@ const PASSWORD_RESET_CODE_LEN = 6
 const PASSWORD_RESET_MAX_TRIES = 10
 
 // Returns `false` if user email does not exist. Otherwise `true`
-func (service Service) UserEmailExists(ctx context.Context, email string) bool {
+func (s Service) UserEmailExists(ctx context.Context, email string) bool {
 	query := table.User.
 		SELECT(table.User.Email.AS("email")).
 		FROM(table.User).
 		WHERE(table.User.Email.EQ(postgres.String(email))).
 		LIMIT(1)
 	var dest struct{ Email string }
-	err := query.QueryContext(ctx, service.DbOrTxQueryable(), &dest)
+	err := query.QueryContext(ctx, s.DbOrTxQueryable(), &dest)
 	return err == nil
 }
 
-func (service Service) FindUserByEmail(ctx context.Context, email string) (gmodel.User, error) {
+func (s Service) FindUserByEmail(ctx context.Context, email string) (gmodel.User, error) {
 	qb := table.User.
 		SELECT(table.User.AllColumns).
 		WHERE(table.User.Email.EQ(postgres.String(email))).
 		LIMIT(1)
 	var user gmodel.User
-	if err := qb.QueryContext(ctx, service.DbOrTxQueryable(), &user); err != nil {
+	if err := qb.QueryContext(ctx, s.DbOrTxQueryable(), &user); err != nil {
 		return gmodel.User{}, err
 	}
 	return user, nil
 }
 
-func (service Service) FindUserById(ctx context.Context, id int64) (gmodel.User, error) {
+func (s Service) FindUserById(ctx context.Context, id int64) (gmodel.User, error) {
 	qb := table.User.
 		SELECT(table.User.AllColumns).
 		WHERE(table.User.ID.EQ(postgres.Int(id))).
 		LIMIT(1)
 	var user gmodel.User
-	if err := qb.QueryContext(ctx, service.DbOrTxQueryable(), &user); err != nil {
+	if err := qb.QueryContext(ctx, s.DbOrTxQueryable(), &user); err != nil {
 		return gmodel.User{}, err
 	}
 	return user, nil
 }
 
-func (service Service) FindAuthUserById(ctx context.Context, user_id int64, auth_state_id int64) (user gmodel.User, err error) {
+func (s Service) FindAuthUserById(ctx context.Context, user_id int64, auth_state_id int64) (user gmodel.User, err error) {
 	qb := table.User.
 		SELECT(
 			table.User.AllColumns,
@@ -84,21 +84,21 @@ func (service Service) FindAuthUserById(ctx context.Context, user_id int64, auth
 				AND(table.AuthState.ID.EQ(postgres.Int64(auth_state_id))),
 		).
 		LIMIT(1)
-	err = qb.QueryContext(ctx, service.DbOrTxQueryable(), &user)
+	err = qb.QueryContext(ctx, s.DbOrTxQueryable(), &user)
 	return user, err
 } 
 
-func (service Service) CreateInternalUser(ctx context.Context, input gmodel.CreateAccountInput) (user gmodel.User, email_verification model.EmailVerification, err error) {
-	if service.UserEmailExists(ctx, input.Email) {
+func (s Service) CreateInternalUser(ctx context.Context, input gmodel.CreateAccountInput) (user gmodel.User, email_verification model.EmailVerification, err error) {
+	if s.UserEmailExists(ctx, input.Email) {
 		return gmodel.User{}, model.EmailVerification{}, fmt.Errorf("email already exists")
 	}
-	hashed_password, hash_err := service.HashPassword(input.Password)
+	hashed_password, hash_err := s.HashPassword(input.Password)
 	if hash_err != nil {
 		return gmodel.User{}, model.EmailVerification{}, hash_err
 	}
 
 	// Create transaction
-	tx, tx_err := service.DB.BeginTx(ctx, nil)
+	tx, tx_err := s.DB.BeginTx(ctx, nil)
 	if tx_err != nil {
 		return gmodel.User{}, model.EmailVerification{}, tx_err
 	}
@@ -123,8 +123,8 @@ func (service Service) CreateInternalUser(ctx context.Context, input gmodel.Crea
 	if err := qb.QueryContext(ctx, tx, &user); err != nil {
 		return gmodel.User{}, model.EmailVerification{}, fmt.Errorf("user entry could not be created. %s", err.Error())
 	}
-	service.TX = tx
-	if email_verification, err = service.CreateEmailVerification(ctx, user); err != nil {
+	s.TX = tx
+	if email_verification, err = s.CreateEmailVerification(ctx, user); err != nil {
 		return gmodel.User{}, model.EmailVerification{}, err
 	}
 
@@ -135,7 +135,7 @@ func (service Service) CreateInternalUser(ctx context.Context, input gmodel.Crea
 	return user, email_verification, nil
 }
 
-func (service Service) CreateOauthUser(ctx context.Context, input gmodel.CreateAccountInput, oauth_type model.UserAuthPlatformType) (gmodel.User, error) {
+func (s Service) CreateOauthUser(ctx context.Context, input gmodel.CreateAccountInput, oauth_type model.UserAuthPlatformType) (gmodel.User, error) {
 	var user gmodel.User
 	qb := table.User.
 		INSERT(
@@ -151,13 +151,13 @@ func (service Service) CreateOauthUser(ctx context.Context, input gmodel.CreateA
 			PhoneNumber: input.PhoneNumber,
 		}).
 		RETURNING(table.User.AllColumns)
-	if err := qb.QueryContext(ctx, service.DbOrTxQueryable(), &user); err != nil {
+	if err := qb.QueryContext(ctx, s.DbOrTxQueryable(), &user); err != nil {
 		return gmodel.User{}, fmt.Errorf("user entry could not be created. %s", err.Error())
 	}
 	return user, nil
 }
 
-func (service Service) GoogleAuthentication(
+func (s Service) GoogleAuthentication(
 	ctx context.Context,
 	access_token string,
 	ip_address *string,
@@ -175,10 +175,10 @@ func (service Service) GoogleAuthentication(
 
 	var user gmodel.User
 	new_user := false
-	if service.UserEmailExists(ctx, userinfo.Email) {
-		user, _ = service.FindUserByEmail(ctx, userinfo.Email)
+	if s.UserEmailExists(ctx, userinfo.Email) {
+		user, _ = s.FindUserByEmail(ctx, userinfo.Email)
 	} else {
-		user, err = service.CreateOauthUser(ctx, gmodel.CreateAccountInput{
+		user, err = s.CreateOauthUser(ctx, gmodel.CreateAccountInput{
 			Email: userinfo.Email,
 			Name: userinfo.Name,
 		}, model.UserAuthPlatformType_Google)
@@ -187,21 +187,21 @@ func (service Service) GoogleAuthentication(
 		}
 		new_user = true
 	}
-	auth_state, err := service.CreateAuthStateWithJwt(ctx, user.ID, model.UserAuthPlatformType_Google, ip_address, device_type)
+	auth_state, err := s.CreateAuthStateWithJwt(ctx, user.ID, model.UserAuthPlatformType_Google, ip_address, device_type)
 	if err == nil && new_user {
 		auth_state.IsNewUser = &new_user
 	}
 	return auth_state, err
 }
 
-func (service Service) LoginInternal(
+func (s Service) LoginInternal(
 	ctx context.Context,
 	email string,
 	password string,
 	ip_address *string,
 	device_type *model.AuthDeviceType,
 ) (gmodel.Auth, error) {
-	db := service.DbOrTxQueryable()	
+	db := s.DbOrTxQueryable()	
 	query := table.User.
 		SELECT(table.User.AllColumns).
 		WHERE(table.User.Email.EQ(postgres.String(email))).
@@ -213,32 +213,32 @@ func (service Service) LoginInternal(
 	if verify_user.Password == nil {
 		return gmodel.Auth{}, fmt.Errorf("password has not been set for this account. try a different authentication method")
 	}
-	if !service.VerifyPasswordHash(password, *verify_user.Password) {
+	if !s.VerifyPasswordHash(password, *verify_user.Password) {
 		return gmodel.Auth{}, fmt.Errorf("incorrect email or password")
 	}
 
-	return service.CreateAuthStateWithJwt(ctx, verify_user.ID, model.UserAuthPlatformType_Internal, ip_address, device_type)
+	return s.CreateAuthStateWithJwt(ctx, verify_user.ID, model.UserAuthPlatformType_Internal, ip_address, device_type)
 }
 
-func (service Service) CreateAuthStateWithJwt(
+func (s Service) CreateAuthStateWithJwt(
 	ctx context.Context, 
 	user_id int64, 
 	auth_platform model.UserAuthPlatformType, 
 	ip_address *string,
 	device_type *model.AuthDeviceType,
 ) (gmodel.Auth, error) {
-	auth_state, auth_state_err := service.CreateAuthState(ctx, gmodel.User{ ID: user_id }, auth_platform, ip_address, device_type)
+	auth_state, auth_state_err := s.CreateAuthState(ctx, gmodel.User{ ID: user_id }, auth_platform, ip_address, device_type)
 	if auth_state_err != nil {
 		return gmodel.Auth{}, fmt.Errorf("could not create auth state")
 	}
 
-	user, err := service.FindAuthUserById(ctx, user_id, auth_state.ID)
+	user, err := s.FindAuthUserById(ctx, user_id, auth_state.ID)
 	if err != nil {
 		return gmodel.Auth{}, fmt.Errorf("internal error")
 	}
 
 	// Generate JWT
-	jwt, err := service.GenerateJWT(service.Tokens.JwtKey, &user)
+	jwt, err := s.GenerateJWT(s.Tokens.JwtKey, &user)
 	if err != nil {
 		return gmodel.Auth{}, fmt.Errorf("could not generate JWT")
 	}
@@ -249,7 +249,7 @@ func (service Service) CreateAuthStateWithJwt(
 }
 
 // Given an existing user, create an auth_state row
-func (service Service) CreateAuthState(
+func (s Service) CreateAuthState(
 	ctx context.Context,
 	user gmodel.User,
 	auth_platform model.UserAuthPlatformType,
@@ -273,11 +273,11 @@ func (service Service) CreateAuthState(
 	}).RETURNING(table.AuthState.AllColumns)
 
 	var auth_state model.AuthState
-	err := query.QueryContext(ctx, service.DbOrTxQueryable(), &auth_state)
+	err := query.QueryContext(ctx, s.DbOrTxQueryable(), &auth_state)
 	return auth_state, err
 }
 
-func (service Service) CreateEmailVerification(ctx context.Context, user gmodel.User) (model.EmailVerification, error) {
+func (s Service) CreateEmailVerification(ctx context.Context, user gmodel.User) (model.EmailVerification, error) {
 	code := randstr.Dec(EMAIL_VERIFICATION_CODE_LEN)
 
 	query := table.EmailVerification.INSERT(
@@ -289,58 +289,58 @@ func (service Service) CreateEmailVerification(ctx context.Context, user gmodel.
 	}).RETURNING(table.EmailVerification.AllColumns)
 
 	var email_verification model.EmailVerification
-	err := query.QueryContext(ctx, service.DbOrTxQueryable(), &email_verification)
+	err := query.QueryContext(ctx, s.DbOrTxQueryable(), &email_verification)
 	return email_verification, err
 }
 
-func (service Service) ResendEmailVerification(ctx context.Context, user gmodel.User) (email_verification model.EmailVerification, err error) {
+func (s Service) ResendEmailVerification(ctx context.Context, user gmodel.User) (email_verification model.EmailVerification, err error) {
 	if user.Active {
 		return model.EmailVerification{}, fmt.Errorf("user already has a verified email address")
 	}
-	service.TX, err = service.DB.BeginTx(ctx, nil)
+	s.TX, err = s.DB.BeginTx(ctx, nil)
 	if err != nil {
 		return model.EmailVerification{}, err
 	}
-	defer service.TX.Rollback()
+	defer s.TX.Rollback()
 
 	_, err = table.EmailVerification.DELETE().
 		WHERE(table.EmailVerification.UserID.EQ(postgres.Int(user.ID))).
-		ExecContext(ctx, service.TX)
+		ExecContext(ctx, s.TX)
 	if err != nil {
 		return model.EmailVerification{}, fmt.Errorf("user email verification entry deletion failed")
 	}
 
-	email_verification, err = service.CreateEmailVerification(ctx, user)
+	email_verification, err = s.CreateEmailVerification(ctx, user)
 	if err != nil {
 		return model.EmailVerification{}, err
 	}
-	if err := service.TX.Commit(); err != nil {
+	if err := s.TX.Commit(); err != nil {
 		return model.EmailVerification{}, fmt.Errorf("could not commit changes")
 	}
 	return email_verification, nil
 }
 
-func (service Service) FindEmailVerificationByCode(ctx context.Context, verification_code string) (model.EmailVerification, error) {
+func (s Service) FindEmailVerificationByCode(ctx context.Context, verification_code string) (model.EmailVerification, error) {
 	qb := table.EmailVerification.
 		SELECT(table.EmailVerification.AllColumns).
 		WHERE(table.EmailVerification.Code.EQ(postgres.String(verification_code))).
 		LIMIT(1)
 	var email_verification model.EmailVerification
-	if err := qb.QueryContext(ctx, service.DbOrTxQueryable(), &email_verification); err != nil {
+	if err := qb.QueryContext(ctx, s.DbOrTxQueryable(), &email_verification); err != nil {
 		return model.EmailVerification{}, fmt.Errorf("invalid email verification code")
 	}
 	return email_verification, nil
 }
 
-func (service Service) VerifyUserEmail(ctx context.Context, verification_code string) (gmodel.User, error) {
+func (s Service) VerifyUserEmail(ctx context.Context, verification_code string) (gmodel.User, error) {
 	var err error
-	service.TX, err = service.DB.BeginTx(ctx, nil)
+	s.TX, err = s.DB.BeginTx(ctx, nil)
 	if err != nil {
 		return gmodel.User{}, err
 	}
-	defer service.TX.Rollback()
+	defer s.TX.Rollback()
 
-	email_verification, err := service.FindEmailVerificationByCode(ctx, verification_code)
+	email_verification, err := s.FindEmailVerificationByCode(ctx, verification_code)
 	if err != nil {
 		return gmodel.User{}, err
 	}
@@ -350,7 +350,7 @@ func (service Service) VerifyUserEmail(ctx context.Context, verification_code st
 		del_query := table.EmailVerification.
 			DELETE().
 			WHERE(table.EmailVerification.ID.EQ(postgres.Int(email_verification.ID)))
-		if _, err := del_query.ExecContext(ctx, service.DB); err != nil {
+		if _, err := del_query.ExecContext(ctx, s.DB); err != nil {
 			return gmodel.User{}, err
 		}
 		return gmodel.User{}, fmt.Errorf("verification code has expired")
@@ -360,7 +360,7 @@ func (service Service) VerifyUserEmail(ctx context.Context, verification_code st
 		UPDATE(table.User.Active, table.User.UpdatedAt).
 		SET(postgres.Bool(true), postgres.DateT(time.Now())).
 		WHERE(table.User.ID.EQ(postgres.Int(email_verification.UserID)))
-	if _, err := update.ExecContext(ctx, service.TX); err != nil {
+	if _, err := update.ExecContext(ctx, s.TX); err != nil {
 		return gmodel.User{}, fmt.Errorf("could not update user email verification status to verified")
 	}
 
@@ -371,15 +371,15 @@ func (service Service) VerifyUserEmail(ctx context.Context, verification_code st
 			table.EmailVerification.ID.EQ(postgres.Int(email_verification.ID)),
 			table.EmailVerification.Code.EQ(postgres.String(verification_code)),
 		))
-	if _, err := delete.ExecContext(ctx, service.TX); err != nil {
+	if _, err := delete.ExecContext(ctx, s.TX); err != nil {
 		return gmodel.User{}, fmt.Errorf("could not delete email verification entry")
 	}
 
-	if err := service.TX.Commit(); err != nil {
+	if err := s.TX.Commit(); err != nil {
 		return gmodel.User{}, fmt.Errorf("could not commit changes")
 	}
-	service.TX = nil
-	return service.FindUserById(ctx, email_verification.UserID)
+	s.TX = nil
+	return s.FindUserById(ctx, email_verification.UserID)
 }
 
 func (Service) HashPassword(password string) (string, error) {
@@ -521,8 +521,8 @@ func (s Service) UpdateUserFull(ctx context.Context, user gmodel.User, input gmo
 	return s.FindAuthUserById(ctx, user.ID, *user.AuthStateID)
 }
 
-func (service Service) UpdateUser(ctx context.Context, user gmodel.User, input gmodel.UpdateUser) (updated_user gmodel.User, err error) {
-	return service.UpdateUserFull(ctx, user, gmodel.UpdateUserFull{
+func (s Service) UpdateUser(ctx context.Context, user gmodel.User, input gmodel.UpdateUser) (updated_user gmodel.User, err error) {
+	return s.UpdateUserFull(ctx, user, gmodel.UpdateUserFull{
 		Name: input.Name,
 		Avatar: input.Avatar,
 		AvatarFile: input.AvatarFile,
@@ -532,8 +532,8 @@ func (service Service) UpdateUser(ctx context.Context, user gmodel.User, input g
 	})
 }
 
-func (service Service) Logout(ctx context.Context, user gmodel.User, auth_state_id int64) error {
-	db := service.DbOrTxQueryable()
+func (s Service) Logout(ctx context.Context, user gmodel.User, auth_state_id int64) error {
+	db := s.DbOrTxQueryable()
 	qb := table.AuthState.
 		SELECT(table.AuthState.ID.AS("id")).
 		FROM(table.AuthState).
@@ -553,11 +553,11 @@ func (service Service) Logout(ctx context.Context, user gmodel.User, auth_state_
 		WHERE(table.AuthState.ID.EQ(
 			postgres.Int64(res.ID),
 		)).
-		ExecContext(ctx, service.DB)
+		ExecContext(ctx, s.DB)
 	return err
 }
 
-func (service Service) CreatedAndUpdatedUserTable() (
+func (s Service) CreatedAndUpdatedUserTable() (
 	created_by_user *table.UserTable, 
 	updated_by_user *table.UserTable, 
 	columns []postgres.Projection,

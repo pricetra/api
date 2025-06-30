@@ -14,7 +14,7 @@ import (
 	"googlemaps.github.io/maps"
 )
 
-func (service Service) AddressExists(
+func (s Service) AddressExists(
 	ctx context.Context, 
 	lat float64, 
 	lon float64,
@@ -29,7 +29,7 @@ func (service Service) AddressExists(
 	var address struct{
 		ID int64 `sql:"primary_key"`
 	}
-	db := service.DbOrTxQueryable()
+	db := s.DbOrTxQueryable()
 	err := query_builder.QueryContext(ctx, db, &address)
 	return err == nil
 }
