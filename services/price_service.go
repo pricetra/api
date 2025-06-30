@@ -127,15 +127,45 @@ func (s Service) SendPriceChangePushNotifications(ctx context.Context, users []g
 		"priceAmount": fmt.Sprintf("$%.2f", new_price.Amount),
 		"priceSale": fmt.Sprint(new_price.Sale),
 	}
-	res, err = s.ExpoPushClient.Publish(&expo.PushMessage{
-		To: push_tokens,
-		Badge: 0,
-		Body: fmt.Sprintf(
-			"%s was updated from $%.2f to $%.2f",
+	var title, body string
+	if new_price.Sale {
+		title = "Sale reported on your watched product"
+		body = fmt.Sprintf(
+			"%s is reported to be on sale $%.2f",
+			product.Name,
+			new_price.Amount,
+		)
+		if new_price.ExpiresAt != nil {
+			body += fmt.Sprintf(". Valid until %s", new_price.ExpiresAt.Format("January 1"))
+		}
+		if new_price.Condition != nil {
+			body += fmt.Sprint("*", *new_price.Condition)
+		}
+	} else if new_price.Amount > old_price.Amount {
+		title = "Price increase reported on your watched product"
+		body = fmt.Sprintf(
+			"%s is reported to have increased from $%.2f to $%.2f",
 			product.Name,
 			old_price.Amount,
 			new_price.Amount,
-		),
+		)
+	} else if new_price.Amount < old_price.Amount {
+		title = "Price dropped on your watched product"
+		body = fmt.Sprintf(
+			"%s is reported to have decreased from $%.2f to $%.2f",
+			product.Name,
+			old_price.Amount,
+			new_price.Amount,
+		)
+	} else {
+		// Price was never changed. So skip notifications
+		return
+	}
+	res, err = s.ExpoPushClient.Publish(&expo.PushMessage{
+		To: push_tokens,
+		Badge: 0,
+		Title: title,
+		Body: body,
 		Data: data,
 	})
 	if err != nil {
