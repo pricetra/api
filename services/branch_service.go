@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/go-jet/jet/v2/postgres"
 	"github.com/pricetra/api/database/jet/postgres/public/model"
@@ -104,7 +105,7 @@ func (s Service) FindBranchesByStoreId(
 	paginator_input gmodel.PaginatorInput,
 	search *string,
 	location *gmodel.LocationInput,
-) (branches gmodel.PaginatedBranches, err error) {
+) (res gmodel.PaginatedBranches, err error) {
 	created_user_table, updated_user_table, user_cols := s.CreatedAndUpdatedUserTable()
 	tables := table.Branch.
 		INNER_JOIN(table.Address, table.Address.ID.EQ(table.Branch.AddressID)).
@@ -120,7 +121,7 @@ func (s Service) FindBranchesByStoreId(
 
 	where_clause := table.Branch.StoreID.EQ(postgres.Int(store_id))
 	order_by := []postgres.OrderByClause{}
-	if search != nil {
+	if search != nil && len(strings.TrimSpace(*search)) > 0 {
 		full_text_components := s.BuildFullTextSearchQueryComponents(table.Address.SearchVector, *search)
 		columns = append(columns, full_text_components.RankColumn)
 		where_clause = where_clause.AND(full_text_components.WhereClause)
@@ -133,7 +134,7 @@ func (s Service) FindBranchesByStoreId(
 		where_clause = where_clause.AND(dist.DistanceWhereClauseWithRadius)
 	}
 
-	sql_paginator, err := s.Paginate(ctx, paginator_input, tables, table.Product.ID, where_clause)
+	sql_paginator, err := s.Paginate(ctx, paginator_input, tables, table.Branch.ID, where_clause)
 	if err != nil {
 		// Return empty result
 		return gmodel.PaginatedBranches{
@@ -150,8 +151,12 @@ func (s Service) FindBranchesByStoreId(
 		ORDER_BY(order_by...).
 		LIMIT(int64(sql_paginator.Limit)).
 		OFFSET(int64(sql_paginator.Offset))
-	err = qb.QueryContext(ctx, s.DbOrTxQueryable(), &branches)
-	return branches, err
+	if err = qb.QueryContext(ctx, s.DbOrTxQueryable(), &res.Branches); err != nil {
+		return gmodel.PaginatedBranches{}, err
+	}
+	
+	res.Paginator = &sql_paginator.Paginator
+	return res, err
 }
 
 func (s Service) FindBranchByBranchIdAndStoreId(ctx context.Context, branch_id int64, store_id int64) (branch gmodel.Branch, err error) {
