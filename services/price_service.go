@@ -108,6 +108,10 @@ func (s Service) LatestPriceForProduct(ctx context.Context, product_id int64, br
 }
 
 func (s Service) SendPriceChangePushNotifications(ctx context.Context, users []gmodel.User, new_price gmodel.Price, old_price gmodel.Price) (res expo.PushResponse, err error) {
+	if len(users) == 0 {
+		return res, nil
+	}
+
 	var push_tokens []expo.ExponentPushToken
 	for i := range users {
 		if users[i].ExpoPushToken == nil {
@@ -161,15 +165,18 @@ func (s Service) SendPriceChangePushNotifications(ctx context.Context, users []g
 		// Price was never changed. So skip notifications
 		return
 	}
-	res, err = s.ExpoPushClient.Publish(&expo.PushMessage{
+	push_message := expo.PushMessage{
 		To: push_tokens,
 		Badge: 0,
 		Title: title,
 		Body: body,
 		Data: data,
-	})
+	}
+	res, err = s.ExpoPushClient.Publish(&push_message)
 	if err != nil {
 		return expo.PushResponse{}, err
 	}
+
+	s.CreatePushNotificationEntry(ctx, push_message, res)
 	return res, nil
 }
