@@ -20,6 +20,7 @@ type Address struct {
 	Distance               *float64       `json:"distance,omitempty" alias:"address.distance"`
 	MapsLink               string         `json:"mapsLink"`
 	FullAddress            string         `json:"fullAddress"`
+	Street                 *string        `json:"street,omitempty"`
 	City                   string         `json:"city"`
 	AdministrativeDivision string         `json:"administrativeDivision"`
 	ZipCode                string         `json:"zipCode"`
@@ -109,6 +110,7 @@ type CreateAddress struct {
 	Longitude              float64 `json:"longitude" validate:"required,longitude"`
 	MapsLink               string  `json:"mapsLink" validate:"required,http_url"`
 	FullAddress            string  `json:"fullAddress" validate:"required,contains"`
+	Street                 *string `json:"street,omitempty"`
 	City                   string  `json:"city" validate:"required"`
 	AdministrativeDivision string  `json:"administrativeDivision" validate:"required"`
 	CountryCode            string  `json:"countryCode" validate:"required,iso3166_1_alpha2"`

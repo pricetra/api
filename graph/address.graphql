@@ -3,6 +3,7 @@ input CreateAddress {
   longitude: Float! @goTag(key: "validate", value: "required,longitude")
   mapsLink: String! @goTag(key: "validate", value: "required,http_url")
   fullAddress: String! @goTag(key: "validate", value: "required,contains")
+  street: String
   city: String! @goTag(key: "validate", value: "required")
   administrativeDivision: String! @goTag(key: "validate", value: "required")
   countryCode: String!
@@ -19,6 +20,7 @@ type Address {
   distance: Float @goTag(key: "alias", value: "address.distance")
   mapsLink: String!
   fullAddress: String!
+  street: String
   city: String!
   administrativeDivision: String!
   zipCode: String!

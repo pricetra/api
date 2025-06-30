@@ -63,6 +63,7 @@ type ComplexityRoot struct {
 		Latitude               func(childComplexity int) int
 		Longitude              func(childComplexity int) int
 		MapsLink               func(childComplexity int) int
+		Street                 func(childComplexity int) int
 		UpdatedAt              func(childComplexity int) int
 		UpdatedBy              func(childComplexity int) int
 		UpdatedByID            func(childComplexity int) int
@@ -546,6 +547,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Address.MapsLink(childComplexity), true
+
+	case "Address.street":
+		if e.complexity.Address.Street == nil {
+			break
+		}
+
+		return e.complexity.Address.Street(childComplexity), true
 
 	case "Address.updatedAt":
 		if e.complexity.Address.UpdatedAt == nil {
@@ -3885,6 +3893,47 @@ func (ec *executionContext) fieldContext_Address_fullAddress(ctx context.Context
 	return fc, nil
 }
 
+func (ec *executionContext) _Address_street(ctx context.Context, field graphql.CollectedField, obj *gmodel.Address) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Address_street(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Street, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Address_street(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Address",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Address_city(ctx context.Context, field graphql.CollectedField, obj *gmodel.Address) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Address_city(ctx, field)
 	if err != nil {
@@ -4726,6 +4775,8 @@ func (ec *executionContext) fieldContext_Branch_address(ctx context.Context, fie
 				return ec.fieldContext_Address_mapsLink(ctx, field)
 			case "fullAddress":
 				return ec.fieldContext_Address_fullAddress(ctx, field)
+			case "street":
+				return ec.fieldContext_Address_street(ctx, field)
 			case "city":
 				return ec.fieldContext_Address_city(ctx, field)
 			case "administrativeDivision":
@@ -17491,6 +17542,8 @@ func (ec *executionContext) fieldContext_User_address(ctx context.Context, field
 				return ec.fieldContext_Address_mapsLink(ctx, field)
 			case "fullAddress":
 				return ec.fieldContext_Address_fullAddress(ctx, field)
+			case "street":
+				return ec.fieldContext_Address_street(ctx, field)
 			case "city":
 				return ec.fieldContext_Address_city(ctx, field)
 			case "administrativeDivision":
@@ -19514,7 +19567,7 @@ func (ec *executionContext) unmarshalInputCreateAddress(ctx context.Context, obj
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"latitude", "longitude", "mapsLink", "fullAddress", "city", "administrativeDivision", "countryCode", "zipCode"}
+	fieldsInOrder := [...]string{"latitude", "longitude", "mapsLink", "fullAddress", "street", "city", "administrativeDivision", "countryCode", "zipCode"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -19549,6 +19602,13 @@ func (ec *executionContext) unmarshalInputCreateAddress(ctx context.Context, obj
 				return it, err
 			}
 			it.FullAddress = data
+		case "street":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("street"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Street = data
 		case "city":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("city"))
 			data, err := ec.unmarshalNString2string(ctx, v)
@@ -20555,6 +20615,8 @@ func (ec *executionContext) _Address(ctx context.Context, sel ast.SelectionSet, 
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "street":
+			out.Values[i] = ec._Address_street(ctx, field, obj)
 		case "city":
 			out.Values[i] = ec._Address_city(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
