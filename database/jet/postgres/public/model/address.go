@@ -26,4 +26,6 @@ type Address struct {
 	AdministrativeDivision string
 	City                   string
 	ZipCode                int32
+	Street                 *string
+	SearchVector           *string
 }

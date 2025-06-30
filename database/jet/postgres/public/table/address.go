@@ -31,6 +31,8 @@ type addressTable struct {
 	AdministrativeDivision postgres.ColumnString
 	City                   postgres.ColumnString
 	ZipCode                postgres.ColumnInteger
+	Street                 postgres.ColumnString
+	SearchVector           postgres.ColumnString
 
 	AllColumns     postgres.ColumnList
 	MutableColumns postgres.ColumnList
@@ -85,8 +87,10 @@ func newAddressTableImpl(schemaName, tableName, alias string) addressTable {
 		AdministrativeDivisionColumn = postgres.StringColumn("administrative_division")
 		CityColumn                   = postgres.StringColumn("city")
 		ZipCodeColumn                = postgres.IntegerColumn("zip_code")
-		allColumns                   = postgres.ColumnList{IDColumn, CreatedAtColumn, UpdatedAtColumn, LatitudeColumn, LongitudeColumn, MapsLinkColumn, FullAddressColumn, CountryCodeColumn, CreatedByIDColumn, UpdatedByIDColumn, CoordinatesColumn, AdministrativeDivisionColumn, CityColumn, ZipCodeColumn}
-		mutableColumns               = postgres.ColumnList{CreatedAtColumn, UpdatedAtColumn, LatitudeColumn, LongitudeColumn, MapsLinkColumn, FullAddressColumn, CountryCodeColumn, CreatedByIDColumn, UpdatedByIDColumn, AdministrativeDivisionColumn, CityColumn, ZipCodeColumn}
+		StreetColumn                 = postgres.StringColumn("street")
+		SearchVectorColumn           = postgres.StringColumn("search_vector")
+		allColumns                   = postgres.ColumnList{IDColumn, CreatedAtColumn, UpdatedAtColumn, LatitudeColumn, LongitudeColumn, MapsLinkColumn, FullAddressColumn, CountryCodeColumn, CreatedByIDColumn, UpdatedByIDColumn, CoordinatesColumn, AdministrativeDivisionColumn, CityColumn, ZipCodeColumn, StreetColumn, SearchVectorColumn}
+		mutableColumns               = postgres.ColumnList{CreatedAtColumn, UpdatedAtColumn, LatitudeColumn, LongitudeColumn, MapsLinkColumn, FullAddressColumn, CountryCodeColumn, CreatedByIDColumn, UpdatedByIDColumn, AdministrativeDivisionColumn, CityColumn, ZipCodeColumn, StreetColumn}
 	)
 
 	return addressTable{
@@ -107,6 +111,8 @@ func newAddressTableImpl(schemaName, tableName, alias string) addressTable {
 		AdministrativeDivision: AdministrativeDivisionColumn,
 		City:                   CityColumn,
 		ZipCode:                ZipCodeColumn,
+		Street:                 StreetColumn,
+		SearchVector:           SearchVectorColumn,
 
 		AllColumns:     allColumns,
 		MutableColumns: mutableColumns,
