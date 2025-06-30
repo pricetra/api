@@ -167,6 +167,7 @@ func (s Service) FullAddressToCreateAddress(ctx context.Context, full_address st
 	}
 	street_components := []string{}
 	for _, component := range res.AddressComponents {
+		// Address component types: https://developers.google.com/maps/documentation/geocoding/requests-geocoding#address-types
 		switch component.Types[0] {
 		case "street_number", "route":
 			if len(component.ShortName) > 0 {
