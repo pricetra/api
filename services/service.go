@@ -24,9 +24,9 @@ type Service struct {
 
 // Returns a transaction if present.
 // Otherwise returns the Database connection instance as qrm.Queryable
-func (service *Service) DbOrTxQueryable() qrm.Queryable {
-	if service.TX != nil {
-		return service.TX
+func (s *Service) DbOrTxQueryable() qrm.Queryable {
+	if s.TX != nil {
+		return s.TX
 	}
-	return service.DB
+	return s.DB
 }

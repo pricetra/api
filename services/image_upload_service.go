@@ -10,28 +10,28 @@ import (
 
 const CLOUDINARY_UPLOAD_BASE string = "https://res.cloudinary.com/pricetra-cdn/image/upload"
 
-func (service Service) ImageUrlUpload(
+func (s Service) ImageUrlUpload(
 	ctx context.Context,
 	image_url string,
 	params uploader.UploadParams,
 ) (*uploader.UploadResult, error) {
-	return service.Cloudinary.Upload.Upload(ctx, image_url, params)
+	return s.Cloudinary.Upload.Upload(ctx, image_url, params)
 }
 
-func (service Service) GraphImageUpload(
+func (s Service) GraphImageUpload(
 	ctx context.Context,
 	image graphql.Upload,
 	params uploader.UploadParams,
 ) (*uploader.UploadResult, error) {
-	return service.Cloudinary.Upload.Upload(ctx, image.File, params)
+	return s.Cloudinary.Upload.Upload(ctx, image.File, params)
 }
 
-func (service Service) DeleteImageUpload(
+func (s Service) DeleteImageUpload(
 	ctx context.Context,
 	upload_id string,
 ) (*uploader.DestroyResult, error) {
 	invalidate := true
-	return service.Cloudinary.Upload.Destroy(ctx, uploader.DestroyParams{
+	return s.Cloudinary.Upload.Destroy(ctx, uploader.DestroyParams{
 		PublicID: upload_id,
 		Invalidate: &invalidate,
 	})

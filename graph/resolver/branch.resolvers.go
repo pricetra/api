@@ -32,17 +32,12 @@ func (r *mutationResolver) CreateBranch(ctx context.Context, input gmodel.Create
 }
 
 // AllBranches is the resolver for the allBranches field.
-func (r *queryResolver) AllBranches(ctx context.Context, storeID int64, location *gmodel.LocationInput) ([]*gmodel.Branch, error) {
-	branches, err := r.Service.FindBranchesByStoreId(ctx, storeID, location)
+func (r *queryResolver) AllBranches(ctx context.Context, storeID int64, paginator gmodel.PaginatorInput, search *string, location *gmodel.LocationInput) (*gmodel.PaginatedBranches, error) {
+	branches, err := r.Service.FindBranchesByStoreId(ctx, storeID, paginator, search, location)
 	if err != nil {
 		return nil, err
 	}
-
-	res := make([]*gmodel.Branch, len(branches))
-	for i := range branches {
-		res[i] = &branches[i]
-	}
-	return res, nil
+	return &branches, nil
 }
 
 // FindBranch is the resolver for the findBranch field.

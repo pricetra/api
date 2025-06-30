@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/go-jet/jet/v2/postgres"
 	"github.com/pricetra/api/database/jet/postgres/public/model"
@@ -13,7 +14,7 @@ import (
 	"googlemaps.github.io/maps"
 )
 
-func (service Service) AddressExists(
+func (s Service) AddressExists(
 	ctx context.Context, 
 	lat float64, 
 	lon float64,
@@ -28,7 +29,7 @@ func (service Service) AddressExists(
 	var address struct{
 		ID int64 `sql:"primary_key"`
 	}
-	db := service.DbOrTxQueryable()
+	db := s.DbOrTxQueryable()
 	err := query_builder.QueryContext(ctx, db, &address)
 	return err == nil
 }
@@ -49,12 +50,15 @@ func (s Service) FindAddressByCoords(
 	return address, err
 }
 
-func (service Service) CreateAddress(ctx context.Context, user *gmodel.User, input gmodel.CreateAddress) (gmodel.Address, error) {
+func (s Service) CreateAddress(ctx context.Context, user *gmodel.User, input gmodel.CreateAddress) (address gmodel.Address, err error) {
+	if err = s.StructValidator.StructCtx(ctx, input); err != nil {
+		return gmodel.Address{}, err
+	}
 	var country_code model.CountryCodeAlpha2 = model.CountryCodeAlpha2(input.CountryCode)
 	if country_code.Scan(input.CountryCode) != nil {
 		return gmodel.Address{}, fmt.Errorf("could not scan country code")
 	}
-	if service.AddressExists(ctx, input.Latitude, input.Longitude) {
+	if s.AddressExists(ctx, input.Latitude, input.Longitude) {
 		return gmodel.Address{}, fmt.Errorf("address at location already exists")
 	}
 
@@ -63,6 +67,7 @@ func (service Service) CreateAddress(ctx context.Context, user *gmodel.User, inp
 		table.Address.Longitude,
 		table.Address.MapsLink,
 		table.Address.FullAddress,
+		table.Address.Street,
 		table.Address.City,
 		table.Address.AdministrativeDivision,
 		table.Address.CountryCode,
@@ -74,6 +79,7 @@ func (service Service) CreateAddress(ctx context.Context, user *gmodel.User, inp
 		Longitude: input.Longitude,
 		MapsLink: input.MapsLink,
 		FullAddress: input.FullAddress,
+		Street: input.Street,
 		City: input.City,
 		AdministrativeDivision: input.AdministrativeDivision,
 		CountryCode: country_code,
@@ -82,8 +88,7 @@ func (service Service) CreateAddress(ctx context.Context, user *gmodel.User, inp
 		UpdatedByID: &user.ID,
 	}).RETURNING(table.Address.AllColumns)
 
-	db := service.DbOrTxQueryable()
-	var address gmodel.Address
+	db := s.DbOrTxQueryable()
 	if err := qb.QueryContext(ctx, db, &address); err != nil {
 		return gmodel.Address{}, err
 	}
@@ -160,8 +165,14 @@ func (s Service) FullAddressToCreateAddress(ctx context.Context, full_address st
 		),
 		FullAddress: res.FormattedAddress,
 	}
+	street_components := []string{}
 	for _, component := range res.AddressComponents {
+		// Address component types: https://developers.google.com/maps/documentation/geocoding/requests-geocoding#address-types
 		switch component.Types[0] {
+		case "street_number", "route":
+			if len(component.ShortName) > 0 {
+				street_components = append(street_components, component.ShortName)
+			}
 		case "locality":
 			address.City = component.LongName
 		case "administrative_area_level_1":
@@ -175,6 +186,11 @@ func (s Service) FullAddressToCreateAddress(ctx context.Context, full_address st
 			}
 			address.ZipCode = zip_code
 		}
+	}
+
+	if len(street_components) != 0 {
+		street := strings.Join(street_components, " ")
+		address.Street = &street
 	}
 	return address, nil
 }

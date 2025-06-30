@@ -76,13 +76,16 @@ func TestBranch(t *testing.T) {
 	})
 
 	t.Run("find branches for store", func(t *testing.T) {
-		branches, err := service.FindBranchesByStoreId(ctx, store.ID, nil)
+		branches, err := service.FindBranchesByStoreId(ctx, store.ID, gmodel.PaginatorInput{
+			Limit: 1,
+			Page: 1,
+		}, nil, nil)
 		if err != nil {
 			t.Fatal(err)
 		}
 
-		if len(branches) != 1 {
-			t.Fatal("should only have 1 branch", len(branches))
+		if len(branches.Branches) != 1 {
+			t.Fatal("should only have 1 branch", len(branches.Branches))
 		}
 	})
 }

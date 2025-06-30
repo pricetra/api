@@ -12,6 +12,11 @@ type Branch {
   updatedBy: UpdatedByUser
 }
 
+type PaginatedBranches {
+  branches: [Branch!]!
+  paginator: Paginator!
+}
+
 input CreateBranch {
   name: String! @goTag(key: "validate", value: "required")
   address: CreateAddress!
@@ -19,9 +24,18 @@ input CreateBranch {
 }
 
 extend type Query {
-  allBranches(storeId: ID!, location: LocationInput): [Branch!]! @isAuthenticated
+  allBranches(
+    storeId: ID!
+    paginator: PaginatorInput!
+    search: String
+    location: LocationInput
+  ): PaginatedBranches! @isAuthenticated
   findBranch(storeId: ID!, id: ID!): Branch! @isAuthenticated
-  findBranchesByDistance(lat: Float!, lon: Float!, radiusMeters: Int!): [Branch!]! @isAuthenticated
+  findBranchesByDistance(
+    lat: Float!
+    lon: Float!
+    radiusMeters: Int!
+  ): [Branch!]! @isAuthenticated
 }
 
 extend type Mutation {
