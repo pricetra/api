@@ -161,15 +161,18 @@ func (s Service) SendPriceChangePushNotifications(ctx context.Context, users []g
 		// Price was never changed. So skip notifications
 		return
 	}
-	res, err = s.ExpoPushClient.Publish(&expo.PushMessage{
+	push_message := expo.PushMessage{
 		To: push_tokens,
 		Badge: 0,
 		Title: title,
 		Body: body,
 		Data: data,
-	})
+	}
+	res, err = s.ExpoPushClient.Publish(&push_message)
 	if err != nil {
 		return expo.PushResponse{}, err
 	}
+
+	s.CreatePushNotificationEntry(ctx, push_message, res)
 	return res, nil
 }
