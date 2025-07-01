@@ -107,22 +107,14 @@ func (s Service) LatestPriceForProduct(ctx context.Context, product_id int64, br
 	return price, nil
 }
 
-func (s Service) SendPriceChangePushNotifications(ctx context.Context, users []gmodel.User, new_price gmodel.Price, old_price gmodel.Price) (res expo.PushResponse, err error) {
+func (s Service) SendPriceChangePushNotifications(ctx context.Context, users []gmodel.User, new_price gmodel.Price, old_price gmodel.Price) (res []expo.PushResponse, err error) {
 	if len(users) == 0 {
 		return res, nil
 	}
 
-	var push_tokens []expo.ExponentPushToken
-	for i := range users {
-		if users[i].ExpoPushToken == nil {
-			continue
-		}
-		push_tokens = append(push_tokens, expo.ExponentPushToken(*users[i].ExpoPushToken))
-	}
-
 	product, err := s.FindProductById(ctx, new_price.ProductID)
 	if err != nil {
-		return expo.PushResponse{}, err
+		return nil, err
 	}
 	data := map[string]string{
 		"priceId": fmt.Sprint(new_price.ID),
@@ -163,20 +155,31 @@ func (s Service) SendPriceChangePushNotifications(ctx context.Context, users []g
 		)
 	} else {
 		// Price was never changed. So skip notifications
-		return
-	}
-	push_message := expo.PushMessage{
-		To: push_tokens,
-		Badge: 0,
-		Title: title,
-		Body: body,
-		Data: data,
-	}
-	res, err = s.ExpoPushClient.Publish(&push_message)
-	if err != nil {
-		return expo.PushResponse{}, err
+		return []expo.PushResponse{}, nil
 	}
 
-	s.CreatePushNotificationEntry(ctx, push_message, res)
+	notifications := []expo.PushMessage{}
+	for _, user := range users {
+		if user.ExpoPushToken == nil {
+			continue
+		}
+		notifications = append(notifications, expo.PushMessage{
+			To: []expo.ExponentPushToken{expo.ExponentPushToken(*user.ExpoPushToken)},
+			Badge: 0,
+			Title: title,
+			Body: body,
+			Data: data,
+		})
+	}
+	res, err = s.ExpoPushClient.PublishMultiple(notifications)
+	if err != nil {
+		s.CreatePushNotificationEntry(ctx, notifications, expo.PushResponse{
+			Status: "error",
+			Message: err.Error(),
+		})
+		return []expo.PushResponse{}, err
+	}
+
+	s.CreatePushNotificationEntry(ctx, notifications, res)
 	return res, nil
 }
