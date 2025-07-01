@@ -6,7 +6,6 @@ package gresolver
 
 import (
 	"context"
-	"log"
 
 	"github.com/go-jet/jet/v2/postgres"
 	"github.com/pricetra/api/database/jet/postgres/public/model"
@@ -64,15 +63,10 @@ func (r *mutationResolver) CreatePrice(ctx context.Context, input gmodel.CreateP
 			).
 			ORDER_BY(table.ProductList.CreatedAt.ASC())
 		var users []gmodel.User
-		if err := qb.QueryContext(ctx, r.Service.DB, &users); err != nil {
-			log.Println(err)
+		if qb.QueryContext(ctx, r.Service.DB, &users) != nil {
 			return
 		}
-
-		if _, err := r.Service.SendPriceChangePushNotifications(ctx, users, price, old_price); err != nil {
-			log.Println("Push notification error: ", err.Error())
-			return
-		}
+		r.Service.SendPriceChangePushNotifications(ctx, users, price, old_price)
 	}()
 	return &price, nil
 }

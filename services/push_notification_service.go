@@ -5,12 +5,11 @@ import (
 	"encoding/json"
 	"fmt"
 
-	expo "github.com/oliveroneill/exponent-server-sdk-golang/sdk"
 	"github.com/pricetra/api/database/jet/postgres/public/model"
 	"github.com/pricetra/api/database/jet/postgres/public/table"
 )
 
-func (s Service) CreatePushNotificationEntry(ctx context.Context, req any, res expo.PushResponse) (pn model.PushNotification, err error) {
+func (s Service) CreatePushNotificationEntry(ctx context.Context, req any, res any) (pn model.PushNotification, err error) {
 	req_json, err := json.Marshal(req)
 	if err != nil {
 		return model.PushNotification{}, fmt.Errorf("could not marshal req data: %s", err.Error())
