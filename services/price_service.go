@@ -27,8 +27,16 @@ func (s Service) CreatePrice(ctx context.Context, user gmodel.User, input gmodel
 		return gmodel.Price{}, err
 	}
 
-	// if original price is provided then add that first as an entry
-	if input.Sale && input.OriginalPrice != nil {
+	if !input.Sale && input.OriginalPrice != nil {
+		// if original price is provided but not on sale then ignore it
+		input.OriginalPrice = nil
+	}
+
+	if input.OriginalPrice == nil && stock.LatestPrice != nil {
+		// if original price is not provided use latest stock price
+		input.OriginalPrice = &stock.LatestPrice.Amount
+	} else if input.Sale && input.OriginalPrice != nil {
+		// if original price is provided then add that first as an entry
 		s.CreatePrice(ctx, user, gmodel.CreatePrice{
 			ProductID: input.ProductID,
 			Amount: *input.OriginalPrice,

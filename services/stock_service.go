@@ -69,8 +69,13 @@ func (s Service) FindStock(
 	store_id int64,
 ) (stock gmodel.Stock, err error) {
 	qb := table.Stock.
-		SELECT(table.Stock.AllColumns).
-		FROM(table.Stock).
+		SELECT(
+			table.Stock.AllColumns,
+			table.Price.AllColumns,
+		).
+		FROM(table.Stock.
+			LEFT_JOIN(table.Price, table.Price.ID.EQ(table.Stock.LatestPriceID)),
+		).
 		WHERE(postgres.AND(
 			table.Stock.ProductID.EQ(postgres.Int(product_id)),
 			table.Stock.BranchID.EQ(postgres.Int(branch_id)),
