@@ -122,6 +122,36 @@ func (r *queryResolver) GetAllLists(ctx context.Context, listType *gmodel.ListTy
 	return res, nil
 }
 
+// GetAllProductListsByListID is the resolver for the getAllProductListsByListId field.
+func (r *queryResolver) GetAllProductListsByListID(ctx context.Context, listID int64) ([]*gmodel.ProductList, error) {
+	user := r.Service.GetAuthUserFromContext(ctx)
+	product_lists, err := r.Service.GetProductListsWithListId(ctx, user, listID)
+	if err != nil {
+		return nil, err
+	}
+
+	res := make([]*gmodel.ProductList, len(product_lists))
+	for i := range product_lists {
+		res[i] = &product_lists[i]
+	}
+	return res, nil
+}
+
+// GetAllBranchListsByListID is the resolver for the getAllBranchListsByListId field.
+func (r *queryResolver) GetAllBranchListsByListID(ctx context.Context, listID int64) ([]*gmodel.BranchList, error) {
+	user := r.Service.GetAuthUserFromContext(ctx)
+	branch_lists, err := r.Service.GetBranchListsWithListId(ctx, user, listID)
+	if err != nil {
+		return nil, err
+	}
+
+	res := make([]*gmodel.BranchList, len(branch_lists))
+	for i := range branch_lists {
+		res[i] = &branch_lists[i]
+	}
+	return res, nil
+}
+
 // GetFavoriteBranchesWithPrices is the resolver for the getFavoriteBranchesWithPrices field.
 func (r *queryResolver) GetFavoriteBranchesWithPrices(ctx context.Context, productID int64) ([]*gmodel.BranchListWithPrices, error) {
 	user := r.Service.GetAuthUserFromContext(ctx)

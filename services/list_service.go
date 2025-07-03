@@ -394,3 +394,83 @@ func (s Service) RemoveBranchFromList(ctx context.Context, user gmodel.User, lis
 	}
 	return branch_list, nil
 }
+
+func (s Service) GetProductListsWithListId(
+	ctx context.Context,
+	user gmodel.User,
+	list_id int64,
+) (product_lists []gmodel.ProductList, err error) {
+	if _, err = s.FindListByIdAndUserId(ctx, list_id, user.ID); err != nil {
+		return nil, fmt.Errorf("invalid list")
+	}
+
+	qb := table.ProductList.
+		SELECT(
+			table.ProductList.AllColumns,
+			table.Product.AllColumns,
+			table.Category.AllColumns,
+			table.Stock.AllColumns,
+			table.Price.AllColumns,
+			table.Branch.AllColumns,
+			table.Address.AllColumns,
+			table.Store.AllColumns,
+		).
+		FROM(
+			table.ProductList.
+				INNER_JOIN(table.Product, table.Product.ID.EQ(table.ProductList.ProductID)).
+				INNER_JOIN(table.Category, table.Category.ID.EQ(table.Product.CategoryID)).
+				LEFT_JOIN(table.Stock, table.Stock.ID.EQ(table.ProductList.StockID)).
+				LEFT_JOIN(table.Price, table.Price.ID.EQ(table.Stock.LatestPriceID)).
+				LEFT_JOIN(table.Branch, table.Branch.ID.EQ(table.Stock.BranchID)).
+				LEFT_JOIN(table.Address, table.Address.ID.EQ(table.Branch.AddressID)).
+				LEFT_JOIN(table.Store, table.Store.ID.EQ(table.Stock.StoreID)),
+		).
+		WHERE(
+			table.ProductList.ListID.EQ(postgres.Int(list_id)).
+			AND(table.ProductList.UserID.EQ(postgres.Int(user.ID))),
+		).
+		ORDER_BY(table.ProductList.CreatedAt.DESC())
+	if err = qb.QueryContext(ctx, s.DbOrTxQueryable(), &product_lists); err != nil {
+		return nil, err
+	}
+	for i := range product_lists {
+		if product_lists[i].StockID != nil {
+			continue
+		}
+		product_lists[i].Stock = nil
+	}
+	return product_lists, nil
+}
+
+func (s Service) GetBranchListsWithListId(
+	ctx context.Context,
+	user gmodel.User,
+	list_id int64,
+) (branch_lists []gmodel.BranchList, err error) {
+	if _, err = s.FindListByIdAndUserId(ctx, list_id, user.ID); err != nil {
+		return nil, fmt.Errorf("invalid list")
+	}
+
+	qb := table.BranchList.
+		SELECT(
+			table.BranchList.AllColumns,
+			table.Branch.AllColumns,
+			table.Store.AllColumns,
+			table.Address.AllColumns,
+		).
+		FROM(
+			table.BranchList.
+				INNER_JOIN(table.Branch, table.Branch.ID.EQ(table.BranchList.BranchID)).
+				INNER_JOIN(table.Store, table.Store.ID.EQ(table.Branch.StoreID)).
+				INNER_JOIN(table.Address, table.Address.ID.EQ(table.Branch.AddressID)),
+		).
+		WHERE(
+			table.BranchList.ListID.EQ(postgres.Int(list_id)).
+			AND(table.BranchList.UserID.EQ(postgres.Int(user.ID))),
+		).
+		ORDER_BY(table.BranchList.CreatedAt.DESC())
+	if err = qb.QueryContext(ctx, s.DbOrTxQueryable(), &branch_lists); err != nil {
+		return nil, err
+	}
+	return branch_lists, nil
+}

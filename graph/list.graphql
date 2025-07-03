@@ -49,6 +49,10 @@ type BranchListWithPrices {
 extend type Query {
   getAllLists(listType: ListType): [List!]! @isAuthenticated
 
+  getAllProductListsByListId(listId: ID!): [ProductList!]!
+    @isAuthenticated
+  getAllBranchListsByListId(listId: ID!): [BranchList!]! @isAuthenticated
+
   getFavoriteBranchesWithPrices(productId: ID!): [BranchListWithPrices!]!
     @isAuthenticated
 }

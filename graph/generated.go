@@ -305,8 +305,10 @@ type ComplexityRoot struct {
 		FindBranch                    func(childComplexity int, storeID int64, id int64) int
 		FindBranchesByDistance        func(childComplexity int, lat float64, lon float64, radiusMeters int) int
 		FindStore                     func(childComplexity int, id int64) int
+		GetAllBranchListsByListID     func(childComplexity int, listID int64) int
 		GetAllCountries               func(childComplexity int) int
 		GetAllLists                   func(childComplexity int, listType *gmodel.ListType) int
+		GetAllProductListsByListID    func(childComplexity int, listID int64) int
 		GetAllUsers                   func(childComplexity int, paginator gmodel.PaginatorInput, filters *gmodel.UserFilter) int
 		GetCategories                 func(childComplexity int, depth *int, parentID *int64) int
 		GetFavoriteBranchesWithPrices func(childComplexity int, productID int64) int
@@ -427,6 +429,8 @@ type QueryResolver interface {
 	GetCategories(ctx context.Context, depth *int, parentID *int64) ([]*gmodel.Category, error)
 	GetAllCountries(ctx context.Context) ([]*gmodel.Country, error)
 	GetAllLists(ctx context.Context, listType *gmodel.ListType) ([]*gmodel.List, error)
+	GetAllProductListsByListID(ctx context.Context, listID int64) ([]*gmodel.ProductList, error)
+	GetAllBranchListsByListID(ctx context.Context, listID int64) ([]*gmodel.BranchList, error)
 	GetFavoriteBranchesWithPrices(ctx context.Context, productID int64) ([]*gmodel.BranchListWithPrices, error)
 	BarcodeScan(ctx context.Context, barcode string, searchMode *bool) (*gmodel.Product, error)
 	AllProducts(ctx context.Context, paginator gmodel.PaginatorInput, search *gmodel.ProductSearch) (*gmodel.PaginatedProducts, error)
@@ -1935,6 +1939,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.FindStore(childComplexity, args["id"].(int64)), true
 
+	case "Query.getAllBranchListsByListId":
+		if e.complexity.Query.GetAllBranchListsByListID == nil {
+			break
+		}
+
+		args, err := ec.field_Query_getAllBranchListsByListId_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetAllBranchListsByListID(childComplexity, args["listId"].(int64)), true
+
 	case "Query.getAllCountries":
 		if e.complexity.Query.GetAllCountries == nil {
 			break
@@ -1953,6 +1969,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.GetAllLists(childComplexity, args["listType"].(*gmodel.ListType)), true
+
+	case "Query.getAllProductListsByListId":
+		if e.complexity.Query.GetAllProductListsByListID == nil {
+			break
+		}
+
+		args, err := ec.field_Query_getAllProductListsByListId_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetAllProductListsByListID(childComplexity, args["listId"].(int64)), true
 
 	case "Query.getAllUsers":
 		if e.complexity.Query.GetAllUsers == nil {
@@ -3264,6 +3292,21 @@ func (ec *executionContext) field_Query_findStore_args(ctx context.Context, rawA
 	return args, nil
 }
 
+func (ec *executionContext) field_Query_getAllBranchListsByListId_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 int64
+	if tmp, ok := rawArgs["listId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("listId"))
+		arg0, err = ec.unmarshalNID2int64(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["listId"] = arg0
+	return args, nil
+}
+
 func (ec *executionContext) field_Query_getAllLists_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -3276,6 +3319,21 @@ func (ec *executionContext) field_Query_getAllLists_args(ctx context.Context, ra
 		}
 	}
 	args["listType"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_getAllProductListsByListId_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 int64
+	if tmp, ok := rawArgs["listId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("listId"))
+		arg0, err = ec.unmarshalNID2int64(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["listId"] = arg0
 	return args, nil
 }
 
@@ -14134,6 +14192,194 @@ func (ec *executionContext) fieldContext_Query_getAllLists(ctx context.Context, 
 	return fc, nil
 }
 
+func (ec *executionContext) _Query_getAllProductListsByListId(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_getAllProductListsByListId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().GetAllProductListsByListID(rctx, fc.Args["listId"].(int64))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.IsAuthenticated == nil {
+				return nil, errors.New("directive isAuthenticated is not implemented")
+			}
+			return ec.directives.IsAuthenticated(ctx, nil, directive0, nil)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.([]*gmodel.ProductList); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*github.com/pricetra/api/graph/gmodel.ProductList`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*gmodel.ProductList)
+	fc.Result = res
+	return ec.marshalNProductList2ᚕᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐProductListᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_getAllProductListsByListId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_ProductList_id(ctx, field)
+			case "userId":
+				return ec.fieldContext_ProductList_userId(ctx, field)
+			case "listId":
+				return ec.fieldContext_ProductList_listId(ctx, field)
+			case "list":
+				return ec.fieldContext_ProductList_list(ctx, field)
+			case "type":
+				return ec.fieldContext_ProductList_type(ctx, field)
+			case "productId":
+				return ec.fieldContext_ProductList_productId(ctx, field)
+			case "product":
+				return ec.fieldContext_ProductList_product(ctx, field)
+			case "stock":
+				return ec.fieldContext_ProductList_stock(ctx, field)
+			case "stockId":
+				return ec.fieldContext_ProductList_stockId(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_ProductList_createdAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ProductList", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_getAllProductListsByListId_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_getAllBranchListsByListId(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_getAllBranchListsByListId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().GetAllBranchListsByListID(rctx, fc.Args["listId"].(int64))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.IsAuthenticated == nil {
+				return nil, errors.New("directive isAuthenticated is not implemented")
+			}
+			return ec.directives.IsAuthenticated(ctx, nil, directive0, nil)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.([]*gmodel.BranchList); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*github.com/pricetra/api/graph/gmodel.BranchList`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*gmodel.BranchList)
+	fc.Result = res
+	return ec.marshalNBranchList2ᚕᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐBranchListᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_getAllBranchListsByListId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_BranchList_id(ctx, field)
+			case "userId":
+				return ec.fieldContext_BranchList_userId(ctx, field)
+			case "listId":
+				return ec.fieldContext_BranchList_listId(ctx, field)
+			case "list":
+				return ec.fieldContext_BranchList_list(ctx, field)
+			case "branchId":
+				return ec.fieldContext_BranchList_branchId(ctx, field)
+			case "branch":
+				return ec.fieldContext_BranchList_branch(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_BranchList_createdAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type BranchList", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_getAllBranchListsByListId_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Query_getFavoriteBranchesWithPrices(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Query_getFavoriteBranchesWithPrices(ctx, field)
 	if err != nil {
@@ -22420,6 +22666,50 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_getAllLists(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "getAllProductListsByListId":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getAllProductListsByListId(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "getAllBranchListsByListId":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getAllBranchListsByListId(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
