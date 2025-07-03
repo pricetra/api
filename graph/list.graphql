@@ -51,7 +51,7 @@ extend type Query {
 
   getAllProductListsByListId(listId: ID!): [ProductList!]!
     @isAuthenticated
-  getAllBranchListsByListId(listId: ID!): [BranchList!]!
+  getAllBranchListsByListId(listId: ID!): [BranchList!]! @isAuthenticated
 
   getFavoriteBranchesWithPrices(productId: ID!): [BranchListWithPrices!]!
     @isAuthenticated
