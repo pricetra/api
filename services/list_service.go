@@ -433,6 +433,12 @@ func (s Service) GetProductListsWithListId(
 	if err = qb.QueryContext(ctx, s.DbOrTxQueryable(), &product_lists); err != nil {
 		return nil, err
 	}
+	for i := range product_lists {
+		if product_lists[i].StockID != nil {
+			continue
+		}
+		product_lists[i].Stock = nil
+	}
 	return product_lists, nil
 }
 
