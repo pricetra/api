@@ -137,6 +137,31 @@ func (s Service) LatestPriceForProduct(ctx context.Context, product_id int64, br
 	return price, nil
 }
 
+func (s Service) FindPrices(ctx context.Context, product_id int64, branch_id int64) (prices []gmodel.Price, err error) {
+	created_by_user, _, _ := s.CreatedAndUpdatedUserTable()
+	qb := table.Price.
+		SELECT(
+			table.Price.AllColumns,
+			created_by_user.ID,
+			created_by_user.Name,
+			created_by_user.Avatar,
+		).
+		FROM(table.Price.
+			LEFT_JOIN(created_by_user, created_by_user.ID.EQ(table.Price.CreatedByID)),
+		).
+		WHERE(
+			postgres.AND(
+				table.Price.ProductID.EQ(postgres.Int(product_id)),
+				table.Price.BranchID.EQ(postgres.Int(branch_id)),
+			),
+		).
+		ORDER_BY(table.Price.ID.DESC())
+	if err = qb.QueryContext(ctx, s.DbOrTxQueryable(), &prices); err != nil {
+		return nil, err
+	}
+	return prices, nil
+}
+
 func (s Service) SendPriceChangePushNotifications(ctx context.Context, users []gmodel.User, new_price gmodel.Price, old_price gmodel.Price) (res []expo.PushResponse, err error) {
 	if len(users) == 0 {
 		return res, nil
