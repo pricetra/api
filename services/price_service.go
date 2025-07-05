@@ -14,6 +14,10 @@ import (
 )
 
 func (s Service) CreatePrice(ctx context.Context, user gmodel.User, input gmodel.CreatePrice) (price gmodel.Price, err error) {
+	if err = s.StructValidator.StructCtx(ctx, input); err != nil {
+		return gmodel.Price{}, fmt.Errorf("invalid input: %w", err)
+	}
+
 	product, err := s.FindProductById(ctx, input.ProductID)
 	if err != nil {
 		return gmodel.Price{}, fmt.Errorf("could not find product")
@@ -37,12 +41,19 @@ func (s Service) CreatePrice(ctx context.Context, user gmodel.User, input gmodel
 		input.OriginalPrice = &stock.LatestPrice.Amount
 	} else if input.Sale && input.OriginalPrice != nil {
 		// if original price is provided then add that first as an entry
-		s.CreatePrice(ctx, user, gmodel.CreatePrice{
+		_, err = s.CreatePrice(ctx, user, gmodel.CreatePrice{
 			ProductID: input.ProductID,
 			Amount: *input.OriginalPrice,
 			BranchID: input.BranchID,
 			CurrencyCode: input.CurrencyCode,
 		})
+		if err != nil {
+			return gmodel.Price{}, fmt.Errorf("could not create original price entry")
+		}
+	}
+
+	if input.OriginalPrice != nil && *input.OriginalPrice <= input.Amount {
+		return gmodel.Price{}, fmt.Errorf("original price must be greater than the current price")
 	}
 
 	if input.Sale && input.ExpiresAt == nil {
@@ -89,7 +100,10 @@ func (s Service) CreatePrice(ctx context.Context, user gmodel.User, input gmodel
 		return gmodel.Price{}, err
 	}
 
-	updated_stock, _ := s.UpdateStockWithLatestPrice(ctx, user, stock.ID, price.ID)
+	updated_stock, err := s.UpdateStockWithLatestPrice(ctx, user, stock.ID, price.ID)
+	if err != nil {
+		return gmodel.Price{}, fmt.Errorf("could not update stock with latest price")
+	}
 	price.Stock = &updated_stock
 	price.Product = &product
 	price.Branch = &branch
