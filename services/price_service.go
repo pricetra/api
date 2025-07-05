@@ -41,6 +41,10 @@ func (s Service) CreatePrice(ctx context.Context, user gmodel.User, input gmodel
 		input.OriginalPrice = nil
 	}
 
+	if input.Sale && input.OriginalPrice != nil && *input.OriginalPrice <= input.Amount {
+		return gmodel.Price{}, fmt.Errorf("original price must be greater than the current price")
+	}
+
 	if input.OriginalPrice == nil && stock.LatestPrice != nil {
 		// if original price is not provided use latest stock price
 		input.OriginalPrice = &stock.LatestPrice.Amount
@@ -55,10 +59,6 @@ func (s Service) CreatePrice(ctx context.Context, user gmodel.User, input gmodel
 		if err != nil {
 			return gmodel.Price{}, fmt.Errorf("could not create original price entry")
 		}
-	}
-
-	if input.OriginalPrice != nil && *input.OriginalPrice <= input.Amount {
-		return gmodel.Price{}, fmt.Errorf("original price must be greater than the current price")
 	}
 
 	if input.Sale && input.ExpiresAt == nil {
