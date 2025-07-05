@@ -57,13 +57,17 @@ func (s Service) CreatePrice(ctx context.Context, user gmodel.User, input gmodel
 			CurrencyCode: input.CurrencyCode,
 		})
 		if err != nil {
-			return gmodel.Price{}, fmt.Errorf("could not create original price entry")
+			return gmodel.Price{}, fmt.Errorf("could not create original price entry: %w", err)
 		}
 	}
 
 	if input.Sale && input.ExpiresAt == nil {
 		next_week := time.Now().Add(time.Hour * 24 * 7)
 		input.ExpiresAt = &next_week
+	}
+
+	if input.Sale && input.ExpiresAt.Before(time.Now()) {
+		return gmodel.Price{}, fmt.Errorf("expiration date cannot be in the past")
 	}
 
 	currency_code := "USD"
