@@ -18,6 +18,11 @@ func (s Service) CreatePrice(ctx context.Context, user gmodel.User, input gmodel
 		return gmodel.Price{}, fmt.Errorf("invalid input: %w", err)
 	}
 
+	if s.TX, err = s.DB.BeginTx(ctx, nil); err != nil {
+		return gmodel.Price{}, fmt.Errorf("could not begin transaction")
+	}
+	defer s.TX.Rollback()
+
 	product, err := s.FindProductById(ctx, input.ProductID)
 	if err != nil {
 		return gmodel.Price{}, fmt.Errorf("could not find product")
@@ -96,13 +101,16 @@ func (s Service) CreatePrice(ctx context.Context, user gmodel.User, input gmodel
 		CreatedByID: &user.ID,
 		UpdatedByID: &user.ID,
 	}).RETURNING(table.Price.AllColumns)
-	if err = qb.QueryContext(ctx, s.DbOrTxQueryable(), &price); err != nil {
+	if err = qb.QueryContext(ctx, s.TX, &price); err != nil {
 		return gmodel.Price{}, err
 	}
 
 	updated_stock, err := s.UpdateStockWithLatestPrice(ctx, user, stock.ID, price.ID)
 	if err != nil {
 		return gmodel.Price{}, fmt.Errorf("could not update stock with latest price")
+	}
+	if err = s.TX.Commit(); err != nil {
+		return gmodel.Price{}, fmt.Errorf("could not commit transaction")
 	}
 	price.Stock = &updated_stock
 	price.Product = &product
