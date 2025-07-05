@@ -31,7 +31,7 @@ type Price {
 input CreatePrice {
   productId: ID!
   branchId: ID!
-  amount: Float!
+  amount: Float! @goTag(key: "validate", value: "gt=0")
   currencyCode: String
   sale: Boolean!
   originalPrice: Float

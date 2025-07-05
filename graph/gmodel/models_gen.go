@@ -131,7 +131,7 @@ type CreateCategory struct {
 type CreatePrice struct {
 	ProductID     int64           `json:"productId"`
 	BranchID      int64           `json:"branchId"`
-	Amount        float64         `json:"amount"`
+	Amount        float64         `json:"amount" validate:"gt=0"`
 	CurrencyCode  *string         `json:"currencyCode,omitempty"`
 	Sale          bool            `json:"sale"`
 	OriginalPrice *float64        `json:"originalPrice,omitempty"`

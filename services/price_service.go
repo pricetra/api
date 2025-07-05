@@ -14,6 +14,15 @@ import (
 )
 
 func (s Service) CreatePrice(ctx context.Context, user gmodel.User, input gmodel.CreatePrice) (price gmodel.Price, err error) {
+	if err = s.StructValidator.StructCtx(ctx, input); err != nil {
+		return gmodel.Price{}, fmt.Errorf("invalid input: %w", err)
+	}
+
+	if s.TX, err = s.DB.BeginTx(ctx, nil); err != nil {
+		return gmodel.Price{}, fmt.Errorf("could not begin transaction")
+	}
+	defer s.TX.Rollback()
+
 	product, err := s.FindProductById(ctx, input.ProductID)
 	if err != nil {
 		return gmodel.Price{}, fmt.Errorf("could not find product")
@@ -32,22 +41,33 @@ func (s Service) CreatePrice(ctx context.Context, user gmodel.User, input gmodel
 		input.OriginalPrice = nil
 	}
 
+	if input.Sale && input.OriginalPrice != nil && *input.OriginalPrice <= input.Amount {
+		return gmodel.Price{}, fmt.Errorf("original price must be greater than the current price")
+	}
+
 	if input.OriginalPrice == nil && stock.LatestPrice != nil {
 		// if original price is not provided use latest stock price
 		input.OriginalPrice = &stock.LatestPrice.Amount
 	} else if input.Sale && input.OriginalPrice != nil {
 		// if original price is provided then add that first as an entry
-		s.CreatePrice(ctx, user, gmodel.CreatePrice{
+		_, err = s.CreatePrice(ctx, user, gmodel.CreatePrice{
 			ProductID: input.ProductID,
 			Amount: *input.OriginalPrice,
 			BranchID: input.BranchID,
 			CurrencyCode: input.CurrencyCode,
 		})
+		if err != nil {
+			return gmodel.Price{}, fmt.Errorf("could not create original price entry: %w", err)
+		}
 	}
 
 	if input.Sale && input.ExpiresAt == nil {
 		next_week := time.Now().Add(time.Hour * 24 * 7)
 		input.ExpiresAt = &next_week
+	}
+
+	if input.Sale && input.ExpiresAt.Before(time.Now()) {
+		return gmodel.Price{}, fmt.Errorf("expiration date cannot be in the past")
 	}
 
 	currency_code := "USD"
@@ -85,11 +105,17 @@ func (s Service) CreatePrice(ctx context.Context, user gmodel.User, input gmodel
 		CreatedByID: &user.ID,
 		UpdatedByID: &user.ID,
 	}).RETURNING(table.Price.AllColumns)
-	if err = qb.QueryContext(ctx, s.DbOrTxQueryable(), &price); err != nil {
+	if err = qb.QueryContext(ctx, s.TX, &price); err != nil {
 		return gmodel.Price{}, err
 	}
 
-	updated_stock, _ := s.UpdateStockWithLatestPrice(ctx, user, stock.ID, price.ID)
+	updated_stock, err := s.UpdateStockWithLatestPrice(ctx, user, stock.ID, price.ID)
+	if err != nil {
+		return gmodel.Price{}, fmt.Errorf("could not update stock with latest price")
+	}
+	if err = s.TX.Commit(); err != nil {
+		return gmodel.Price{}, fmt.Errorf("could not commit transaction")
+	}
 	price.Stock = &updated_stock
 	price.Product = &product
 	price.Branch = &branch
@@ -113,6 +139,31 @@ func (s Service) LatestPriceForProduct(ctx context.Context, product_id int64, br
 		return gmodel.Price{}, err
 	}
 	return price, nil
+}
+
+func (s Service) FindPrices(ctx context.Context, product_id int64, branch_id int64) (prices []gmodel.Price, err error) {
+	created_by_user, _, _ := s.CreatedAndUpdatedUserTable()
+	qb := table.Price.
+		SELECT(
+			table.Price.AllColumns,
+			created_by_user.ID,
+			created_by_user.Name,
+			created_by_user.Avatar,
+		).
+		FROM(table.Price.
+			LEFT_JOIN(created_by_user, created_by_user.ID.EQ(table.Price.CreatedByID)),
+		).
+		WHERE(
+			postgres.AND(
+				table.Price.ProductID.EQ(postgres.Int(product_id)),
+				table.Price.BranchID.EQ(postgres.Int(branch_id)),
+			),
+		).
+		ORDER_BY(table.Price.ID.DESC())
+	if err = qb.QueryContext(ctx, s.DbOrTxQueryable(), &prices); err != nil {
+		return nil, err
+	}
+	return prices, nil
 }
 
 func (s Service) SendPriceChangePushNotifications(ctx context.Context, users []gmodel.User, new_price gmodel.Price, old_price gmodel.Price) (res []expo.PushResponse, err error) {
