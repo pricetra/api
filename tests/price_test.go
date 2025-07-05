@@ -2,6 +2,7 @@ package tests
 
 import (
 	"testing"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/pricetra/api/graph/gmodel"
@@ -152,6 +153,71 @@ func TestPrice(t *testing.T) {
 			}
 			if *new_price.OriginalPrice != price.Amount {
 				t.Fatal("original price should be equal to the current price, but got", *new_price.OriginalPrice)
+			}
+			if prices, err := service.FindPrices(ctx, product.ID, branch.ID); err != nil || len(prices) != 3 {
+				t.Fatal("there should only be 3 price row")
+			}
+		})
+
+		t.Run("create sale with old expiration date", func(t *testing.T) {
+			price_input.Amount = 4.99
+			price_input.OriginalPrice = nil
+			price_input.Sale = true
+			date := time.Now().Add(-time.Hour * 24) // 1 days ago
+			price_input.ExpiresAt = &date
+			if _, err = service.CreatePrice(ctx, user, price_input); err == nil {
+				t.Fatal("should not be able to create price with old expiration date")
+			}
+		})
+
+		t.Run("create full sale price", func(t *testing.T) {
+			price_input.Amount = 4.89
+			org_price := 10.99
+			price_input.OriginalPrice = &org_price
+			price_input.Sale = true
+			exp_date := time.Now().Add(time.Hour * 24 * 3 * 7) // 3 weeks from now
+			price_input.ExpiresAt = &exp_date
+			new_price, err := service.CreatePrice(ctx, user, price_input)
+			if err != nil {
+				t.Fatal(err)
+			}
+			exp_date_date_only, err := time.Parse(time.DateOnly, exp_date.Format("2006-01-02"))
+			if err != nil {
+				t.Fatal("could not parse expiration date", err)
+			}
+			if new_price.ExpiresAt.Equal(exp_date_date_only) {
+				t.Fatal("expiresAt should not be nil, but got nil")
+			}
+			if new_price.OriginalPrice == nil {
+				t.Fatal("original price should not be nil, but got nil")
+			}
+			if *new_price.OriginalPrice != org_price {
+				t.Fatal("original price should be equal to the provided original price, but got", *new_price.OriginalPrice)
+			}
+			if prices, err := service.FindPrices(ctx, product.ID, branch.ID); err != nil || len(prices) != 5 {
+				t.Fatal("there should only be 4 price row")
+			}
+
+			stock, err := service.FindStock(ctx, product.ID, branch.ID, branch.StoreID)
+			if err != nil {
+				t.Fatal("stock should be created after creating price")
+			}
+			if stock.LatestPriceID != new_price.ID {
+				t.Fatal("stock latest price should be set to the created price")
+			}
+		})
+
+		t.Run("create sale with original price set to 0", func(t *testing.T) {
+			price_input.Amount = 4.89
+			org_price := 0.0
+			price_input.OriginalPrice = &org_price
+			price_input.Sale = true
+			if _, err := service.CreatePrice(ctx, user, price_input); err == nil {
+				t.Fatal("should not be able to create price when original price set to 0")
+			}
+
+			if prices, err := service.FindPrices(ctx, product.ID, branch.ID); err != nil || len(prices) != 5 {
+				t.Fatal("there should only be 4 price row")
 			}
 		})
 	})
