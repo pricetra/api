@@ -179,7 +179,7 @@ type ComplexityRoot struct {
 		RegisterExpoPushToken       func(childComplexity int, expoPushToken string) int
 		RemoveBranchFromList        func(childComplexity int, listID int64, branchListID int64) int
 		RemoveFromList              func(childComplexity int, listID int64, productListID int64) int
-		RemoveFromListWithProductID func(childComplexity int, listID int64, productID int64) int
+		RemoveFromListWithProductID func(childComplexity int, listID int64, productID int64, stockID *int64) int
 		RequestPasswordReset        func(childComplexity int, email string) int
 		ResendEmailVerificationCode func(childComplexity int, email string) int
 		SaveProductsFromUPCItemDb   func(childComplexity int, input gmodel.SaveExternalProductInput) int
@@ -401,7 +401,7 @@ type MutationResolver interface {
 	DeleteList(ctx context.Context, listID int64) (*gmodel.List, error)
 	AddToList(ctx context.Context, listID int64, productID int64, stockID *int64) (*gmodel.ProductList, error)
 	RemoveFromList(ctx context.Context, listID int64, productListID int64) (*gmodel.ProductList, error)
-	RemoveFromListWithProductID(ctx context.Context, listID int64, productID int64) (*gmodel.ProductList, error)
+	RemoveFromListWithProductID(ctx context.Context, listID int64, productID int64, stockID *int64) (*gmodel.ProductList, error)
 	AddBranchToList(ctx context.Context, listID int64, branchID int64) (*gmodel.BranchList, error)
 	BulkAddBranchesToList(ctx context.Context, listID int64, branchIds []int64) ([]*gmodel.BranchList, error)
 	RemoveBranchFromList(ctx context.Context, listID int64, branchListID int64) (*gmodel.BranchList, error)
@@ -1202,7 +1202,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.RemoveFromListWithProductID(childComplexity, args["listId"].(int64), args["productId"].(int64)), true
+		return e.complexity.Mutation.RemoveFromListWithProductID(childComplexity, args["listId"].(int64), args["productId"].(int64), args["stockId"].(*int64)), true
 
 	case "Mutation.requestPasswordReset":
 		if e.complexity.Mutation.RequestPasswordReset == nil {
@@ -2932,6 +2932,15 @@ func (ec *executionContext) field_Mutation_removeFromListWithProductId_args(ctx 
 		}
 	}
 	args["productId"] = arg1
+	var arg2 *int64
+	if tmp, ok := rawArgs["stockId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("stockId"))
+		arg2, err = ec.unmarshalOID2ᚖint64(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["stockId"] = arg2
 	return args, nil
 }
 
@@ -7911,7 +7920,7 @@ func (ec *executionContext) _Mutation_removeFromListWithProductId(ctx context.Co
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		directive0 := func(rctx context.Context) (interface{}, error) {
 			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Mutation().RemoveFromListWithProductID(rctx, fc.Args["listId"].(int64), fc.Args["productId"].(int64))
+			return ec.resolvers.Mutation().RemoveFromListWithProductID(rctx, fc.Args["listId"].(int64), fc.Args["productId"].(int64), fc.Args["stockId"].(*int64))
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
 			if ec.directives.IsAuthenticated == nil {

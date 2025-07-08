@@ -64,7 +64,7 @@ extend type Mutation {
   addToList(listId: ID!, productId: ID!, stockId: ID): ProductList!
     @isAuthenticated
   removeFromList(listId: ID!, productListId: ID!): ProductList! @isAuthenticated
-  removeFromListWithProductId(listId: ID!, productId: ID!): ProductList!
+  removeFromListWithProductId(listId: ID!, productId: ID!, stockId: ID): ProductList!
     @isAuthenticated
 
   addBranchToList(listId: ID!, branchId: ID!): BranchList! @isAuthenticated

@@ -52,9 +52,9 @@ func (r *mutationResolver) RemoveFromList(ctx context.Context, listID int64, pro
 }
 
 // RemoveFromListWithProductID is the resolver for the removeFromListWithProductId field.
-func (r *mutationResolver) RemoveFromListWithProductID(ctx context.Context, listID int64, productID int64) (*gmodel.ProductList, error) {
+func (r *mutationResolver) RemoveFromListWithProductID(ctx context.Context, listID int64, productID int64, stockID *int64) (*gmodel.ProductList, error) {
 	user := r.Service.GetAuthUserFromContext(ctx)
-	product_list, err := r.Service.RemoveProductFromListWitProductId(ctx, user, listID, productID)
+	product_list, err := r.Service.RemoveProductFromListWitProductId(ctx, user, listID, productID, stockID)
 	if err != nil {
 		return nil, err
 	}

@@ -147,15 +147,21 @@ func (s Service) FindProductListWithProductId(
 	user gmodel.User,
 	list_id int64,
 	product_id int64,
+	stock_id *int64,
 ) (product_list gmodel.ProductList, err error) {
+	where_clause := table.ProductList.ListID.EQ(postgres.Int(list_id)).
+			AND(table.ProductList.UserID.EQ(postgres.Int(user.ID))).
+			AND(table.ProductList.ProductID.EQ(postgres.Int(product_id)))
+	if stock_id != nil {
+		where_clause = where_clause.AND(
+			table.ProductList.StockID.EQ(postgres.Int(*stock_id)),
+		)
+	}
 	qb := table.ProductList.
 		SELECT(table.ProductList.AllColumns).
 		FROM(table.ProductList).
-		WHERE(
-			table.ProductList.ListID.EQ(postgres.Int(list_id)).
-			AND(table.ProductList.UserID.EQ(postgres.Int(user.ID))).
-			AND(table.ProductList.ProductID.EQ(postgres.Int(product_id))),
-		).LIMIT(1)
+		WHERE(where_clause).
+		LIMIT(1)
 	if err = qb.QueryContext(ctx, s.DbOrTxQueryable(), &product_list); err != nil {
 		return gmodel.ProductList{}, err
 	}
@@ -266,7 +272,7 @@ func (s Service) AddProductToList(
 	}
 
 	// return product_list if it already exists in list
-	existing_product_list, _ := s.FindProductListWithProductId(ctx, user, list.ID, product_id)
+	existing_product_list, _ := s.FindProductListWithProductId(ctx, user, list.ID, product_id, stock_id)
 	if existing_product_list != (gmodel.ProductList{}) {
 		return existing_product_list, nil
 	}
@@ -311,7 +317,7 @@ func (s Service) RemoveProductFromList(ctx context.Context, user gmodel.User, li
 	return product_list, nil
 }
 
-func (s Service) RemoveProductFromListWitProductId(ctx context.Context, user gmodel.User, list_id int64, product_id int64) (product_list gmodel.ProductList, err error) {
+func (s Service) RemoveProductFromListWitProductId(ctx context.Context, user gmodel.User, list_id int64, product_id int64, stock_id *int64) (product_list gmodel.ProductList, err error) {
 	list, err := s.FindListByIdAndUserId(ctx, list_id, user.ID)
 	if err != nil {
 		return gmodel.ProductList{}, fmt.Errorf("invalid list")
@@ -322,13 +328,17 @@ func (s Service) RemoveProductFromListWitProductId(ctx context.Context, user gmo
 		return gmodel.ProductList{}, fmt.Errorf("invalid product")
 	}
 
+	where_clause := table.ProductList.ListID.EQ(postgres.Int(list.ID)).
+		AND(table.ProductList.ProductID.EQ(postgres.Int(product.ID))).
+		AND(table.ProductList.UserID.EQ(postgres.Int(user.ID)))
+	if stock_id != nil {
+		where_clause = where_clause.AND(
+			table.ProductList.StockID.EQ(postgres.Int(*stock_id)),
+		)
+	}
 	qb := table.ProductList.
 		DELETE().
-		WHERE(
-			table.ProductList.ListID.EQ(postgres.Int(list.ID)).
-			AND(table.ProductList.ProductID.EQ(postgres.Int(product.ID))).
-			AND(table.ProductList.UserID.EQ(postgres.Int(user.ID))),
-		).
+		WHERE(where_clause).
 		RETURNING(table.ProductList.AllColumns)
 	if err := qb.QueryContext(ctx, s.DbOrTxQueryable(), &product_list); err != nil {
 		return gmodel.ProductList{}, err
