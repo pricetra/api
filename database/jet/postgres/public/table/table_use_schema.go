@@ -12,6 +12,8 @@ package table
 func UseSchema(schema string) {
 	Address = Address.FromSchema(schema)
 	AdministrativeDivision = AdministrativeDivision.FromSchema(schema)
+	AiPromptResponse = AiPromptResponse.FromSchema(schema)
+	AiPromptTemplate = AiPromptTemplate.FromSchema(schema)
 	AuthState = AuthState.FromSchema(schema)
 	Branch = Branch.FromSchema(schema)
 	BranchList = BranchList.FromSchema(schema)
