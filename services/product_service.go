@@ -2,13 +2,10 @@ package services
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
 
-	"cloud.google.com/go/vision/v2/apiv1/visionpb"
-	"github.com/cloudinary/cloudinary-go/v2/api"
 	"github.com/cloudinary/cloudinary-go/v2/api/uploader"
 	"github.com/go-jet/jet/v2/postgres"
 	"github.com/google/uuid"
@@ -454,6 +451,7 @@ func (s Service) ExtractProductTextFromBase64Image(ctx context.Context, base64_i
 		return gmodel.ProductExtractionFields{}, fmt.Errorf("not a valid base64 encoded image")
 	}
 
+	// upload image to CDN
 	upload_id := uuid.NewString()
 	upload_res, err := s.ImageUrlUpload(ctx, base64_image, uploader.UploadParams{
 		PublicID: upload_id,
@@ -466,71 +464,33 @@ func (s Service) ExtractProductTextFromBase64Image(ctx context.Context, base64_i
 	if upload_res == nil {
 		return gmodel.ProductExtractionFields{}, fmt.Errorf("upload response was empty")
 	}
-	if upload_res.Error != (api.ErrorResp{}) {
-		return gmodel.ProductExtractionFields{}, fmt.Errorf("upload was unsuccessful %s", upload_res.Error.Message)
-	}
 
+	// use uploaded image to extract OCR data
+	// using Google Vision
 	upload_uri := fmt.Sprintf("%s/%s", CLOUDINARY_UPLOAD_BASE, upload_id)
-	res, err := s.GoogleVisionApiClient.AnnotateImage(ctx, &visionpb.AnnotateImageRequest{
-		Image: &visionpb.Image{
-			Source: &visionpb.ImageSource{
-				ImageUri: upload_uri,
-			},
-		},
-		Features: []*visionpb.Feature{
-			{
-				Type: visionpb.Feature_TEXT_DETECTION,
-			},
-			{
-				Type: visionpb.Feature_LOGO_DETECTION,
-			},
-		},
-	})
+	ocr_data, err := s.GoogleVisionOcrData(ctx, upload_uri)
 	if err != nil {
-		return gmodel.ProductExtractionFields{}, err
-	}
-	if res == nil {
-		return gmodel.ProductExtractionFields{}, fmt.Errorf("OCR response was empty")
-	}
-	if res.Error != nil {
-		return gmodel.ProductExtractionFields{}, fmt.Errorf("OCR returned an error: %s", res.Error.Message)
-	}
-	if res.FullTextAnnotation == nil {
-		return gmodel.ProductExtractionFields{}, fmt.Errorf("OCR full text annotation was null")
-	}
-
-	ocr_data := strings.TrimSpace(res.FullTextAnnotation.Text)
-	ocr_data = strings.ReplaceAll(ocr_data, "\n", " ")
-	if len(ocr_data) == 0 {
-		return gmodel.ProductExtractionFields{}, fmt.Errorf("OCR data was empty")
+		return gmodel.ProductExtractionFields{}, fmt.Errorf("ocr error: %w", err)
 	}
 	
-	qb := table.AiPromptTemplate.
-		SELECT(table.AiPromptTemplate.AllColumns).
-		FROM(table.AiPromptTemplate).
-		WHERE(table.AiPromptTemplate.Type.EQ(
-			postgres.NewEnumValue(model.AiPromptType_ProductDetails.String()),
-		)).
-		LIMIT(1)
-	var template model.AiPromptTemplate
-	if qb.QueryContext(ctx, s.DbOrTxQueryable(), &template); err != nil {
-		return gmodel.ProductExtractionFields{}, err
+	// get prompt template
+	template, err := s.GetAiTemplate(ctx, model.AiPromptType_ProductDetails)
+	if err != nil {
+		return gmodel.ProductExtractionFields{}, fmt.Errorf("template error")
 	}
 
+	// replace variables with ocr data
 	template.Prompt = strings.ReplaceAll(template.Prompt, template.Variable, ocr_data)
+
+	// get gpt response
 	gpt_res, err := s.GptResponse(ctx, template.Prompt, template.MaxTokens)
 	if err != nil {
 		return gmodel.ProductExtractionFields{}, fmt.Errorf("could not analyze ocr data: %w", err)
 	}
-	if len(gpt_res.Choices) != 1 {
-		return gmodel.ProductExtractionFields{}, fmt.Errorf("unexpected choice response. expected 1 got %d", len(gpt_res.Choices))
-	}
 
-	response_content := gpt_res.Choices[0].Message.Content
-	response_content = strings.ReplaceAll(response_content, "`", "")
-	response_content = strings.Replace(response_content, "json", "", 1)
-	if err := json.Unmarshal([]byte(response_content), &extraction_ob); err != nil {
-		return gmodel.ProductExtractionFields{}, fmt.Errorf("could not parse choice response. %w", err)
+	extraction_ob, err = ParseRawGptResponse[gmodel.ProductExtractionFields](gpt_res)
+	if err != nil {
+		return gmodel.ProductExtractionFields{}, err
 	}
 	return extraction_ob, nil
 }

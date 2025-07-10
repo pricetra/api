@@ -7,7 +7,63 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strings"
+
+	"cloud.google.com/go/vision/v2/apiv1/visionpb"
+	"github.com/go-jet/jet/v2/postgres"
+	"github.com/pricetra/api/database/jet/postgres/public/model"
+	"github.com/pricetra/api/database/jet/postgres/public/table"
 )
+
+func (s Service) GetAiTemplate(ctx context.Context, template_type model.AiPromptType) (template model.AiPromptTemplate, err error) {
+	qb := table.AiPromptTemplate.
+		SELECT(table.AiPromptTemplate.AllColumns).
+		FROM(table.AiPromptTemplate).
+		WHERE(table.AiPromptTemplate.Type.EQ(
+			postgres.NewEnumValue(string(template_type)),
+		)).
+		LIMIT(1)
+	err = qb.QueryContext(ctx, s.DbOrTxQueryable(), &template)
+	return template, err
+}
+
+func (s Service) GoogleVisionOcrData(ctx context.Context, image_url string) (ocr_data string, err error) {
+	res, err := s.GoogleVisionApiClient.AnnotateImage(ctx, &visionpb.AnnotateImageRequest{
+		Image: &visionpb.Image{
+			Source: &visionpb.ImageSource{
+				ImageUri: image_url,
+			},
+		},
+		Features: []*visionpb.Feature{
+			{
+				Type: visionpb.Feature_TEXT_DETECTION,
+			},
+			{
+				Type: visionpb.Feature_LOGO_DETECTION,
+			},
+		},
+	})
+	if err != nil {
+		return "", err
+	}
+	if res == nil {
+		return "", fmt.Errorf("response was empty")
+	}
+	if res.Error != nil {
+		return "", err
+	}
+	if res.FullTextAnnotation == nil {
+		return "", fmt.Errorf("full text annotation was null")
+	}
+
+	ocr_data = strings.TrimSpace(res.FullTextAnnotation.Text)
+	ocr_data = strings.ReplaceAll(ocr_data, "\n", " ")
+	if len(ocr_data) == 0 {
+		return "", fmt.Errorf("data was empty")
+	}
+
+	return ocr_data, nil
+}
 
 const OPENAI_API_BASE = "https://api.openai.com/v1"
 const OPENAI_MODEL = "gpt-4o"
@@ -91,6 +147,20 @@ func (s Service) GptResponse(ctx context.Context, prompt string, max_tokens int3
 
 	if err := json.NewDecoder(resp.Body).Decode(&res); err != nil {
 		return ChatCompletionResponse{}, fmt.Errorf("failed to parse gpt response: %w", err)
+	}
+	return res, nil
+}
+
+func ParseRawGptResponse[T any](gpt_res ChatCompletionResponse) (res T, err error) {
+	if len(gpt_res.Choices) != 1 {
+		return res, fmt.Errorf("unexpected choice response. expected 1 got %d", len(gpt_res.Choices))
+	}
+
+	response_content := gpt_res.Choices[0].Message.Content
+	response_content = strings.ReplaceAll(response_content, "`", "")
+	response_content = strings.Replace(response_content, "json", "", 1)
+	if err := json.Unmarshal([]byte(response_content), &res); err != nil {
+		return res, fmt.Errorf("could not parse choice response. %w", err)
 	}
 	return res, nil
 }
