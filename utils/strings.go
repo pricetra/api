@@ -40,3 +40,10 @@ func PostgresArrayToIntArray(p_array string) []int {
 	}
 	return int_array
 }
+
+func IsValidBase64Image(base64 string) bool {
+	if len(base64) > 50 {
+		base64 = base64[:50]
+	}
+	return strings.HasPrefix(base64, "data:image/") && strings.Contains(base64, ";base64,")
+}

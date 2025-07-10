@@ -8,7 +8,10 @@ import (
 	"time"
 
 	"cloud.google.com/go/vision/v2/apiv1/visionpb"
+	"github.com/cloudinary/cloudinary-go/v2/api"
+	"github.com/cloudinary/cloudinary-go/v2/api/uploader"
 	"github.com/go-jet/jet/v2/postgres"
+	"github.com/google/uuid"
 	"github.com/pricetra/api/database/jet/postgres/public/model"
 	"github.com/pricetra/api/database/jet/postgres/public/table"
 	"github.com/pricetra/api/graph/gmodel"
@@ -447,20 +450,57 @@ func (s Service) AddProductViewer(
 }
 
 func (s Service) ExtractProductTextFromBase64Image(ctx context.Context, base64_image string) (extraction_ob gmodel.ProductExtractionFields, err error) {
+	if !utils.IsValidBase64Image(base64_image) {
+		return gmodel.ProductExtractionFields{}, fmt.Errorf("not a valid base64 encoded image")
+	}
+
+	upload_id := uuid.NewString()
+	upload_res, err := s.ImageUrlUpload(ctx, base64_image, uploader.UploadParams{
+		PublicID: upload_id,
+		Tags: []string{"OCR"},
+	})
+	defer s.DeleteImageUpload(ctx, upload_id)
+	if err != nil {
+		return gmodel.ProductExtractionFields{}, fmt.Errorf("could not upload image: %w", err)
+	}
+	if upload_res == nil {
+		return gmodel.ProductExtractionFields{}, fmt.Errorf("upload response was empty")
+	}
+	if upload_res.Error != (api.ErrorResp{}) {
+		return gmodel.ProductExtractionFields{}, fmt.Errorf("upload was unsuccessful %s", upload_res.Error.Message)
+	}
+
+	upload_uri := fmt.Sprintf("%s/%s", CLOUDINARY_UPLOAD_BASE, upload_id)
 	res, err := s.GoogleVisionApiClient.AnnotateImage(ctx, &visionpb.AnnotateImageRequest{
 		Image: &visionpb.Image{
 			Source: &visionpb.ImageSource{
-				ImageUri: base64_image,
+				ImageUri: upload_uri,
+			},
+		},
+		Features: []*visionpb.Feature{
+			{
+				Type: visionpb.Feature_TEXT_DETECTION,
+			},
+			{
+				Type: visionpb.Feature_LOGO_DETECTION,
 			},
 		},
 	})
 	if err != nil {
 		return gmodel.ProductExtractionFields{}, err
 	}
-
-	log.Println("OCR Data: ", res.FullTextAnnotation.Text)
+	if res == nil {
+		return gmodel.ProductExtractionFields{}, fmt.Errorf("OCR response was empty")
+	}
+	if res.Error != nil {
+		return gmodel.ProductExtractionFields{}, fmt.Errorf("OCR returned an error: %s", res.Error.Message)
+	}
+	if res.FullTextAnnotation == nil {
+		return gmodel.ProductExtractionFields{}, fmt.Errorf("OCR full text annotation was null")
+	}
 
 	ocr_data := strings.TrimSpace(res.FullTextAnnotation.Text)
+	log.Println(ocr_data)
 	if len(ocr_data) == 0 {
 		return gmodel.ProductExtractionFields{}, fmt.Errorf("OCR data was empty")
 	}
