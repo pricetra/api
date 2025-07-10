@@ -14,7 +14,7 @@ type FullTextSearchComponents struct {
 }
 
 func (s Service) BuildFullTextSearchQueryComponents(search_vector_col postgres.ColumnString, query string) (res FullTextSearchComponents) {
-	rank_col := "rank"
+	rank_col := utils.BuildFullTableNameHyphen(search_vector_col) + "_rank"
 	search_vector_col_name := utils.BuildFullTableName(search_vector_col)
 	args := postgres.RawArgs{"$query": query}
 

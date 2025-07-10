@@ -219,11 +219,21 @@ func (s Service) PaginatedProducts(ctx context.Context, paginator_input gmodel.P
 
 		if search.Query != nil {
 			query := strings.TrimSpace(*search.Query)
-			if query != "" {
-				full_text_components := s.BuildFullTextSearchQueryComponents(table.Product.SearchVector, query)
-				cols = append(cols, full_text_components.RankColumn)
-				where_clause = where_clause.AND(full_text_components.WhereClause)
-				order_by = append(order_by, full_text_components.OrderByClause.DESC())
+			if len(query) > 0 {
+				product_ft_components := s.BuildFullTextSearchQueryComponents(table.Product.SearchVector, query)
+				category_ft_components := s.BuildFullTextSearchQueryComponents(table.Category.SearchVector, query)
+				cols = append(cols, product_ft_components.RankColumn, category_ft_components.RankColumn)
+				where_clause = where_clause.AND(
+					postgres.OR(
+						product_ft_components.WhereClause,
+						category_ft_components.WhereClause,
+					),
+				)
+				order_by = append(
+					order_by,
+					category_ft_components.OrderByClause.DESC(),
+					product_ft_components.OrderByClause.DESC(),
+				)
 			}
 		}
 	}

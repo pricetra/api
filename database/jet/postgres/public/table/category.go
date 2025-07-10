@@ -22,6 +22,7 @@ type categoryTable struct {
 	Path             postgres.ColumnString
 	ExpandedPathname postgres.ColumnString
 	CategoryAlias    postgres.ColumnString
+	SearchVector     postgres.ColumnString
 
 	AllColumns     postgres.ColumnList
 	MutableColumns postgres.ColumnList
@@ -67,7 +68,8 @@ func newCategoryTableImpl(schemaName, tableName, alias string) categoryTable {
 		PathColumn             = postgres.StringColumn("path")
 		ExpandedPathnameColumn = postgres.StringColumn("expanded_pathname")
 		CategoryAliasColumn    = postgres.StringColumn("category_alias")
-		allColumns             = postgres.ColumnList{IDColumn, NameColumn, PathColumn, ExpandedPathnameColumn, CategoryAliasColumn}
+		SearchVectorColumn     = postgres.StringColumn("search_vector")
+		allColumns             = postgres.ColumnList{IDColumn, NameColumn, PathColumn, ExpandedPathnameColumn, CategoryAliasColumn, SearchVectorColumn}
 		mutableColumns         = postgres.ColumnList{NameColumn, PathColumn, ExpandedPathnameColumn, CategoryAliasColumn}
 	)
 
@@ -80,6 +82,7 @@ func newCategoryTableImpl(schemaName, tableName, alias string) categoryTable {
 		Path:             PathColumn,
 		ExpandedPathname: ExpandedPathnameColumn,
 		CategoryAlias:    CategoryAliasColumn,
+		SearchVector:     SearchVectorColumn,
 
 		AllColumns:     allColumns,
 		MutableColumns: mutableColumns,

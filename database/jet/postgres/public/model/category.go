@@ -13,4 +13,5 @@ type Category struct {
 	Path             string
 	ExpandedPathname string
 	CategoryAlias    *string
+	SearchVector     *string
 }
