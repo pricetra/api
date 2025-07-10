@@ -5,6 +5,8 @@ go 1.21.0
 toolchain go1.21.5
 
 require (
+	cloud.google.com/go/vision v1.2.0
+	cloud.google.com/go/vision/v2 v2.7.5
 	github.com/99designs/gqlgen v0.17.44
 	github.com/cloudinary/cloudinary-go/v2 v2.7.0
 	github.com/go-chi/chi/v5 v5.0.12
@@ -24,8 +26,6 @@ require (
 	cloud.google.com/go/compute v1.23.4 // indirect
 	cloud.google.com/go/compute/metadata v0.2.3 // indirect
 	cloud.google.com/go/longrunning v0.5.4 // indirect
-	cloud.google.com/go/vision v1.2.0 // indirect
-	cloud.google.com/go/vision/v2 v2.7.5 // indirect
 	github.com/Azure/go-ansiterm v0.0.0-20230124172434-306776ec8161 // indirect
 	github.com/Microsoft/go-winio v0.6.1 // indirect
 	github.com/Nvveen/Gotty v0.0.0-20120604004816-cd527374f1e5 // indirect
