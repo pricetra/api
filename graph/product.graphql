@@ -6,6 +6,8 @@ extend type Query {
   ): PaginatedProducts! @isAuthenticated
   allBrands: [Brand!]! @isAuthenticated
   product(id: ID!, viewerTrail: ViewerTrailInput): Product! @isAuthenticated
+  extractProductFields(base64Image: String): ProductExtractionFields!
+    @isAuthenticated
 }
 
 extend type Mutation {
@@ -57,6 +59,13 @@ type SearchResult {
   total: Int!
   added: Int!
   failed: Int!
+}
+
+type ProductExtractionFields {
+  brand: String!
+  productName: String!
+  weight: String
+  category: String!
 }
 
 input CreateProduct {

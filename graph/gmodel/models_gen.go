@@ -304,6 +304,13 @@ type ProductBilling struct {
 	PaidAt          *time.Time   `json:"paidAt,omitempty"`
 }
 
+type ProductExtractionFields struct {
+	Brand       string  `json:"brand"`
+	ProductName string  `json:"productName"`
+	Weight      *string `json:"weight,omitempty"`
+	Category    string  `json:"category"`
+}
+
 type ProductList struct {
 	ID        int64     `json:"id" sql:"primary_key"`
 	UserID    int64     `json:"userId"`
