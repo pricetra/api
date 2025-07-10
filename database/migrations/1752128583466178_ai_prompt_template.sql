@@ -13,7 +13,7 @@ create table "ai_prompt_template" (
 
 insert into "ai_prompt_template" ("type", "prompt", "variable", "max_tokens") VALUES(
     'PRODUCT_DETAILS'::"ai_prompt_type",
-    'Extract brand, product name/description, weight (x lb, fl oz, etc.), and category (Google product taxonomy format) from this string: "{{ocr_string}}". Respond with a single JSON object only, using this schema: `{"brand":string,"product_name":string,"weight"?:string,"category":string}`.'::text,
+    'Extract brand, product name/description, weight (x lb, fl oz, etc.), and category (Google product taxonomy format) from this string: "{{ocr_string}}". Respond with a single JSON object only, using this schema: `{"brand":string,"productName":string,"weight"?:string,"category":string}`.'::text,
     '{{ocr_string}}',
     300
 );
