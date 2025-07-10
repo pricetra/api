@@ -6,7 +6,7 @@ extend type Query {
   ): PaginatedProducts! @isAuthenticated
   allBrands: [Brand!]! @isAuthenticated
   product(id: ID!, viewerTrail: ViewerTrailInput): Product! @isAuthenticated
-  extractProductFields(base64Image: String): ProductExtractionFields!
+  extractProductFields(base64Image: String!): ProductExtractionFields!
     @isAuthenticated
 }
 

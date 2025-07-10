@@ -309,7 +309,7 @@ type ComplexityRoot struct {
 		AllProducts                   func(childComplexity int, paginator gmodel.PaginatorInput, search *gmodel.ProductSearch) int
 		AllStores                     func(childComplexity int) int
 		BarcodeScan                   func(childComplexity int, barcode string, searchMode *bool) int
-		ExtractProductFields          func(childComplexity int, base64Image *string) int
+		ExtractProductFields          func(childComplexity int, base64Image string) int
 		FindBranch                    func(childComplexity int, storeID int64, id int64) int
 		FindBranchesByDistance        func(childComplexity int, lat float64, lon float64, radiusMeters int) int
 		FindStore                     func(childComplexity int, id int64) int
@@ -444,7 +444,7 @@ type QueryResolver interface {
 	AllProducts(ctx context.Context, paginator gmodel.PaginatorInput, search *gmodel.ProductSearch) (*gmodel.PaginatedProducts, error)
 	AllBrands(ctx context.Context) ([]*gmodel.Brand, error)
 	Product(ctx context.Context, id int64, viewerTrail *gmodel.ViewerTrailInput) (*gmodel.Product, error)
-	ExtractProductFields(ctx context.Context, base64Image *string) (*gmodel.ProductExtractionFields, error)
+	ExtractProductFields(ctx context.Context, base64Image string) (*gmodel.ProductExtractionFields, error)
 	Stock(ctx context.Context, stockID int64) (*gmodel.Stock, error)
 	GetProductStocks(ctx context.Context, productID int64, location *gmodel.LocationInput) ([]*gmodel.Stock, error)
 	AllStores(ctx context.Context) ([]*gmodel.Store, error)
@@ -1950,7 +1950,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.ExtractProductFields(childComplexity, args["base64Image"].(*string)), true
+		return e.complexity.Query.ExtractProductFields(childComplexity, args["base64Image"].(string)), true
 
 	case "Query.findBranch":
 		if e.complexity.Query.FindBranch == nil {
@@ -3281,10 +3281,10 @@ func (ec *executionContext) field_Query_barcodeScan_args(ctx context.Context, ra
 func (ec *executionContext) field_Query_extractProductFields_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 *string
+	var arg0 string
 	if tmp, ok := rawArgs["base64Image"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("base64Image"))
-		arg0, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -15136,7 +15136,7 @@ func (ec *executionContext) _Query_extractProductFields(ctx context.Context, fie
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		directive0 := func(rctx context.Context) (interface{}, error) {
 			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Query().ExtractProductFields(rctx, fc.Args["base64Image"].(*string))
+			return ec.resolvers.Query().ExtractProductFields(rctx, fc.Args["base64Image"].(string))
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
 			if ec.directives.IsAuthenticated == nil {
