@@ -19,4 +19,5 @@ type Tokens struct {
 	GoogleMapsApiKey string
 	ExpoPushNotificationClientKey string
 	GoogleCloudVisionApiKey string
+	OpenAiApiKey string
 }

@@ -53,6 +53,7 @@ func NewServer(db_conn *sql.DB, router *chi.Mux) *types.ServerBase {
 		GoogleMapsApiKey: os.Getenv("GOOGLE_MAPS_API_KEY"),
 		ExpoPushNotificationClientKey: os.Getenv("EXPO_PUSH_NOTIFICATION_CLIENT_KEY"),
 		GoogleCloudVisionApiKey: os.Getenv("GOOGLE_CLOUD_VISION_API_KEY"),
+		OpenAiApiKey: os.Getenv("OPENAI_API_SECRET"),
 	}
 
 	// Setup Cloudinary CDN
