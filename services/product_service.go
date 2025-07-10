@@ -3,9 +3,11 @@ package services
 import (
 	"context"
 	"fmt"
+	"log"
 	"strings"
 	"time"
 
+	"cloud.google.com/go/vision/v2/apiv1/visionpb"
 	"github.com/go-jet/jet/v2/postgres"
 	"github.com/pricetra/api/database/jet/postgres/public/model"
 	"github.com/pricetra/api/database/jet/postgres/public/table"
@@ -442,4 +444,26 @@ func (s Service) AddProductViewer(
 		return model.ProductView{}, err
 	}
 	return viewer, nil
+}
+
+func (s Service) ExtractProductTextFromBase64Image(ctx context.Context, base64_image string) (extraction_ob gmodel.ProductExtractionFields, err error) {
+	res, err := s.GoogleVisionApiClient.AnnotateImage(ctx, &visionpb.AnnotateImageRequest{
+		Image: &visionpb.Image{
+			Source: &visionpb.ImageSource{
+				ImageUri: base64_image,
+			},
+		},
+	})
+	if err != nil {
+		return gmodel.ProductExtractionFields{}, err
+	}
+
+	log.Println("OCR Data: ", res.FullTextAnnotation.Text)
+
+	ocr_data := strings.TrimSpace(res.FullTextAnnotation.Text)
+	if len(ocr_data) == 0 {
+		return gmodel.ProductExtractionFields{}, fmt.Errorf("OCR data was empty")
+	}
+	// TODO: Call OpenAI API to generate product fields
+	return extraction_ob, nil
 }
