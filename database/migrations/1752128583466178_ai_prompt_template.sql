@@ -23,5 +23,6 @@ create table "ai_prompt_response" (
     "type" "ai_prompt_type" not null,
     "request" jsonb,
     "response" jsonb,
+    "user_id" bigint references "user"("id") on delete cascade not null,
     "created_at" timestamp with time zone default now() not null
 );

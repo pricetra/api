@@ -16,5 +16,6 @@ type AiPromptResponse struct {
 	Type      AiPromptType
 	Request   *string
 	Response  *string
+	UserID    int64
 	CreatedAt time.Time
 }

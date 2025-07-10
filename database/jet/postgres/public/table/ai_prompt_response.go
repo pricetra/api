@@ -21,6 +21,7 @@ type aiPromptResponseTable struct {
 	Type      postgres.ColumnString
 	Request   postgres.ColumnString
 	Response  postgres.ColumnString
+	UserID    postgres.ColumnInteger
 	CreatedAt postgres.ColumnTimestampz
 
 	AllColumns     postgres.ColumnList
@@ -66,9 +67,10 @@ func newAiPromptResponseTableImpl(schemaName, tableName, alias string) aiPromptR
 		TypeColumn      = postgres.StringColumn("type")
 		RequestColumn   = postgres.StringColumn("request")
 		ResponseColumn  = postgres.StringColumn("response")
+		UserIDColumn    = postgres.IntegerColumn("user_id")
 		CreatedAtColumn = postgres.TimestampzColumn("created_at")
-		allColumns      = postgres.ColumnList{IDColumn, TypeColumn, RequestColumn, ResponseColumn, CreatedAtColumn}
-		mutableColumns  = postgres.ColumnList{TypeColumn, RequestColumn, ResponseColumn, CreatedAtColumn}
+		allColumns      = postgres.ColumnList{IDColumn, TypeColumn, RequestColumn, ResponseColumn, UserIDColumn, CreatedAtColumn}
+		mutableColumns  = postgres.ColumnList{TypeColumn, RequestColumn, ResponseColumn, UserIDColumn, CreatedAtColumn}
 	)
 
 	return aiPromptResponseTable{
@@ -79,6 +81,7 @@ func newAiPromptResponseTableImpl(schemaName, tableName, alias string) aiPromptR
 		Type:      TypeColumn,
 		Request:   RequestColumn,
 		Response:  ResponseColumn,
+		UserID:    UserIDColumn,
 		CreatedAt: CreatedAtColumn,
 
 		AllColumns:     allColumns,
