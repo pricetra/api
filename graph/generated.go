@@ -290,6 +290,14 @@ type ComplexityRoot struct {
 		Weight      func(childComplexity int) int
 	}
 
+	ProductExtractionResponse struct {
+		Brand      func(childComplexity int) int
+		Category   func(childComplexity int) int
+		CategoryID func(childComplexity int) int
+		Name       func(childComplexity int) int
+		Weight     func(childComplexity int) int
+	}
+
 	ProductList struct {
 		CreatedAt func(childComplexity int) int
 		ID        func(childComplexity int) int
@@ -444,7 +452,7 @@ type QueryResolver interface {
 	AllProducts(ctx context.Context, paginator gmodel.PaginatorInput, search *gmodel.ProductSearch) (*gmodel.PaginatedProducts, error)
 	AllBrands(ctx context.Context) ([]*gmodel.Brand, error)
 	Product(ctx context.Context, id int64, viewerTrail *gmodel.ViewerTrailInput) (*gmodel.Product, error)
-	ExtractProductFields(ctx context.Context, base64Image string) (*gmodel.ProductExtractionFields, error)
+	ExtractProductFields(ctx context.Context, base64Image string) (*gmodel.ProductExtractionResponse, error)
 	Stock(ctx context.Context, stockID int64) (*gmodel.Stock, error)
 	GetProductStocks(ctx context.Context, productID int64, location *gmodel.LocationInput) ([]*gmodel.Stock, error)
 	AllStores(ctx context.Context) ([]*gmodel.Store, error)
@@ -1819,6 +1827,41 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.ProductExtractionFields.Weight(childComplexity), true
+
+	case "ProductExtractionResponse.brand":
+		if e.complexity.ProductExtractionResponse.Brand == nil {
+			break
+		}
+
+		return e.complexity.ProductExtractionResponse.Brand(childComplexity), true
+
+	case "ProductExtractionResponse.category":
+		if e.complexity.ProductExtractionResponse.Category == nil {
+			break
+		}
+
+		return e.complexity.ProductExtractionResponse.Category(childComplexity), true
+
+	case "ProductExtractionResponse.categoryId":
+		if e.complexity.ProductExtractionResponse.CategoryID == nil {
+			break
+		}
+
+		return e.complexity.ProductExtractionResponse.CategoryID(childComplexity), true
+
+	case "ProductExtractionResponse.name":
+		if e.complexity.ProductExtractionResponse.Name == nil {
+			break
+		}
+
+		return e.complexity.ProductExtractionResponse.Name(childComplexity), true
+
+	case "ProductExtractionResponse.weight":
+		if e.complexity.ProductExtractionResponse.Weight == nil {
+			break
+		}
+
+		return e.complexity.ProductExtractionResponse.Weight(childComplexity), true
 
 	case "ProductList.createdAt":
 		if e.complexity.ProductList.CreatedAt == nil {
@@ -13247,6 +13290,231 @@ func (ec *executionContext) fieldContext_ProductExtractionFields_category(ctx co
 	return fc, nil
 }
 
+func (ec *executionContext) _ProductExtractionResponse_brand(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductExtractionResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductExtractionResponse_brand(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Brand, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductExtractionResponse_brand(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductExtractionResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductExtractionResponse_name(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductExtractionResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductExtractionResponse_name(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Name, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductExtractionResponse_name(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductExtractionResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductExtractionResponse_weight(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductExtractionResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductExtractionResponse_weight(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Weight, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductExtractionResponse_weight(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductExtractionResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductExtractionResponse_categoryId(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductExtractionResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductExtractionResponse_categoryId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CategoryID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int64)
+	fc.Result = res
+	return ec.marshalOID2ᚖint64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductExtractionResponse_categoryId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductExtractionResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductExtractionResponse_category(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductExtractionResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductExtractionResponse_category(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Category, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*gmodel.Category)
+	fc.Result = res
+	return ec.marshalOCategory2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐCategory(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductExtractionResponse_category(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductExtractionResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Category_id(ctx, field)
+			case "name":
+				return ec.fieldContext_Category_name(ctx, field)
+			case "path":
+				return ec.fieldContext_Category_path(ctx, field)
+			case "expandedPathname":
+				return ec.fieldContext_Category_expandedPathname(ctx, field)
+			case "categoryAlias":
+				return ec.fieldContext_Category_categoryAlias(ctx, field)
+			case "depth":
+				return ec.fieldContext_Category_depth(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Category", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _ProductList_id(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductList) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_ProductList_id(ctx, field)
 	if err != nil {
@@ -15152,10 +15420,10 @@ func (ec *executionContext) _Query_extractProductFields(ctx context.Context, fie
 		if tmp == nil {
 			return nil, nil
 		}
-		if data, ok := tmp.(*gmodel.ProductExtractionFields); ok {
+		if data, ok := tmp.(*gmodel.ProductExtractionResponse); ok {
 			return data, nil
 		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/pricetra/api/graph/gmodel.ProductExtractionFields`, tmp)
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/pricetra/api/graph/gmodel.ProductExtractionResponse`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -15167,9 +15435,9 @@ func (ec *executionContext) _Query_extractProductFields(ctx context.Context, fie
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*gmodel.ProductExtractionFields)
+	res := resTmp.(*gmodel.ProductExtractionResponse)
 	fc.Result = res
-	return ec.marshalNProductExtractionFields2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐProductExtractionFields(ctx, field.Selections, res)
+	return ec.marshalNProductExtractionResponse2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐProductExtractionResponse(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_extractProductFields(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -15181,15 +15449,17 @@ func (ec *executionContext) fieldContext_Query_extractProductFields(ctx context.
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "brand":
-				return ec.fieldContext_ProductExtractionFields_brand(ctx, field)
-			case "productName":
-				return ec.fieldContext_ProductExtractionFields_productName(ctx, field)
+				return ec.fieldContext_ProductExtractionResponse_brand(ctx, field)
+			case "name":
+				return ec.fieldContext_ProductExtractionResponse_name(ctx, field)
 			case "weight":
-				return ec.fieldContext_ProductExtractionFields_weight(ctx, field)
+				return ec.fieldContext_ProductExtractionResponse_weight(ctx, field)
+			case "categoryId":
+				return ec.fieldContext_ProductExtractionResponse_categoryId(ctx, field)
 			case "category":
-				return ec.fieldContext_ProductExtractionFields_category(ctx, field)
+				return ec.fieldContext_ProductExtractionResponse_category(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type ProductExtractionFields", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type ProductExtractionResponse", field.Name)
 		},
 	}
 	defer func() {
@@ -22805,6 +23075,56 @@ func (ec *executionContext) _ProductExtractionFields(ctx context.Context, sel as
 	return out
 }
 
+var productExtractionResponseImplementors = []string{"ProductExtractionResponse"}
+
+func (ec *executionContext) _ProductExtractionResponse(ctx context.Context, sel ast.SelectionSet, obj *gmodel.ProductExtractionResponse) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, productExtractionResponseImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ProductExtractionResponse")
+		case "brand":
+			out.Values[i] = ec._ProductExtractionResponse_brand(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "name":
+			out.Values[i] = ec._ProductExtractionResponse_name(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "weight":
+			out.Values[i] = ec._ProductExtractionResponse_weight(ctx, field, obj)
+		case "categoryId":
+			out.Values[i] = ec._ProductExtractionResponse_categoryId(ctx, field, obj)
+		case "category":
+			out.Values[i] = ec._ProductExtractionResponse_category(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var productListImplementors = []string{"ProductList"}
 
 func (ec *executionContext) _ProductList(ctx context.Context, sel ast.SelectionSet, obj *gmodel.ProductList) graphql.Marshaler {
@@ -25034,18 +25354,18 @@ func (ec *executionContext) marshalNProductBilling2ᚖgithubᚗcomᚋpricetraᚋ
 	return ec._ProductBilling(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNProductExtractionFields2githubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐProductExtractionFields(ctx context.Context, sel ast.SelectionSet, v gmodel.ProductExtractionFields) graphql.Marshaler {
-	return ec._ProductExtractionFields(ctx, sel, &v)
+func (ec *executionContext) marshalNProductExtractionResponse2githubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐProductExtractionResponse(ctx context.Context, sel ast.SelectionSet, v gmodel.ProductExtractionResponse) graphql.Marshaler {
+	return ec._ProductExtractionResponse(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNProductExtractionFields2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐProductExtractionFields(ctx context.Context, sel ast.SelectionSet, v *gmodel.ProductExtractionFields) graphql.Marshaler {
+func (ec *executionContext) marshalNProductExtractionResponse2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐProductExtractionResponse(ctx context.Context, sel ast.SelectionSet, v *gmodel.ProductExtractionResponse) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._ProductExtractionFields(ctx, sel, v)
+	return ec._ProductExtractionResponse(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNProductList2githubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐProductList(ctx context.Context, sel ast.SelectionSet, v gmodel.ProductList) graphql.Marshaler {

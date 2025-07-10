@@ -446,9 +446,9 @@ func (s Service) AddProductViewer(
 	return viewer, nil
 }
 
-func (s Service) ExtractProductTextFromBase64Image(ctx context.Context, base64_image string) (extraction_ob gmodel.ProductExtractionFields, err error) {
+func (s Service) ExtractProductTextFromBase64Image(ctx context.Context, base64_image string) (extraction_ob gmodel.ProductExtractionResponse, err error) {
 	if !utils.IsValidBase64Image(base64_image) {
-		return gmodel.ProductExtractionFields{}, fmt.Errorf("not a valid base64 encoded image")
+		return gmodel.ProductExtractionResponse{}, fmt.Errorf("not a valid base64 encoded image")
 	}
 
 	// upload image to CDN
@@ -459,10 +459,10 @@ func (s Service) ExtractProductTextFromBase64Image(ctx context.Context, base64_i
 	})
 	defer s.DeleteImageUpload(ctx, upload_id)
 	if err != nil {
-		return gmodel.ProductExtractionFields{}, fmt.Errorf("could not upload image: %w", err)
+		return gmodel.ProductExtractionResponse{}, fmt.Errorf("could not upload image: %w", err)
 	}
 	if upload_res == nil {
-		return gmodel.ProductExtractionFields{}, fmt.Errorf("upload response was empty")
+		return gmodel.ProductExtractionResponse{}, fmt.Errorf("upload response was empty")
 	}
 
 	// use uploaded image to extract OCR data
@@ -470,13 +470,13 @@ func (s Service) ExtractProductTextFromBase64Image(ctx context.Context, base64_i
 	upload_uri := fmt.Sprintf("%s/%s", CLOUDINARY_UPLOAD_BASE, upload_id)
 	ocr_data, err := s.GoogleVisionOcrData(ctx, upload_uri)
 	if err != nil {
-		return gmodel.ProductExtractionFields{}, fmt.Errorf("ocr error: %w", err)
+		return gmodel.ProductExtractionResponse{}, fmt.Errorf("ocr error: %w", err)
 	}
 	
 	// get prompt template
 	template, err := s.GetAiTemplate(ctx, model.AiPromptType_ProductDetails)
 	if err != nil {
-		return gmodel.ProductExtractionFields{}, fmt.Errorf("template error")
+		return gmodel.ProductExtractionResponse{}, fmt.Errorf("template error")
 	}
 
 	// replace variables with ocr data
@@ -485,12 +485,28 @@ func (s Service) ExtractProductTextFromBase64Image(ctx context.Context, base64_i
 	// get gpt response
 	gpt_res, err := s.GptResponse(ctx, template.Prompt, template.MaxTokens)
 	if err != nil {
-		return gmodel.ProductExtractionFields{}, fmt.Errorf("could not analyze ocr data: %w", err)
+		return gmodel.ProductExtractionResponse{}, fmt.Errorf("could not analyze ocr data: %w", err)
 	}
 
-	extraction_ob, err = ParseRawGptResponse[gmodel.ProductExtractionFields](gpt_res)
+	extracted_fields, err := ParseRawGptResponse[gmodel.ProductExtractionFields](gpt_res)
 	if err != nil {
-		return gmodel.ProductExtractionFields{}, err
+		return gmodel.ProductExtractionResponse{}, err
+	}
+
+	extraction_ob = gmodel.ProductExtractionResponse{
+		Brand: extracted_fields.Brand,
+		Name: extracted_fields.ProductName,
+	}
+	if extracted_fields.Weight != nil {
+		weight := strings.ToLower(*extracted_fields.Weight)
+		extraction_ob.Weight = &weight
+	}
+	if len(extracted_fields.Category) > 0 {
+		category, err := s.CategoryRecursiveInsert(ctx, extracted_fields.Category)
+		if err == nil {
+			extraction_ob.CategoryID = &category.ID
+			extraction_ob.Category = &category
+		}
 	}
 	return extraction_ob, nil
 }

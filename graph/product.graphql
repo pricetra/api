@@ -6,7 +6,7 @@ extend type Query {
   ): PaginatedProducts! @isAuthenticated
   allBrands: [Brand!]! @isAuthenticated
   product(id: ID!, viewerTrail: ViewerTrailInput): Product! @isAuthenticated
-  extractProductFields(base64Image: String!): ProductExtractionFields!
+  extractProductFields(base64Image: String!): ProductExtractionResponse!
     @isAuthenticated
 }
 
@@ -66,6 +66,14 @@ type ProductExtractionFields {
   productName: String!
   weight: String
   category: String!
+}
+
+type ProductExtractionResponse {
+  brand: String!
+  name: String!
+  weight: String
+  categoryId: ID
+  category: Category
 }
 
 input CreateProduct {
