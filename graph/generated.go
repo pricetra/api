@@ -310,7 +310,7 @@ type ComplexityRoot struct {
 		GetAllLists                   func(childComplexity int, listType *gmodel.ListType) int
 		GetAllProductListsByListID    func(childComplexity int, listID int64) int
 		GetAllUsers                   func(childComplexity int, paginator gmodel.PaginatorInput, filters *gmodel.UserFilter) int
-		GetCategories                 func(childComplexity int, depth *int, parentID *int64) int
+		GetCategories                 func(childComplexity int, depth *int, parentID *int64, search *string) int
 		GetFavoriteBranchesWithPrices func(childComplexity int, productID int64) int
 		GetProductStocks              func(childComplexity int, productID int64, location *gmodel.LocationInput) int
 		GoogleOAuth                   func(childComplexity int, accessToken string, ipAddress *string, device *gmodel.AuthDeviceType) int
@@ -426,7 +426,7 @@ type QueryResolver interface {
 	AllBranches(ctx context.Context, storeID int64, paginator gmodel.PaginatorInput, search *string, location *gmodel.LocationInput) (*gmodel.PaginatedBranches, error)
 	FindBranch(ctx context.Context, storeID int64, id int64) (*gmodel.Branch, error)
 	FindBranchesByDistance(ctx context.Context, lat float64, lon float64, radiusMeters int) ([]*gmodel.Branch, error)
-	GetCategories(ctx context.Context, depth *int, parentID *int64) ([]*gmodel.Category, error)
+	GetCategories(ctx context.Context, depth *int, parentID *int64, search *string) ([]*gmodel.Category, error)
 	GetAllCountries(ctx context.Context) ([]*gmodel.Country, error)
 	GetAllLists(ctx context.Context, listType *gmodel.ListType) ([]*gmodel.List, error)
 	GetAllProductListsByListID(ctx context.Context, listID int64) ([]*gmodel.ProductList, error)
@@ -2004,7 +2004,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.GetCategories(childComplexity, args["depth"].(*int), args["parentId"].(*int64)), true
+		return e.complexity.Query.GetCategories(childComplexity, args["depth"].(*int), args["parentId"].(*int64), args["search"].(*string)), true
 
 	case "Query.getFavoriteBranchesWithPrices":
 		if e.complexity.Query.GetFavoriteBranchesWithPrices == nil {
@@ -3391,6 +3391,15 @@ func (ec *executionContext) field_Query_getCategories_args(ctx context.Context, 
 		}
 	}
 	args["parentId"] = arg1
+	var arg2 *string
+	if tmp, ok := rawArgs["search"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("search"))
+		arg2, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["search"] = arg2
 	return args, nil
 }
 
@@ -13978,7 +13987,7 @@ func (ec *executionContext) _Query_getCategories(ctx context.Context, field grap
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		directive0 := func(rctx context.Context) (interface{}, error) {
 			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Query().GetCategories(rctx, fc.Args["depth"].(*int), fc.Args["parentId"].(*int64))
+			return ec.resolvers.Query().GetCategories(rctx, fc.Args["depth"].(*int), fc.Args["parentId"].(*int64), fc.Args["search"].(*string))
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
 			if ec.directives.IsAuthenticated == nil {

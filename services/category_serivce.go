@@ -124,10 +124,20 @@ func (s Service) CreateCategory(ctx context.Context, input gmodel.CreateCategory
 	return category, nil
 }
 
-func (s Service) FindCategories(ctx context.Context, depth *int, parent_id *int64) (categories []gmodel.Category, err error) {
+func (s Service) FindCategories(
+	ctx context.Context,
+	depth *int,
+	parent_id *int64,
+	search *string,
+) (categories []gmodel.Category, err error) {
 	depth_col_name := fmt.Sprintf("%s.depth", table.Category.TableName())
 	path_col_name := utils.BuildFullTableName(table.Category.Path)
-	var where_clause postgres.BoolExpression = nil
+	order_by := []postgres.OrderByClause{table.Category.ID.ASC()}
+	cols := []postgres.Projection{
+		postgres.RawInt(fmt.Sprintf("array_length(%s, 1)", path_col_name)).
+			AS(depth_col_name),
+	}
+	where_clause := postgres.Bool(true)
 	if depth != nil {
 		where_clause = postgres.RawBool(
 			fmt.Sprintf("array_length(%s, 1) = %d", path_col_name, *depth),
@@ -147,14 +157,19 @@ func (s Service) FindCategories(ctx context.Context, depth *int, parent_id *int6
 			where_clause = postgres.AND(where_clause, contains_clause)
 		}
 	}
+	if search != nil && *search != "" {
+		fts_components := s.BuildFullTextSearchQueryComponents(table.Category.SearchVector, *search)
+		cols = append(cols, fts_components.RankColumn)
+		where_clause = where_clause.AND(fts_components.WhereClause)
+		order_by = append(order_by, fts_components.OrderByClause.DESC())
+	}
 	qb := table.Category.SELECT(
 			table.Category.AllColumns,
-			postgres.RawInt(fmt.Sprintf("array_length(%s, 1)", path_col_name)).
-				AS(depth_col_name),
+			cols...,
 		).
 		FROM(table.Category).
 		WHERE(where_clause).
-		ORDER_BY(table.Category.ID.ASC())
+		ORDER_BY(order_by...)
 	err = qb.QueryContext(ctx, s.DbOrTxQueryable(), &categories)
 	return categories, err
 }
