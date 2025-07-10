@@ -2,8 +2,8 @@ package services
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
-	"log"
 	"strings"
 	"time"
 
@@ -500,10 +500,37 @@ func (s Service) ExtractProductTextFromBase64Image(ctx context.Context, base64_i
 	}
 
 	ocr_data := strings.TrimSpace(res.FullTextAnnotation.Text)
-	log.Println(ocr_data)
+	ocr_data = strings.ReplaceAll(ocr_data, "\n", " ")
 	if len(ocr_data) == 0 {
 		return gmodel.ProductExtractionFields{}, fmt.Errorf("OCR data was empty")
 	}
-	// TODO: Call OpenAI API to generate product fields
+	
+	qb := table.AiPromptTemplate.
+		SELECT(table.AiPromptTemplate.AllColumns).
+		FROM(table.AiPromptTemplate).
+		WHERE(table.AiPromptTemplate.Type.EQ(
+			postgres.NewEnumValue(model.AiPromptType_ProductDetails.String()),
+		)).
+		LIMIT(1)
+	var template model.AiPromptTemplate
+	if qb.QueryContext(ctx, s.DbOrTxQueryable(), &template); err != nil {
+		return gmodel.ProductExtractionFields{}, err
+	}
+
+	template.Prompt = strings.ReplaceAll(template.Prompt, template.Variable, ocr_data)
+	gpt_res, err := s.GptResponse(ctx, template.Prompt, template.MaxTokens)
+	if err != nil {
+		return gmodel.ProductExtractionFields{}, fmt.Errorf("could not analyze ocr data: %w", err)
+	}
+	if len(gpt_res.Choices) != 1 {
+		return gmodel.ProductExtractionFields{}, fmt.Errorf("unexpected choice response. expected 1 got %d", len(gpt_res.Choices))
+	}
+
+	response_content := gpt_res.Choices[0].Message.Content
+	response_content = strings.ReplaceAll(response_content, "`", "")
+	response_content = strings.Replace(response_content, "json", "", 1)
+	if err := json.Unmarshal([]byte(response_content), &extraction_ob); err != nil {
+		return gmodel.ProductExtractionFields{}, fmt.Errorf("could not parse choice response. %w", err)
+	}
 	return extraction_ob, nil
 }
