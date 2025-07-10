@@ -446,7 +446,7 @@ func (s Service) AddProductViewer(
 	return viewer, nil
 }
 
-func (s Service) ExtractProductTextFromBase64Image(ctx context.Context, base64_image string) (extraction_ob gmodel.ProductExtractionResponse, err error) {
+func (s Service) ExtractProductTextFromBase64Image(ctx context.Context, user gmodel.User, base64_image string) (extraction_ob gmodel.ProductExtractionResponse, err error) {
 	if !utils.IsValidBase64Image(base64_image) {
 		return gmodel.ProductExtractionResponse{}, fmt.Errorf("not a valid base64 encoded image")
 	}
@@ -457,13 +457,13 @@ func (s Service) ExtractProductTextFromBase64Image(ctx context.Context, base64_i
 		PublicID: upload_id,
 		Tags: []string{"OCR"},
 	})
-	defer s.DeleteImageUpload(ctx, upload_id)
 	if err != nil {
 		return gmodel.ProductExtractionResponse{}, fmt.Errorf("could not upload image: %w", err)
 	}
 	if upload_res == nil {
 		return gmodel.ProductExtractionResponse{}, fmt.Errorf("upload response was empty")
 	}
+	defer s.DeleteImageUpload(ctx, upload_id)
 
 	// use uploaded image to extract OCR data
 	// using Google Vision
@@ -483,7 +483,7 @@ func (s Service) ExtractProductTextFromBase64Image(ctx context.Context, base64_i
 	template.Prompt = strings.ReplaceAll(template.Prompt, template.Variable, ocr_data)
 
 	// get gpt response
-	gpt_res, err := s.GptResponse(ctx, template.Prompt, template.MaxTokens)
+	gpt_req, gpt_res, err := s.GptResponse(ctx, template.Prompt, template.MaxTokens)
 	if err != nil {
 		return gmodel.ProductExtractionResponse{}, fmt.Errorf("could not analyze ocr data: %w", err)
 	}
@@ -508,5 +508,15 @@ func (s Service) ExtractProductTextFromBase64Image(ctx context.Context, base64_i
 			extraction_ob.Category = &category
 		}
 	}
+
+	go func() {
+		s.CreateAiResponseEntry(
+			context.Background(),
+			user,
+			gpt_req,
+			gpt_res,
+			model.AiPromptType_ProductDetails,
+		)
+	}()
 	return extraction_ob, nil
 }

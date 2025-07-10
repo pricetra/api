@@ -13,6 +13,7 @@ import (
 	"github.com/go-jet/jet/v2/postgres"
 	"github.com/pricetra/api/database/jet/postgres/public/model"
 	"github.com/pricetra/api/database/jet/postgres/public/table"
+	"github.com/pricetra/api/graph/gmodel"
 )
 
 func (s Service) GetAiTemplate(ctx context.Context, template_type model.AiPromptType) (template model.AiPromptTemplate, err error) {
@@ -25,6 +26,41 @@ func (s Service) GetAiTemplate(ctx context.Context, template_type model.AiPrompt
 		LIMIT(1)
 	err = qb.QueryContext(ctx, s.DbOrTxQueryable(), &template)
 	return template, err
+}
+
+func (s Service) CreateAiResponseEntry(
+	ctx context.Context,
+	user gmodel.User,
+	req ChatCompletionRequest,
+	res ChatCompletionResponse,
+	prompt_type model.AiPromptType,
+) (entry model.AiPromptResponse, err error) {
+	req_json, err := json.Marshal(req)
+	if err != nil {
+		return model.AiPromptResponse{}, fmt.Errorf("could not marshal req data: %s", err.Error())
+	}
+	res_json, err := json.Marshal(res)
+	if err != nil {
+		return model.AiPromptResponse{}, fmt.Errorf("could not marshal res data: %s", err.Error())
+	}
+
+	request := string(req_json)
+	response := string(res_json)
+	qb := table.AiPromptResponse.INSERT(
+		table.AiPromptResponse.Type,
+		table.AiPromptResponse.Request,
+		table.AiPromptResponse.Response,
+		table.AiPromptResponse.UserID,
+	).MODEL(model.AiPromptResponse{
+		Type: prompt_type,
+		Request: &request,
+		Response: &response,
+		UserID: user.ID,
+	}).RETURNING(table.AiPromptResponse.AllColumns)
+	if err = qb.QueryContext(ctx, s.DB, &entry); err != nil {
+		return model.AiPromptResponse{}, err
+	}
+	return entry, nil
 }
 
 func (s Service) GoogleVisionOcrData(ctx context.Context, image_url string) (ocr_data string, err error) {
@@ -109,8 +145,8 @@ type ChatCompletionResponse struct {
 	Usage   *ChatCompletionUsage   `json:"usage,omitempty"`
 }
 
-func (s Service) GptResponse(ctx context.Context, prompt string, max_tokens int32) (res ChatCompletionResponse, err error) {
-	payload := ChatCompletionRequest{
+func (s Service) GptResponse(ctx context.Context, prompt string, max_tokens int32) (payload ChatCompletionRequest, res ChatCompletionResponse, err error) {
+	payload = ChatCompletionRequest{
 		Model: OPENAI_MODEL,
 		Messages: []ChatMessage{
 			{
@@ -123,12 +159,12 @@ func (s Service) GptResponse(ctx context.Context, prompt string, max_tokens int3
 	}
 	body, err := json.Marshal(payload)
 	if err != nil {
-		return ChatCompletionResponse{}, fmt.Errorf("failed to marshal payload: %w", err)
+		return ChatCompletionRequest{}, ChatCompletionResponse{}, fmt.Errorf("failed to marshal payload: %w", err)
 	}
 
 	req, err := http.NewRequest("POST", fmt.Sprintf("%s/chat/completions", OPENAI_API_BASE), bytes.NewBuffer(body))
 	if err != nil {
-		return ChatCompletionResponse{}, fmt.Errorf("could not create new request: %w", err)
+		return ChatCompletionRequest{}, ChatCompletionResponse{}, fmt.Errorf("could not create new request: %w", err)
 	}
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", s.Tokens.OpenAiApiKey))
 	req.Header.Set("Content-Type", "application/json")
@@ -136,19 +172,19 @@ func (s Service) GptResponse(ctx context.Context, prompt string, max_tokens int3
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		return ChatCompletionResponse{}, fmt.Errorf("gpt request resulted in an error: %w", err)
+		return ChatCompletionRequest{}, ChatCompletionResponse{}, fmt.Errorf("gpt request resulted in an error: %w", err)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
 		dump, _ := io.ReadAll(resp.Body)
-		return ChatCompletionResponse{}, fmt.Errorf("non-200 response from gpt: %d - %s", resp.StatusCode, string(dump))
+		return ChatCompletionRequest{}, ChatCompletionResponse{}, fmt.Errorf("non-200 response from gpt: %d - %s", resp.StatusCode, string(dump))
 	}
 
 	if err := json.NewDecoder(resp.Body).Decode(&res); err != nil {
-		return ChatCompletionResponse{}, fmt.Errorf("failed to parse gpt response: %w", err)
+		return ChatCompletionRequest{}, ChatCompletionResponse{}, fmt.Errorf("failed to parse gpt response: %w", err)
 	}
-	return res, nil
+	return payload, res, nil
 }
 
 func ParseRawGptResponse[T any](gpt_res ChatCompletionResponse) (res T, err error) {
