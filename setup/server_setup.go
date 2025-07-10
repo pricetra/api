@@ -1,9 +1,11 @@
 package setup
 
 import (
+	"context"
 	"database/sql"
 	"os"
 
+	vision "cloud.google.com/go/vision/apiv1"
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/ayaanqui/go-migration-tool/migration_tool"
@@ -15,6 +17,7 @@ import (
 	gresolver "github.com/pricetra/api/graph/resolver"
 	"github.com/pricetra/api/services"
 	"github.com/pricetra/api/types"
+	"google.golang.org/api/option"
 	"googlemaps.github.io/maps"
 )
 
@@ -49,6 +52,7 @@ func NewServer(db_conn *sql.DB, router *chi.Mux) *types.ServerBase {
 		UPCitemdbUserKey: os.Getenv("UPCITEMDB_USER_KEY"),
 		GoogleMapsApiKey: os.Getenv("GOOGLE_MAPS_API_KEY"),
 		ExpoPushNotificationClientKey: os.Getenv("EXPO_PUSH_NOTIFICATION_CLIENT_KEY"),
+		GoogleCloudVisionApiKey: os.Getenv("GOOGLE_CLOUD_VISION_API_KEY"),
 	}
 
 	// Setup Cloudinary CDN
@@ -67,6 +71,11 @@ func NewServer(db_conn *sql.DB, router *chi.Mux) *types.ServerBase {
 		panic(err)
 	}
 
+	vision_client, err := vision.NewImageAnnotatorClient(context.Background(), option.WithAPIKey(server.Tokens.GoogleCloudVisionApiKey))
+	if err != nil {
+		panic(err)
+	}
+
 	service := services.Service{
 		DB: server.DB,
 		StructValidator: server.StructValidator,
@@ -76,6 +85,7 @@ func NewServer(db_conn *sql.DB, router *chi.Mux) *types.ServerBase {
 		ExpoPushClient: expo.NewPushClient(&expo.ClientConfig{
 			AccessToken: server.Tokens.ExpoPushNotificationClientKey,
 		}),
+		GoogleVisionApiClient: vision_client,
 	}
 
 	// Startup utils...
