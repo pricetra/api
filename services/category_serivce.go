@@ -157,7 +157,7 @@ func (s Service) FindCategories(
 			where_clause = postgres.AND(where_clause, contains_clause)
 		}
 	}
-	if search != nil && *search != "" {
+	if search != nil && len(strings.TrimSpace(*search)) > 0 {
 		fts_components := s.BuildFullTextSearchQueryComponents(table.Category.SearchVector, *search)
 		cols = append(cols, fts_components.RankColumn)
 		where_clause = where_clause.AND(fts_components.WhereClause)
