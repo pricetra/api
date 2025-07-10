@@ -17,9 +17,10 @@ type aiPromptTemplateTable struct {
 	postgres.Table
 
 	// Columns
-	Type     postgres.ColumnString
-	Prompt   postgres.ColumnString
-	Variable postgres.ColumnString
+	Type      postgres.ColumnString
+	Prompt    postgres.ColumnString
+	Variable  postgres.ColumnString
+	MaxTokens postgres.ColumnInteger
 
 	AllColumns     postgres.ColumnList
 	MutableColumns postgres.ColumnList
@@ -60,20 +61,22 @@ func newAiPromptTemplateTable(schemaName, tableName, alias string) *AiPromptTemp
 
 func newAiPromptTemplateTableImpl(schemaName, tableName, alias string) aiPromptTemplateTable {
 	var (
-		TypeColumn     = postgres.StringColumn("type")
-		PromptColumn   = postgres.StringColumn("prompt")
-		VariableColumn = postgres.StringColumn("variable")
-		allColumns     = postgres.ColumnList{TypeColumn, PromptColumn, VariableColumn}
-		mutableColumns = postgres.ColumnList{PromptColumn, VariableColumn}
+		TypeColumn      = postgres.StringColumn("type")
+		PromptColumn    = postgres.StringColumn("prompt")
+		VariableColumn  = postgres.StringColumn("variable")
+		MaxTokensColumn = postgres.IntegerColumn("max_tokens")
+		allColumns      = postgres.ColumnList{TypeColumn, PromptColumn, VariableColumn, MaxTokensColumn}
+		mutableColumns  = postgres.ColumnList{PromptColumn, VariableColumn, MaxTokensColumn}
 	)
 
 	return aiPromptTemplateTable{
 		Table: postgres.NewTable(schemaName, tableName, alias, allColumns...),
 
 		//Columns
-		Type:     TypeColumn,
-		Prompt:   PromptColumn,
-		Variable: VariableColumn,
+		Type:      TypeColumn,
+		Prompt:    PromptColumn,
+		Variable:  VariableColumn,
+		MaxTokens: MaxTokensColumn,
 
 		AllColumns:     allColumns,
 		MutableColumns: mutableColumns,

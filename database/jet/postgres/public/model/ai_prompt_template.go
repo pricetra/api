@@ -8,7 +8,8 @@
 package model
 
 type AiPromptTemplate struct {
-	Type     AiPromptType `sql:"primary_key"`
-	Prompt   string
-	Variable string
+	Type      AiPromptType `sql:"primary_key"`
+	Prompt    string
+	Variable  string
+	MaxTokens int32
 }
