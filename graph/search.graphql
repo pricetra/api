@@ -1,0 +1,9 @@
+extend type Query {
+    mySearchHistory: [SearchHistory!]! @isAuthenticated
+}
+
+type SearchHistory {
+    id: ID!
+    searchTerm: String!
+    createdAt: Time!
+}

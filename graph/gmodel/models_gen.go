@@ -353,6 +353,12 @@ type SaveExternalProductInput struct {
 	Offset          *int    `json:"offset,omitempty"`
 }
 
+type SearchHistory struct {
+	ID         int64     `json:"id"`
+	SearchTerm string    `json:"searchTerm"`
+	CreatedAt  time.Time `json:"createdAt"`
+}
+
 type SearchResult struct {
 	Total  int `json:"total"`
 	Added  int `json:"added"`
