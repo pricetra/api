@@ -189,3 +189,13 @@ func (r *queryResolver) Product(ctx context.Context, id int64, viewerTrail *gmod
 	}()
 	return &product, nil
 }
+
+// ExtractProductFields is the resolver for the extractProductFields field.
+func (r *queryResolver) ExtractProductFields(ctx context.Context, base64Image string) (*gmodel.ProductExtractionResponse, error) {
+	user := r.Service.GetAuthUserFromContext(ctx)
+	fields, err := r.Service.ExtractProductTextFromBase64Image(ctx, user, base64Image)
+	if err != nil {
+		return nil, err
+	}
+	return &fields, nil
+}

@@ -3,6 +3,7 @@ package services
 import (
 	"database/sql"
 
+	vision "cloud.google.com/go/vision/apiv1"
 	"github.com/cloudinary/cloudinary-go/v2"
 	"github.com/go-jet/jet/v2/qrm"
 	"github.com/go-playground/validator/v10"
@@ -20,6 +21,7 @@ type Service struct {
 	Cloudinary *cloudinary.Cloudinary
 	ExpoPushClient *expo.PushClient
 	GoogleMapsClient *maps.Client
+	GoogleVisionApiClient *vision.ImageAnnotatorClient
 }
 
 // Returns a transaction if present.

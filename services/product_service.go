@@ -6,7 +6,9 @@ import (
 	"strings"
 	"time"
 
+	"github.com/cloudinary/cloudinary-go/v2/api/uploader"
 	"github.com/go-jet/jet/v2/postgres"
+	"github.com/google/uuid"
 	"github.com/pricetra/api/database/jet/postgres/public/model"
 	"github.com/pricetra/api/database/jet/postgres/public/table"
 	"github.com/pricetra/api/graph/gmodel"
@@ -442,4 +444,79 @@ func (s Service) AddProductViewer(
 		return model.ProductView{}, err
 	}
 	return viewer, nil
+}
+
+func (s Service) ExtractProductTextFromBase64Image(ctx context.Context, user gmodel.User, base64_image string) (extraction_ob gmodel.ProductExtractionResponse, err error) {
+	if !utils.IsValidBase64Image(base64_image) {
+		return gmodel.ProductExtractionResponse{}, fmt.Errorf("not a valid base64 encoded image")
+	}
+
+	// upload image to CDN
+	upload_id := uuid.NewString()
+	upload_res, err := s.ImageUrlUpload(ctx, base64_image, uploader.UploadParams{
+		PublicID: upload_id,
+		Tags: []string{"OCR"},
+	})
+	if err != nil {
+		return gmodel.ProductExtractionResponse{}, fmt.Errorf("could not upload image: %w", err)
+	}
+	if upload_res == nil {
+		return gmodel.ProductExtractionResponse{}, fmt.Errorf("upload response was empty")
+	}
+	defer s.DeleteImageUpload(ctx, upload_id)
+
+	// use uploaded image to extract OCR data
+	// using Google Vision
+	upload_uri := fmt.Sprintf("%s/%s", CLOUDINARY_UPLOAD_BASE, upload_id)
+	ocr_data, err := s.GoogleVisionOcrData(ctx, upload_uri)
+	if err != nil {
+		return gmodel.ProductExtractionResponse{}, fmt.Errorf("ocr error: %w", err)
+	}
+	
+	// get prompt template
+	template, err := s.GetAiTemplate(ctx, model.AiPromptType_ProductDetails)
+	if err != nil {
+		return gmodel.ProductExtractionResponse{}, fmt.Errorf("template error")
+	}
+
+	// replace variables with ocr data
+	template.Prompt = strings.ReplaceAll(template.Prompt, template.Variable, ocr_data)
+
+	// get gpt response
+	gpt_req, gpt_res, err := s.GptResponse(ctx, template.Prompt, template.MaxTokens)
+	if err != nil {
+		return gmodel.ProductExtractionResponse{}, fmt.Errorf("could not analyze ocr data: %w", err)
+	}
+
+	extracted_fields, err := ParseRawGptResponse[gmodel.ProductExtractionFields](gpt_res)
+	if err != nil {
+		return gmodel.ProductExtractionResponse{}, err
+	}
+
+	extraction_ob = gmodel.ProductExtractionResponse{
+		Brand: extracted_fields.Brand,
+		Name: extracted_fields.ProductName,
+	}
+	if extracted_fields.Weight != nil {
+		weight := strings.ToLower(*extracted_fields.Weight)
+		extraction_ob.Weight = &weight
+	}
+	if len(extracted_fields.Category) > 0 {
+		category, err := s.CategoryRecursiveInsert(ctx, extracted_fields.Category)
+		if err == nil {
+			extraction_ob.CategoryID = &category.ID
+			extraction_ob.Category = &category
+		}
+	}
+
+	go func() {
+		s.CreateAiResponseEntry(
+			context.Background(),
+			user,
+			gpt_req,
+			gpt_res,
+			model.AiPromptType_ProductDetails,
+		)
+	}()
+	return extraction_ob, nil
 }

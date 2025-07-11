@@ -18,4 +18,6 @@ type Tokens struct {
 	UPCitemdbUserKey string
 	GoogleMapsApiKey string
 	ExpoPushNotificationClientKey string
+	GoogleCloudVisionApiKey string
+	OpenAiApiKey string
 }
