@@ -37,3 +37,24 @@ func (s Service) BuildFullTextSearchQueryComponents(search_vector_col postgres.C
 	res.OrderByClause = postgres.FloatColumn(rank_col)
 	return res
 }
+
+func (s Service) CreateSearchHistoryEntry(ctx context.Context, search_term string, user *gmodel.User) (search_history gmodel.SearchHistory, err error) {
+	var user_id *int64
+	if user != nil {
+		user_id = &user.ID
+	}
+	qb := table.SearchHistory.
+		INSERT(
+			table.SearchHistory.SearchTerm,
+			table.SearchHistory.UserID,
+		).
+		MODEL(model.SearchHistory{
+			SearchTerm: search_term,
+			UserID: user_id,
+		}).
+		RETURNING(table.SearchHistory.AllColumns)
+	if err := qb.QueryContext(ctx, s.DbOrTxQueryable(), &search_history); err != nil {
+		return gmodel.SearchHistory{}, err
+	}
+	return search_history, nil
+}
