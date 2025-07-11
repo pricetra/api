@@ -221,6 +221,11 @@ type PaginatedProducts struct {
 	Paginator *Paginator `json:"paginator"`
 }
 
+type PaginatedSearch struct {
+	Searches  []*SearchHistory `json:"searches"`
+	Paginator *Paginator       `json:"paginator"`
+}
+
 type PaginatedUsers struct {
 	Users     []*User    `json:"users"`
 	Paginator *Paginator `json:"paginator"`

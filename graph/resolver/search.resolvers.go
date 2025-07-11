@@ -6,12 +6,16 @@ package gresolver
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/pricetra/api/graph/gmodel"
 )
 
 // MySearchHistory is the resolver for the mySearchHistory field.
-func (r *queryResolver) MySearchHistory(ctx context.Context) ([]*gmodel.SearchHistory, error) {
-	panic(fmt.Errorf("not implemented: MySearchHistory - mySearchHistory"))
+func (r *queryResolver) MySearchHistory(ctx context.Context, paginator gmodel.PaginatorInput) (*gmodel.PaginatedSearch, error) {
+	user := r.Service.GetAuthUserFromContext(ctx)
+	res, err := r.Service.PaginatedSearchHistory(ctx, user, paginator)
+	if err != nil {
+		return nil, err
+	}
+	return &res, nil
 }

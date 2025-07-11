@@ -1,9 +1,14 @@
 extend type Query {
-    mySearchHistory: [SearchHistory!]! @isAuthenticated
+  mySearchHistory(paginator: PaginatorInput!): PaginatedSearch! @isAuthenticated
 }
 
 type SearchHistory {
-    id: ID!
-    searchTerm: String!
-    createdAt: Time!
+  id: ID!
+  searchTerm: String!
+  createdAt: Time!
+}
+
+type PaginatedSearch {
+  searches: [SearchHistory!]!
+  paginator: Paginator!
 }

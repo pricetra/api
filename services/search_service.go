@@ -1,9 +1,13 @@
 package services
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/go-jet/jet/v2/postgres"
+	"github.com/pricetra/api/database/jet/postgres/public/model"
+	"github.com/pricetra/api/database/jet/postgres/public/table"
+	"github.com/pricetra/api/graph/gmodel"
 	"github.com/pricetra/api/utils"
 )
 
@@ -57,4 +61,31 @@ func (s Service) CreateSearchHistoryEntry(ctx context.Context, search_term strin
 		return gmodel.SearchHistory{}, err
 	}
 	return search_history, nil
+}
+
+func (s Service) PaginatedSearchHistory(ctx context.Context, user gmodel.User, paginator_input gmodel.PaginatorInput) (res gmodel.PaginatedSearch, err error) {
+	where_clause := table.SearchHistory.UserID.EQ(postgres.Int(user.ID))
+	sql_paginator, err := s.Paginate(ctx, paginator_input, table.SearchHistory, table.SearchHistory.ID, where_clause)
+	if err != nil {
+		return gmodel.PaginatedSearch{
+			Searches: []*gmodel.SearchHistory{},
+			Paginator: &gmodel.Paginator{},
+		}, nil
+	}
+	qb := table.SearchHistory.
+		SELECT(
+			table.SearchHistory.ID,
+			table.SearchHistory.SearchTerm,
+			table.SearchHistory.CreatedAt,
+		).
+		FROM(table.SearchHistory).
+		WHERE(where_clause).
+		ORDER_BY(table.SearchHistory.ID.DESC()).
+		LIMIT(int64(sql_paginator.Limit)).
+		OFFSET(int64(sql_paginator.Offset))
+	if err := qb.QueryContext(ctx, s.DbOrTxQueryable(), &res.Searches); err != nil {
+		return gmodel.PaginatedSearch{}, err
+	}
+	res.Paginator = &sql_paginator.Paginator
+	return res, nil
 }
