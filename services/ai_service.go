@@ -102,7 +102,7 @@ func (s Service) GoogleVisionOcrData(ctx context.Context, image_url string) (ocr
 }
 
 const OPENAI_API_BASE = "https://api.openai.com/v1"
-const OPENAI_MODEL = "gpt-4o"
+const OPENAI_MODEL = "gpt-4.1-mini"
 
 type ChatMessage struct {
 	Role    string `json:"role"`
