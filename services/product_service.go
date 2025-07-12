@@ -520,3 +520,39 @@ func (s Service) ExtractProductTextFromBase64Image(ctx context.Context, user gmo
 	}()
 	return extraction_ob, nil
 }
+
+func (s Service) PaginatedRecentlyViewedProducts(
+	ctx context.Context,
+	paginator_input gmodel.PaginatorInput,
+	user gmodel.User,
+) (res gmodel.PaginatedProducts, err error) {
+	where_clause := table.ProductView.UserID.EQ(postgres.Int(user.ID))
+	tables := table.ProductView.
+		INNER_JOIN(table.Product, table.Product.ID.EQ(table.ProductView.ProductID)).
+		INNER_JOIN(table.Category, table.Category.ID.EQ(table.Product.CategoryID)).
+		LEFT_JOIN(table.Stock, table.Stock.ID.EQ(table.ProductView.StockID))
+	sql_paginator, err := s.Paginate(ctx, paginator_input, tables, table.ProductView.ID, where_clause)
+	if err != nil {
+		return gmodel.PaginatedProducts{
+			Products: []*gmodel.Product{},
+			Paginator: &gmodel.Paginator{},
+		}, nil
+	}
+	qb := table.ProductView.
+		SELECT(
+			table.ProductView.AllColumns,
+			table.Product.AllColumns,
+			table.Category.AllColumns,
+			table.Stock.AllColumns,
+		).
+		FROM(tables).
+		WHERE(where_clause).
+		ORDER_BY(table.ProductView.ID.DESC()).
+		LIMIT(int64(sql_paginator.Limit)).
+		OFFSET(int64(sql_paginator.Offset))
+	if err := qb.QueryContext(ctx, s.DbOrTxQueryable(), &res.Products); err != nil {
+		return gmodel.PaginatedProducts{}, err
+	}
+	res.Paginator = &sql_paginator.Paginator
+	return res, nil
+}
