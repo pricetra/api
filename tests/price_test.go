@@ -4,7 +4,9 @@ import (
 	"testing"
 	"time"
 
+	"github.com/go-jet/jet/v2/postgres"
 	"github.com/google/uuid"
+	"github.com/pricetra/api/database/jet/postgres/public/table"
 	"github.com/pricetra/api/graph/gmodel"
 )
 
@@ -50,12 +52,20 @@ func TestPrice(t *testing.T) {
 	if err != nil {
 		t.Fatal("could not create category", err.Error())
 	}
-	product, err := service.CreateProduct(ctx, user, gmodel.CreateProduct{
+	product, _ := service.CreateProduct(ctx, user, gmodel.CreateProduct{
 		Name: "Random test product",
 		Image: nil,
 		Description: "Some description",
 		Brand: "Pricetra",
 		Code: "12345678901",
+		CategoryID: category.ID,
+	}, nil)
+	product_2, _ := service.CreateProduct(ctx, user, gmodel.CreateProduct{
+		Name: "Random test product 2",
+		Image: nil,
+		Description: "Some description",
+		Brand: "Pricetra",
+		Code: "12345678901234",
 		CategoryID: category.ID,
 	}, nil)
 
@@ -218,6 +228,52 @@ func TestPrice(t *testing.T) {
 
 			if prices, err := service.FindPrices(ctx, product.ID, branch.ID); err != nil || len(prices) != 5 {
 				t.Fatal("there should only be 4 price row")
+			}
+		})
+
+		t.Run("create new price with sale", func(t *testing.T) {
+			now := time.Now().Add(time.Hour * 24 * 7)
+			original_price := 7.99
+			price_input := gmodel.CreatePrice{
+				ProductID: product_2.ID,
+				Amount: 5.99,
+				BranchID: branch.ID,
+				CurrencyCode: nil,
+				Sale: true,
+				ExpiresAt: &now,
+				OriginalPrice: &original_price,
+				Condition: nil,
+				UnitType: "item",
+				ImageID: nil,
+			}
+			if _, err := service.CreatePrice(ctx, user, price_input); err != nil {
+				t.Fatal(err)
+			}
+
+			var stocks []gmodel.Stock
+			err = table.Stock.
+				SELECT(table.Stock.ID).
+				FROM(table.Stock).
+				WHERE(
+					table.Stock.ProductID.EQ(postgres.Int(product_2.ID)).
+						AND(table.Stock.BranchID.EQ(postgres.Int(branch.ID))),
+				).Query(db, &stocks)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if len(stocks) != 1 {
+				t.Fatal("there should be no duplicate stocks", len(stocks))
+			}
+		})
+
+		t.Run("duplicate stock", func(t *testing.T) {
+			_, err := service.CreateStock(ctx, user, gmodel.CreateStock{
+				ProductID: product_2.ID,
+				BranchID: branch.ID,
+				StoreID: store.ID,
+			})
+			if err == nil {
+				t.Fatal("duplicate stocks should not be allowed")
 			}
 		})
 	})
