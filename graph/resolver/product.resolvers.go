@@ -209,3 +209,13 @@ func (r *queryResolver) ExtractProductFields(ctx context.Context, base64Image st
 	}
 	return &fields, nil
 }
+
+// MyProductViewHistory is the resolver for the myProductViewHistory field.
+func (r *queryResolver) MyProductViewHistory(ctx context.Context, paginator gmodel.PaginatorInput) (*gmodel.PaginatedProducts, error) {
+	user := r.Service.GetAuthUserFromContext(ctx)
+	paginated_products, err := r.Service.PaginatedRecentlyViewedProducts(ctx, paginator, user)
+	if err != nil {
+		return nil, err
+	}
+	return &paginated_products, nil
+}
