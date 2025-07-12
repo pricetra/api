@@ -1,0 +1,1 @@
+create unique index "stock_branch_id_product_id_key" ON "stock" ("branch_id", "product_id");

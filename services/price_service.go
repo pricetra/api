@@ -31,10 +31,6 @@ func (s Service) CreatePrice(ctx context.Context, user gmodel.User, input gmodel
 	if err != nil {
 		return gmodel.Price{}, fmt.Errorf("could not find branch")
 	}
-	stock, err := s.FindOrCreateStock(ctx, user, product.ID, branch.ID, branch.StoreID)
-	if err != nil {
-		return gmodel.Price{}, err
-	}
 
 	if !input.Sale && input.OriginalPrice != nil {
 		// if original price is provided but not on sale then ignore it
@@ -45,10 +41,7 @@ func (s Service) CreatePrice(ctx context.Context, user gmodel.User, input gmodel
 		return gmodel.Price{}, fmt.Errorf("original price must be greater than the current price")
 	}
 
-	if input.OriginalPrice == nil && stock.LatestPrice != nil {
-		// if original price is not provided use latest stock price
-		input.OriginalPrice = &stock.LatestPrice.Amount
-	} else if input.Sale && input.OriginalPrice != nil {
+	if input.Sale && input.OriginalPrice != nil {
 		// if original price is provided then add that first as an entry
 		_, err = s.CreatePrice(ctx, user, gmodel.CreatePrice{
 			ProductID: input.ProductID,
@@ -59,6 +52,16 @@ func (s Service) CreatePrice(ctx context.Context, user gmodel.User, input gmodel
 		if err != nil {
 			return gmodel.Price{}, fmt.Errorf("could not create original price entry: %w", err)
 		}
+	}
+
+	stock, err := s.FindOrCreateStock(ctx, user, product.ID, branch.ID, branch.StoreID)
+	if err != nil {
+		return gmodel.Price{}, err
+	}
+
+	if input.OriginalPrice == nil && stock.LatestPrice != nil {
+		// if original price is not provided use latest stock price
+		input.OriginalPrice = &stock.LatestPrice.Amount
 	}
 
 	if input.Sale && input.ExpiresAt == nil {
