@@ -2,6 +2,11 @@ extend type Query {
   mySearchHistory(paginator: PaginatorInput!): PaginatedSearch! @isAuthenticated
 }
 
+extend type Mutation {
+  deleteSearchById(id: ID!): Boolean! @isAuthenticated
+  clearSearchHistory: Boolean! @isAuthenticated
+}
+
 type SearchHistory {
   id: ID!
   searchTerm: String!

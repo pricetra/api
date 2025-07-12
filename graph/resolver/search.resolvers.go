@@ -6,9 +6,30 @@ package gresolver
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/pricetra/api/graph/gmodel"
 )
+
+// DeleteSearchByID is the resolver for the deleteSearchById field.
+func (r *mutationResolver) DeleteSearchByID(ctx context.Context, id int64) (bool, error) {
+	user := r.Service.GetAuthUserFromContext(ctx)
+	deleted := r.Service.DeleteSearchHistory(ctx, user, &id)
+	if !deleted {
+		return false, fmt.Errorf("could not delete search item(s)")
+	}
+	return deleted, nil
+}
+
+// ClearSearchHistory is the resolver for the clearSearchHistory field.
+func (r *mutationResolver) ClearSearchHistory(ctx context.Context) (bool, error) {
+	user := r.Service.GetAuthUserFromContext(ctx)
+	deleted := r.Service.DeleteSearchHistory(ctx, user, nil)
+	if !deleted {
+		return false, fmt.Errorf("could not delete search item(s)")
+	}
+	return deleted, nil
+}
 
 // MySearchHistory is the resolver for the mySearchHistory field.
 func (r *queryResolver) MySearchHistory(ctx context.Context, paginator gmodel.PaginatorInput) (*gmodel.PaginatedSearch, error) {

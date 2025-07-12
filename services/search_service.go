@@ -89,3 +89,15 @@ func (s Service) PaginatedSearchHistory(ctx context.Context, user gmodel.User, p
 	res.Paginator = &sql_paginator.Paginator
 	return res, nil
 }
+
+func (s Service) DeleteSearchHistory(ctx context.Context, user gmodel.User, search_history_id *int64) bool {
+	where_clause := table.SearchHistory.UserID.EQ(postgres.Int(user.ID))
+	if search_history_id != nil {
+		where_clause.AND(table.SearchHistory.ID.EQ(postgres.Int(*search_history_id)))
+	}
+	_, err := table.SearchHistory.
+		DELETE().
+		WHERE(where_clause).
+		ExecContext(ctx, s.DB)
+	return err == nil
+}
