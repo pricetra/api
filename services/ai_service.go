@@ -72,9 +72,6 @@ func (s Service) GoogleVisionOcrData(ctx context.Context, base64_image []byte) (
 			{
 				Type: visionpb.Feature_TEXT_DETECTION,
 			},
-			{
-				Type: visionpb.Feature_LOGO_DETECTION,
-			},
 		},
 	})
 	if err != nil {
