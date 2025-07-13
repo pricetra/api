@@ -63,12 +63,10 @@ func (s Service) CreateAiResponseEntry(
 	return entry, nil
 }
 
-func (s Service) GoogleVisionOcrData(ctx context.Context, image_url string) (ocr_data string, err error) {
+func (s Service) GoogleVisionOcrData(ctx context.Context, base64_image []byte) (ocr_data string, err error) {
 	res, err := s.GoogleVisionApiClient.AnnotateImage(ctx, &visionpb.AnnotateImageRequest{
 		Image: &visionpb.Image{
-			Source: &visionpb.ImageSource{
-				ImageUri: image_url,
-			},
+			Content: base64_image,
 		},
 		Features: []*visionpb.Feature{
 			{
