@@ -64,7 +64,13 @@ func (s Service) CreateSearchHistoryEntry(ctx context.Context, search_term strin
 }
 
 func (s Service) PaginatedSearchHistory(ctx context.Context, user gmodel.User, paginator_input gmodel.PaginatorInput) (res gmodel.PaginatedSearch, err error) {
-	where_clause := table.SearchHistory.UserID.EQ(postgres.Int(user.ID))
+	where_clause := table.SearchHistory.ID.IN(
+		table.SearchHistory.
+			SELECT(table.SearchHistory.ID).
+			DISTINCT(table.SearchHistory.SearchTerm).
+			FROM(table.SearchHistory).
+			WHERE(table.SearchHistory.UserID.EQ(postgres.Int(user.ID))),
+	)
 	sql_paginator, err := s.Paginate(ctx, paginator_input, table.SearchHistory, table.SearchHistory.ID, where_clause)
 	if err != nil {
 		return gmodel.PaginatedSearch{
