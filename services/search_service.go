@@ -69,7 +69,11 @@ func (s Service) PaginatedSearchHistory(ctx context.Context, user gmodel.User, p
 			SELECT(table.SearchHistory.ID).
 			DISTINCT(table.SearchHistory.SearchTerm).
 			FROM(table.SearchHistory).
-			WHERE(table.SearchHistory.UserID.EQ(postgres.Int(user.ID))),
+			WHERE(table.SearchHistory.UserID.EQ(postgres.Int(user.ID))).
+			ORDER_BY(
+				table.SearchHistory.SearchTerm.DESC(),
+				table.SearchHistory.ID.DESC(),
+			),
 	)
 	sql_paginator, err := s.Paginate(ctx, paginator_input, table.SearchHistory, table.SearchHistory.ID, where_clause)
 	if err != nil {
