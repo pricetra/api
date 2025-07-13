@@ -31,6 +31,7 @@ func UseSchema(schema string) {
 	ProductList = ProductList.FromSchema(schema)
 	ProductView = ProductView.FromSchema(schema)
 	PushNotification = PushNotification.FromSchema(schema)
+	SearchHistory = SearchHistory.FromSchema(schema)
 	SpatialRefSys = SpatialRefSys.FromSchema(schema)
 	Stock = Stock.FromSchema(schema)
 	Store = Store.FromSchema(schema)
