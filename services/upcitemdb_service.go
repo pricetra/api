@@ -13,6 +13,7 @@ import (
 	"github.com/cloudinary/cloudinary-go/v2/api/uploader"
 	"github.com/pricetra/api/database/jet/postgres/public/model"
 	"github.com/pricetra/api/graph/gmodel"
+	"github.com/pricetra/api/utils"
 )
 
 // Docs: https://www.upcitemdb.com/api/explorer#!/lookup/get_trial_lookup
@@ -69,6 +70,10 @@ func (ob UPCItemDbJsonResultItem) ToCreateProduct(ctx context.Context, service S
 	if err != nil {
 		category, _ = service.FindCategoryByExactName(ctx, ob_category)
 	}
+	var weight *string
+	if ob.Weight != nil {
+		weight = utils.ParseWeight(*ob.Weight)
+	}
 	return gmodel.CreateProduct{
 		Name: ob.Title,
 		Image: &image,
@@ -78,7 +83,7 @@ func (ob UPCItemDbJsonResultItem) ToCreateProduct(ctx context.Context, service S
 		Color: ob.Color,
 		Model: ob.Model,
 		CategoryID: category.ID,
-		Weight: ob.Weight,
+		Weight: weight,
 		LowestRecordedPrice: ob.LowestRecordedPrice,
 		HighestRecordedPrice: ob.HighestRecordedPrice,
 	}
