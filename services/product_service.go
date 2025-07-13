@@ -485,8 +485,7 @@ func (s Service) ExtractProductTextFromBase64Image(ctx context.Context, user gmo
 		Name: extracted_fields.ProductName,
 	}
 	if extracted_fields.Weight != nil {
-		weight := strings.ToLower(*extracted_fields.Weight)
-		extraction_ob.Weight = &weight
+		extraction_ob.Weight = utils.ParseWeight(*extracted_fields.Weight)
 	}
 	if len(extracted_fields.Category) > 0 {
 		category, err := s.CategoryRecursiveInsert(ctx, extracted_fields.Category)
