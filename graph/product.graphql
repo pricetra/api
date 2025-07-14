@@ -8,6 +8,7 @@ extend type Query {
   product(id: ID!, viewerTrail: ViewerTrailInput): Product! @isAuthenticated
   extractProductFields(base64Image: String!): ProductExtractionResponse!
     @isAuthenticated
+  myProductViewHistory(paginator: PaginatorInput!): PaginatedProducts! @isAuthenticated
 }
 
 extend type Mutation {
