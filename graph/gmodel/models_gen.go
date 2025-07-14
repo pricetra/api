@@ -221,6 +221,11 @@ type PaginatedProducts struct {
 	Paginator *Paginator `json:"paginator"`
 }
 
+type PaginatedSearch struct {
+	Searches  []*SearchHistory `json:"searches"`
+	Paginator *Paginator       `json:"paginator"`
+}
+
 type PaginatedUsers struct {
 	Users     []*User    `json:"users"`
 	Paginator *Paginator `json:"paginator"`
@@ -351,6 +356,12 @@ type SaveExternalProductInput struct {
 	Brand           *string `json:"brand,omitempty"`
 	Upc             *string `json:"upc,omitempty"`
 	Offset          *int    `json:"offset,omitempty"`
+}
+
+type SearchHistory struct {
+	ID         int64     `json:"id"`
+	SearchTerm string    `json:"searchTerm"`
+	CreatedAt  time.Time `json:"createdAt"`
 }
 
 type SearchResult struct {

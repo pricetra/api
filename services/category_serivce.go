@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"fmt"
+	"slices"
 	"strings"
 
 	"github.com/go-jet/jet/v2/postgres"
@@ -13,6 +14,9 @@ import (
 )
 
 const CATEGORY_DELIM string = " > "
+var SKIPPED_CATEGORIES []string = []string{
+	"Food Items",
+}
 
 func (s Service) FindCategoryById(ctx context.Context, id int64) (category gmodel.Category, err error) {
 	qb := table.Category.
@@ -181,6 +185,9 @@ func (s Service) CategoryRecursiveInsert(ctx context.Context, category_str strin
 	parsed_category := strings.Split(category_str, CATEGORY_DELIM)
 	categories := make([]gmodel.Category, len(parsed_category))
 	for i, category_name := range parsed_category {
+		if slices.Contains(SKIPPED_CATEGORIES, category_name) {
+			continue
+		}
 		categories[i], err = s.FindCategoryByExactName(ctx, category_name)
 		if err == nil {
 			continue

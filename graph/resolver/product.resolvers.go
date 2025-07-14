@@ -131,9 +131,18 @@ func (r *queryResolver) BarcodeScan(ctx context.Context, barcode string, searchM
 
 // AllProducts is the resolver for the allProducts field.
 func (r *queryResolver) AllProducts(ctx context.Context, paginator gmodel.PaginatorInput, search *gmodel.ProductSearch) (*gmodel.PaginatedProducts, error) {
+	user := r.Service.GetAuthUserFromContext(ctx)
 	paginated_products, err := r.Service.PaginatedProducts(ctx, paginator, search)
 	if err != nil {
 		return nil, err
+	}
+
+	if search != nil && search.Query != nil && len(*search.Query) > 1 {
+		// search term is provided so create log in search_history table
+		go func() {
+			ctx := context.Background()
+			r.Service.CreateSearchHistoryEntry(ctx, *search.Query, &user)
+		}()
 	}
 	return &paginated_products, nil
 }
@@ -172,7 +181,8 @@ func (r *queryResolver) Product(ctx context.Context, id int64, viewerTrail *gmod
 		product.ProductList[i] = &p_lists[i]
 	}
 
-	go func() (model.ProductView, error) {
+	// log visited product
+	go func() {
 		ctx := context.Background()
 		var platform *gmodel.AuthDeviceType
 		if user.AuthDevice != nil {
@@ -185,7 +195,7 @@ func (r *queryResolver) Product(ctx context.Context, id int64, viewerTrail *gmod
 		if viewerTrail != nil {
 			trail_input.ViewerTrailInput = *viewerTrail
 		}
-		return r.Service.AddProductViewer(ctx, product.ID, trail_input)
+		r.Service.AddProductViewer(ctx, product.ID, trail_input)
 	}()
 	return &product, nil
 }

@@ -2,13 +2,12 @@ package services
 
 import (
 	"context"
+	"encoding/base64"
 	"fmt"
 	"strings"
 	"time"
 
-	"github.com/cloudinary/cloudinary-go/v2/api/uploader"
 	"github.com/go-jet/jet/v2/postgres"
-	"github.com/google/uuid"
 	"github.com/pricetra/api/database/jet/postgres/public/model"
 	"github.com/pricetra/api/database/jet/postgres/public/table"
 	"github.com/pricetra/api/graph/gmodel"
@@ -451,24 +450,12 @@ func (s Service) ExtractProductTextFromBase64Image(ctx context.Context, user gmo
 		return gmodel.ProductExtractionResponse{}, fmt.Errorf("not a valid base64 encoded image")
 	}
 
-	// upload image to CDN
-	upload_id := uuid.NewString()
-	upload_res, err := s.ImageUrlUpload(ctx, base64_image, uploader.UploadParams{
-		PublicID: upload_id,
-		Tags: []string{"OCR"},
-	})
+	parts := strings.SplitN(base64_image, ",", 2)
+	image_bytes, err := base64.StdEncoding.DecodeString(parts[1])
 	if err != nil {
-		return gmodel.ProductExtractionResponse{}, fmt.Errorf("could not upload image: %w", err)
+		return gmodel.ProductExtractionResponse{}, fmt.Errorf("could not encode image")
 	}
-	if upload_res == nil {
-		return gmodel.ProductExtractionResponse{}, fmt.Errorf("upload response was empty")
-	}
-	defer s.DeleteImageUpload(ctx, upload_id)
-
-	// use uploaded image to extract OCR data
-	// using Google Vision
-	upload_uri := fmt.Sprintf("%s/%s", CLOUDINARY_UPLOAD_BASE, upload_id)
-	ocr_data, err := s.GoogleVisionOcrData(ctx, upload_uri)
+	ocr_data, err := s.GoogleVisionOcrData(ctx, image_bytes)
 	if err != nil {
 		return gmodel.ProductExtractionResponse{}, fmt.Errorf("ocr error: %w", err)
 	}
@@ -498,8 +485,7 @@ func (s Service) ExtractProductTextFromBase64Image(ctx context.Context, user gmo
 		Name: extracted_fields.ProductName,
 	}
 	if extracted_fields.Weight != nil {
-		weight := strings.ToLower(*extracted_fields.Weight)
-		extraction_ob.Weight = &weight
+		extraction_ob.Weight = utils.ParseWeight(*extracted_fields.Weight)
 	}
 	if len(extracted_fields.Category) > 0 {
 		category, err := s.CategoryRecursiveInsert(ctx, extracted_fields.Category)
