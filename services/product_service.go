@@ -512,7 +512,21 @@ func (s Service) PaginatedRecentlyViewedProducts(
 	paginator_input gmodel.PaginatorInput,
 	user gmodel.User,
 ) (res gmodel.PaginatedProducts, err error) {
-	where_clause := table.ProductView.UserID.EQ(postgres.Int(user.ID))
+	where_clause := table.ProductView.ID.IN(
+		table.ProductView.
+			SELECT(table.ProductView.ID).
+			DISTINCT(
+				table.ProductView.ProductID,
+				table.ProductView.StockID,
+			).
+			FROM(table.ProductView).
+			WHERE(table.ProductView.UserID.EQ(postgres.Int(user.ID))).
+			ORDER_BY(
+				table.ProductView.ProductID.DESC(),
+				table.ProductView.StockID.DESC(),
+				table.ProductView.ID.DESC(),
+			),
+	)
 	tables := table.ProductView.
 		INNER_JOIN(table.Product, table.Product.ID.EQ(table.ProductView.ProductID)).
 		INNER_JOIN(table.Category, table.Category.ID.EQ(table.Product.CategoryID)).
