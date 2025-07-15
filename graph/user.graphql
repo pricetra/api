@@ -4,7 +4,7 @@ extend type Mutation {
   resendEmailVerificationCode(email: String!): Boolean!
   updateProfile(input: UpdateUser!): User! @isAuthenticated
   logout: Boolean! @isAuthenticated
-  updateUserById(userId: String!, input: UpdateUserFull!): User!
+  updateUserById(userId: ID!, input: UpdateUserFull!): User!
     @isAuthenticated(role: "SUPER_ADMIN")
   requestPasswordReset(email: String!): Boolean!
   updatePasswordWithResetCode(

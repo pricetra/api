@@ -8,7 +8,6 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"strconv"
 
 	"github.com/cloudinary/cloudinary-go/v2/api/uploader"
 	"github.com/pricetra/api/database/jet/postgres/public/model"
@@ -102,12 +101,8 @@ func (r *mutationResolver) Logout(ctx context.Context) (bool, error) {
 }
 
 // UpdateUserByID is the resolver for the updateUserById field.
-func (r *mutationResolver) UpdateUserByID(ctx context.Context, userID string, input gmodel.UpdateUserFull) (*gmodel.User, error) {
-	id, err := strconv.Atoi(userID)
-	if err != nil {
-		return nil, fmt.Errorf("invalid user id")
-	}
-	user, err := r.Service.FindUserById(ctx, int64(id))
+func (r *mutationResolver) UpdateUserByID(ctx context.Context, userID int64, input gmodel.UpdateUserFull) (*gmodel.User, error) {
+	user, err := r.Service.FindUserById(ctx, userID)
 	if err != nil {
 		return nil, fmt.Errorf("user was not found")
 	}

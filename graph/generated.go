@@ -188,7 +188,7 @@ type ComplexityRoot struct {
 		UpdatePasswordWithResetCode func(childComplexity int, email string, code string, newPassword string) int
 		UpdateProduct               func(childComplexity int, id int64, input gmodel.UpdateProduct) int
 		UpdateProfile               func(childComplexity int, input gmodel.UpdateUser) int
-		UpdateUserByID              func(childComplexity int, userID string, input gmodel.UpdateUserFull) int
+		UpdateUserByID              func(childComplexity int, userID int64, input gmodel.UpdateUserFull) int
 		VerifyEmail                 func(childComplexity int, verificationCode string) int
 	}
 
@@ -448,7 +448,7 @@ type MutationResolver interface {
 	ResendEmailVerificationCode(ctx context.Context, email string) (bool, error)
 	UpdateProfile(ctx context.Context, input gmodel.UpdateUser) (*gmodel.User, error)
 	Logout(ctx context.Context) (bool, error)
-	UpdateUserByID(ctx context.Context, userID string, input gmodel.UpdateUserFull) (*gmodel.User, error)
+	UpdateUserByID(ctx context.Context, userID int64, input gmodel.UpdateUserFull) (*gmodel.User, error)
 	RequestPasswordReset(ctx context.Context, email string) (bool, error)
 	UpdatePasswordWithResetCode(ctx context.Context, email string, code string, newPassword string) (bool, error)
 	RegisterExpoPushToken(ctx context.Context, expoPushToken string) (*gmodel.User, error)
@@ -1341,7 +1341,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UpdateUserByID(childComplexity, args["userId"].(string), args["input"].(gmodel.UpdateUserFull)), true
+		return e.complexity.Mutation.UpdateUserByID(childComplexity, args["userId"].(int64), args["input"].(gmodel.UpdateUserFull)), true
 
 	case "Mutation.verifyEmail":
 		if e.complexity.Mutation.VerifyEmail == nil {
@@ -3293,10 +3293,10 @@ func (ec *executionContext) field_Mutation_updateProfile_args(ctx context.Contex
 func (ec *executionContext) field_Mutation_updateUserById_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 string
+	var arg0 int64
 	if tmp, ok := rawArgs["userId"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userId"))
-		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		arg0, err = ec.unmarshalNID2int64(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -9661,7 +9661,7 @@ func (ec *executionContext) _Mutation_updateUserById(ctx context.Context, field 
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		directive0 := func(rctx context.Context) (interface{}, error) {
 			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Mutation().UpdateUserByID(rctx, fc.Args["userId"].(string), fc.Args["input"].(gmodel.UpdateUserFull))
+			return ec.resolvers.Mutation().UpdateUserByID(rctx, fc.Args["userId"].(int64), fc.Args["input"].(gmodel.UpdateUserFull))
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
 			role, err := ec.unmarshalOUserRole2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐUserRole(ctx, "SUPER_ADMIN")
