@@ -17,6 +17,7 @@ create table "grocery_list_item" (
     "unit" text,
     "category" varchar(100),
     "weight" varchar(255),
+    "completed" boolean not null default false,
     "created_at" timestamp with time zone default now() not null,
     "updated_at" timestamp with time zone default now() not null
 );

@@ -25,6 +25,7 @@ type groceryListItemTable struct {
 	Unit          postgres.ColumnString
 	Category      postgres.ColumnString
 	Weight        postgres.ColumnString
+	Completed     postgres.ColumnBool
 	CreatedAt     postgres.ColumnTimestampz
 	UpdatedAt     postgres.ColumnTimestampz
 
@@ -75,10 +76,11 @@ func newGroceryListItemTableImpl(schemaName, tableName, alias string) groceryLis
 		UnitColumn          = postgres.StringColumn("unit")
 		CategoryColumn      = postgres.StringColumn("category")
 		WeightColumn        = postgres.StringColumn("weight")
+		CompletedColumn     = postgres.BoolColumn("completed")
 		CreatedAtColumn     = postgres.TimestampzColumn("created_at")
 		UpdatedAtColumn     = postgres.TimestampzColumn("updated_at")
-		allColumns          = postgres.ColumnList{IDColumn, GroceryListIDColumn, UserIDColumn, ProductIDColumn, QuantityColumn, UnitColumn, CategoryColumn, WeightColumn, CreatedAtColumn, UpdatedAtColumn}
-		mutableColumns      = postgres.ColumnList{GroceryListIDColumn, UserIDColumn, ProductIDColumn, QuantityColumn, UnitColumn, CategoryColumn, WeightColumn, CreatedAtColumn, UpdatedAtColumn}
+		allColumns          = postgres.ColumnList{IDColumn, GroceryListIDColumn, UserIDColumn, ProductIDColumn, QuantityColumn, UnitColumn, CategoryColumn, WeightColumn, CompletedColumn, CreatedAtColumn, UpdatedAtColumn}
+		mutableColumns      = postgres.ColumnList{GroceryListIDColumn, UserIDColumn, ProductIDColumn, QuantityColumn, UnitColumn, CategoryColumn, WeightColumn, CompletedColumn, CreatedAtColumn, UpdatedAtColumn}
 	)
 
 	return groceryListItemTable{
@@ -93,6 +95,7 @@ func newGroceryListItemTableImpl(schemaName, tableName, alias string) groceryLis
 		Unit:          UnitColumn,
 		Category:      CategoryColumn,
 		Weight:        WeightColumn,
+		Completed:     CompletedColumn,
 		CreatedAt:     CreatedAtColumn,
 		UpdatedAt:     UpdatedAtColumn,
 

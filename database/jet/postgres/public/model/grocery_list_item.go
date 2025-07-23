@@ -20,6 +20,7 @@ type GroceryListItem struct {
 	Unit          *string
 	Category      *string
 	Weight        *string
+	Completed     bool
 	CreatedAt     time.Time
 	UpdatedAt     time.Time
 }
