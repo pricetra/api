@@ -128,6 +128,18 @@ type CreateCategory struct {
 	ParentPath []int  `json:"parentPath"`
 }
 
+type CreateGroceryListInput struct {
+	Name string `json:"name"`
+}
+
+type CreateGroceryListItemInput struct {
+	ProductID *int64  `json:"productId,omitempty"`
+	Quantity  *int    `json:"quantity,omitempty"`
+	Unit      *string `json:"unit,omitempty"`
+	Category  *string `json:"category,omitempty"`
+	Weight    *string `json:"weight,omitempty"`
+}
+
 type CreatePrice struct {
 	ProductID     int64           `json:"productId"`
 	BranchID      int64           `json:"branchId"`
@@ -185,6 +197,31 @@ type Currency struct {
 	SymbolNative string `json:"symbolNative"`
 	Decimals     int    `json:"decimals"`
 	NumToBasic   *int   `json:"numToBasic,omitempty"`
+}
+
+type GroceryList struct {
+	ID               int64              `json:"id" sql:"primary_key"`
+	UserID           int64              `json:"userId"`
+	Default          bool               `json:"default"`
+	Name             string             `json:"name"`
+	GroceryListItems []*GroceryListItem `json:"groceryListItems,omitempty"`
+	CreatedAt        time.Time          `json:"createdAt"`
+	UpdatedAt        time.Time          `json:"updatedAt"`
+}
+
+type GroceryListItem struct {
+	ID            int64        `json:"id" sql:"primary_key"`
+	GroceryListID int64        `json:"groceryListId"`
+	GroceryList   *GroceryList `json:"groceryList,omitempty"`
+	ProductID     *int64       `json:"productId,omitempty"`
+	Product       *Product     `json:"product,omitempty"`
+	Quantity      int          `json:"quantity"`
+	Unit          *string      `json:"unit,omitempty"`
+	Category      *string      `json:"category,omitempty"`
+	Weight        *string      `json:"weight,omitempty"`
+	Completed     bool         `json:"completed"`
+	CreatedAt     time.Time    `json:"createdAt"`
+	UpdatedAt     time.Time    `json:"updatedAt"`
 }
 
 type List struct {
