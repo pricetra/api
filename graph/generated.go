@@ -23360,7 +23360,7 @@ func (ec *executionContext) unmarshalInputCreateGroceryListItemInput(ctx context
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"productId", "quantity", "unit", "category", "weight"}
+	fieldsInOrder := [...]string{"productId", "quantity", "unit", "category", "weight", "completed"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -23402,6 +23402,13 @@ func (ec *executionContext) unmarshalInputCreateGroceryListItemInput(ctx context
 				return it, err
 			}
 			it.Weight = data
+		case "completed":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("completed"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Completed = data
 		}
 	}
 

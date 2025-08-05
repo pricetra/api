@@ -138,6 +138,7 @@ type CreateGroceryListItemInput struct {
 	Unit      *string `json:"unit,omitempty"`
 	Category  *string `json:"category,omitempty"`
 	Weight    *string `json:"weight,omitempty"`
+	Completed *bool   `json:"completed,omitempty"`
 }
 
 type CreatePrice struct {

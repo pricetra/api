@@ -46,4 +46,5 @@ input CreateGroceryListItemInput {
   unit: String
   category: String
   weight: String
+  completed: Boolean
 }
