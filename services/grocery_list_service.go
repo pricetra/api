@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/go-jet/jet/v2/postgres"
 	"github.com/pricetra/api/database/jet/postgres/public/model"
@@ -121,7 +122,11 @@ func (s Service) GetGroceryListItems(ctx context.Context, user gmodel.User, groc
 	}
 
 	qb := table.GroceryListItem.
-		SELECT(table.GroceryListItem.AllColumns).
+		SELECT(
+			table.GroceryListItem.AllColumns,
+			table.Product.AllColumns,
+			table.Category.AllColumns,
+		).
 		FROM(
 			table.GroceryListItem.
 				LEFT_JOIN(table.Product, table.Product.ID.EQ(table.GroceryListItem.ProductID)).
@@ -136,4 +141,91 @@ func (s Service) GetGroceryListItems(ctx context.Context, user gmodel.User, groc
 		return nil, err
 	}
 	return grocery_list_items, nil
+}
+
+func (s Service) GetGroceryListItem(ctx context.Context, user gmodel.User, grocery_list_item_id int64) (grocery_list_item gmodel.GroceryListItem, err error) {
+	qb := table.GroceryListItem.
+		SELECT(
+			table.GroceryListItem.AllColumns,
+			table.Product.AllColumns,
+			table.Category.AllColumns,
+		).
+		FROM(
+			table.GroceryListItem.
+				LEFT_JOIN(table.Product, table.Product.ID.EQ(table.GroceryListItem.ProductID)).
+				LEFT_JOIN(table.Category, table.Category.ID.EQ(table.Product.CategoryID)),
+		).
+		WHERE(
+			table.GroceryListItem.UserID.EQ(postgres.Int(user.ID)).
+				AND(table.GroceryListItem.ID.EQ(postgres.Int(grocery_list_item_id))),
+		).LIMIT(1)
+	if err = qb.QueryContext(ctx, s.DbOrTxQueryable(), &grocery_list_item); err != nil {
+		return gmodel.GroceryListItem{}, err
+	}
+	return grocery_list_item, nil
+}
+
+func (s Service) UpdateGroceryListItem(
+	ctx context.Context,
+	user gmodel.User,
+	grocery_list_item_id int64,
+	input gmodel.CreateGroceryListItemInput,
+) (grocery_list_item gmodel.GroceryListItem, err error) {
+	grocery_list_item, err = s.GetGroceryListItem(ctx, user, grocery_list_item_id)
+	if err != nil {
+		return gmodel.GroceryListItem{}, fmt.Errorf("grocery list not found")
+	}
+
+	var product *gmodel.Product
+	cols := postgres.ColumnList{}
+	if input.ProductID != nil {
+		p, err := s.FindProductById(ctx, *input.ProductID)
+		if err != nil {
+			return gmodel.GroceryListItem{}, fmt.Errorf("product not found")
+		}
+
+		product = &p
+		cols = append(cols, table.GroceryListItem.ProductID)
+	}
+	if input.Quantity != nil && *input.Quantity > 0 {
+		cols = append(cols, table.GroceryListItem.Quantity)
+		grocery_list_item.Quantity = *input.Quantity
+	}
+	if input.Unit != nil {
+		cols = append(cols, table.GroceryListItem.Unit)
+	}
+	if input.Category != nil {
+		cols = append(cols, table.GroceryListItem.Category)
+	}
+	if input.Weight != nil {
+		cols = append(cols, table.GroceryListItem.Weight)
+	}
+	if input.Completed != nil {
+		cols = append(cols, table.GroceryListItem.Completed)
+		grocery_list_item.Completed = *input.Completed
+	}
+	if len(cols) > 0 {
+		cols = append(cols, table.GroceryListItem.UpdatedAt)
+	}
+	qb := table.GroceryListItem.
+		UPDATE(cols).
+		MODEL(model.GroceryListItem{
+			ProductID: input.ProductID,
+			Quantity: int32(grocery_list_item.Quantity),
+			Unit: input.Unit,
+			Category: input.Category,
+			Weight: input.Weight,
+			Completed: grocery_list_item.Completed,
+			UpdatedAt: time.Now(),
+		}).
+		WHERE(
+			table.GroceryListItem.ID.EQ(postgres.Int(grocery_list_item_id)).
+				AND(table.GroceryListItem.UserID.EQ(postgres.Int(user.ID))),
+		).
+		RETURNING(table.GroceryListItem.AllColumns)
+	if err := qb.QueryContext(ctx, s.DbOrTxQueryable(), &grocery_list_item); err != nil {
+		return gmodel.GroceryListItem{}, err
+	}
+	grocery_list_item.Product = product
+	return grocery_list_item, nil
 }

@@ -15,11 +15,11 @@ import (
 func (r *mutationResolver) AddGroceryListItem(ctx context.Context, input gmodel.CreateGroceryListItemInput, groceryListID *int64) (*gmodel.GroceryListItem, error) {
 	user := r.Service.GetAuthUserFromContext(ctx)
 	if groceryListID == nil {
-		defaultList, err := r.Service.GetDefaultGroceryList(ctx, user)
+		default_list, err := r.Service.GetDefaultGroceryList(ctx, user)
 		if err != nil {
 			return nil, fmt.Errorf("failed to get default grocery list: %w", err)
 		}
-		groceryListID = &defaultList.ID
+		groceryListID = &default_list.ID
 	}
 	grocery_list_item, err := r.Service.CreateGroceryListItem(ctx, user, *groceryListID, input)
 	if err != nil {
@@ -30,12 +30,29 @@ func (r *mutationResolver) AddGroceryListItem(ctx context.Context, input gmodel.
 
 // UpdateGroceryListItem is the resolver for the updateGroceryListItem field.
 func (r *mutationResolver) UpdateGroceryListItem(ctx context.Context, groceryListItemID int64, input gmodel.CreateGroceryListItemInput) (*gmodel.GroceryListItem, error) {
-	panic(fmt.Errorf("not implemented: UpdateGroceryListItem - updateGroceryListItem"))
+	user := r.Service.GetAuthUserFromContext(ctx)
+	updated_list_item, err := r.Service.UpdateGroceryListItem(ctx, user, groceryListItemID, input)
+	if err != nil {
+		return nil, err
+	}
+	return &updated_list_item, nil
 }
 
 // MarkGroceryListItem is the resolver for the markGroceryListItem field.
 func (r *mutationResolver) MarkGroceryListItem(ctx context.Context, groceryListItemID int64, completed bool) (*gmodel.GroceryListItem, error) {
-	panic(fmt.Errorf("not implemented: MarkGroceryListItem - markGroceryListItem"))
+	user := r.Service.GetAuthUserFromContext(ctx)
+	updated_list_item, err := r.Service.UpdateGroceryListItem(
+		ctx,
+		user,
+		groceryListItemID,
+		gmodel.CreateGroceryListItemInput{
+			Completed: &completed,
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
+	return &updated_list_item, nil
 }
 
 // GroceryLists is the resolver for the groceryLists field.
