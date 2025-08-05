@@ -1,0 +1,50 @@
+extend type Query {
+  groceryLists: [GroceryList!]! @isAuthenticated
+  groceryList(groceryListId: ID!): GroceryList! @isAuthenticated
+  groceryListItems(groceryListId: ID!): [GroceryListItem!]! @isAuthenticated
+  defaultGroceryListItems: [GroceryListItem!]! @isAuthenticated
+}
+
+extend type Mutation {
+  addGroceryListItem(input: CreateGroceryListItemInput!, groceryListId: ID): GroceryListItem! @isAuthenticated
+  updateGroceryListItem(groceryListItemId: ID!, input: CreateGroceryListItemInput!): GroceryListItem! @isAuthenticated
+  markGroceryListItem(groceryListItemId: ID!, completed: Boolean!): GroceryListItem! @isAuthenticated
+}
+
+type GroceryList {
+  id: ID! @goTag(key: "sql", value: "primary_key")
+  userId: ID!
+  default: Boolean!
+  name: String!
+  groceryListItems: [GroceryListItem!]
+  createdAt: Time!
+  updatedAt: Time!
+}
+
+type GroceryListItem {
+  id: ID! @goTag(key: "sql", value: "primary_key")
+  groceryListId: ID!
+  groceryList: GroceryList
+  productId: ID
+  product: Product
+  quantity: Int!
+  unit: String
+  category: String
+  weight: String
+  completed: Boolean!
+  createdAt: Time!
+  updatedAt: Time!
+}
+
+input CreateGroceryListInput {
+  name: String!
+}
+
+input CreateGroceryListItemInput {
+  productId: ID
+  quantity: Int
+  unit: String
+  category: String
+  weight: String
+  completed: Boolean
+}
