@@ -13,7 +13,19 @@ import (
 
 // AddGroceryListItem is the resolver for the addGroceryListItem field.
 func (r *mutationResolver) AddGroceryListItem(ctx context.Context, input gmodel.CreateGroceryListItemInput, groceryListID *int64) (*gmodel.GroceryListItem, error) {
-	panic(fmt.Errorf("not implemented: AddGroceryListItem - addGroceryListItem"))
+	user := r.Service.GetAuthUserFromContext(ctx)
+	if groceryListID == nil {
+		defaultList, err := r.Service.GetDefaultGroceryList(ctx, user)
+		if err != nil {
+			return nil, fmt.Errorf("failed to get default grocery list: %w", err)
+		}
+		groceryListID = &defaultList.ID
+	}
+	grocery_list_item, err := r.Service.CreateGroceryListItem(ctx, user, *groceryListID, input)
+	if err != nil {
+		return nil, err
+	}
+	return &grocery_list_item, nil
 }
 
 // UpdateGroceryListItem is the resolver for the updateGroceryListItem field.
@@ -28,20 +40,48 @@ func (r *mutationResolver) MarkGroceryListItem(ctx context.Context, groceryListI
 
 // GroceryLists is the resolver for the groceryLists field.
 func (r *queryResolver) GroceryLists(ctx context.Context) ([]*gmodel.GroceryList, error) {
-	panic(fmt.Errorf("not implemented: GroceryLists - groceryLists"))
+	user := r.Service.GetAuthUserFromContext(ctx)
+	grocery_lists, err := r.Service.GetGroceryLists(ctx, user)
+	if err != nil {
+		return nil, err
+	}
+	res := make([]*gmodel.GroceryList, len(grocery_lists))
+	for i := range grocery_lists {
+		res[i] = &grocery_lists[i]
+	}
+	return res, nil
 }
 
 // GroceryList is the resolver for the groceryList field.
 func (r *queryResolver) GroceryList(ctx context.Context, groceryListID int64) (*gmodel.GroceryList, error) {
-	panic(fmt.Errorf("not implemented: GroceryList - groceryList"))
+	user := r.Service.GetAuthUserFromContext(ctx)
+	grocery_list, err := r.Service.GetGroceryListWithItems(ctx, user, groceryListID)
+	if err != nil {
+		return nil, err
+	}
+	return &grocery_list, nil
 }
 
 // GroceryListItems is the resolver for the groceryListItems field.
 func (r *queryResolver) GroceryListItems(ctx context.Context, groceryListID int64) ([]*gmodel.GroceryListItem, error) {
-	panic(fmt.Errorf("not implemented: GroceryListItems - groceryListItems"))
+	user := r.Service.GetAuthUserFromContext(ctx)
+	grocery_list_items, err := r.Service.GetGroceryListItems(ctx, user, groceryListID)
+	if err != nil {
+		return nil, err
+	}
+	res := make([]*gmodel.GroceryListItem, len(grocery_list_items))
+	for i := range grocery_list_items {
+		res[i] = &grocery_list_items[i]
+	}
+	return res, nil
 }
 
 // DefaultGroceryListItems is the resolver for the defaultGroceryListItems field.
 func (r *queryResolver) DefaultGroceryListItems(ctx context.Context) ([]*gmodel.GroceryListItem, error) {
-	panic(fmt.Errorf("not implemented: DefaultGroceryListItems - defaultGroceryListItems"))
+	user := r.Service.GetAuthUserFromContext(ctx)
+	default_list, err := r.Service.GetDefaultGroceryList(ctx, user)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get default grocery list: %w", err)
+	}
+	return r.GroceryListItems(ctx, default_list.ID)
 }
