@@ -43,9 +43,13 @@ func (s Service) CreateBranch(ctx context.Context, user gmodel.User, input gmode
 	}
 	defer s.TX.Rollback()
 
-	address, err := s.CreateAddress(ctx, &user, *input.Address)
+	address, err := s.FindOrCreateAddress(ctx, &user, *input.Address)
 	if err != nil {
 		return branch, err
+	}
+
+	if _, err := s.FindBranchByStoreIdAndAddressId(ctx, input.StoreID, address.ID); err == nil {
+		return gmodel.Branch{}, fmt.Errorf("branch with this store and address already exists")
 	}
 
 	qb := table.Branch.INSERT(
@@ -185,6 +189,20 @@ func (s Service) FindBranchByBranchIdAndStoreId(ctx context.Context, branch_id i
 		LIMIT(1)
 	err = qb.QueryContext(ctx, s.DbOrTxQueryable(), &branch)
 	return branch, err
+}
+
+func (s Service) FindBranchByStoreIdAndAddressId(ctx context.Context, store_id int64, address_id int64) (branch gmodel.Branch, err error) {
+	qb := table.Branch.
+		SELECT(table.Branch.AllColumns).
+		FROM(table.Branch).
+		WHERE(
+			table.Branch.StoreID.EQ(postgres.Int(store_id)).
+				AND(table.Branch.AddressID.EQ(postgres.Int(address_id))),
+		).LIMIT(1)
+	if err = qb.QueryContext(ctx, s.DbOrTxQueryable(), &branch); err != nil {
+		return gmodel.Branch{}, err
+	}
+	return branch, nil
 }
 
 func (s Service) FindBranchesByCoordinates(ctx context.Context, lat float64, lon float64, radius_meters int) (branches []gmodel.Branch, err error) {
