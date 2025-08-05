@@ -31,6 +31,11 @@ func (r *queryResolver) GroceryLists(ctx context.Context) ([]*gmodel.GroceryList
 	panic(fmt.Errorf("not implemented: GroceryLists - groceryLists"))
 }
 
+// GroceryList is the resolver for the groceryList field.
+func (r *queryResolver) GroceryList(ctx context.Context, groceryListID int64) (*gmodel.GroceryList, error) {
+	panic(fmt.Errorf("not implemented: GroceryList - groceryList"))
+}
+
 // GroceryListItems is the resolver for the groceryListItems field.
 func (r *queryResolver) GroceryListItems(ctx context.Context, groceryListID int64) ([]*gmodel.GroceryListItem, error) {
 	panic(fmt.Errorf("not implemented: GroceryListItems - groceryListItems"))

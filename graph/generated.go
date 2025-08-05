@@ -366,6 +366,7 @@ type ComplexityRoot struct {
 		GetFavoriteBranchesWithPrices func(childComplexity int, productID int64) int
 		GetProductStocks              func(childComplexity int, productID int64, location *gmodel.LocationInput) int
 		GoogleOAuth                   func(childComplexity int, accessToken string, ipAddress *string, device *gmodel.AuthDeviceType) int
+		GroceryList                   func(childComplexity int, groceryListID int64) int
 		GroceryListItems              func(childComplexity int, groceryListID int64) int
 		GroceryLists                  func(childComplexity int) int
 		Login                         func(childComplexity int, email string, password string, ipAddress *string, device *gmodel.AuthDeviceType) int
@@ -496,6 +497,7 @@ type QueryResolver interface {
 	GetCategories(ctx context.Context, depth *int, parentID *int64, search *string) ([]*gmodel.Category, error)
 	GetAllCountries(ctx context.Context) ([]*gmodel.Country, error)
 	GroceryLists(ctx context.Context) ([]*gmodel.GroceryList, error)
+	GroceryList(ctx context.Context, groceryListID int64) (*gmodel.GroceryList, error)
 	GroceryListItems(ctx context.Context, groceryListID int64) ([]*gmodel.GroceryListItem, error)
 	DefaultGroceryListItems(ctx context.Context) ([]*gmodel.GroceryListItem, error)
 	GetAllLists(ctx context.Context, listType *gmodel.ListType) ([]*gmodel.List, error)
@@ -2399,6 +2401,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.GoogleOAuth(childComplexity, args["accessToken"].(string), args["ipAddress"].(*string), args["device"].(*gmodel.AuthDeviceType)), true
 
+	case "Query.groceryList":
+		if e.complexity.Query.GroceryList == nil {
+			break
+		}
+
+		args, err := ec.field_Query_groceryList_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GroceryList(childComplexity, args["groceryListId"].(int64)), true
+
 	case "Query.groceryListItems":
 		if e.complexity.Query.GroceryListItems == nil {
 			break
@@ -4003,6 +4017,21 @@ func (ec *executionContext) field_Query_googleOAuth_args(ctx context.Context, ra
 }
 
 func (ec *executionContext) field_Query_groceryListItems_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 int64
+	if tmp, ok := rawArgs["groceryListId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("groceryListId"))
+		arg0, err = ec.unmarshalNID2int64(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["groceryListId"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_groceryList_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 int64
@@ -16626,6 +16655,97 @@ func (ec *executionContext) fieldContext_Query_groceryLists(ctx context.Context,
 	return fc, nil
 }
 
+func (ec *executionContext) _Query_groceryList(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_groceryList(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().GroceryList(rctx, fc.Args["groceryListId"].(int64))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.IsAuthenticated == nil {
+				return nil, errors.New("directive isAuthenticated is not implemented")
+			}
+			return ec.directives.IsAuthenticated(ctx, nil, directive0, nil)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*gmodel.GroceryList); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/pricetra/api/graph/gmodel.GroceryList`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*gmodel.GroceryList)
+	fc.Result = res
+	return ec.marshalNGroceryList2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐGroceryList(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_groceryList(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_GroceryList_id(ctx, field)
+			case "userId":
+				return ec.fieldContext_GroceryList_userId(ctx, field)
+			case "default":
+				return ec.fieldContext_GroceryList_default(ctx, field)
+			case "name":
+				return ec.fieldContext_GroceryList_name(ctx, field)
+			case "groceryListItems":
+				return ec.fieldContext_GroceryList_groceryListItems(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_GroceryList_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_GroceryList_updatedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type GroceryList", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_groceryList_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Query_groceryListItems(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Query_groceryListItems(ctx, field)
 	if err != nil {
@@ -26179,6 +26299,28 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "groceryList":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_groceryList(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
 		case "groceryListItems":
 			field := field
 
@@ -27932,6 +28074,10 @@ func (ec *executionContext) marshalNFloat2float64(ctx context.Context, sel ast.S
 		}
 	}
 	return graphql.WrapContextMarshaler(ctx, res)
+}
+
+func (ec *executionContext) marshalNGroceryList2githubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐGroceryList(ctx context.Context, sel ast.SelectionSet, v gmodel.GroceryList) graphql.Marshaler {
+	return ec._GroceryList(ctx, sel, &v)
 }
 
 func (ec *executionContext) marshalNGroceryList2ᚕᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐGroceryListᚄ(ctx context.Context, sel ast.SelectionSet, v []*gmodel.GroceryList) graphql.Marshaler {

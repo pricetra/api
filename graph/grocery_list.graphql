@@ -1,5 +1,6 @@
 extend type Query {
   groceryLists: [GroceryList!]! @isAuthenticated
+  groceryList(groceryListId: ID!): GroceryList! @isAuthenticated
   groceryListItems(groceryListId: ID!): [GroceryListItem!]! @isAuthenticated
   defaultGroceryListItems: [GroceryListItem!]! @isAuthenticated
 }
