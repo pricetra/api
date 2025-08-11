@@ -91,6 +91,10 @@ func (s Service) CreateGroceryListItem(
 		quantity := 1
 		input.Quantity = &quantity
 	}
+	if input.Unit == nil {
+		unit := "item"
+		input.Unit = &unit
+	}
 	qb := table.GroceryListItem.INSERT(
 			table.GroceryListItem.GroceryListID,
 			table.GroceryListItem.UserID,
