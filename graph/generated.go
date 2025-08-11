@@ -3036,7 +3036,7 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 	return introspection.WrapTypeFromDef(ec.Schema(), ec.Schema().Types[name]), nil
 }
 
-//go:embed "address.graphql" "billing.graphql" "branch.graphql" "category.graphql" "countries.graphql" "directives.graphql" "grocery_list.graphql" "list.graphql" "paginator.graphql" "price.graphql" "product.graphql" "scalars.graphql" "search.graphql" "stock.graphql" "store.graphql" "user.graphql"
+//go:embed "address.graphql" "billing.graphql" "branch.graphql" "category.graphql" "countries.graphql" "directives.graphql" "enums.graphql" "grocery_list.graphql" "list.graphql" "paginator.graphql" "price.graphql" "product.graphql" "scalars.graphql" "search.graphql" "stock.graphql" "store.graphql" "user.graphql"
 var sourcesFS embed.FS
 
 func sourceData(filename string) string {
@@ -3054,6 +3054,7 @@ var sources = []*ast.Source{
 	{Name: "category.graphql", Input: sourceData("category.graphql"), BuiltIn: false},
 	{Name: "countries.graphql", Input: sourceData("countries.graphql"), BuiltIn: false},
 	{Name: "directives.graphql", Input: sourceData("directives.graphql"), BuiltIn: false},
+	{Name: "enums.graphql", Input: sourceData("enums.graphql"), BuiltIn: false},
 	{Name: "grocery_list.graphql", Input: sourceData("grocery_list.graphql"), BuiltIn: false},
 	{Name: "list.graphql", Input: sourceData("list.graphql"), BuiltIn: false},
 	{Name: "paginator.graphql", Input: sourceData("paginator.graphql"), BuiltIn: false},

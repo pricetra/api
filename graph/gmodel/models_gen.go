@@ -654,6 +654,55 @@ func (e ListType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+type UnitType string
+
+const (
+	UnitTypeItem UnitType = "item"
+	UnitTypeLb   UnitType = "lb"
+	UnitTypeKg   UnitType = "kg"
+	UnitTypeOz   UnitType = "oz"
+	UnitTypeL    UnitType = "l"
+	UnitTypeFlOz UnitType = "fl_oz"
+)
+
+var AllUnitType = []UnitType{
+	UnitTypeItem,
+	UnitTypeLb,
+	UnitTypeKg,
+	UnitTypeOz,
+	UnitTypeL,
+	UnitTypeFlOz,
+}
+
+func (e UnitType) IsValid() bool {
+	switch e {
+	case UnitTypeItem, UnitTypeLb, UnitTypeKg, UnitTypeOz, UnitTypeL, UnitTypeFlOz:
+		return true
+	}
+	return false
+}
+
+func (e UnitType) String() string {
+	return string(e)
+}
+
+func (e *UnitType) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = UnitType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid UnitType", str)
+	}
+	return nil
+}
+
+func (e UnitType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
 type UserRole string
 
 const (

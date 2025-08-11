@@ -1,0 +1,35 @@
+enum UserRole {
+  SUPER_ADMIN
+  ADMIN
+  CONTRIBUTOR
+  CONSUMER
+}
+
+enum AuthPlatformType {
+  INTERNAL
+  APPLE
+  GOOGLE
+}
+
+enum AuthDeviceType {
+  ios
+  android
+  web
+  other
+  unknown
+}
+
+enum ListType {
+  FAVORITES
+  WATCH_LIST
+  PERSONAL
+}
+
+enum UnitType {
+    item
+    lb
+    kg
+    oz
+    l
+    fl_oz
+}
