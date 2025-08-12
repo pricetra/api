@@ -24,12 +24,3 @@ enum ListType {
   WATCH_LIST
   PERSONAL
 }
-
-enum UnitType {
-    item
-    lb
-    kg
-    oz
-    l
-    fl_oz
-}
