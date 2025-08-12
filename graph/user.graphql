@@ -74,27 +74,6 @@ input UpdateUserFull {
   address: String
 }
 
-enum UserRole {
-  SUPER_ADMIN
-  ADMIN
-  CONTRIBUTOR
-  CONSUMER
-}
-
-enum AuthPlatformType {
-  INTERNAL
-  APPLE
-  GOOGLE
-}
-
-enum AuthDeviceType {
-  ios
-  android
-  web
-  other
-  unknown
-}
-
 type User {
   id: ID! @goTag(key: "sql", value: "primary_key")
   createdAt: Time!

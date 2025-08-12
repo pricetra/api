@@ -152,6 +152,31 @@ type ComplexityRoot struct {
 		SymbolNative func(childComplexity int) int
 	}
 
+	GroceryList struct {
+		CreatedAt        func(childComplexity int) int
+		Default          func(childComplexity int) int
+		GroceryListItems func(childComplexity int) int
+		ID               func(childComplexity int) int
+		Name             func(childComplexity int) int
+		UpdatedAt        func(childComplexity int) int
+		UserID           func(childComplexity int) int
+	}
+
+	GroceryListItem struct {
+		Category      func(childComplexity int) int
+		Completed     func(childComplexity int) int
+		CreatedAt     func(childComplexity int) int
+		GroceryList   func(childComplexity int) int
+		GroceryListID func(childComplexity int) int
+		ID            func(childComplexity int) int
+		Product       func(childComplexity int) int
+		ProductID     func(childComplexity int) int
+		Quantity      func(childComplexity int) int
+		Unit          func(childComplexity int) int
+		UpdatedAt     func(childComplexity int) int
+		Weight        func(childComplexity int) int
+	}
+
 	List struct {
 		BranchList  func(childComplexity int) int
 		CreatedAt   func(childComplexity int) int
@@ -164,6 +189,7 @@ type ComplexityRoot struct {
 
 	Mutation struct {
 		AddBranchToList             func(childComplexity int, listID int64, branchID int64) int
+		AddGroceryListItem          func(childComplexity int, input gmodel.CreateGroceryListItemInput, groceryListID *int64) int
 		AddToList                   func(childComplexity int, listID int64, productID int64, stockID *int64) int
 		BulkAddBranchesToList       func(childComplexity int, listID int64, branchIds []int64) int
 		ClearSearchHistory          func(childComplexity int) int
@@ -178,6 +204,7 @@ type ComplexityRoot struct {
 		DeleteList                  func(childComplexity int, listID int64) int
 		DeleteSearchByID            func(childComplexity int, id int64) int
 		Logout                      func(childComplexity int) int
+		MarkGroceryListItem         func(childComplexity int, groceryListItemID int64, completed bool) int
 		RegisterExpoPushToken       func(childComplexity int, expoPushToken string) int
 		RemoveBranchFromList        func(childComplexity int, listID int64, branchListID int64) int
 		RemoveFromList              func(childComplexity int, listID int64, productListID int64) int
@@ -185,6 +212,7 @@ type ComplexityRoot struct {
 		RequestPasswordReset        func(childComplexity int, email string) int
 		ResendEmailVerificationCode func(childComplexity int, email string) int
 		SaveProductsFromUPCItemDb   func(childComplexity int, input gmodel.SaveExternalProductInput) int
+		UpdateGroceryListItem       func(childComplexity int, groceryListItemID int64, input gmodel.CreateGroceryListItemInput) int
 		UpdatePasswordWithResetCode func(childComplexity int, email string, code string, newPassword string) int
 		UpdateProduct               func(childComplexity int, id int64, input gmodel.UpdateProduct) int
 		UpdateProfile               func(childComplexity int, input gmodel.UpdateUser) int
@@ -324,6 +352,7 @@ type ComplexityRoot struct {
 		AllProducts                   func(childComplexity int, paginator gmodel.PaginatorInput, search *gmodel.ProductSearch) int
 		AllStores                     func(childComplexity int) int
 		BarcodeScan                   func(childComplexity int, barcode string, searchMode *bool) int
+		DefaultGroceryListItems       func(childComplexity int) int
 		ExtractProductFields          func(childComplexity int, base64Image string) int
 		FindBranch                    func(childComplexity int, storeID int64, id int64) int
 		FindBranchesByDistance        func(childComplexity int, lat float64, lon float64, radiusMeters int) int
@@ -337,6 +366,9 @@ type ComplexityRoot struct {
 		GetFavoriteBranchesWithPrices func(childComplexity int, productID int64) int
 		GetProductStocks              func(childComplexity int, productID int64, location *gmodel.LocationInput) int
 		GoogleOAuth                   func(childComplexity int, accessToken string, ipAddress *string, device *gmodel.AuthDeviceType) int
+		GroceryList                   func(childComplexity int, groceryListID int64) int
+		GroceryListItems              func(childComplexity int, groceryListID int64) int
+		GroceryLists                  func(childComplexity int) int
 		Login                         func(childComplexity int, email string, password string, ipAddress *string, device *gmodel.AuthDeviceType) int
 		Me                            func(childComplexity int) int
 		MyProductBillingData          func(childComplexity int, paginator gmodel.PaginatorInput) int
@@ -428,6 +460,9 @@ type MutationResolver interface {
 	CreateBranchWithFullAddress(ctx context.Context, storeID int64, fullAddress string) (*gmodel.Branch, error)
 	CreateBranch(ctx context.Context, input gmodel.CreateBranch) (*gmodel.Branch, error)
 	CreateCategory(ctx context.Context, input gmodel.CreateCategory) (*gmodel.Category, error)
+	AddGroceryListItem(ctx context.Context, input gmodel.CreateGroceryListItemInput, groceryListID *int64) (*gmodel.GroceryListItem, error)
+	UpdateGroceryListItem(ctx context.Context, groceryListItemID int64, input gmodel.CreateGroceryListItemInput) (*gmodel.GroceryListItem, error)
+	MarkGroceryListItem(ctx context.Context, groceryListItemID int64, completed bool) (*gmodel.GroceryListItem, error)
 	CreateList(ctx context.Context, name string) (*gmodel.List, error)
 	DeleteList(ctx context.Context, listID int64) (*gmodel.List, error)
 	AddToList(ctx context.Context, listID int64, productID int64, stockID *int64) (*gmodel.ProductList, error)
@@ -461,6 +496,10 @@ type QueryResolver interface {
 	FindBranchesByDistance(ctx context.Context, lat float64, lon float64, radiusMeters int) ([]*gmodel.Branch, error)
 	GetCategories(ctx context.Context, depth *int, parentID *int64, search *string) ([]*gmodel.Category, error)
 	GetAllCountries(ctx context.Context) ([]*gmodel.Country, error)
+	GroceryLists(ctx context.Context) ([]*gmodel.GroceryList, error)
+	GroceryList(ctx context.Context, groceryListID int64) (*gmodel.GroceryList, error)
+	GroceryListItems(ctx context.Context, groceryListID int64) ([]*gmodel.GroceryListItem, error)
+	DefaultGroceryListItems(ctx context.Context) ([]*gmodel.GroceryListItem, error)
 	GetAllLists(ctx context.Context, listType *gmodel.ListType) ([]*gmodel.List, error)
 	GetAllProductListsByListID(ctx context.Context, listID int64) ([]*gmodel.ProductList, error)
 	GetAllBranchListsByListID(ctx context.Context, listID int64) ([]*gmodel.BranchList, error)
@@ -992,6 +1031,139 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Currency.SymbolNative(childComplexity), true
 
+	case "GroceryList.createdAt":
+		if e.complexity.GroceryList.CreatedAt == nil {
+			break
+		}
+
+		return e.complexity.GroceryList.CreatedAt(childComplexity), true
+
+	case "GroceryList.default":
+		if e.complexity.GroceryList.Default == nil {
+			break
+		}
+
+		return e.complexity.GroceryList.Default(childComplexity), true
+
+	case "GroceryList.groceryListItems":
+		if e.complexity.GroceryList.GroceryListItems == nil {
+			break
+		}
+
+		return e.complexity.GroceryList.GroceryListItems(childComplexity), true
+
+	case "GroceryList.id":
+		if e.complexity.GroceryList.ID == nil {
+			break
+		}
+
+		return e.complexity.GroceryList.ID(childComplexity), true
+
+	case "GroceryList.name":
+		if e.complexity.GroceryList.Name == nil {
+			break
+		}
+
+		return e.complexity.GroceryList.Name(childComplexity), true
+
+	case "GroceryList.updatedAt":
+		if e.complexity.GroceryList.UpdatedAt == nil {
+			break
+		}
+
+		return e.complexity.GroceryList.UpdatedAt(childComplexity), true
+
+	case "GroceryList.userId":
+		if e.complexity.GroceryList.UserID == nil {
+			break
+		}
+
+		return e.complexity.GroceryList.UserID(childComplexity), true
+
+	case "GroceryListItem.category":
+		if e.complexity.GroceryListItem.Category == nil {
+			break
+		}
+
+		return e.complexity.GroceryListItem.Category(childComplexity), true
+
+	case "GroceryListItem.completed":
+		if e.complexity.GroceryListItem.Completed == nil {
+			break
+		}
+
+		return e.complexity.GroceryListItem.Completed(childComplexity), true
+
+	case "GroceryListItem.createdAt":
+		if e.complexity.GroceryListItem.CreatedAt == nil {
+			break
+		}
+
+		return e.complexity.GroceryListItem.CreatedAt(childComplexity), true
+
+	case "GroceryListItem.groceryList":
+		if e.complexity.GroceryListItem.GroceryList == nil {
+			break
+		}
+
+		return e.complexity.GroceryListItem.GroceryList(childComplexity), true
+
+	case "GroceryListItem.groceryListId":
+		if e.complexity.GroceryListItem.GroceryListID == nil {
+			break
+		}
+
+		return e.complexity.GroceryListItem.GroceryListID(childComplexity), true
+
+	case "GroceryListItem.id":
+		if e.complexity.GroceryListItem.ID == nil {
+			break
+		}
+
+		return e.complexity.GroceryListItem.ID(childComplexity), true
+
+	case "GroceryListItem.product":
+		if e.complexity.GroceryListItem.Product == nil {
+			break
+		}
+
+		return e.complexity.GroceryListItem.Product(childComplexity), true
+
+	case "GroceryListItem.productId":
+		if e.complexity.GroceryListItem.ProductID == nil {
+			break
+		}
+
+		return e.complexity.GroceryListItem.ProductID(childComplexity), true
+
+	case "GroceryListItem.quantity":
+		if e.complexity.GroceryListItem.Quantity == nil {
+			break
+		}
+
+		return e.complexity.GroceryListItem.Quantity(childComplexity), true
+
+	case "GroceryListItem.unit":
+		if e.complexity.GroceryListItem.Unit == nil {
+			break
+		}
+
+		return e.complexity.GroceryListItem.Unit(childComplexity), true
+
+	case "GroceryListItem.updatedAt":
+		if e.complexity.GroceryListItem.UpdatedAt == nil {
+			break
+		}
+
+		return e.complexity.GroceryListItem.UpdatedAt(childComplexity), true
+
+	case "GroceryListItem.weight":
+		if e.complexity.GroceryListItem.Weight == nil {
+			break
+		}
+
+		return e.complexity.GroceryListItem.Weight(childComplexity), true
+
 	case "List.branchList":
 		if e.complexity.List.BranchList == nil {
 			break
@@ -1052,6 +1224,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.AddBranchToList(childComplexity, args["listId"].(int64), args["branchId"].(int64)), true
+
+	case "Mutation.addGroceryListItem":
+		if e.complexity.Mutation.AddGroceryListItem == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_addGroceryListItem_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.AddGroceryListItem(childComplexity, args["input"].(gmodel.CreateGroceryListItemInput), args["groceryListId"].(*int64)), true
 
 	case "Mutation.addToList":
 		if e.complexity.Mutation.AddToList == nil {
@@ -1211,6 +1395,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.Logout(childComplexity), true
 
+	case "Mutation.markGroceryListItem":
+		if e.complexity.Mutation.MarkGroceryListItem == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_markGroceryListItem_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.MarkGroceryListItem(childComplexity, args["groceryListItemId"].(int64), args["completed"].(bool)), true
+
 	case "Mutation.registerExpoPushToken":
 		if e.complexity.Mutation.RegisterExpoPushToken == nil {
 			break
@@ -1294,6 +1490,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.SaveProductsFromUPCItemDb(childComplexity, args["input"].(gmodel.SaveExternalProductInput)), true
+
+	case "Mutation.updateGroceryListItem":
+		if e.complexity.Mutation.UpdateGroceryListItem == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_updateGroceryListItem_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.UpdateGroceryListItem(childComplexity, args["groceryListItemId"].(int64), args["input"].(gmodel.CreateGroceryListItemInput)), true
 
 	case "Mutation.updatePasswordWithResetCode":
 		if e.complexity.Mutation.UpdatePasswordWithResetCode == nil {
@@ -2035,6 +2243,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.BarcodeScan(childComplexity, args["barcode"].(string), args["searchMode"].(*bool)), true
 
+	case "Query.defaultGroceryListItems":
+		if e.complexity.Query.DefaultGroceryListItems == nil {
+			break
+		}
+
+		return e.complexity.Query.DefaultGroceryListItems(childComplexity), true
+
 	case "Query.extractProductFields":
 		if e.complexity.Query.ExtractProductFields == nil {
 			break
@@ -2185,6 +2400,37 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.GoogleOAuth(childComplexity, args["accessToken"].(string), args["ipAddress"].(*string), args["device"].(*gmodel.AuthDeviceType)), true
+
+	case "Query.groceryList":
+		if e.complexity.Query.GroceryList == nil {
+			break
+		}
+
+		args, err := ec.field_Query_groceryList_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GroceryList(childComplexity, args["groceryListId"].(int64)), true
+
+	case "Query.groceryListItems":
+		if e.complexity.Query.GroceryListItems == nil {
+			break
+		}
+
+		args, err := ec.field_Query_groceryListItems_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GroceryListItems(childComplexity, args["groceryListId"].(int64)), true
+
+	case "Query.groceryLists":
+		if e.complexity.Query.GroceryLists == nil {
+			break
+		}
+
+		return e.complexity.Query.GroceryLists(childComplexity), true
 
 	case "Query.login":
 		if e.complexity.Query.Login == nil {
@@ -2679,6 +2925,8 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputCreateAddress,
 		ec.unmarshalInputCreateBranch,
 		ec.unmarshalInputCreateCategory,
+		ec.unmarshalInputCreateGroceryListInput,
+		ec.unmarshalInputCreateGroceryListItemInput,
 		ec.unmarshalInputCreatePrice,
 		ec.unmarshalInputCreateProduct,
 		ec.unmarshalInputCreateStock,
@@ -2788,7 +3036,7 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 	return introspection.WrapTypeFromDef(ec.Schema(), ec.Schema().Types[name]), nil
 }
 
-//go:embed "address.graphql" "billing.graphql" "branch.graphql" "category.graphql" "countries.graphql" "directives.graphql" "list.graphql" "paginator.graphql" "price.graphql" "product.graphql" "scalars.graphql" "search.graphql" "stock.graphql" "store.graphql" "user.graphql"
+//go:embed "address.graphql" "billing.graphql" "branch.graphql" "category.graphql" "countries.graphql" "directives.graphql" "enums.graphql" "grocery_list.graphql" "list.graphql" "paginator.graphql" "price.graphql" "product.graphql" "scalars.graphql" "search.graphql" "stock.graphql" "store.graphql" "user.graphql"
 var sourcesFS embed.FS
 
 func sourceData(filename string) string {
@@ -2806,6 +3054,8 @@ var sources = []*ast.Source{
 	{Name: "category.graphql", Input: sourceData("category.graphql"), BuiltIn: false},
 	{Name: "countries.graphql", Input: sourceData("countries.graphql"), BuiltIn: false},
 	{Name: "directives.graphql", Input: sourceData("directives.graphql"), BuiltIn: false},
+	{Name: "enums.graphql", Input: sourceData("enums.graphql"), BuiltIn: false},
+	{Name: "grocery_list.graphql", Input: sourceData("grocery_list.graphql"), BuiltIn: false},
 	{Name: "list.graphql", Input: sourceData("list.graphql"), BuiltIn: false},
 	{Name: "paginator.graphql", Input: sourceData("paginator.graphql"), BuiltIn: false},
 	{Name: "price.graphql", Input: sourceData("price.graphql"), BuiltIn: false},
@@ -2858,6 +3108,30 @@ func (ec *executionContext) field_Mutation_addBranchToList_args(ctx context.Cont
 		}
 	}
 	args["branchId"] = arg1
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_addGroceryListItem_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 gmodel.CreateGroceryListItemInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNCreateGroceryListItemInput2githubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐCreateGroceryListItemInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	var arg1 *int64
+	if tmp, ok := rawArgs["groceryListId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("groceryListId"))
+		arg1, err = ec.unmarshalOID2ᚖint64(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["groceryListId"] = arg1
 	return args, nil
 }
 
@@ -3077,6 +3351,30 @@ func (ec *executionContext) field_Mutation_deleteSearchById_args(ctx context.Con
 	return args, nil
 }
 
+func (ec *executionContext) field_Mutation_markGroceryListItem_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 int64
+	if tmp, ok := rawArgs["groceryListItemId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("groceryListItemId"))
+		arg0, err = ec.unmarshalNID2int64(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["groceryListItemId"] = arg0
+	var arg1 bool
+	if tmp, ok := rawArgs["completed"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("completed"))
+		arg1, err = ec.unmarshalNBoolean2bool(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["completed"] = arg1
+	return args, nil
+}
+
 func (ec *executionContext) field_Mutation_registerExpoPushToken_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -3215,6 +3513,30 @@ func (ec *executionContext) field_Mutation_saveProductsFromUPCItemDb_args(ctx co
 		}
 	}
 	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_updateGroceryListItem_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 int64
+	if tmp, ok := rawArgs["groceryListItemId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("groceryListItemId"))
+		arg0, err = ec.unmarshalNID2int64(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["groceryListItemId"] = arg0
+	var arg1 gmodel.CreateGroceryListItemInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg1, err = ec.unmarshalNCreateGroceryListItemInput2githubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐCreateGroceryListItemInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg1
 	return args, nil
 }
 
@@ -3692,6 +4014,36 @@ func (ec *executionContext) field_Query_googleOAuth_args(ctx context.Context, ra
 		}
 	}
 	args["device"] = arg2
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_groceryListItems_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 int64
+	if tmp, ok := rawArgs["groceryListId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("groceryListId"))
+		arg0, err = ec.unmarshalNID2int64(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["groceryListId"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_groceryList_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 int64
+	if tmp, ok := rawArgs["groceryListId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("groceryListId"))
+		arg0, err = ec.unmarshalNID2int64(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["groceryListId"] = arg0
 	return args, nil
 }
 
@@ -7153,6 +7505,911 @@ func (ec *executionContext) fieldContext_Currency_numToBasic(ctx context.Context
 	return fc, nil
 }
 
+func (ec *executionContext) _GroceryList_id(ctx context.Context, field graphql.CollectedField, obj *gmodel.GroceryList) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_GroceryList_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int64)
+	fc.Result = res
+	return ec.marshalNID2int64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_GroceryList_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "GroceryList",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _GroceryList_userId(ctx context.Context, field graphql.CollectedField, obj *gmodel.GroceryList) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_GroceryList_userId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UserID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int64)
+	fc.Result = res
+	return ec.marshalNID2int64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_GroceryList_userId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "GroceryList",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _GroceryList_default(ctx context.Context, field graphql.CollectedField, obj *gmodel.GroceryList) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_GroceryList_default(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Default, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_GroceryList_default(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "GroceryList",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _GroceryList_name(ctx context.Context, field graphql.CollectedField, obj *gmodel.GroceryList) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_GroceryList_name(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Name, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_GroceryList_name(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "GroceryList",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _GroceryList_groceryListItems(ctx context.Context, field graphql.CollectedField, obj *gmodel.GroceryList) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_GroceryList_groceryListItems(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.GroceryListItems, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*gmodel.GroceryListItem)
+	fc.Result = res
+	return ec.marshalOGroceryListItem2ᚕᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐGroceryListItemᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_GroceryList_groceryListItems(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "GroceryList",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_GroceryListItem_id(ctx, field)
+			case "groceryListId":
+				return ec.fieldContext_GroceryListItem_groceryListId(ctx, field)
+			case "groceryList":
+				return ec.fieldContext_GroceryListItem_groceryList(ctx, field)
+			case "productId":
+				return ec.fieldContext_GroceryListItem_productId(ctx, field)
+			case "product":
+				return ec.fieldContext_GroceryListItem_product(ctx, field)
+			case "quantity":
+				return ec.fieldContext_GroceryListItem_quantity(ctx, field)
+			case "unit":
+				return ec.fieldContext_GroceryListItem_unit(ctx, field)
+			case "category":
+				return ec.fieldContext_GroceryListItem_category(ctx, field)
+			case "weight":
+				return ec.fieldContext_GroceryListItem_weight(ctx, field)
+			case "completed":
+				return ec.fieldContext_GroceryListItem_completed(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_GroceryListItem_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_GroceryListItem_updatedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type GroceryListItem", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _GroceryList_createdAt(ctx context.Context, field graphql.CollectedField, obj *gmodel.GroceryList) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_GroceryList_createdAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CreatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_GroceryList_createdAt(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "GroceryList",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _GroceryList_updatedAt(ctx context.Context, field graphql.CollectedField, obj *gmodel.GroceryList) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_GroceryList_updatedAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UpdatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_GroceryList_updatedAt(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "GroceryList",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _GroceryListItem_id(ctx context.Context, field graphql.CollectedField, obj *gmodel.GroceryListItem) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_GroceryListItem_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int64)
+	fc.Result = res
+	return ec.marshalNID2int64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_GroceryListItem_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "GroceryListItem",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _GroceryListItem_groceryListId(ctx context.Context, field graphql.CollectedField, obj *gmodel.GroceryListItem) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_GroceryListItem_groceryListId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.GroceryListID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int64)
+	fc.Result = res
+	return ec.marshalNID2int64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_GroceryListItem_groceryListId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "GroceryListItem",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _GroceryListItem_groceryList(ctx context.Context, field graphql.CollectedField, obj *gmodel.GroceryListItem) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_GroceryListItem_groceryList(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.GroceryList, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*gmodel.GroceryList)
+	fc.Result = res
+	return ec.marshalOGroceryList2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐGroceryList(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_GroceryListItem_groceryList(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "GroceryListItem",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_GroceryList_id(ctx, field)
+			case "userId":
+				return ec.fieldContext_GroceryList_userId(ctx, field)
+			case "default":
+				return ec.fieldContext_GroceryList_default(ctx, field)
+			case "name":
+				return ec.fieldContext_GroceryList_name(ctx, field)
+			case "groceryListItems":
+				return ec.fieldContext_GroceryList_groceryListItems(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_GroceryList_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_GroceryList_updatedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type GroceryList", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _GroceryListItem_productId(ctx context.Context, field graphql.CollectedField, obj *gmodel.GroceryListItem) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_GroceryListItem_productId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ProductID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int64)
+	fc.Result = res
+	return ec.marshalOID2ᚖint64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_GroceryListItem_productId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "GroceryListItem",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _GroceryListItem_product(ctx context.Context, field graphql.CollectedField, obj *gmodel.GroceryListItem) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_GroceryListItem_product(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Product, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*gmodel.Product)
+	fc.Result = res
+	return ec.marshalOProduct2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐProduct(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_GroceryListItem_product(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "GroceryListItem",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Product_id(ctx, field)
+			case "name":
+				return ec.fieldContext_Product_name(ctx, field)
+			case "image":
+				return ec.fieldContext_Product_image(ctx, field)
+			case "description":
+				return ec.fieldContext_Product_description(ctx, field)
+			case "url":
+				return ec.fieldContext_Product_url(ctx, field)
+			case "brand":
+				return ec.fieldContext_Product_brand(ctx, field)
+			case "code":
+				return ec.fieldContext_Product_code(ctx, field)
+			case "color":
+				return ec.fieldContext_Product_color(ctx, field)
+			case "model":
+				return ec.fieldContext_Product_model(ctx, field)
+			case "categoryId":
+				return ec.fieldContext_Product_categoryId(ctx, field)
+			case "category":
+				return ec.fieldContext_Product_category(ctx, field)
+			case "stock":
+				return ec.fieldContext_Product_stock(ctx, field)
+			case "weight":
+				return ec.fieldContext_Product_weight(ctx, field)
+			case "lowestRecordedPrice":
+				return ec.fieldContext_Product_lowestRecordedPrice(ctx, field)
+			case "highestRecordedPrice":
+				return ec.fieldContext_Product_highestRecordedPrice(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Product_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Product_updatedAt(ctx, field)
+			case "createdById":
+				return ec.fieldContext_Product_createdById(ctx, field)
+			case "createdBy":
+				return ec.fieldContext_Product_createdBy(ctx, field)
+			case "updatedById":
+				return ec.fieldContext_Product_updatedById(ctx, field)
+			case "updatedBy":
+				return ec.fieldContext_Product_updatedBy(ctx, field)
+			case "productList":
+				return ec.fieldContext_Product_productList(ctx, field)
+			case "views":
+				return ec.fieldContext_Product_views(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Product", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _GroceryListItem_quantity(ctx context.Context, field graphql.CollectedField, obj *gmodel.GroceryListItem) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_GroceryListItem_quantity(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Quantity, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_GroceryListItem_quantity(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "GroceryListItem",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _GroceryListItem_unit(ctx context.Context, field graphql.CollectedField, obj *gmodel.GroceryListItem) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_GroceryListItem_unit(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Unit, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_GroceryListItem_unit(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "GroceryListItem",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _GroceryListItem_category(ctx context.Context, field graphql.CollectedField, obj *gmodel.GroceryListItem) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_GroceryListItem_category(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Category, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_GroceryListItem_category(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "GroceryListItem",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _GroceryListItem_weight(ctx context.Context, field graphql.CollectedField, obj *gmodel.GroceryListItem) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_GroceryListItem_weight(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Weight, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_GroceryListItem_weight(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "GroceryListItem",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _GroceryListItem_completed(ctx context.Context, field graphql.CollectedField, obj *gmodel.GroceryListItem) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_GroceryListItem_completed(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Completed, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_GroceryListItem_completed(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "GroceryListItem",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _GroceryListItem_createdAt(ctx context.Context, field graphql.CollectedField, obj *gmodel.GroceryListItem) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_GroceryListItem_createdAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CreatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_GroceryListItem_createdAt(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "GroceryListItem",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _GroceryListItem_updatedAt(ctx context.Context, field graphql.CollectedField, obj *gmodel.GroceryListItem) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_GroceryListItem_updatedAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UpdatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_GroceryListItem_updatedAt(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "GroceryListItem",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _List_id(ctx context.Context, field graphql.CollectedField, obj *gmodel.List) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_List_id(ctx, field)
 	if err != nil {
@@ -7782,6 +9039,309 @@ func (ec *executionContext) fieldContext_Mutation_createCategory(ctx context.Con
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_createCategory_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_addGroceryListItem(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_addGroceryListItem(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().AddGroceryListItem(rctx, fc.Args["input"].(gmodel.CreateGroceryListItemInput), fc.Args["groceryListId"].(*int64))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.IsAuthenticated == nil {
+				return nil, errors.New("directive isAuthenticated is not implemented")
+			}
+			return ec.directives.IsAuthenticated(ctx, nil, directive0, nil)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*gmodel.GroceryListItem); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/pricetra/api/graph/gmodel.GroceryListItem`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*gmodel.GroceryListItem)
+	fc.Result = res
+	return ec.marshalNGroceryListItem2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐGroceryListItem(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_addGroceryListItem(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_GroceryListItem_id(ctx, field)
+			case "groceryListId":
+				return ec.fieldContext_GroceryListItem_groceryListId(ctx, field)
+			case "groceryList":
+				return ec.fieldContext_GroceryListItem_groceryList(ctx, field)
+			case "productId":
+				return ec.fieldContext_GroceryListItem_productId(ctx, field)
+			case "product":
+				return ec.fieldContext_GroceryListItem_product(ctx, field)
+			case "quantity":
+				return ec.fieldContext_GroceryListItem_quantity(ctx, field)
+			case "unit":
+				return ec.fieldContext_GroceryListItem_unit(ctx, field)
+			case "category":
+				return ec.fieldContext_GroceryListItem_category(ctx, field)
+			case "weight":
+				return ec.fieldContext_GroceryListItem_weight(ctx, field)
+			case "completed":
+				return ec.fieldContext_GroceryListItem_completed(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_GroceryListItem_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_GroceryListItem_updatedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type GroceryListItem", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_addGroceryListItem_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_updateGroceryListItem(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_updateGroceryListItem(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().UpdateGroceryListItem(rctx, fc.Args["groceryListItemId"].(int64), fc.Args["input"].(gmodel.CreateGroceryListItemInput))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.IsAuthenticated == nil {
+				return nil, errors.New("directive isAuthenticated is not implemented")
+			}
+			return ec.directives.IsAuthenticated(ctx, nil, directive0, nil)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*gmodel.GroceryListItem); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/pricetra/api/graph/gmodel.GroceryListItem`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*gmodel.GroceryListItem)
+	fc.Result = res
+	return ec.marshalNGroceryListItem2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐGroceryListItem(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_updateGroceryListItem(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_GroceryListItem_id(ctx, field)
+			case "groceryListId":
+				return ec.fieldContext_GroceryListItem_groceryListId(ctx, field)
+			case "groceryList":
+				return ec.fieldContext_GroceryListItem_groceryList(ctx, field)
+			case "productId":
+				return ec.fieldContext_GroceryListItem_productId(ctx, field)
+			case "product":
+				return ec.fieldContext_GroceryListItem_product(ctx, field)
+			case "quantity":
+				return ec.fieldContext_GroceryListItem_quantity(ctx, field)
+			case "unit":
+				return ec.fieldContext_GroceryListItem_unit(ctx, field)
+			case "category":
+				return ec.fieldContext_GroceryListItem_category(ctx, field)
+			case "weight":
+				return ec.fieldContext_GroceryListItem_weight(ctx, field)
+			case "completed":
+				return ec.fieldContext_GroceryListItem_completed(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_GroceryListItem_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_GroceryListItem_updatedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type GroceryListItem", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_updateGroceryListItem_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_markGroceryListItem(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_markGroceryListItem(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().MarkGroceryListItem(rctx, fc.Args["groceryListItemId"].(int64), fc.Args["completed"].(bool))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.IsAuthenticated == nil {
+				return nil, errors.New("directive isAuthenticated is not implemented")
+			}
+			return ec.directives.IsAuthenticated(ctx, nil, directive0, nil)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*gmodel.GroceryListItem); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/pricetra/api/graph/gmodel.GroceryListItem`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*gmodel.GroceryListItem)
+	fc.Result = res
+	return ec.marshalNGroceryListItem2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐGroceryListItem(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_markGroceryListItem(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_GroceryListItem_id(ctx, field)
+			case "groceryListId":
+				return ec.fieldContext_GroceryListItem_groceryListId(ctx, field)
+			case "groceryList":
+				return ec.fieldContext_GroceryListItem_groceryList(ctx, field)
+			case "productId":
+				return ec.fieldContext_GroceryListItem_productId(ctx, field)
+			case "product":
+				return ec.fieldContext_GroceryListItem_product(ctx, field)
+			case "quantity":
+				return ec.fieldContext_GroceryListItem_quantity(ctx, field)
+			case "unit":
+				return ec.fieldContext_GroceryListItem_unit(ctx, field)
+			case "category":
+				return ec.fieldContext_GroceryListItem_category(ctx, field)
+			case "weight":
+				return ec.fieldContext_GroceryListItem_weight(ctx, field)
+			case "completed":
+				return ec.fieldContext_GroceryListItem_completed(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_GroceryListItem_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_GroceryListItem_updatedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type GroceryListItem", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_markGroceryListItem_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -15016,6 +16576,368 @@ func (ec *executionContext) fieldContext_Query_getAllCountries(ctx context.Conte
 	return fc, nil
 }
 
+func (ec *executionContext) _Query_groceryLists(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_groceryLists(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().GroceryLists(rctx)
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.IsAuthenticated == nil {
+				return nil, errors.New("directive isAuthenticated is not implemented")
+			}
+			return ec.directives.IsAuthenticated(ctx, nil, directive0, nil)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.([]*gmodel.GroceryList); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*github.com/pricetra/api/graph/gmodel.GroceryList`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*gmodel.GroceryList)
+	fc.Result = res
+	return ec.marshalNGroceryList2ᚕᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐGroceryListᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_groceryLists(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_GroceryList_id(ctx, field)
+			case "userId":
+				return ec.fieldContext_GroceryList_userId(ctx, field)
+			case "default":
+				return ec.fieldContext_GroceryList_default(ctx, field)
+			case "name":
+				return ec.fieldContext_GroceryList_name(ctx, field)
+			case "groceryListItems":
+				return ec.fieldContext_GroceryList_groceryListItems(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_GroceryList_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_GroceryList_updatedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type GroceryList", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_groceryList(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_groceryList(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().GroceryList(rctx, fc.Args["groceryListId"].(int64))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.IsAuthenticated == nil {
+				return nil, errors.New("directive isAuthenticated is not implemented")
+			}
+			return ec.directives.IsAuthenticated(ctx, nil, directive0, nil)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*gmodel.GroceryList); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/pricetra/api/graph/gmodel.GroceryList`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*gmodel.GroceryList)
+	fc.Result = res
+	return ec.marshalNGroceryList2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐGroceryList(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_groceryList(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_GroceryList_id(ctx, field)
+			case "userId":
+				return ec.fieldContext_GroceryList_userId(ctx, field)
+			case "default":
+				return ec.fieldContext_GroceryList_default(ctx, field)
+			case "name":
+				return ec.fieldContext_GroceryList_name(ctx, field)
+			case "groceryListItems":
+				return ec.fieldContext_GroceryList_groceryListItems(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_GroceryList_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_GroceryList_updatedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type GroceryList", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_groceryList_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_groceryListItems(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_groceryListItems(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().GroceryListItems(rctx, fc.Args["groceryListId"].(int64))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.IsAuthenticated == nil {
+				return nil, errors.New("directive isAuthenticated is not implemented")
+			}
+			return ec.directives.IsAuthenticated(ctx, nil, directive0, nil)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.([]*gmodel.GroceryListItem); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*github.com/pricetra/api/graph/gmodel.GroceryListItem`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*gmodel.GroceryListItem)
+	fc.Result = res
+	return ec.marshalNGroceryListItem2ᚕᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐGroceryListItemᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_groceryListItems(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_GroceryListItem_id(ctx, field)
+			case "groceryListId":
+				return ec.fieldContext_GroceryListItem_groceryListId(ctx, field)
+			case "groceryList":
+				return ec.fieldContext_GroceryListItem_groceryList(ctx, field)
+			case "productId":
+				return ec.fieldContext_GroceryListItem_productId(ctx, field)
+			case "product":
+				return ec.fieldContext_GroceryListItem_product(ctx, field)
+			case "quantity":
+				return ec.fieldContext_GroceryListItem_quantity(ctx, field)
+			case "unit":
+				return ec.fieldContext_GroceryListItem_unit(ctx, field)
+			case "category":
+				return ec.fieldContext_GroceryListItem_category(ctx, field)
+			case "weight":
+				return ec.fieldContext_GroceryListItem_weight(ctx, field)
+			case "completed":
+				return ec.fieldContext_GroceryListItem_completed(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_GroceryListItem_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_GroceryListItem_updatedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type GroceryListItem", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_groceryListItems_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_defaultGroceryListItems(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_defaultGroceryListItems(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().DefaultGroceryListItems(rctx)
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.IsAuthenticated == nil {
+				return nil, errors.New("directive isAuthenticated is not implemented")
+			}
+			return ec.directives.IsAuthenticated(ctx, nil, directive0, nil)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.([]*gmodel.GroceryListItem); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*github.com/pricetra/api/graph/gmodel.GroceryListItem`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*gmodel.GroceryListItem)
+	fc.Result = res
+	return ec.marshalNGroceryListItem2ᚕᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐGroceryListItemᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_defaultGroceryListItems(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_GroceryListItem_id(ctx, field)
+			case "groceryListId":
+				return ec.fieldContext_GroceryListItem_groceryListId(ctx, field)
+			case "groceryList":
+				return ec.fieldContext_GroceryListItem_groceryList(ctx, field)
+			case "productId":
+				return ec.fieldContext_GroceryListItem_productId(ctx, field)
+			case "product":
+				return ec.fieldContext_GroceryListItem_product(ctx, field)
+			case "quantity":
+				return ec.fieldContext_GroceryListItem_quantity(ctx, field)
+			case "unit":
+				return ec.fieldContext_GroceryListItem_unit(ctx, field)
+			case "category":
+				return ec.fieldContext_GroceryListItem_category(ctx, field)
+			case "weight":
+				return ec.fieldContext_GroceryListItem_weight(ctx, field)
+			case "completed":
+				return ec.fieldContext_GroceryListItem_completed(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_GroceryListItem_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_GroceryListItem_updatedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type GroceryListItem", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Query_getAllLists(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Query_getAllLists(ctx, field)
 	if err != nil {
@@ -21405,6 +23327,95 @@ func (ec *executionContext) unmarshalInputCreateCategory(ctx context.Context, ob
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputCreateGroceryListInput(ctx context.Context, obj interface{}) (gmodel.CreateGroceryListInput, error) {
+	var it gmodel.CreateGroceryListInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"name"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "name":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Name = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputCreateGroceryListItemInput(ctx context.Context, obj interface{}) (gmodel.CreateGroceryListItemInput, error) {
+	var it gmodel.CreateGroceryListItemInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"productId", "quantity", "unit", "category", "weight", "completed"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "productId":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("productId"))
+			data, err := ec.unmarshalOID2ᚖint64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ProductID = data
+		case "quantity":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("quantity"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Quantity = data
+		case "unit":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("unit"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Unit = data
+		case "category":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("category"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Category = data
+		case "weight":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("weight"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Weight = data
+		case "completed":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("completed"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Completed = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputCreatePrice(ctx context.Context, obj interface{}) (gmodel.CreatePrice, error) {
 	var it gmodel.CreatePrice
 	asMap := map[string]interface{}{}
@@ -22900,6 +24911,148 @@ func (ec *executionContext) _Currency(ctx context.Context, sel ast.SelectionSet,
 	return out
 }
 
+var groceryListImplementors = []string{"GroceryList"}
+
+func (ec *executionContext) _GroceryList(ctx context.Context, sel ast.SelectionSet, obj *gmodel.GroceryList) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, groceryListImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("GroceryList")
+		case "id":
+			out.Values[i] = ec._GroceryList_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "userId":
+			out.Values[i] = ec._GroceryList_userId(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "default":
+			out.Values[i] = ec._GroceryList_default(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "name":
+			out.Values[i] = ec._GroceryList_name(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "groceryListItems":
+			out.Values[i] = ec._GroceryList_groceryListItems(ctx, field, obj)
+		case "createdAt":
+			out.Values[i] = ec._GroceryList_createdAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "updatedAt":
+			out.Values[i] = ec._GroceryList_updatedAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var groceryListItemImplementors = []string{"GroceryListItem"}
+
+func (ec *executionContext) _GroceryListItem(ctx context.Context, sel ast.SelectionSet, obj *gmodel.GroceryListItem) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, groceryListItemImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("GroceryListItem")
+		case "id":
+			out.Values[i] = ec._GroceryListItem_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "groceryListId":
+			out.Values[i] = ec._GroceryListItem_groceryListId(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "groceryList":
+			out.Values[i] = ec._GroceryListItem_groceryList(ctx, field, obj)
+		case "productId":
+			out.Values[i] = ec._GroceryListItem_productId(ctx, field, obj)
+		case "product":
+			out.Values[i] = ec._GroceryListItem_product(ctx, field, obj)
+		case "quantity":
+			out.Values[i] = ec._GroceryListItem_quantity(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "unit":
+			out.Values[i] = ec._GroceryListItem_unit(ctx, field, obj)
+		case "category":
+			out.Values[i] = ec._GroceryListItem_category(ctx, field, obj)
+		case "weight":
+			out.Values[i] = ec._GroceryListItem_weight(ctx, field, obj)
+		case "completed":
+			out.Values[i] = ec._GroceryListItem_completed(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "createdAt":
+			out.Values[i] = ec._GroceryListItem_createdAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "updatedAt":
+			out.Values[i] = ec._GroceryListItem_updatedAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var listImplementors = []string{"List"}
 
 func (ec *executionContext) _List(ctx context.Context, sel ast.SelectionSet, obj *gmodel.List) graphql.Marshaler {
@@ -22999,6 +25152,27 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		case "createCategory":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_createCategory(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "addGroceryListItem":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_addGroceryListItem(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "updateGroceryListItem":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_updateGroceryListItem(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "markGroceryListItem":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_markGroceryListItem(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
@@ -24099,6 +26273,94 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_getAllCountries(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "groceryLists":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_groceryLists(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "groceryList":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_groceryList(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "groceryListItems":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_groceryListItems(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "defaultGroceryListItems":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_defaultGroceryListItems(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -25787,6 +28049,11 @@ func (ec *executionContext) unmarshalNCreateCategory2githubᚗcomᚋpricetraᚋa
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
+func (ec *executionContext) unmarshalNCreateGroceryListItemInput2githubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐCreateGroceryListItemInput(ctx context.Context, v interface{}) (gmodel.CreateGroceryListItemInput, error) {
+	res, err := ec.unmarshalInputCreateGroceryListItemInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalNCreatePrice2githubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐCreatePrice(ctx context.Context, v interface{}) (gmodel.CreatePrice, error) {
 	res, err := ec.unmarshalInputCreatePrice(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -25815,6 +28082,122 @@ func (ec *executionContext) marshalNFloat2float64(ctx context.Context, sel ast.S
 		}
 	}
 	return graphql.WrapContextMarshaler(ctx, res)
+}
+
+func (ec *executionContext) marshalNGroceryList2githubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐGroceryList(ctx context.Context, sel ast.SelectionSet, v gmodel.GroceryList) graphql.Marshaler {
+	return ec._GroceryList(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNGroceryList2ᚕᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐGroceryListᚄ(ctx context.Context, sel ast.SelectionSet, v []*gmodel.GroceryList) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNGroceryList2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐGroceryList(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNGroceryList2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐGroceryList(ctx context.Context, sel ast.SelectionSet, v *gmodel.GroceryList) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._GroceryList(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNGroceryListItem2githubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐGroceryListItem(ctx context.Context, sel ast.SelectionSet, v gmodel.GroceryListItem) graphql.Marshaler {
+	return ec._GroceryListItem(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNGroceryListItem2ᚕᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐGroceryListItemᚄ(ctx context.Context, sel ast.SelectionSet, v []*gmodel.GroceryListItem) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNGroceryListItem2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐGroceryListItem(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNGroceryListItem2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐGroceryListItem(ctx context.Context, sel ast.SelectionSet, v *gmodel.GroceryListItem) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._GroceryListItem(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNID2int64(ctx context.Context, v interface{}) (int64, error) {
@@ -26986,6 +29369,60 @@ func (ec *executionContext) marshalOFloat2ᚖfloat64(ctx context.Context, sel as
 	}
 	res := graphql.MarshalFloatContext(*v)
 	return graphql.WrapContextMarshaler(ctx, res)
+}
+
+func (ec *executionContext) marshalOGroceryList2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐGroceryList(ctx context.Context, sel ast.SelectionSet, v *gmodel.GroceryList) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._GroceryList(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOGroceryListItem2ᚕᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐGroceryListItemᚄ(ctx context.Context, sel ast.SelectionSet, v []*gmodel.GroceryListItem) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNGroceryListItem2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐGroceryListItem(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
 }
 
 func (ec *executionContext) unmarshalOID2ᚖint64(ctx context.Context, v interface{}) (*int64, error) {

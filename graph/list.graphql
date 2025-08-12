@@ -1,9 +1,3 @@
-enum ListType {
-  FAVORITES
-  WATCH_LIST
-  PERSONAL
-}
-
 type List {
   id: ID! @goTag(key: "sql", value: "primary_key")
   name: String!
@@ -49,8 +43,7 @@ type BranchListWithPrices {
 extend type Query {
   getAllLists(listType: ListType): [List!]! @isAuthenticated
 
-  getAllProductListsByListId(listId: ID!): [ProductList!]!
-    @isAuthenticated
+  getAllProductListsByListId(listId: ID!): [ProductList!]! @isAuthenticated
   getAllBranchListsByListId(listId: ID!): [BranchList!]! @isAuthenticated
 
   getFavoriteBranchesWithPrices(productId: ID!): [BranchListWithPrices!]!
@@ -64,8 +57,11 @@ extend type Mutation {
   addToList(listId: ID!, productId: ID!, stockId: ID): ProductList!
     @isAuthenticated
   removeFromList(listId: ID!, productListId: ID!): ProductList! @isAuthenticated
-  removeFromListWithProductId(listId: ID!, productId: ID!, stockId: ID): ProductList!
-    @isAuthenticated
+  removeFromListWithProductId(
+    listId: ID!
+    productId: ID!
+    stockId: ID
+  ): ProductList! @isAuthenticated
 
   addBranchToList(listId: ID!, branchId: ID!): BranchList! @isAuthenticated
   bulkAddBranchesToList(listId: ID!, branchIds: [ID!]!): [BranchList!]!
