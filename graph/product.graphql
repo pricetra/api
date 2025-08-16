@@ -43,7 +43,8 @@ type Product {
   categoryId: ID!
   category: Category
   stock: Stock
-  weight: String
+  weightValue: Float
+  weightType: String
   lowestRecordedPrice: Float
   highestRecordedPrice: Float
   createdAt: Time!

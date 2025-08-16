@@ -26,7 +26,6 @@ type productTable struct {
 	Code                 postgres.ColumnString
 	Color                postgres.ColumnString
 	Model                postgres.ColumnString
-	Weight               postgres.ColumnString
 	LowestRecordedPrice  postgres.ColumnFloat
 	HighestRecordedPrice postgres.ColumnFloat
 	CreatedByID          postgres.ColumnInteger
@@ -88,7 +87,6 @@ func newProductTableImpl(schemaName, tableName, alias string) productTable {
 		CodeColumn                 = postgres.StringColumn("code")
 		ColorColumn                = postgres.StringColumn("color")
 		ModelColumn                = postgres.StringColumn("model")
-		WeightColumn               = postgres.StringColumn("weight")
 		LowestRecordedPriceColumn  = postgres.FloatColumn("lowest_recorded_price")
 		HighestRecordedPriceColumn = postgres.FloatColumn("highest_recorded_price")
 		CreatedByIDColumn          = postgres.IntegerColumn("created_by_id")
@@ -101,8 +99,8 @@ func newProductTableImpl(schemaName, tableName, alias string) productTable {
 		ViewsColumn                = postgres.IntegerColumn("views")
 		WeightTypeColumn           = postgres.StringColumn("weight_type")
 		WeightValueColumn          = postgres.FloatColumn("weight_value")
-		allColumns                 = postgres.ColumnList{IDColumn, NameColumn, ImageColumn, DescriptionColumn, URLColumn, BrandColumn, CodeColumn, ColorColumn, ModelColumn, WeightColumn, LowestRecordedPriceColumn, HighestRecordedPriceColumn, CreatedByIDColumn, UpdatedByIDColumn, CreatedAtColumn, UpdatedAtColumn, SourceColumn, CategoryIDColumn, SearchVectorColumn, ViewsColumn, WeightTypeColumn, WeightValueColumn}
-		mutableColumns             = postgres.ColumnList{NameColumn, ImageColumn, DescriptionColumn, URLColumn, BrandColumn, CodeColumn, ColorColumn, ModelColumn, WeightColumn, LowestRecordedPriceColumn, HighestRecordedPriceColumn, CreatedByIDColumn, UpdatedByIDColumn, CreatedAtColumn, UpdatedAtColumn, SourceColumn, CategoryIDColumn, ViewsColumn, WeightTypeColumn, WeightValueColumn}
+		allColumns                 = postgres.ColumnList{IDColumn, NameColumn, ImageColumn, DescriptionColumn, URLColumn, BrandColumn, CodeColumn, ColorColumn, ModelColumn, LowestRecordedPriceColumn, HighestRecordedPriceColumn, CreatedByIDColumn, UpdatedByIDColumn, CreatedAtColumn, UpdatedAtColumn, SourceColumn, CategoryIDColumn, SearchVectorColumn, ViewsColumn, WeightTypeColumn, WeightValueColumn}
+		mutableColumns             = postgres.ColumnList{NameColumn, ImageColumn, DescriptionColumn, URLColumn, BrandColumn, CodeColumn, ColorColumn, ModelColumn, LowestRecordedPriceColumn, HighestRecordedPriceColumn, CreatedByIDColumn, UpdatedByIDColumn, CreatedAtColumn, UpdatedAtColumn, SourceColumn, CategoryIDColumn, ViewsColumn, WeightTypeColumn, WeightValueColumn}
 	)
 
 	return productTable{
@@ -118,7 +116,6 @@ func newProductTableImpl(schemaName, tableName, alias string) productTable {
 		Code:                 CodeColumn,
 		Color:                ColorColumn,
 		Model:                ModelColumn,
-		Weight:               WeightColumn,
 		LowestRecordedPrice:  LowestRecordedPriceColumn,
 		HighestRecordedPrice: HighestRecordedPriceColumn,
 		CreatedByID:          CreatedByIDColumn,

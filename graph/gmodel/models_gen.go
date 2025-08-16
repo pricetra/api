@@ -322,7 +322,8 @@ type Product struct {
 	CategoryID           int64          `json:"categoryId"`
 	Category             *Category      `json:"category,omitempty"`
 	Stock                *Stock         `json:"stock,omitempty"`
-	Weight               *string        `json:"weight,omitempty"`
+	WeightValue          *float64       `json:"weightValue,omitempty"`
+	WeightType           *string        `json:"weightType,omitempty"`
 	LowestRecordedPrice  *float64       `json:"lowestRecordedPrice,omitempty"`
 	HighestRecordedPrice *float64       `json:"highestRecordedPrice,omitempty"`
 	CreatedAt            time.Time      `json:"createdAt"`
