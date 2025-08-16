@@ -84,7 +84,7 @@ var unitNormalization = map[string]string{
 	"mg": "mg", "milligram": "mg", "milligrams": "mg",
 
 	// Volume
-	"fl oz": "fl oz", "floz": "fl oz", "fluid ounce": "fl oz", "fluid ounces": "fl oz",
+	"fl oz": "fl oz", "floz": "fl oz", "fluid ounce": "fl oz", "fluid ounces": "fl oz", "fl. oz.": "fl oz", "fl. oz": "fl oz", "fl.oz": "fl oz",
 	"pt": "pt", "pint": "pt", "pints": "pt",
 	"qt": "qt", "quart": "qt", "quarts": "qt",
 	"gal": "gal", "gallon": "gal", "gallons": "gal",
@@ -121,4 +121,27 @@ func ParseWeight(raw_weight string) *string {
 
 	full_weight := fmt.Sprintf("%s %s", valueStr, unit)
 	return &full_weight
+}
+
+type WeightComponents struct {
+	Weight float64
+	WeightType string
+}
+
+func ParseWeightIntoStruct(raw_weight string) (c WeightComponents, err error) {
+	normalized_weight := ParseWeight(raw_weight)
+	if normalized_weight == nil {
+		return WeightComponents{}, fmt.Errorf("invalid weight format: %s", raw_weight)
+	}
+
+	parts := strings.SplitN(*normalized_weight, " ", 2)
+	if len(parts) != 2 {
+		return WeightComponents{}, fmt.Errorf("could not parse weight")
+	}
+	c.Weight, err = strconv.ParseFloat(parts[0], 64)
+	if err != nil {
+		return WeightComponents{}, fmt.Errorf("failed to parse weight value: %f", c.Weight)
+	}
+	c.WeightType = parts[1]
+	return c, nil
 }
