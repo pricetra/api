@@ -157,7 +157,6 @@ type CreatePrice struct {
 
 type CreateProduct struct {
 	Name                 string          `json:"name" validate:"required"`
-	Image                *string         `json:"image,omitempty"`
 	Description          string          `json:"description"`
 	URL                  *string         `json:"url,omitempty" validate:"omitempty,http_url"`
 	Brand                string          `json:"brand"`
@@ -169,6 +168,8 @@ type CreateProduct struct {
 	LowestRecordedPrice  *float64        `json:"lowestRecordedPrice,omitempty"`
 	HighestRecordedPrice *float64        `json:"highestRecordedPrice,omitempty"`
 	ImageFile            *graphql.Upload `json:"imageFile,omitempty"`
+	ImageBase64          *string         `json:"imageBase64,omitempty"`
+	ImageURL             *string         `json:"imageUrl,omitempty" validate:"omitempty,http_url"`
 }
 
 type CreateStock struct {
@@ -440,7 +441,6 @@ type Store struct {
 
 type UpdateProduct struct {
 	Name                 *string         `json:"name,omitempty"`
-	Image                *string         `json:"image,omitempty"`
 	Description          *string         `json:"description,omitempty"`
 	URL                  *string         `json:"url,omitempty" validate:"omitempty,http_url"`
 	Brand                *string         `json:"brand,omitempty"`
@@ -452,6 +452,7 @@ type UpdateProduct struct {
 	LowestRecordedPrice  *float64        `json:"lowestRecordedPrice,omitempty"`
 	HighestRecordedPrice *float64        `json:"highestRecordedPrice,omitempty"`
 	ImageFile            *graphql.Upload `json:"imageFile,omitempty"`
+	ImageBase64          *string         `json:"imageBase64,omitempty"`
 }
 
 type UpdateUser struct {

@@ -23589,7 +23589,7 @@ func (ec *executionContext) unmarshalInputCreateProduct(ctx context.Context, obj
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"name", "image", "description", "url", "brand", "code", "color", "model", "categoryId", "weight", "lowestRecordedPrice", "highestRecordedPrice", "imageFile"}
+	fieldsInOrder := [...]string{"name", "description", "url", "brand", "code", "color", "model", "categoryId", "weight", "lowestRecordedPrice", "highestRecordedPrice", "imageFile", "imageBase64", "imageUrl"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -23603,13 +23603,6 @@ func (ec *executionContext) unmarshalInputCreateProduct(ctx context.Context, obj
 				return it, err
 			}
 			it.Name = data
-		case "image":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("image"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.Image = data
 		case "description":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("description"))
 			data, err := ec.unmarshalNString2string(ctx, v)
@@ -23687,6 +23680,20 @@ func (ec *executionContext) unmarshalInputCreateProduct(ctx context.Context, obj
 				return it, err
 			}
 			it.ImageFile = data
+		case "imageBase64":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("imageBase64"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ImageBase64 = data
+		case "imageUrl":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("imageUrl"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ImageURL = data
 		}
 	}
 
@@ -23988,7 +23995,7 @@ func (ec *executionContext) unmarshalInputUpdateProduct(ctx context.Context, obj
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"name", "image", "description", "url", "brand", "code", "color", "model", "categoryId", "weight", "lowestRecordedPrice", "highestRecordedPrice", "imageFile"}
+	fieldsInOrder := [...]string{"name", "description", "url", "brand", "code", "color", "model", "categoryId", "weight", "lowestRecordedPrice", "highestRecordedPrice", "imageFile", "imageBase64"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -24002,13 +24009,6 @@ func (ec *executionContext) unmarshalInputUpdateProduct(ctx context.Context, obj
 				return it, err
 			}
 			it.Name = data
-		case "image":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("image"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.Image = data
 		case "description":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("description"))
 			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
@@ -24086,6 +24086,13 @@ func (ec *executionContext) unmarshalInputUpdateProduct(ctx context.Context, obj
 				return it, err
 			}
 			it.ImageFile = data
+		case "imageBase64":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("imageBase64"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ImageBase64 = data
 		}
 	}
 

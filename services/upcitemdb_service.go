@@ -76,7 +76,7 @@ func (ob UPCItemDbJsonResultItem) ToCreateProduct(ctx context.Context, service S
 	}
 	return gmodel.CreateProduct{
 		Name: ob.Title,
-		Image: &image,
+		ImageURL: &image,
 		Description: ob.Description,
 		Brand: ob.Brand,
 		Code: barcode,
@@ -184,8 +184,8 @@ func (s Service) UPCItemdbSaveSearchProducts(ctx context.Context, user gmodel.Us
 				continue
 			}
 			// Upload image...
-			if input.Image != nil {
-				_, err := s.ImageUrlUpload(ctx, *input.Image, uploader.UploadParams{
+			if input.ImageURL != nil {
+				_, err := s.ImageUrlUpload(ctx, *input.ImageURL, uploader.UploadParams{
 					PublicID: product.Code,
 					Tags:     []string{"PRODUCT"},
 				})

@@ -27,13 +27,20 @@ func (r *mutationResolver) CreateProduct(ctx context.Context, input gmodel.Creat
 
 	// upload image file to CDN
 	if input.ImageFile != nil {
-		_, err := r.Service.GraphImageUpload(ctx, *input.ImageFile, uploader.UploadParams{
+		r.Service.GraphImageUpload(ctx, *input.ImageFile, uploader.UploadParams{
 			PublicID: product.Code,
 			Tags:     []string{"PRODUCT"},
 		})
-		if err != nil {
-			log.Println("could not upload image to cdn.", err.Error())
-		}
+	} else if input.ImageBase64 != nil {
+		r.Service.Base64ImageUpload(ctx, *input.ImageBase64, uploader.UploadParams{
+			PublicID: product.Code,
+			Tags:     []string{"PRODUCT"},
+		})
+	} else if input.ImageURL != nil {
+		r.Service.ImageUrlUpload(ctx, *input.ImageURL, uploader.UploadParams{
+			PublicID: product.Code,
+			Tags:     []string{"PRODUCT"},
+		})
 	}
 
 	// Handle billing
@@ -50,14 +57,19 @@ func (r *mutationResolver) UpdateProduct(ctx context.Context, id int64, input gm
 	}
 
 	// upload image file to CDN
+	if input.ImageFile != nil || input.ImageBase64 != nil {
+		r.Service.DeleteImageUpload(ctx, product.Code)
+	}
 	if input.ImageFile != nil {
-		_, err := r.Service.GraphImageUpload(ctx, *input.ImageFile, uploader.UploadParams{
+		r.Service.GraphImageUpload(ctx, *input.ImageFile, uploader.UploadParams{
 			PublicID: product.Code,
 			Tags:     []string{"PRODUCT"},
 		})
-		if err != nil {
-			log.Println("could not upload image to cdn.", err.Error())
-		}
+	} else if input.ImageBase64 != nil {
+		r.Service.Base64ImageUpload(ctx, *input.ImageBase64, uploader.UploadParams{
+			PublicID: product.Code,
+			Tags:     []string{"PRODUCT"},
+		})
 	}
 
 	// Handle billing
@@ -114,8 +126,8 @@ func (r *queryResolver) BarcodeScan(ctx context.Context, barcode string, searchM
 	}
 
 	// Upload image to CDN
-	if product_input.Image != nil {
-		_, err := r.Service.ImageUrlUpload(ctx, *product_input.Image, uploader.UploadParams{
+	if product_input.ImageURL != nil {
+		_, err := r.Service.ImageUrlUpload(ctx, *product_input.ImageURL, uploader.UploadParams{
 			PublicID: product.Code,
 			Tags:     []string{"PRODUCT"},
 		})
