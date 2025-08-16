@@ -91,7 +91,7 @@ func MigrateFillWeightTypeColumn(service services.Service) {
 			), "\n", " "),
 		)
 	}
-	file, err := os.OpenFile("database/migrations/1755381239971867_migrate_product_weights_and_units.sql", os.O_APPEND | os.O_WRONLY, 0644)
+	file, err := os.OpenFile("database/migrations/1755381363685385_migrate_product_weights_and_units.sql", os.O_APPEND | os.O_WRONLY, 0644)
 	if err != nil {
 		panic(err)
 	}
