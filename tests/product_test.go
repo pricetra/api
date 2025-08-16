@@ -26,6 +26,7 @@ func TestProduct(t *testing.T) {
 	if err != nil {
 		t.Fatal("could not create category", err.Error())
 	}
+	weight := "2.5lb"
 	input := gmodel.CreateProduct{
 		Name: "Random test product",
 		Image: &image,
@@ -33,6 +34,7 @@ func TestProduct(t *testing.T) {
 		Brand: "Pricetra",
 		Code: "ABC123BARCODETEST",
 		CategoryID: category.ID,
+		Weight: &weight,
 	}
 	
 	t.Run("create product", func(t *testing.T) {
@@ -49,6 +51,9 @@ func TestProduct(t *testing.T) {
 		}
 		if product.Category.ExpandedPathname != category.ExpandedPathname {
 			t.Fatal("category expanded pathname is incorrect")
+		}
+		if *product.WeightValue != 2.5 || *product.WeightType != "lb" {
+			t.Fatal("weight value or type is incorrect", product.WeightValue, product.WeightType)
 		}
 	})
 

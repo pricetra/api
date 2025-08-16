@@ -14,12 +14,17 @@ import (
 	"github.com/pricetra/api/utils"
 )
 
-func (s Service) CreateProduct(ctx context.Context, user gmodel.User, input gmodel.CreateProduct, source *model.ProductSourceType) (product gmodel.Product, err error) {
+func (s Service) CreateProduct(
+	ctx context.Context,
+	user gmodel.User,
+	input gmodel.CreateProduct,
+	source *model.ProductSourceType,
+) (product gmodel.Product, err error) {
 	if err := s.StructValidator.StructCtx(ctx, input); err != nil {
-		return product, err
+		return gmodel.Product{}, err
 	}
 	if s.BarcodeExists(ctx, input.Code) {
-		return product, fmt.Errorf("barcode already exists in the database. please use the update method")
+		return gmodel.Product{}, fmt.Errorf("barcode already exists in the database. please use the update method")
 	}
 
 	var source_val model.ProductSourceType
@@ -27,6 +32,17 @@ func (s Service) CreateProduct(ctx context.Context, user gmodel.User, input gmod
 		source_val = model.ProductSourceType_Pricetra
 	} else {
 		source_val = *source
+	}
+
+	var weight_value *float64
+	var weight_type *string
+	if input.Weight != nil {
+		weight_components, err := utils.ParseWeightIntoStruct(*input.Weight)
+		if err != nil {
+			return gmodel.Product{}, fmt.Errorf("invalid weight format: %w", err)
+		}
+		weight_value = &weight_components.Weight
+		weight_type = &weight_components.WeightType
 	}
 
 	// product.image should always be pointed to the CDN with public_id == product.code 
@@ -44,7 +60,8 @@ func (s Service) CreateProduct(ctx context.Context, user gmodel.User, input gmod
 			table.Product.Color,
 			table.Product.Model,
 			table.Product.CategoryID,
-			table.Product.Weight,
+			table.Product.WeightValue,
+			table.Product.WeightType,
 			table.Product.LowestRecordedPrice,
 			table.Product.HighestRecordedPrice,
 			table.Product.Source,
@@ -54,11 +71,15 @@ func (s Service) CreateProduct(ctx context.Context, user gmodel.User, input gmod
 		MODEL(struct{
 			gmodel.CreateProduct
 			Source model.ProductSourceType
+			WeightValue *float64
+			WeightType *string
 			CreatedByID *int64
 			UpdatedByID *int64
 		}{
 			CreateProduct: input,
 			Source: source_val,
+			WeightValue: weight_value,
+			WeightType: weight_type,
 			CreatedByID: &user.ID,
 			UpdatedByID: &user.ID,
 		}).
@@ -322,9 +343,19 @@ func (s Service) UpdateProductById(ctx context.Context, user gmodel.User, id int
 	if input.CategoryID != nil {
 		cols = append(cols, table.Product.CategoryID)
 	}
+
+	var weight_value *float64
+	var weight_type *string
 	if input.Weight != nil {
-		cols = append(cols, table.Product.Weight)
+		weight_components, err := utils.ParseWeightIntoStruct(*input.Weight)
+		if err != nil {
+			return gmodel.Product{}, gmodel.Product{}, fmt.Errorf("invalid weight format: %w", err)
+		}
+		weight_value = &weight_components.Weight
+		weight_type = &weight_components.WeightType
+		cols = append(cols, table.Product.WeightValue, table.Product.WeightType)
 	}
+
 	if input.LowestRecordedPrice != nil {
 		cols = append(cols, table.Product.LowestRecordedPrice)
 	}
@@ -345,10 +376,14 @@ func (s Service) UpdateProductById(ctx context.Context, user gmodel.User, id int
 		UPDATE(cols).
 		MODEL(struct{
 			gmodel.UpdateProduct
+			WeightValue *float64
+			WeightType *string
 			UpdatedByID *int64
 			UpdatedAt time.Time
 		}{
 			UpdateProduct: input,
+			WeightValue: weight_value,
+			WeightType: weight_type,
 			UpdatedByID: &user.ID,
 			UpdatedAt: time.Now(),
 		}).

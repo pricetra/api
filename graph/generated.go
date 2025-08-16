@@ -303,7 +303,8 @@ type ComplexityRoot struct {
 		UpdatedBy            func(childComplexity int) int
 		UpdatedByID          func(childComplexity int) int
 		Views                func(childComplexity int) int
-		Weight               func(childComplexity int) int
+		WeightType           func(childComplexity int) int
+		WeightValue          func(childComplexity int) int
 	}
 
 	ProductBilling struct {
@@ -1990,12 +1991,19 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Product.Views(childComplexity), true
 
-	case "Product.weight":
-		if e.complexity.Product.Weight == nil {
+	case "Product.weightType":
+		if e.complexity.Product.WeightType == nil {
 			break
 		}
 
-		return e.complexity.Product.Weight(childComplexity), true
+		return e.complexity.Product.WeightType(childComplexity), true
+
+	case "Product.weightValue":
+		if e.complexity.Product.WeightValue == nil {
+			break
+		}
+
+		return e.complexity.Product.WeightValue(childComplexity), true
 
 	case "ProductBilling.billingRateType":
 		if e.complexity.ProductBilling.BillingRateType == nil {
@@ -8082,8 +8090,10 @@ func (ec *executionContext) fieldContext_GroceryListItem_product(ctx context.Con
 				return ec.fieldContext_Product_category(ctx, field)
 			case "stock":
 				return ec.fieldContext_Product_stock(ctx, field)
-			case "weight":
-				return ec.fieldContext_Product_weight(ctx, field)
+			case "weightValue":
+				return ec.fieldContext_Product_weightValue(ctx, field)
+			case "weightType":
+				return ec.fieldContext_Product_weightType(ctx, field)
 			case "lowestRecordedPrice":
 				return ec.fieldContext_Product_lowestRecordedPrice(ctx, field)
 			case "highestRecordedPrice":
@@ -10304,8 +10314,10 @@ func (ec *executionContext) fieldContext_Mutation_createProduct(ctx context.Cont
 				return ec.fieldContext_Product_category(ctx, field)
 			case "stock":
 				return ec.fieldContext_Product_stock(ctx, field)
-			case "weight":
-				return ec.fieldContext_Product_weight(ctx, field)
+			case "weightValue":
+				return ec.fieldContext_Product_weightValue(ctx, field)
+			case "weightType":
+				return ec.fieldContext_Product_weightType(ctx, field)
 			case "lowestRecordedPrice":
 				return ec.fieldContext_Product_lowestRecordedPrice(ctx, field)
 			case "highestRecordedPrice":
@@ -10431,8 +10443,10 @@ func (ec *executionContext) fieldContext_Mutation_updateProduct(ctx context.Cont
 				return ec.fieldContext_Product_category(ctx, field)
 			case "stock":
 				return ec.fieldContext_Product_stock(ctx, field)
-			case "weight":
-				return ec.fieldContext_Product_weight(ctx, field)
+			case "weightValue":
+				return ec.fieldContext_Product_weightValue(ctx, field)
+			case "weightType":
+				return ec.fieldContext_Product_weightType(ctx, field)
 			case "lowestRecordedPrice":
 				return ec.fieldContext_Product_lowestRecordedPrice(ctx, field)
 			case "highestRecordedPrice":
@@ -11851,8 +11865,10 @@ func (ec *executionContext) fieldContext_PaginatedProducts_products(ctx context.
 				return ec.fieldContext_Product_category(ctx, field)
 			case "stock":
 				return ec.fieldContext_Product_stock(ctx, field)
-			case "weight":
-				return ec.fieldContext_Product_weight(ctx, field)
+			case "weightValue":
+				return ec.fieldContext_Product_weightValue(ctx, field)
+			case "weightType":
+				return ec.fieldContext_Product_weightType(ctx, field)
 			case "lowestRecordedPrice":
 				return ec.fieldContext_Product_lowestRecordedPrice(ctx, field)
 			case "highestRecordedPrice":
@@ -12680,8 +12696,10 @@ func (ec *executionContext) fieldContext_Price_product(ctx context.Context, fiel
 				return ec.fieldContext_Product_category(ctx, field)
 			case "stock":
 				return ec.fieldContext_Product_stock(ctx, field)
-			case "weight":
-				return ec.fieldContext_Product_weight(ctx, field)
+			case "weightValue":
+				return ec.fieldContext_Product_weightValue(ctx, field)
+			case "weightType":
+				return ec.fieldContext_Product_weightType(ctx, field)
 			case "lowestRecordedPrice":
 				return ec.fieldContext_Product_lowestRecordedPrice(ctx, field)
 			case "highestRecordedPrice":
@@ -14119,8 +14137,8 @@ func (ec *executionContext) fieldContext_Product_stock(ctx context.Context, fiel
 	return fc, nil
 }
 
-func (ec *executionContext) _Product_weight(ctx context.Context, field graphql.CollectedField, obj *gmodel.Product) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Product_weight(ctx, field)
+func (ec *executionContext) _Product_weightValue(ctx context.Context, field graphql.CollectedField, obj *gmodel.Product) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Product_weightValue(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -14133,7 +14151,48 @@ func (ec *executionContext) _Product_weight(ctx context.Context, field graphql.C
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Weight, nil
+		return obj.WeightValue, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*float64)
+	fc.Result = res
+	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Product_weightValue(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Product",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Product_weightType(ctx context.Context, field graphql.CollectedField, obj *gmodel.Product) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Product_weightType(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.WeightType, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -14147,7 +14206,7 @@ func (ec *executionContext) _Product_weight(ctx context.Context, field graphql.C
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Product_weight(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Product_weightType(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Product",
 		Field:      field,
@@ -14772,8 +14831,10 @@ func (ec *executionContext) fieldContext_ProductBilling_product(ctx context.Cont
 				return ec.fieldContext_Product_category(ctx, field)
 			case "stock":
 				return ec.fieldContext_Product_stock(ctx, field)
-			case "weight":
-				return ec.fieldContext_Product_weight(ctx, field)
+			case "weightValue":
+				return ec.fieldContext_Product_weightValue(ctx, field)
+			case "weightType":
+				return ec.fieldContext_Product_weightType(ctx, field)
 			case "lowestRecordedPrice":
 				return ec.fieldContext_Product_lowestRecordedPrice(ctx, field)
 			case "highestRecordedPrice":
@@ -15801,8 +15862,10 @@ func (ec *executionContext) fieldContext_ProductList_product(ctx context.Context
 				return ec.fieldContext_Product_category(ctx, field)
 			case "stock":
 				return ec.fieldContext_Product_stock(ctx, field)
-			case "weight":
-				return ec.fieldContext_Product_weight(ctx, field)
+			case "weightValue":
+				return ec.fieldContext_Product_weightValue(ctx, field)
+			case "weightType":
+				return ec.fieldContext_Product_weightType(ctx, field)
 			case "lowestRecordedPrice":
 				return ec.fieldContext_Product_lowestRecordedPrice(ctx, field)
 			case "highestRecordedPrice":
@@ -17389,8 +17452,10 @@ func (ec *executionContext) fieldContext_Query_barcodeScan(ctx context.Context, 
 				return ec.fieldContext_Product_category(ctx, field)
 			case "stock":
 				return ec.fieldContext_Product_stock(ctx, field)
-			case "weight":
-				return ec.fieldContext_Product_weight(ctx, field)
+			case "weightValue":
+				return ec.fieldContext_Product_weightValue(ctx, field)
+			case "weightType":
+				return ec.fieldContext_Product_weightType(ctx, field)
 			case "lowestRecordedPrice":
 				return ec.fieldContext_Product_lowestRecordedPrice(ctx, field)
 			case "highestRecordedPrice":
@@ -17663,8 +17728,10 @@ func (ec *executionContext) fieldContext_Query_product(ctx context.Context, fiel
 				return ec.fieldContext_Product_category(ctx, field)
 			case "stock":
 				return ec.fieldContext_Product_stock(ctx, field)
-			case "weight":
-				return ec.fieldContext_Product_weight(ctx, field)
+			case "weightValue":
+				return ec.fieldContext_Product_weightValue(ctx, field)
+			case "weightType":
+				return ec.fieldContext_Product_weightType(ctx, field)
 			case "lowestRecordedPrice":
 				return ec.fieldContext_Product_lowestRecordedPrice(ctx, field)
 			case "highestRecordedPrice":
@@ -19248,8 +19315,10 @@ func (ec *executionContext) fieldContext_Stock_product(ctx context.Context, fiel
 				return ec.fieldContext_Product_category(ctx, field)
 			case "stock":
 				return ec.fieldContext_Product_stock(ctx, field)
-			case "weight":
-				return ec.fieldContext_Product_weight(ctx, field)
+			case "weightValue":
+				return ec.fieldContext_Product_weightValue(ctx, field)
+			case "weightType":
+				return ec.fieldContext_Product_weightType(ctx, field)
 			case "lowestRecordedPrice":
 				return ec.fieldContext_Product_lowestRecordedPrice(ctx, field)
 			case "highestRecordedPrice":
@@ -25815,8 +25884,10 @@ func (ec *executionContext) _Product(ctx context.Context, sel ast.SelectionSet, 
 			out.Values[i] = ec._Product_category(ctx, field, obj)
 		case "stock":
 			out.Values[i] = ec._Product_stock(ctx, field, obj)
-		case "weight":
-			out.Values[i] = ec._Product_weight(ctx, field, obj)
+		case "weightValue":
+			out.Values[i] = ec._Product_weightValue(ctx, field, obj)
+		case "weightType":
+			out.Values[i] = ec._Product_weightType(ctx, field, obj)
 		case "lowestRecordedPrice":
 			out.Values[i] = ec._Product_lowestRecordedPrice(ctx, field, obj)
 		case "highestRecordedPrice":

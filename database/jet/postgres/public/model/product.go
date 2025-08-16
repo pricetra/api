@@ -21,7 +21,6 @@ type Product struct {
 	Code                 string
 	Color                *string
 	Model                *string
-	Weight               *string
 	LowestRecordedPrice  *float64
 	HighestRecordedPrice *float64
 	CreatedByID          *int64
@@ -32,4 +31,6 @@ type Product struct {
 	CategoryID           *int64
 	SearchVector         *string
 	Views                int64
+	WeightType           *string
+	WeightValue          *float64
 }
