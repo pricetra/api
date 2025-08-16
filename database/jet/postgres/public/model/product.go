@@ -32,4 +32,6 @@ type Product struct {
 	CategoryID           *int64
 	SearchVector         *string
 	Views                int64
+	WeightType           *string
+	WeightValue          *float64
 }
