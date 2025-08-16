@@ -54,7 +54,6 @@ func TestPrice(t *testing.T) {
 	}
 	product, _ := service.CreateProduct(ctx, user, gmodel.CreateProduct{
 		Name: "Random test product",
-		Image: nil,
 		Description: "Some description",
 		Brand: "Pricetra",
 		Code: "12345678901",
@@ -62,7 +61,6 @@ func TestPrice(t *testing.T) {
 	}, nil)
 	product_2, _ := service.CreateProduct(ctx, user, gmodel.CreateProduct{
 		Name: "Random test product 2",
-		Image: nil,
 		Description: "Some description",
 		Brand: "Pricetra",
 		Code: "12345678901234",
