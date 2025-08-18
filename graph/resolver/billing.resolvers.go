@@ -8,7 +8,6 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/pricetra/api/graph"
 	"github.com/pricetra/api/graph/gmodel"
 )
 
@@ -34,8 +33,3 @@ func (r *queryResolver) ProductBillingDataByUserID(ctx context.Context, userID i
 	}
 	return &res, nil
 }
-
-// Query returns graph.QueryResolver implementation.
-func (r *Resolver) Query() graph.QueryResolver { return &queryResolver{r} }
-
-type queryResolver struct{ *Resolver }

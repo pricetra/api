@@ -353,6 +353,7 @@ type ComplexityRoot struct {
 		AllProducts                   func(childComplexity int, paginator gmodel.PaginatorInput, search *gmodel.ProductSearch) int
 		AllStores                     func(childComplexity int) int
 		BarcodeScan                   func(childComplexity int, barcode string, searchMode *bool) int
+		CheckAppVersion               func(childComplexity int, platform gmodel.AuthDeviceType, version string) int
 		DefaultGroceryListItems       func(childComplexity int) int
 		ExtractProductFields          func(childComplexity int, base64Image string) int
 		FindBranch                    func(childComplexity int, storeID int64, id int64) int
@@ -490,6 +491,7 @@ type MutationResolver interface {
 	RegisterExpoPushToken(ctx context.Context, expoPushToken string) (*gmodel.User, error)
 }
 type QueryResolver interface {
+	CheckAppVersion(ctx context.Context, platform gmodel.AuthDeviceType, version string) (bool, error)
 	MyProductBillingData(ctx context.Context, paginator gmodel.PaginatorInput) (*gmodel.PaginatedProductBilling, error)
 	ProductBillingDataByUserID(ctx context.Context, userID int64, paginator gmodel.PaginatorInput) (*gmodel.PaginatedProductBilling, error)
 	AllBranches(ctx context.Context, storeID int64, paginator gmodel.PaginatorInput, search *string, location *gmodel.LocationInput) (*gmodel.PaginatedBranches, error)
@@ -2251,6 +2253,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.BarcodeScan(childComplexity, args["barcode"].(string), args["searchMode"].(*bool)), true
 
+	case "Query.checkAppVersion":
+		if e.complexity.Query.CheckAppVersion == nil {
+			break
+		}
+
+		args, err := ec.field_Query_checkAppVersion_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.CheckAppVersion(childComplexity, args["platform"].(gmodel.AuthDeviceType), args["version"].(string)), true
+
 	case "Query.defaultGroceryListItems":
 		if e.complexity.Query.DefaultGroceryListItems == nil {
 			break
@@ -3044,7 +3058,7 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 	return introspection.WrapTypeFromDef(ec.Schema(), ec.Schema().Types[name]), nil
 }
 
-//go:embed "address.graphql" "billing.graphql" "branch.graphql" "category.graphql" "countries.graphql" "directives.graphql" "enums.graphql" "grocery_list.graphql" "list.graphql" "paginator.graphql" "price.graphql" "product.graphql" "scalars.graphql" "search.graphql" "stock.graphql" "store.graphql" "user.graphql"
+//go:embed "address.graphql" "app_version_requirement.graphql" "billing.graphql" "branch.graphql" "category.graphql" "countries.graphql" "directives.graphql" "enums.graphql" "grocery_list.graphql" "list.graphql" "paginator.graphql" "price.graphql" "product.graphql" "scalars.graphql" "search.graphql" "stock.graphql" "store.graphql" "user.graphql"
 var sourcesFS embed.FS
 
 func sourceData(filename string) string {
@@ -3057,6 +3071,7 @@ func sourceData(filename string) string {
 
 var sources = []*ast.Source{
 	{Name: "address.graphql", Input: sourceData("address.graphql"), BuiltIn: false},
+	{Name: "app_version_requirement.graphql", Input: sourceData("app_version_requirement.graphql"), BuiltIn: false},
 	{Name: "billing.graphql", Input: sourceData("billing.graphql"), BuiltIn: false},
 	{Name: "branch.graphql", Input: sourceData("branch.graphql"), BuiltIn: false},
 	{Name: "category.graphql", Input: sourceData("category.graphql"), BuiltIn: false},
@@ -3761,6 +3776,30 @@ func (ec *executionContext) field_Query_barcodeScan_args(ctx context.Context, ra
 		}
 	}
 	args["searchMode"] = arg1
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_checkAppVersion_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 gmodel.AuthDeviceType
+	if tmp, ok := rawArgs["platform"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("platform"))
+		arg0, err = ec.unmarshalNAuthDeviceType2githubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐAuthDeviceType(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["platform"] = arg0
+	var arg1 string
+	if tmp, ok := rawArgs["version"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("version"))
+		arg1, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["version"] = arg1
 	return args, nil
 }
 
@@ -16051,6 +16090,61 @@ func (ec *executionContext) fieldContext_ProductList_createdAt(ctx context.Conte
 	return fc, nil
 }
 
+func (ec *executionContext) _Query_checkAppVersion(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_checkAppVersion(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().CheckAppVersion(rctx, fc.Args["platform"].(gmodel.AuthDeviceType), fc.Args["version"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_checkAppVersion(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_checkAppVersion_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Query_myProductBillingData(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Query_myProductBillingData(ctx, field)
 	if err != nil {
@@ -26209,6 +26303,28 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Query")
+		case "checkAppVersion":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_checkAppVersion(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
 		case "myProductBillingData":
 			field := field
 
@@ -27754,6 +27870,16 @@ func (ec *executionContext) marshalNAuth2ᚖgithubᚗcomᚋpricetraᚋapiᚋgrap
 		return graphql.Null
 	}
 	return ec._Auth(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNAuthDeviceType2githubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐAuthDeviceType(ctx context.Context, v interface{}) (gmodel.AuthDeviceType, error) {
+	var res gmodel.AuthDeviceType
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNAuthDeviceType2githubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐAuthDeviceType(ctx context.Context, sel ast.SelectionSet, v gmodel.AuthDeviceType) graphql.Marshaler {
+	return v
 }
 
 func (ec *executionContext) unmarshalNBoolean2bool(ctx context.Context, v interface{}) (bool, error) {
