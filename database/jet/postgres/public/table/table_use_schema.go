@@ -14,6 +14,7 @@ func UseSchema(schema string) {
 	AdministrativeDivision = AdministrativeDivision.FromSchema(schema)
 	AiPromptResponse = AiPromptResponse.FromSchema(schema)
 	AiPromptTemplate = AiPromptTemplate.FromSchema(schema)
+	AppVersionRequirement = AppVersionRequirement.FromSchema(schema)
 	AuthState = AuthState.FromSchema(schema)
 	Branch = Branch.FromSchema(schema)
 	BranchList = BranchList.FromSchema(schema)
