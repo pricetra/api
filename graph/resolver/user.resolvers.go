@@ -80,8 +80,7 @@ func (r *mutationResolver) UpdateProfile(ctx context.Context, input gmodel.Updat
 	}
 	if input.AvatarFile != nil {
 		r.Service.GraphImageUpload(ctx, *input.AvatarFile, upload_params)
-	}
-	if input.AvatarBase64 != nil {
+	} else if input.AvatarBase64 != nil {
 		r.Service.Base64ImageUpload(ctx, *input.AvatarBase64, upload_params)
 	}
 	// Delete old avatar
@@ -107,9 +106,24 @@ func (r *mutationResolver) UpdateUserByID(ctx context.Context, userID int64, inp
 	if err != nil {
 		return nil, fmt.Errorf("user was not found")
 	}
+
 	updated_user, err := r.Service.UpdateUserFull(ctx, user, input)
 	if err != nil {
 		return nil, err
+	}
+
+	upload_params := uploader.UploadParams{
+		PublicID: *updated_user.Avatar,
+		Tags:     []string{"USER_PROFILE"},
+	}
+	if input.AvatarFile != nil {
+		r.Service.GraphImageUpload(ctx, *input.AvatarFile, upload_params)
+	} else if input.AvatarBase64 != nil {
+		r.Service.Base64ImageUpload(ctx, *input.AvatarBase64, upload_params)
+	}
+	// Delete old avatar
+	if updated_user.Avatar != nil && user.Avatar != nil && *updated_user.Avatar != *user.Avatar {
+		r.Service.DeleteImageUpload(ctx, *user.Avatar)
 	}
 	return &updated_user, nil
 }

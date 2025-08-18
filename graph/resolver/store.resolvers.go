@@ -26,8 +26,7 @@ func (r *mutationResolver) CreateStore(ctx context.Context, input gmodel.CreateS
 	}
 	if input.LogoFile != nil {
 		r.Service.GraphImageUpload(ctx, *input.LogoFile, upload_params)
-	}
-	if input.LogoBase64 != nil {
+	} else if input.LogoBase64 != nil {
 		r.Service.Base64ImageUpload(ctx, *input.LogoBase64, upload_params)
 	}
 	return &store, nil
