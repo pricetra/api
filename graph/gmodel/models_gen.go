@@ -179,10 +179,10 @@ type CreateStock struct {
 }
 
 type CreateStore struct {
-	Name     string          `json:"name"`
-	Logo     string          `json:"logo" validate:"uuid"`
-	Website  string          `json:"website" validate:"http_url"`
-	LogoFile *graphql.Upload `json:"logoFile,omitempty"`
+	Name       string          `json:"name"`
+	LogoBase64 *string         `json:"logoBase64,omitempty"`
+	Website    string          `json:"website" validate:"http_url"`
+	LogoFile   *graphql.Upload `json:"logoFile,omitempty"`
 }
 
 type CreatedByUser struct {

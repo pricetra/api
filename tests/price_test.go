@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/go-jet/jet/v2/postgres"
-	"github.com/google/uuid"
 	"github.com/pricetra/api/database/jet/postgres/public/table"
 	"github.com/pricetra/api/graph/gmodel"
 )
@@ -21,9 +20,10 @@ func TestPrice(t *testing.T) {
 		t.Fatal(err)
 	}
 	var store gmodel.Store
+	img := "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVR42mP8//8/AwAI/wH+9Q4AAAAASUVORK5CYII="
 	store, err = service.CreateStore(ctx, user, gmodel.CreateStore{
 		Name: "Price Test Store",
-		Logo: uuid.NewString(),
+		LogoBase64: &img,
 		Website: "https://pricetra.com",
 	})
 	if err != nil {

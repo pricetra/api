@@ -23748,7 +23748,7 @@ func (ec *executionContext) unmarshalInputCreateStore(ctx context.Context, obj i
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"name", "logo", "website", "logoFile"}
+	fieldsInOrder := [...]string{"name", "logoBase64", "website", "logoFile"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -23762,13 +23762,13 @@ func (ec *executionContext) unmarshalInputCreateStore(ctx context.Context, obj i
 				return it, err
 			}
 			it.Name = data
-		case "logo":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("logo"))
-			data, err := ec.unmarshalNString2string(ctx, v)
+		case "logoBase64":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("logoBase64"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.Logo = data
+			it.LogoBase64 = data
 		case "website":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("website"))
 			data, err := ec.unmarshalNString2string(ctx, v)

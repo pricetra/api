@@ -2,31 +2,42 @@ package services
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/go-jet/jet/v2/postgres"
+	"github.com/google/uuid"
 	"github.com/pricetra/api/database/jet/postgres/public/table"
 	"github.com/pricetra/api/graph/gmodel"
+	"github.com/pricetra/api/utils"
 )
 
 func (s Service) CreateStore(ctx context.Context, user gmodel.User, input gmodel.CreateStore) (store gmodel.Store, err error) {
 	if err := s.StructValidator.StructCtx(ctx, input); err != nil {
-		return store, err
+		return gmodel.Store{}, err
+	}
+	if input.LogoBase64 == nil && input.LogoFile == nil {
+		return gmodel.Store{}, fmt.Errorf("logo file or base64 is required")
+	}
+	if input.LogoBase64 != nil && !utils.IsValidBase64Image(*input.LogoBase64) {
+		return gmodel.Store{}, fmt.Errorf("invalid base64 image provided")
 	}
 
 	qb := table.Store.
 		INSERT(
-			table.Store.AllColumns.Except(
-				table.Store.ID,
-				table.Store.CreatedAt,
-				table.Store.UpdatedAt,
-			),
+			table.Store.Name,
+			table.Store.Website,
+			table.Store.Logo,
+			table.Store.CreatedByID,
+			table.Store.UpdatedByID,
 		).
 		MODEL(struct{
 			gmodel.CreateStore
+			Logo string
 			CreatedByID *int64
 			UpdatedByID *int64
 		}{
 			CreateStore: input,
+			Logo: uuid.NewString(),
 			CreatedByID: &user.ID,
 			UpdatedByID: &user.ID,
 		}).
