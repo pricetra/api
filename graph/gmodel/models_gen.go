@@ -157,7 +157,6 @@ type CreatePrice struct {
 
 type CreateProduct struct {
 	Name                 string          `json:"name" validate:"required"`
-	Image                *string         `json:"image,omitempty"`
 	Description          string          `json:"description"`
 	URL                  *string         `json:"url,omitempty" validate:"omitempty,http_url"`
 	Brand                string          `json:"brand"`
@@ -169,6 +168,8 @@ type CreateProduct struct {
 	LowestRecordedPrice  *float64        `json:"lowestRecordedPrice,omitempty"`
 	HighestRecordedPrice *float64        `json:"highestRecordedPrice,omitempty"`
 	ImageFile            *graphql.Upload `json:"imageFile,omitempty"`
+	ImageBase64          *string         `json:"imageBase64,omitempty"`
+	ImageURL             *string         `json:"imageUrl,omitempty" validate:"omitempty,http_url"`
 }
 
 type CreateStock struct {
@@ -178,10 +179,10 @@ type CreateStock struct {
 }
 
 type CreateStore struct {
-	Name     string          `json:"name"`
-	Logo     string          `json:"logo" validate:"uuid"`
-	Website  string          `json:"website" validate:"http_url"`
-	LogoFile *graphql.Upload `json:"logoFile,omitempty"`
+	Name       string          `json:"name"`
+	LogoBase64 *string         `json:"logoBase64,omitempty"`
+	Website    string          `json:"website" validate:"http_url"`
+	LogoFile   *graphql.Upload `json:"logoFile,omitempty"`
 }
 
 type CreatedByUser struct {
@@ -440,7 +441,6 @@ type Store struct {
 
 type UpdateProduct struct {
 	Name                 *string         `json:"name,omitempty"`
-	Image                *string         `json:"image,omitempty"`
 	Description          *string         `json:"description,omitempty"`
 	URL                  *string         `json:"url,omitempty" validate:"omitempty,http_url"`
 	Brand                *string         `json:"brand,omitempty"`
@@ -452,28 +452,29 @@ type UpdateProduct struct {
 	LowestRecordedPrice  *float64        `json:"lowestRecordedPrice,omitempty"`
 	HighestRecordedPrice *float64        `json:"highestRecordedPrice,omitempty"`
 	ImageFile            *graphql.Upload `json:"imageFile,omitempty"`
+	ImageBase64          *string         `json:"imageBase64,omitempty"`
 }
 
 type UpdateUser struct {
-	Name       *string         `json:"name,omitempty"`
-	Avatar     *string         `json:"avatar,omitempty" validate:"omitempty,uuid"`
-	AvatarFile *graphql.Upload `json:"avatarFile,omitempty"`
-	BirthDate  *time.Time      `json:"birthDate,omitempty"`
-	Bio        *string         `json:"bio,omitempty"`
-	Address    *string         `json:"address,omitempty"`
+	Name         *string         `json:"name,omitempty"`
+	AvatarFile   *graphql.Upload `json:"avatarFile,omitempty"`
+	AvatarBase64 *string         `json:"avatarBase64,omitempty"`
+	BirthDate    *time.Time      `json:"birthDate,omitempty"`
+	Bio          *string         `json:"bio,omitempty"`
+	Address      *string         `json:"address,omitempty"`
 }
 
 type UpdateUserFull struct {
-	Email       *string         `json:"email,omitempty" validate:"omitempty,email"`
-	PhoneNumber *string         `json:"phoneNumber,omitempty" validate:"omitempty,e164"`
-	Name        *string         `json:"name,omitempty"`
-	Avatar      *string         `json:"avatar,omitempty" validate:"omitempty,uuid"`
-	AvatarFile  *graphql.Upload `json:"avatarFile,omitempty"`
-	BirthDate   *time.Time      `json:"birthDate,omitempty"`
-	Bio         *string         `json:"bio,omitempty"`
-	Active      *bool           `json:"active,omitempty"`
-	Role        *UserRole       `json:"role,omitempty"`
-	Address     *string         `json:"address,omitempty"`
+	Email        *string         `json:"email,omitempty" validate:"omitempty,email"`
+	PhoneNumber  *string         `json:"phoneNumber,omitempty" validate:"omitempty,e164"`
+	Name         *string         `json:"name,omitempty"`
+	AvatarFile   *graphql.Upload `json:"avatarFile,omitempty"`
+	AvatarBase64 *string         `json:"avatarBase64,omitempty"`
+	BirthDate    *time.Time      `json:"birthDate,omitempty"`
+	Bio          *string         `json:"bio,omitempty"`
+	Active       *bool           `json:"active,omitempty"`
+	Role         *UserRole       `json:"role,omitempty"`
+	Address      *string         `json:"address,omitempty"`
 }
 
 type UpdatedByUser struct {

@@ -21,7 +21,6 @@ func TestProduct(t *testing.T) {
 	}
 
 	var product gmodel.Product
-	image := "my_image.jpg"
 	category, err := service.CategoryRecursiveInsert(ctx, "Product Test Category > Product Test Subcategory")
 	if err != nil {
 		t.Fatal("could not create category", err.Error())
@@ -29,7 +28,6 @@ func TestProduct(t *testing.T) {
 	weight := "2.5lb"
 	input := gmodel.CreateProduct{
 		Name: "Random test product",
-		Image: &image,
 		Description: "Some description",
 		Brand: "Pricetra",
 		Code: "ABC123BARCODETEST",

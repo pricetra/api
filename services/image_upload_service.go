@@ -18,6 +18,14 @@ func (s Service) ImageUrlUpload(
 	return s.Cloudinary.Upload.Upload(ctx, image_url, params)
 }
 
+func (s Service) Base64ImageUpload(
+	ctx context.Context,
+	base64_image string,
+	params uploader.UploadParams,
+) (*uploader.UploadResult, error) {
+	return s.Cloudinary.Upload.Upload(ctx, base64_image, params)
+}
+
 func (s Service) GraphImageUpload(
 	ctx context.Context,
 	image graphql.Upload,

@@ -239,9 +239,9 @@ func TestUser(t *testing.T) {
 		})
 
 		t.Run("update avatar only", func(t *testing.T) {
-			avatar := uuid.NewString()
+			img := "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVR42mP8//8/AwAI/wP+vQAAAABJRU5ErkJggg=="
 			updated_user, err := service.UpdateUser(ctx, user, gmodel.UpdateUser{
-				Avatar: &avatar,
+				AvatarBase64: &img,
 			})
 			if err != nil {
 				t.Fatal(err)
@@ -252,6 +252,9 @@ func TestUser(t *testing.T) {
 			}
 			if *updated_user.Avatar == user_avatar {
 				t.Fatal("avatar was not updated")
+			}
+			if uuid.Validate(*updated_user.Avatar) != nil {
+				t.Fatal("avatar should be a valid uuid")
 			}
 
 			find_updated_user, err := service.FindUserById(ctx, updated_user.ID)

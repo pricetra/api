@@ -12,7 +12,7 @@ type Store {
 
 input CreateStore {
   name: String!
-  logo: String! @goTag(key: "validate", value:"uuid")
+  logoBase64: String
   website: String! @goTag(key: "validate", value:"http_url")
   logoFile: Upload
 }

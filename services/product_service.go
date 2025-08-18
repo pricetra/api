@@ -26,6 +26,9 @@ func (s Service) CreateProduct(
 	if s.BarcodeExists(ctx, input.Code) {
 		return gmodel.Product{}, fmt.Errorf("barcode already exists in the database. please use the update method")
 	}
+	if input.ImageBase64 != nil && !utils.IsValidBase64Image(*input.ImageBase64) {
+		return gmodel.Product{}, fmt.Errorf("invalid base64 encoded image")
+	}
 
 	var source_val model.ProductSourceType
 	if source == nil {
@@ -47,7 +50,6 @@ func (s Service) CreateProduct(
 
 	// product.image should always be pointed to the CDN with public_id == product.code 
 	image := fmt.Sprintf("%s/%s", CLOUDINARY_UPLOAD_BASE, input.Code)
-	input.Image = &image
 
 	qb := table.Product.
 		INSERT(
@@ -71,6 +73,7 @@ func (s Service) CreateProduct(
 		MODEL(struct{
 			gmodel.CreateProduct
 			Source model.ProductSourceType
+			Image string
 			WeightValue *float64
 			WeightType *string
 			CreatedByID *int64
@@ -78,6 +81,7 @@ func (s Service) CreateProduct(
 		}{
 			CreateProduct: input,
 			Source: source_val,
+			Image: image,
 			WeightValue: weight_value,
 			WeightType: weight_type,
 			CreatedByID: &user.ID,
@@ -314,7 +318,6 @@ func (s Service) UpdateProductById(ctx context.Context, user gmodel.User, id int
 	}
 
 	cols := postgres.ColumnList{}
-	code := product.Code
 	if input.Name != nil && *input.Name != product.Name {
 		cols = append(cols, table.Product.Name)
 	}
@@ -331,7 +334,6 @@ func (s Service) UpdateProductById(ctx context.Context, user gmodel.User, id int
 		if s.BarcodeExists(ctx, *input.Code) {
 			return gmodel.Product{}, gmodel.Product{}, fmt.Errorf("new barcode is already in use")
 		}
-		code = *input.Code
 		cols = append(cols, table.Product.Code)
 	}
 	if input.Color != nil {
@@ -361,11 +363,6 @@ func (s Service) UpdateProductById(ctx context.Context, user gmodel.User, id int
 	}
 	if input.HighestRecordedPrice != nil {
 		cols = append(cols, table.Product.HighestRecordedPrice)
-	}
-	if input.ImageFile != nil {
-		image := fmt.Sprintf("%s/%s", CLOUDINARY_UPLOAD_BASE, code)
-		input.Image = &image
-		cols = append(cols, table.Product.Image)
 	}
 
 	if len(cols) == 0 {

@@ -442,6 +442,10 @@ func (Service) GetAuthUserFromContext(ctx context.Context) gmodel.User {
 }
 
 func (s Service) UpdateUserFull(ctx context.Context, user gmodel.User, input gmodel.UpdateUserFull) (updated_user gmodel.User, err error) {
+	if input.AvatarBase64 != nil && !utils.IsValidBase64Image(*input.AvatarBase64) {
+		return gmodel.User{}, fmt.Errorf("invalid base64 image")
+	}
+
 	u := model.User{}
 	columns := postgres.ColumnList{}
 	if input.Email != nil {
@@ -456,14 +460,7 @@ func (s Service) UpdateUserFull(ctx context.Context, user gmodel.User, input gmo
 		columns = append(columns, table.User.Name)
 		u.Name = *input.Name
 	}
-	if input.Avatar != nil {
-		if err := uuid.Validate(*input.Avatar); err != nil {
-			return updated_user, err
-		}
-		columns = append(columns, table.User.Avatar)
-		u.Avatar = input.Avatar
-	} else if input.AvatarFile != nil {
-		// user didn't provide avatar but provided a file so let's create one
+	if input.AvatarFile != nil || input.AvatarBase64 != nil {
 		columns = append(columns, table.User.Avatar)
 		avatar_id := uuid.NewString()
 		u.Avatar = &avatar_id
@@ -524,8 +521,8 @@ func (s Service) UpdateUserFull(ctx context.Context, user gmodel.User, input gmo
 func (s Service) UpdateUser(ctx context.Context, user gmodel.User, input gmodel.UpdateUser) (updated_user gmodel.User, err error) {
 	return s.UpdateUserFull(ctx, user, gmodel.UpdateUserFull{
 		Name: input.Name,
-		Avatar: input.Avatar,
 		AvatarFile: input.AvatarFile,
+		AvatarBase64: input.AvatarBase64,
 		BirthDate: input.BirthDate,
 		Bio: input.Bio,
 		Address: input.Address,

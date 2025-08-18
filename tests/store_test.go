@@ -20,13 +20,17 @@ func TestStore(t *testing.T) {
 	var store gmodel.Store
 
 	t.Run("create store", func(t *testing.T) {
+		img := "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVR42mP8//8/AwAI/wH+9Q4AAAAASUVORK5CYII="
 		store, err = service.CreateStore(ctx, user, gmodel.CreateStore{
 			Name: "Walmart",
-			Logo: uuid.NewString(),
+			LogoBase64: &img,
 			Website: "https://www.walmart.com",
 		})
 		if err != nil {
 			t.Fatal(err)
+		}
+		if uuid.Validate(store.Logo) != nil {
+			t.Fatal("invalid logo uuid", store.Logo)
 		}
 	})
 

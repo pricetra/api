@@ -6,7 +6,6 @@ package gresolver
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/cloudinary/cloudinary-go/v2/api/uploader"
 	"github.com/pricetra/api/graph/gmodel"
@@ -21,14 +20,14 @@ func (r *mutationResolver) CreateStore(ctx context.Context, input gmodel.CreateS
 	}
 
 	// upload file
+	upload_params := uploader.UploadParams{
+		PublicID: store.Logo,
+		Tags:     []string{"COMPANY_LOGO"},
+	}
 	if input.LogoFile != nil {
-		_, err := r.Service.GraphImageUpload(ctx, *input.LogoFile, uploader.UploadParams{
-			PublicID: input.Logo,
-			Tags:     []string{"COMPANY_LOGO"},
-		})
-		if err != nil {
-			return nil, fmt.Errorf("could not upload logo to CDN")
-		}
+		r.Service.GraphImageUpload(ctx, *input.LogoFile, upload_params)
+	} else if input.LogoBase64 != nil {
+		r.Service.Base64ImageUpload(ctx, *input.LogoBase64, upload_params)
 	}
 	return &store, nil
 }

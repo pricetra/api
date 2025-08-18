@@ -54,8 +54,8 @@ input CreateAccountInput {
 
 input UpdateUser {
   name: String
-  avatar: String @goTag(key: "validate", value: "omitempty,uuid")
   avatarFile: Upload
+  avatarBase64: String
   birthDate: Time
   bio: String
   address: String
@@ -65,8 +65,8 @@ input UpdateUserFull {
   email: String @goTag(key: "validate", value: "omitempty,email")
   phoneNumber: String @goTag(key: "validate", value: "omitempty,e164")
   name: String
-  avatar: String @goTag(key: "validate", value: "omitempty,uuid")
   avatarFile: Upload
+  avatarBase64: String
   birthDate: Time
   bio: String
   active: Boolean
