@@ -70,3 +70,12 @@ func (r *mutationResolver) CreatePrice(ctx context.Context, input gmodel.CreateP
 	}()
 	return &price, nil
 }
+
+// PriceChangeHistory is the resolver for the priceChangeHistory field.
+func (r *queryResolver) PriceChangeHistory(ctx context.Context, productID int64, stockID int64, paginator gmodel.PaginatorInput, filters *gmodel.PriceHistoryFilter) (*gmodel.PaginatedPriceHistory, error) {
+	res, err := r.Service.PaginatedPrices(ctx, productID, stockID, paginator, filters)
+	if err != nil {
+		return nil, err
+	}
+	return &res, nil
+}

@@ -250,6 +250,11 @@ type PaginatedBranches struct {
 	Paginator *Paginator `json:"paginator"`
 }
 
+type PaginatedPriceHistory struct {
+	Prices    []*Price   `json:"prices"`
+	Paginator *Paginator `json:"paginator"`
+}
+
 type PaginatedProductBilling struct {
 	Data      []*ProductBilling `json:"data"`
 	Paginator *Paginator        `json:"paginator"`
@@ -308,6 +313,10 @@ type Price struct {
 	CreatedBy     *CreatedByUser `json:"createdBy,omitempty"`
 	UpdatedByID   *int64         `json:"updatedById,omitempty"`
 	UpdatedBy     *UpdatedByUser `json:"updatedBy,omitempty"`
+}
+
+type PriceHistoryFilter struct {
+	OrderBy *OrderByType `json:"orderBy,omitempty"`
 }
 
 type Product struct {
@@ -653,6 +662,47 @@ func (e *ListType) UnmarshalGQL(v interface{}) error {
 }
 
 func (e ListType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type OrderByType string
+
+const (
+	OrderByTypeAsc  OrderByType = "ASC"
+	OrderByTypeDesc OrderByType = "DESC"
+)
+
+var AllOrderByType = []OrderByType{
+	OrderByTypeAsc,
+	OrderByTypeDesc,
+}
+
+func (e OrderByType) IsValid() bool {
+	switch e {
+	case OrderByTypeAsc, OrderByTypeDesc:
+		return true
+	}
+	return false
+}
+
+func (e OrderByType) String() string {
+	return string(e)
+}
+
+func (e *OrderByType) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = OrderByType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid OrderByType", str)
+	}
+	return nil
+}
+
+func (e OrderByType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 

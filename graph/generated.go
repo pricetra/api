@@ -225,6 +225,11 @@ type ComplexityRoot struct {
 		Paginator func(childComplexity int) int
 	}
 
+	PaginatedPriceHistory struct {
+		Paginator func(childComplexity int) int
+		Prices    func(childComplexity int) int
+	}
+
 	PaginatedProductBilling struct {
 		Data      func(childComplexity int) int
 		Paginator func(childComplexity int) int
@@ -376,6 +381,7 @@ type ComplexityRoot struct {
 		MyProductBillingData          func(childComplexity int, paginator gmodel.PaginatorInput) int
 		MyProductViewHistory          func(childComplexity int, paginator gmodel.PaginatorInput) int
 		MySearchHistory               func(childComplexity int, paginator gmodel.PaginatorInput) int
+		PriceChangeHistory            func(childComplexity int, productID int64, stockID int64, paginator gmodel.PaginatorInput, filters *gmodel.PriceHistoryFilter) int
 		Product                       func(childComplexity int, id int64, viewerTrail *gmodel.ViewerTrailInput) int
 		ProductBillingDataByUserID    func(childComplexity int, userID int64, paginator gmodel.PaginatorInput) int
 		Stock                         func(childComplexity int, stockID int64) int
@@ -507,6 +513,7 @@ type QueryResolver interface {
 	GetAllProductListsByListID(ctx context.Context, listID int64) ([]*gmodel.ProductList, error)
 	GetAllBranchListsByListID(ctx context.Context, listID int64) ([]*gmodel.BranchList, error)
 	GetFavoriteBranchesWithPrices(ctx context.Context, productID int64) ([]*gmodel.BranchListWithPrices, error)
+	PriceChangeHistory(ctx context.Context, productID int64, stockID int64, paginator gmodel.PaginatorInput, filters *gmodel.PriceHistoryFilter) (*gmodel.PaginatedPriceHistory, error)
 	BarcodeScan(ctx context.Context, barcode string, searchMode *bool) (*gmodel.Product, error)
 	AllProducts(ctx context.Context, paginator gmodel.PaginatorInput, search *gmodel.ProductSearch) (*gmodel.PaginatedProducts, error)
 	AllBrands(ctx context.Context) ([]*gmodel.Brand, error)
@@ -1580,6 +1587,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.PaginatedBranches.Paginator(childComplexity), true
 
+	case "PaginatedPriceHistory.paginator":
+		if e.complexity.PaginatedPriceHistory.Paginator == nil {
+			break
+		}
+
+		return e.complexity.PaginatedPriceHistory.Paginator(childComplexity), true
+
+	case "PaginatedPriceHistory.prices":
+		if e.complexity.PaginatedPriceHistory.Prices == nil {
+			break
+		}
+
+		return e.complexity.PaginatedPriceHistory.Prices(childComplexity), true
+
 	case "PaginatedProductBilling.data":
 		if e.complexity.PaginatedProductBilling.Data == nil {
 			break
@@ -2509,6 +2530,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.MySearchHistory(childComplexity, args["paginator"].(gmodel.PaginatorInput)), true
 
+	case "Query.priceChangeHistory":
+		if e.complexity.Query.PriceChangeHistory == nil {
+			break
+		}
+
+		args, err := ec.field_Query_priceChangeHistory_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.PriceChangeHistory(childComplexity, args["productId"].(int64), args["stockId"].(int64), args["paginator"].(gmodel.PaginatorInput), args["filters"].(*gmodel.PriceHistoryFilter)), true
+
 	case "Query.product":
 		if e.complexity.Query.Product == nil {
 			break
@@ -2955,6 +2988,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputCreateStore,
 		ec.unmarshalInputLocationInput,
 		ec.unmarshalInputPaginatorInput,
+		ec.unmarshalInputPriceHistoryFilter,
 		ec.unmarshalInputProductSearch,
 		ec.unmarshalInputSaveExternalProductInput,
 		ec.unmarshalInputUpdateProduct,
@@ -4178,6 +4212,48 @@ func (ec *executionContext) field_Query_mySearchHistory_args(ctx context.Context
 		}
 	}
 	args["paginator"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_priceChangeHistory_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 int64
+	if tmp, ok := rawArgs["productId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("productId"))
+		arg0, err = ec.unmarshalNID2int64(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["productId"] = arg0
+	var arg1 int64
+	if tmp, ok := rawArgs["stockId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("stockId"))
+		arg1, err = ec.unmarshalNID2int64(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["stockId"] = arg1
+	var arg2 gmodel.PaginatorInput
+	if tmp, ok := rawArgs["paginator"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("paginator"))
+		arg2, err = ec.unmarshalNPaginatorInput2githubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐPaginatorInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["paginator"] = arg2
+	var arg3 *gmodel.PriceHistoryFilter
+	if tmp, ok := rawArgs["filters"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("filters"))
+		arg3, err = ec.unmarshalOPriceHistoryFilter2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐPriceHistoryFilter(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["filters"] = arg3
 	return args, nil
 }
 
@@ -11719,6 +11795,156 @@ func (ec *executionContext) fieldContext_PaginatedBranches_paginator(ctx context
 	return fc, nil
 }
 
+func (ec *executionContext) _PaginatedPriceHistory_prices(ctx context.Context, field graphql.CollectedField, obj *gmodel.PaginatedPriceHistory) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PaginatedPriceHistory_prices(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Prices, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*gmodel.Price)
+	fc.Result = res
+	return ec.marshalNPrice2ᚕᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐPriceᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PaginatedPriceHistory_prices(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PaginatedPriceHistory",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Price_id(ctx, field)
+			case "amount":
+				return ec.fieldContext_Price_amount(ctx, field)
+			case "currencyCode":
+				return ec.fieldContext_Price_currencyCode(ctx, field)
+			case "productId":
+				return ec.fieldContext_Price_productId(ctx, field)
+			case "product":
+				return ec.fieldContext_Price_product(ctx, field)
+			case "stockId":
+				return ec.fieldContext_Price_stockId(ctx, field)
+			case "stock":
+				return ec.fieldContext_Price_stock(ctx, field)
+			case "storeId":
+				return ec.fieldContext_Price_storeId(ctx, field)
+			case "store":
+				return ec.fieldContext_Price_store(ctx, field)
+			case "branchId":
+				return ec.fieldContext_Price_branchId(ctx, field)
+			case "branch":
+				return ec.fieldContext_Price_branch(ctx, field)
+			case "sale":
+				return ec.fieldContext_Price_sale(ctx, field)
+			case "originalPrice":
+				return ec.fieldContext_Price_originalPrice(ctx, field)
+			case "condition":
+				return ec.fieldContext_Price_condition(ctx, field)
+			case "unitType":
+				return ec.fieldContext_Price_unitType(ctx, field)
+			case "imageId":
+				return ec.fieldContext_Price_imageId(ctx, field)
+			case "expiresAt":
+				return ec.fieldContext_Price_expiresAt(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Price_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Price_updatedAt(ctx, field)
+			case "createdById":
+				return ec.fieldContext_Price_createdById(ctx, field)
+			case "createdBy":
+				return ec.fieldContext_Price_createdBy(ctx, field)
+			case "updatedById":
+				return ec.fieldContext_Price_updatedById(ctx, field)
+			case "updatedBy":
+				return ec.fieldContext_Price_updatedBy(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Price", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PaginatedPriceHistory_paginator(ctx context.Context, field graphql.CollectedField, obj *gmodel.PaginatedPriceHistory) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PaginatedPriceHistory_paginator(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Paginator, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*gmodel.Paginator)
+	fc.Result = res
+	return ec.marshalNPaginator2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐPaginator(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PaginatedPriceHistory_paginator(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PaginatedPriceHistory",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "next":
+				return ec.fieldContext_Paginator_next(ctx, field)
+			case "page":
+				return ec.fieldContext_Paginator_page(ctx, field)
+			case "prev":
+				return ec.fieldContext_Paginator_prev(ctx, field)
+			case "total":
+				return ec.fieldContext_Paginator_total(ctx, field)
+			case "limit":
+				return ec.fieldContext_Paginator_limit(ctx, field)
+			case "numPages":
+				return ec.fieldContext_Paginator_numPages(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Paginator", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _PaginatedProductBilling_data(ctx context.Context, field graphql.CollectedField, obj *gmodel.PaginatedProductBilling) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_PaginatedProductBilling_data(ctx, field)
 	if err != nil {
@@ -17457,6 +17683,87 @@ func (ec *executionContext) fieldContext_Query_getFavoriteBranchesWithPrices(ctx
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Query_getFavoriteBranchesWithPrices_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_priceChangeHistory(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_priceChangeHistory(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().PriceChangeHistory(rctx, fc.Args["productId"].(int64), fc.Args["stockId"].(int64), fc.Args["paginator"].(gmodel.PaginatorInput), fc.Args["filters"].(*gmodel.PriceHistoryFilter))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.IsAuthenticated == nil {
+				return nil, errors.New("directive isAuthenticated is not implemented")
+			}
+			return ec.directives.IsAuthenticated(ctx, nil, directive0, nil)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*gmodel.PaginatedPriceHistory); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/pricetra/api/graph/gmodel.PaginatedPriceHistory`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*gmodel.PaginatedPriceHistory)
+	fc.Result = res
+	return ec.marshalNPaginatedPriceHistory2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐPaginatedPriceHistory(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_priceChangeHistory(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "prices":
+				return ec.fieldContext_PaginatedPriceHistory_prices(ctx, field)
+			case "paginator":
+				return ec.fieldContext_PaginatedPriceHistory_paginator(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type PaginatedPriceHistory", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_priceChangeHistory_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -23958,6 +24265,37 @@ func (ec *executionContext) unmarshalInputPaginatorInput(ctx context.Context, ob
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputPriceHistoryFilter(ctx context.Context, obj interface{}) (gmodel.PriceHistoryFilter, error) {
+	var it gmodel.PriceHistoryFilter
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	if _, present := asMap["orderBy"]; !present {
+		asMap["orderBy"] = "DESC"
+	}
+
+	fieldsInOrder := [...]string{"orderBy"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "orderBy":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("orderBy"))
+			data, err := ec.unmarshalOOrderByType2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐOrderByType(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.OrderBy = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputProductSearch(ctx context.Context, obj interface{}) (gmodel.ProductSearch, error) {
 	var it gmodel.ProductSearch
 	asMap := map[string]interface{}{}
@@ -25582,6 +25920,50 @@ func (ec *executionContext) _PaginatedBranches(ctx context.Context, sel ast.Sele
 	return out
 }
 
+var paginatedPriceHistoryImplementors = []string{"PaginatedPriceHistory"}
+
+func (ec *executionContext) _PaginatedPriceHistory(ctx context.Context, sel ast.SelectionSet, obj *gmodel.PaginatedPriceHistory) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, paginatedPriceHistoryImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("PaginatedPriceHistory")
+		case "prices":
+			out.Values[i] = ec._PaginatedPriceHistory_prices(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "paginator":
+			out.Values[i] = ec._PaginatedPriceHistory_paginator(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var paginatedProductBillingImplementors = []string{"PaginatedProductBilling"}
 
 func (ec *executionContext) _PaginatedProductBilling(ctx context.Context, sel ast.SelectionSet, obj *gmodel.PaginatedProductBilling) graphql.Marshaler {
@@ -26643,6 +27025,28 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_getFavoriteBranchesWithPrices(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "priceChangeHistory":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_priceChangeHistory(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -28595,6 +28999,20 @@ func (ec *executionContext) marshalNPaginatedBranches2ᚖgithubᚗcomᚋpricetra
 	return ec._PaginatedBranches(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNPaginatedPriceHistory2githubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐPaginatedPriceHistory(ctx context.Context, sel ast.SelectionSet, v gmodel.PaginatedPriceHistory) graphql.Marshaler {
+	return ec._PaginatedPriceHistory(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNPaginatedPriceHistory2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐPaginatedPriceHistory(ctx context.Context, sel ast.SelectionSet, v *gmodel.PaginatedPriceHistory) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._PaginatedPriceHistory(ctx, sel, v)
+}
+
 func (ec *executionContext) marshalNPaginatedProductBilling2githubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐPaginatedProductBilling(ctx context.Context, sel ast.SelectionSet, v gmodel.PaginatedProductBilling) graphql.Marshaler {
 	return ec._PaginatedProductBilling(ctx, sel, &v)
 }
@@ -28668,6 +29086,50 @@ func (ec *executionContext) unmarshalNPaginatorInput2githubᚗcomᚋpricetraᚋa
 
 func (ec *executionContext) marshalNPrice2githubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐPrice(ctx context.Context, sel ast.SelectionSet, v gmodel.Price) graphql.Marshaler {
 	return ec._Price(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNPrice2ᚕᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐPriceᚄ(ctx context.Context, sel ast.SelectionSet, v []*gmodel.Price) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNPrice2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐPrice(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
 }
 
 func (ec *executionContext) marshalNPrice2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐPrice(ctx context.Context, sel ast.SelectionSet, v *gmodel.Price) graphql.Marshaler {
@@ -29692,11 +30154,35 @@ func (ec *executionContext) unmarshalOLocationInput2ᚖgithubᚗcomᚋpricetra�
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
+func (ec *executionContext) unmarshalOOrderByType2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐOrderByType(ctx context.Context, v interface{}) (*gmodel.OrderByType, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var res = new(gmodel.OrderByType)
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOOrderByType2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐOrderByType(ctx context.Context, sel ast.SelectionSet, v *gmodel.OrderByType) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return v
+}
+
 func (ec *executionContext) marshalOPrice2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐPrice(ctx context.Context, sel ast.SelectionSet, v *gmodel.Price) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
 	return ec._Price(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOPriceHistoryFilter2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐPriceHistoryFilter(ctx context.Context, v interface{}) (*gmodel.PriceHistoryFilter, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputPriceHistoryFilter(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalOProduct2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐProduct(ctx context.Context, sel ast.SelectionSet, v *gmodel.Product) graphql.Marshaler {

@@ -1,5 +1,23 @@
+extend type Query {
+  priceChangeHistory(
+    productId: ID!
+    stockId: ID!
+    paginator: PaginatorInput!
+    filters: PriceHistoryFilter
+  ): PaginatedPriceHistory! @isAuthenticated
+}
+
 extend type Mutation {
   createPrice(input: CreatePrice!): Price! @isAuthenticated
+}
+
+input PriceHistoryFilter {
+  orderBy: OrderByType = DESC
+}
+
+type PaginatedPriceHistory {
+  prices: [Price!]!
+  paginator: Paginator!
 }
 
 type Price {
