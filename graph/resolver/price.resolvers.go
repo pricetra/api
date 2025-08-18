@@ -6,6 +6,7 @@ package gresolver
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/go-jet/jet/v2/postgres"
 	"github.com/pricetra/api/database/jet/postgres/public/model"
@@ -69,4 +70,9 @@ func (r *mutationResolver) CreatePrice(ctx context.Context, input gmodel.CreateP
 		r.Service.SendPriceChangePushNotifications(ctx, users, price, old_price)
 	}()
 	return &price, nil
+}
+
+// PriceChangeHistory is the resolver for the priceChangeHistory field.
+func (r *queryResolver) PriceChangeHistory(ctx context.Context, productID int64, stockID int64, paginator gmodel.PaginatorInput, filters *gmodel.PriceHistoryFilter) (*gmodel.PaginatedPriceHistory, error) {
+	panic(fmt.Errorf("not implemented: PriceChangeHistory - priceChangeHistory"))
 }

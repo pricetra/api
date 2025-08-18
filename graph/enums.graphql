@@ -24,3 +24,8 @@ enum ListType {
   WATCH_LIST
   PERSONAL
 }
+
+enum OrderByType {
+  ASC
+  DESC
+}
