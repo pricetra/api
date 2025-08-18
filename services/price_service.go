@@ -245,3 +245,57 @@ func (s Service) SendPriceChangePushNotifications(ctx context.Context, users []g
 	s.CreatePushNotificationEntry(ctx, notifications, res)
 	return res, nil
 }
+
+func (s Service) PaginatedPrices(
+	ctx context.Context,
+	product_id int64,
+	stock_id int64,
+	paginator_input gmodel.PaginatorInput,
+	filters *gmodel.PriceHistoryFilter,
+) (res gmodel.PaginatedPriceHistory, err error) {
+	created_by_user, updated_by_user, user_cols := s.CreatedAndUpdatedUserTable()
+	tables := table.Price.
+		LEFT_JOIN(created_by_user, created_by_user.ID.EQ(table.Price.CreatedByID)).
+		LEFT_JOIN(updated_by_user, updated_by_user.ID.EQ(table.Price.UpdatedByID))
+	where_clause := postgres.AND(
+		table.Price.ProductID.EQ(postgres.Int(product_id)),
+		table.Price.StockID.EQ(postgres.Int(stock_id)),
+	)
+	sql_paginator, err := s.Paginate(ctx, paginator_input, tables, table.Price.ID, where_clause)
+	if err != nil {
+		return gmodel.PaginatedPriceHistory{
+			Prices: []*gmodel.Price{},
+			Paginator: &gmodel.Paginator{},
+		}, nil
+	}
+
+	order_by := table.Price.CreatedAt.DESC()
+	if filters != nil {
+		if filters.OrderBy != nil {
+			switch *filters.OrderBy {
+				case gmodel.OrderByTypeAsc:
+					order_by = table.Price.CreatedAt.ASC()
+				case gmodel.OrderByTypeDesc:
+					order_by = table.Price.CreatedAt.DESC()
+				default:
+					order_by = table.Price.CreatedAt.DESC()
+			}
+		}
+	}
+	qb := table.Price.
+		SELECT(
+			table.Price.AllColumns,
+			user_cols...,
+		).
+		FROM(tables).
+		WHERE(where_clause).
+		ORDER_BY(order_by).
+		LIMIT(int64(sql_paginator.Limit)).
+		OFFSET(int64(sql_paginator.Offset))
+	if err = qb.QueryContext(ctx, s.DbOrTxQueryable(), &res.Prices); err != nil {
+		return gmodel.PaginatedPriceHistory{}, err
+	}
+
+	res.Paginator = &sql_paginator.Paginator
+	return res, nil
+}
