@@ -442,6 +442,10 @@ func (Service) GetAuthUserFromContext(ctx context.Context) gmodel.User {
 }
 
 func (s Service) UpdateUserFull(ctx context.Context, user gmodel.User, input gmodel.UpdateUserFull) (updated_user gmodel.User, err error) {
+	if input.AvatarBase64 != nil && !utils.IsValidBase64Image(*input.AvatarBase64) {
+		return gmodel.User{}, fmt.Errorf("invalid base64 image")
+	}
+
 	u := model.User{}
 	columns := postgres.ColumnList{}
 	if input.Email != nil {
