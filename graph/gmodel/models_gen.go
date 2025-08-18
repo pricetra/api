@@ -456,25 +456,25 @@ type UpdateProduct struct {
 }
 
 type UpdateUser struct {
-	Name       *string         `json:"name,omitempty"`
-	Avatar     *string         `json:"avatar,omitempty" validate:"omitempty,uuid"`
-	AvatarFile *graphql.Upload `json:"avatarFile,omitempty"`
-	BirthDate  *time.Time      `json:"birthDate,omitempty"`
-	Bio        *string         `json:"bio,omitempty"`
-	Address    *string         `json:"address,omitempty"`
+	Name         *string         `json:"name,omitempty"`
+	AvatarFile   *graphql.Upload `json:"avatarFile,omitempty"`
+	AvatarBase64 *string         `json:"avatarBase64,omitempty"`
+	BirthDate    *time.Time      `json:"birthDate,omitempty"`
+	Bio          *string         `json:"bio,omitempty"`
+	Address      *string         `json:"address,omitempty"`
 }
 
 type UpdateUserFull struct {
-	Email       *string         `json:"email,omitempty" validate:"omitempty,email"`
-	PhoneNumber *string         `json:"phoneNumber,omitempty" validate:"omitempty,e164"`
-	Name        *string         `json:"name,omitempty"`
-	Avatar      *string         `json:"avatar,omitempty" validate:"omitempty,uuid"`
-	AvatarFile  *graphql.Upload `json:"avatarFile,omitempty"`
-	BirthDate   *time.Time      `json:"birthDate,omitempty"`
-	Bio         *string         `json:"bio,omitempty"`
-	Active      *bool           `json:"active,omitempty"`
-	Role        *UserRole       `json:"role,omitempty"`
-	Address     *string         `json:"address,omitempty"`
+	Email        *string         `json:"email,omitempty" validate:"omitempty,email"`
+	PhoneNumber  *string         `json:"phoneNumber,omitempty" validate:"omitempty,e164"`
+	Name         *string         `json:"name,omitempty"`
+	AvatarFile   *graphql.Upload `json:"avatarFile,omitempty"`
+	AvatarBase64 *string         `json:"avatarBase64,omitempty"`
+	BirthDate    *time.Time      `json:"birthDate,omitempty"`
+	Bio          *string         `json:"bio,omitempty"`
+	Active       *bool           `json:"active,omitempty"`
+	Role         *UserRole       `json:"role,omitempty"`
+	Address      *string         `json:"address,omitempty"`
 }
 
 type UpdatedByUser struct {

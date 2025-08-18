@@ -74,14 +74,15 @@ func (r *mutationResolver) UpdateProfile(ctx context.Context, input gmodel.Updat
 		return nil, err
 	}
 
-	if updated_user.Avatar != nil && input.AvatarFile != nil {
-		_, err := r.Service.GraphImageUpload(ctx, *input.AvatarFile, uploader.UploadParams{
-			PublicID: *updated_user.Avatar,
-			Tags:     []string{"USER_PROFILE"},
-		})
-		if err != nil {
-			return nil, fmt.Errorf("profile saved, but the avatar could not be uploaded to CDN")
-		}
+	upload_params := uploader.UploadParams{
+		PublicID: *updated_user.Avatar,
+		Tags:     []string{"USER_PROFILE"},
+	}
+	if input.AvatarFile != nil {
+		r.Service.GraphImageUpload(ctx, *input.AvatarFile, upload_params)
+	}
+	if input.AvatarBase64 != nil {
+		r.Service.Base64ImageUpload(ctx, *input.AvatarBase64, upload_params)
 	}
 	// Delete old avatar
 	if updated_user.Avatar != nil && user.Avatar != nil && *updated_user.Avatar != *user.Avatar {

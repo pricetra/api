@@ -24106,7 +24106,7 @@ func (ec *executionContext) unmarshalInputUpdateUser(ctx context.Context, obj in
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"name", "avatar", "avatarFile", "birthDate", "bio", "address"}
+	fieldsInOrder := [...]string{"name", "avatarFile", "avatarBase64", "birthDate", "bio", "address"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -24120,13 +24120,6 @@ func (ec *executionContext) unmarshalInputUpdateUser(ctx context.Context, obj in
 				return it, err
 			}
 			it.Name = data
-		case "avatar":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("avatar"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.Avatar = data
 		case "avatarFile":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("avatarFile"))
 			data, err := ec.unmarshalOUpload2ᚖgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚐUpload(ctx, v)
@@ -24134,6 +24127,13 @@ func (ec *executionContext) unmarshalInputUpdateUser(ctx context.Context, obj in
 				return it, err
 			}
 			it.AvatarFile = data
+		case "avatarBase64":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("avatarBase64"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.AvatarBase64 = data
 		case "birthDate":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("birthDate"))
 			data, err := ec.unmarshalOTime2ᚖtimeᚐTime(ctx, v)
@@ -24168,7 +24168,7 @@ func (ec *executionContext) unmarshalInputUpdateUserFull(ctx context.Context, ob
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"email", "phoneNumber", "name", "avatar", "avatarFile", "birthDate", "bio", "active", "role", "address"}
+	fieldsInOrder := [...]string{"email", "phoneNumber", "name", "avatarFile", "avatarBase64", "birthDate", "bio", "active", "role", "address"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -24196,13 +24196,6 @@ func (ec *executionContext) unmarshalInputUpdateUserFull(ctx context.Context, ob
 				return it, err
 			}
 			it.Name = data
-		case "avatar":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("avatar"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.Avatar = data
 		case "avatarFile":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("avatarFile"))
 			data, err := ec.unmarshalOUpload2ᚖgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚐUpload(ctx, v)
@@ -24210,6 +24203,13 @@ func (ec *executionContext) unmarshalInputUpdateUserFull(ctx context.Context, ob
 				return it, err
 			}
 			it.AvatarFile = data
+		case "avatarBase64":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("avatarBase64"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.AvatarBase64 = data
 		case "birthDate":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("birthDate"))
 			data, err := ec.unmarshalOTime2ᚖtimeᚐTime(ctx, v)
