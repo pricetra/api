@@ -26,21 +26,16 @@ func (r *mutationResolver) CreateProduct(ctx context.Context, input gmodel.Creat
 	}
 
 	// upload image file to CDN
+	upload_params := uploader.UploadParams{
+		PublicID: product.Code,
+		Tags:     []string{"PRODUCT"},
+	}
 	if input.ImageFile != nil {
-		r.Service.GraphImageUpload(ctx, *input.ImageFile, uploader.UploadParams{
-			PublicID: product.Code,
-			Tags:     []string{"PRODUCT"},
-		})
+		r.Service.GraphImageUpload(ctx, *input.ImageFile, upload_params)
 	} else if input.ImageBase64 != nil {
-		r.Service.Base64ImageUpload(ctx, *input.ImageBase64, uploader.UploadParams{
-			PublicID: product.Code,
-			Tags:     []string{"PRODUCT"},
-		})
+		r.Service.Base64ImageUpload(ctx, *input.ImageBase64, upload_params)
 	} else if input.ImageURL != nil {
-		r.Service.ImageUrlUpload(ctx, *input.ImageURL, uploader.UploadParams{
-			PublicID: product.Code,
-			Tags:     []string{"PRODUCT"},
-		})
+		r.Service.ImageUrlUpload(ctx, *input.ImageURL, upload_params)
 	}
 
 	// Handle billing
@@ -60,16 +55,14 @@ func (r *mutationResolver) UpdateProduct(ctx context.Context, id int64, input gm
 	if input.ImageFile != nil || input.ImageBase64 != nil {
 		r.Service.DeleteImageUpload(ctx, product.Code)
 	}
+	upload_params := uploader.UploadParams{
+		PublicID: product.Code,
+		Tags:     []string{"PRODUCT"},
+	}
 	if input.ImageFile != nil {
-		r.Service.GraphImageUpload(ctx, *input.ImageFile, uploader.UploadParams{
-			PublicID: product.Code,
-			Tags:     []string{"PRODUCT"},
-		})
+		r.Service.GraphImageUpload(ctx, *input.ImageFile, upload_params)
 	} else if input.ImageBase64 != nil {
-		r.Service.Base64ImageUpload(ctx, *input.ImageBase64, uploader.UploadParams{
-			PublicID: product.Code,
-			Tags:     []string{"PRODUCT"},
-		})
+		r.Service.Base64ImageUpload(ctx, *input.ImageBase64, upload_params)
 	}
 
 	// Handle billing
