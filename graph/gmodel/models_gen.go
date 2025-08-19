@@ -366,6 +366,7 @@ type ProductExtractionFields struct {
 	Brand       string  `json:"brand"`
 	ProductName string  `json:"productName"`
 	Weight      *string `json:"weight,omitempty"`
+	Quantity    *int    `json:"quantity,omitempty"`
 	Category    string  `json:"category"`
 }
 
@@ -373,6 +374,7 @@ type ProductExtractionResponse struct {
 	Brand      string    `json:"brand"`
 	Name       string    `json:"name"`
 	Weight     *string   `json:"weight,omitempty"`
+	Quantity   *int      `json:"quantity,omitempty"`
 	CategoryID *int64    `json:"categoryId,omitempty"`
 	Category   *Category `json:"category,omitempty"`
 }

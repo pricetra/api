@@ -330,6 +330,7 @@ type ComplexityRoot struct {
 		Brand       func(childComplexity int) int
 		Category    func(childComplexity int) int
 		ProductName func(childComplexity int) int
+		Quantity    func(childComplexity int) int
 		Weight      func(childComplexity int) int
 	}
 
@@ -338,6 +339,7 @@ type ComplexityRoot struct {
 		Category   func(childComplexity int) int
 		CategoryID func(childComplexity int) int
 		Name       func(childComplexity int) int
+		Quantity   func(childComplexity int) int
 		Weight     func(childComplexity int) int
 	}
 
@@ -2128,6 +2130,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.ProductExtractionFields.ProductName(childComplexity), true
 
+	case "ProductExtractionFields.quantity":
+		if e.complexity.ProductExtractionFields.Quantity == nil {
+			break
+		}
+
+		return e.complexity.ProductExtractionFields.Quantity(childComplexity), true
+
 	case "ProductExtractionFields.weight":
 		if e.complexity.ProductExtractionFields.Weight == nil {
 			break
@@ -2162,6 +2171,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.ProductExtractionResponse.Name(childComplexity), true
+
+	case "ProductExtractionResponse.quantity":
+		if e.complexity.ProductExtractionResponse.Quantity == nil {
+			break
+		}
+
+		return e.complexity.ProductExtractionResponse.Quantity(childComplexity), true
 
 	case "ProductExtractionResponse.weight":
 		if e.complexity.ProductExtractionResponse.Weight == nil {
@@ -15652,6 +15668,47 @@ func (ec *executionContext) fieldContext_ProductExtractionFields_weight(ctx cont
 	return fc, nil
 }
 
+func (ec *executionContext) _ProductExtractionFields_quantity(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductExtractionFields) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductExtractionFields_quantity(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Quantity, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int)
+	fc.Result = res
+	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductExtractionFields_quantity(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductExtractionFields",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _ProductExtractionFields_category(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductExtractionFields) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_ProductExtractionFields_category(ctx, field)
 	if err != nil {
@@ -15820,6 +15877,47 @@ func (ec *executionContext) fieldContext_ProductExtractionResponse_weight(ctx co
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductExtractionResponse_quantity(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductExtractionResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductExtractionResponse_quantity(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Quantity, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int)
+	fc.Result = res
+	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductExtractionResponse_quantity(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductExtractionResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
 		},
 	}
 	return fc, nil
@@ -18376,6 +18474,8 @@ func (ec *executionContext) fieldContext_Query_extractProductFields(ctx context.
 				return ec.fieldContext_ProductExtractionResponse_name(ctx, field)
 			case "weight":
 				return ec.fieldContext_ProductExtractionResponse_weight(ctx, field)
+			case "quantity":
+				return ec.fieldContext_ProductExtractionResponse_quantity(ctx, field)
 			case "categoryId":
 				return ec.fieldContext_ProductExtractionResponse_categoryId(ctx, field)
 			case "category":
@@ -26701,6 +26801,8 @@ func (ec *executionContext) _ProductExtractionFields(ctx context.Context, sel as
 			}
 		case "weight":
 			out.Values[i] = ec._ProductExtractionFields_weight(ctx, field, obj)
+		case "quantity":
+			out.Values[i] = ec._ProductExtractionFields_quantity(ctx, field, obj)
 		case "category":
 			out.Values[i] = ec._ProductExtractionFields_category(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -26752,6 +26854,8 @@ func (ec *executionContext) _ProductExtractionResponse(ctx context.Context, sel 
 			}
 		case "weight":
 			out.Values[i] = ec._ProductExtractionResponse_weight(ctx, field, obj)
+		case "quantity":
+			out.Values[i] = ec._ProductExtractionResponse_quantity(ctx, field, obj)
 		case "categoryId":
 			out.Values[i] = ec._ProductExtractionResponse_categoryId(ctx, field, obj)
 		case "category":
