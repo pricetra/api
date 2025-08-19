@@ -48,6 +48,16 @@ func (s Service) CreateProduct(
 		weight_type = &weight_components.WeightType
 	}
 
+	quantity_value := 1
+	if input.QuantityValue != nil && *input.QuantityValue > 1 {
+		quantity_value = *input.QuantityValue
+	}
+
+	quantity_type := "count"
+	if input.QuantityType != nil && *input.QuantityType != "count" {
+		quantity_type = *input.QuantityType
+	}
+
 	// product.image should always be pointed to the CDN with public_id == product.code 
 	image := fmt.Sprintf("%s/%s", CLOUDINARY_UPLOAD_BASE, input.Code)
 
@@ -64,6 +74,8 @@ func (s Service) CreateProduct(
 			table.Product.CategoryID,
 			table.Product.WeightValue,
 			table.Product.WeightType,
+			table.Product.QuantityValue,
+			table.Product.QuantityType,
 			table.Product.LowestRecordedPrice,
 			table.Product.HighestRecordedPrice,
 			table.Product.Source,
@@ -76,6 +88,8 @@ func (s Service) CreateProduct(
 			Image string
 			WeightValue *float64
 			WeightType *string
+			QuantityValue int
+			QuantityType string
 			CreatedByID *int64
 			UpdatedByID *int64
 		}{
@@ -84,6 +98,8 @@ func (s Service) CreateProduct(
 			Image: image,
 			WeightValue: weight_value,
 			WeightType: weight_type,
+			QuantityValue: quantity_value,
+			QuantityType: quantity_type,
 			CreatedByID: &user.ID,
 			UpdatedByID: &user.ID,
 		}).
@@ -346,6 +362,18 @@ func (s Service) UpdateProductById(ctx context.Context, user gmodel.User, id int
 		cols = append(cols, table.Product.CategoryID)
 	}
 
+	quantity_value := 1
+	if input.QuantityValue != nil {
+		quantity_value = *input.QuantityValue
+		cols = append(cols, table.Product.QuantityValue)
+	}
+
+	quantity_type := "count"
+	if input.QuantityType != nil {
+		quantity_type = *input.QuantityType
+		cols = append(cols, table.Product.QuantityType)
+	}
+
 	var weight_value *float64
 	var weight_type *string
 	if input.Weight != nil {
@@ -375,12 +403,16 @@ func (s Service) UpdateProductById(ctx context.Context, user gmodel.User, id int
 			gmodel.UpdateProduct
 			WeightValue *float64
 			WeightType *string
+			QuantityValue int
+			QuantityType string
 			UpdatedByID *int64
 			UpdatedAt time.Time
 		}{
 			UpdateProduct: input,
 			WeightValue: weight_value,
 			WeightType: weight_type,
+			QuantityValue: quantity_value,
+			QuantityType: quantity_type,
 			UpdatedByID: &user.ID,
 			UpdatedAt: time.Now(),
 		}).
