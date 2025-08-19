@@ -165,6 +165,8 @@ type CreateProduct struct {
 	Model                *string         `json:"model,omitempty"`
 	CategoryID           int64           `json:"categoryId" validate:"required"`
 	Weight               *string         `json:"weight,omitempty"`
+	QuantityValue        *int            `json:"quantityValue,omitempty"`
+	QuantityType         *string         `json:"quantityType,omitempty"`
 	LowestRecordedPrice  *float64        `json:"lowestRecordedPrice,omitempty"`
 	HighestRecordedPrice *float64        `json:"highestRecordedPrice,omitempty"`
 	ImageFile            *graphql.Upload `json:"imageFile,omitempty"`
@@ -334,6 +336,8 @@ type Product struct {
 	Stock                *Stock         `json:"stock,omitempty"`
 	WeightValue          *float64       `json:"weightValue,omitempty"`
 	WeightType           *string        `json:"weightType,omitempty"`
+	QuantityValue        int            `json:"quantityValue"`
+	QuantityType         string         `json:"quantityType"`
 	LowestRecordedPrice  *float64       `json:"lowestRecordedPrice,omitempty"`
 	HighestRecordedPrice *float64       `json:"highestRecordedPrice,omitempty"`
 	CreatedAt            time.Time      `json:"createdAt"`
@@ -458,6 +462,8 @@ type UpdateProduct struct {
 	Model                *string         `json:"model,omitempty"`
 	CategoryID           *int64          `json:"categoryId,omitempty"`
 	Weight               *string         `json:"weight,omitempty"`
+	QuantityValue        *int            `json:"quantityValue,omitempty"`
+	QuantityType         *string         `json:"quantityType,omitempty"`
 	LowestRecordedPrice  *float64        `json:"lowestRecordedPrice,omitempty"`
 	HighestRecordedPrice *float64        `json:"highestRecordedPrice,omitempty"`
 	ImageFile            *graphql.Upload `json:"imageFile,omitempty"`

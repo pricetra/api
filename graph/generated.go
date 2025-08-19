@@ -302,6 +302,8 @@ type ComplexityRoot struct {
 		Model                func(childComplexity int) int
 		Name                 func(childComplexity int) int
 		ProductList          func(childComplexity int) int
+		QuantityType         func(childComplexity int) int
+		QuantityValue        func(childComplexity int) int
 		Stock                func(childComplexity int) int
 		URL                  func(childComplexity int) int
 		UpdatedAt            func(childComplexity int) int
@@ -1971,6 +1973,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Product.ProductList(childComplexity), true
+
+	case "Product.quantityType":
+		if e.complexity.Product.QuantityType == nil {
+			break
+		}
+
+		return e.complexity.Product.QuantityType(childComplexity), true
+
+	case "Product.quantityValue":
+		if e.complexity.Product.QuantityValue == nil {
+			break
+		}
+
+		return e.complexity.Product.QuantityValue(childComplexity), true
 
 	case "Product.stock":
 		if e.complexity.Product.Stock == nil {
@@ -8209,6 +8225,10 @@ func (ec *executionContext) fieldContext_GroceryListItem_product(ctx context.Con
 				return ec.fieldContext_Product_weightValue(ctx, field)
 			case "weightType":
 				return ec.fieldContext_Product_weightType(ctx, field)
+			case "quantityValue":
+				return ec.fieldContext_Product_quantityValue(ctx, field)
+			case "quantityType":
+				return ec.fieldContext_Product_quantityType(ctx, field)
 			case "lowestRecordedPrice":
 				return ec.fieldContext_Product_lowestRecordedPrice(ctx, field)
 			case "highestRecordedPrice":
@@ -10433,6 +10453,10 @@ func (ec *executionContext) fieldContext_Mutation_createProduct(ctx context.Cont
 				return ec.fieldContext_Product_weightValue(ctx, field)
 			case "weightType":
 				return ec.fieldContext_Product_weightType(ctx, field)
+			case "quantityValue":
+				return ec.fieldContext_Product_quantityValue(ctx, field)
+			case "quantityType":
+				return ec.fieldContext_Product_quantityType(ctx, field)
 			case "lowestRecordedPrice":
 				return ec.fieldContext_Product_lowestRecordedPrice(ctx, field)
 			case "highestRecordedPrice":
@@ -10562,6 +10586,10 @@ func (ec *executionContext) fieldContext_Mutation_updateProduct(ctx context.Cont
 				return ec.fieldContext_Product_weightValue(ctx, field)
 			case "weightType":
 				return ec.fieldContext_Product_weightType(ctx, field)
+			case "quantityValue":
+				return ec.fieldContext_Product_quantityValue(ctx, field)
+			case "quantityType":
+				return ec.fieldContext_Product_quantityType(ctx, field)
 			case "lowestRecordedPrice":
 				return ec.fieldContext_Product_lowestRecordedPrice(ctx, field)
 			case "highestRecordedPrice":
@@ -12134,6 +12162,10 @@ func (ec *executionContext) fieldContext_PaginatedProducts_products(ctx context.
 				return ec.fieldContext_Product_weightValue(ctx, field)
 			case "weightType":
 				return ec.fieldContext_Product_weightType(ctx, field)
+			case "quantityValue":
+				return ec.fieldContext_Product_quantityValue(ctx, field)
+			case "quantityType":
+				return ec.fieldContext_Product_quantityType(ctx, field)
 			case "lowestRecordedPrice":
 				return ec.fieldContext_Product_lowestRecordedPrice(ctx, field)
 			case "highestRecordedPrice":
@@ -12965,6 +12997,10 @@ func (ec *executionContext) fieldContext_Price_product(ctx context.Context, fiel
 				return ec.fieldContext_Product_weightValue(ctx, field)
 			case "weightType":
 				return ec.fieldContext_Product_weightType(ctx, field)
+			case "quantityValue":
+				return ec.fieldContext_Product_quantityValue(ctx, field)
+			case "quantityType":
+				return ec.fieldContext_Product_quantityType(ctx, field)
 			case "lowestRecordedPrice":
 				return ec.fieldContext_Product_lowestRecordedPrice(ctx, field)
 			case "highestRecordedPrice":
@@ -14484,6 +14520,94 @@ func (ec *executionContext) fieldContext_Product_weightType(ctx context.Context,
 	return fc, nil
 }
 
+func (ec *executionContext) _Product_quantityValue(ctx context.Context, field graphql.CollectedField, obj *gmodel.Product) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Product_quantityValue(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.QuantityValue, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Product_quantityValue(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Product",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Product_quantityType(ctx context.Context, field graphql.CollectedField, obj *gmodel.Product) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Product_quantityType(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.QuantityType, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Product_quantityType(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Product",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Product_lowestRecordedPrice(ctx context.Context, field graphql.CollectedField, obj *gmodel.Product) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Product_lowestRecordedPrice(ctx, field)
 	if err != nil {
@@ -15100,6 +15224,10 @@ func (ec *executionContext) fieldContext_ProductBilling_product(ctx context.Cont
 				return ec.fieldContext_Product_weightValue(ctx, field)
 			case "weightType":
 				return ec.fieldContext_Product_weightType(ctx, field)
+			case "quantityValue":
+				return ec.fieldContext_Product_quantityValue(ctx, field)
+			case "quantityType":
+				return ec.fieldContext_Product_quantityType(ctx, field)
 			case "lowestRecordedPrice":
 				return ec.fieldContext_Product_lowestRecordedPrice(ctx, field)
 			case "highestRecordedPrice":
@@ -16131,6 +16259,10 @@ func (ec *executionContext) fieldContext_ProductList_product(ctx context.Context
 				return ec.fieldContext_Product_weightValue(ctx, field)
 			case "weightType":
 				return ec.fieldContext_Product_weightType(ctx, field)
+			case "quantityValue":
+				return ec.fieldContext_Product_quantityValue(ctx, field)
+			case "quantityType":
+				return ec.fieldContext_Product_quantityType(ctx, field)
 			case "lowestRecordedPrice":
 				return ec.fieldContext_Product_lowestRecordedPrice(ctx, field)
 			case "highestRecordedPrice":
@@ -17857,6 +17989,10 @@ func (ec *executionContext) fieldContext_Query_barcodeScan(ctx context.Context, 
 				return ec.fieldContext_Product_weightValue(ctx, field)
 			case "weightType":
 				return ec.fieldContext_Product_weightType(ctx, field)
+			case "quantityValue":
+				return ec.fieldContext_Product_quantityValue(ctx, field)
+			case "quantityType":
+				return ec.fieldContext_Product_quantityType(ctx, field)
 			case "lowestRecordedPrice":
 				return ec.fieldContext_Product_lowestRecordedPrice(ctx, field)
 			case "highestRecordedPrice":
@@ -18133,6 +18269,10 @@ func (ec *executionContext) fieldContext_Query_product(ctx context.Context, fiel
 				return ec.fieldContext_Product_weightValue(ctx, field)
 			case "weightType":
 				return ec.fieldContext_Product_weightType(ctx, field)
+			case "quantityValue":
+				return ec.fieldContext_Product_quantityValue(ctx, field)
+			case "quantityType":
+				return ec.fieldContext_Product_quantityType(ctx, field)
 			case "lowestRecordedPrice":
 				return ec.fieldContext_Product_lowestRecordedPrice(ctx, field)
 			case "highestRecordedPrice":
@@ -19720,6 +19860,10 @@ func (ec *executionContext) fieldContext_Stock_product(ctx context.Context, fiel
 				return ec.fieldContext_Product_weightValue(ctx, field)
 			case "weightType":
 				return ec.fieldContext_Product_weightType(ctx, field)
+			case "quantityValue":
+				return ec.fieldContext_Product_quantityValue(ctx, field)
+			case "quantityType":
+				return ec.fieldContext_Product_quantityType(ctx, field)
 			case "lowestRecordedPrice":
 				return ec.fieldContext_Product_lowestRecordedPrice(ctx, field)
 			case "highestRecordedPrice":
@@ -23990,7 +24134,7 @@ func (ec *executionContext) unmarshalInputCreateProduct(ctx context.Context, obj
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"name", "description", "url", "brand", "code", "color", "model", "categoryId", "weight", "lowestRecordedPrice", "highestRecordedPrice", "imageFile", "imageBase64", "imageUrl"}
+	fieldsInOrder := [...]string{"name", "description", "url", "brand", "code", "color", "model", "categoryId", "weight", "quantityValue", "quantityType", "lowestRecordedPrice", "highestRecordedPrice", "imageFile", "imageBase64", "imageUrl"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -24060,6 +24204,20 @@ func (ec *executionContext) unmarshalInputCreateProduct(ctx context.Context, obj
 				return it, err
 			}
 			it.Weight = data
+		case "quantityValue":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("quantityValue"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.QuantityValue = data
+		case "quantityType":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("quantityType"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.QuantityType = data
 		case "lowestRecordedPrice":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("lowestRecordedPrice"))
 			data, err := ec.unmarshalOFloat2ᚖfloat64(ctx, v)
@@ -24427,7 +24585,7 @@ func (ec *executionContext) unmarshalInputUpdateProduct(ctx context.Context, obj
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"name", "description", "url", "brand", "code", "color", "model", "categoryId", "weight", "lowestRecordedPrice", "highestRecordedPrice", "imageFile", "imageBase64"}
+	fieldsInOrder := [...]string{"name", "description", "url", "brand", "code", "color", "model", "categoryId", "weight", "quantityValue", "quantityType", "lowestRecordedPrice", "highestRecordedPrice", "imageFile", "imageBase64"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -24497,6 +24655,20 @@ func (ec *executionContext) unmarshalInputUpdateProduct(ctx context.Context, obj
 				return it, err
 			}
 			it.Weight = data
+		case "quantityValue":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("quantityValue"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.QuantityValue = data
+		case "quantityType":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("quantityType"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.QuantityType = data
 		case "lowestRecordedPrice":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("lowestRecordedPrice"))
 			data, err := ec.unmarshalOFloat2ᚖfloat64(ctx, v)
@@ -26371,6 +26543,16 @@ func (ec *executionContext) _Product(ctx context.Context, sel ast.SelectionSet, 
 			out.Values[i] = ec._Product_weightValue(ctx, field, obj)
 		case "weightType":
 			out.Values[i] = ec._Product_weightType(ctx, field, obj)
+		case "quantityValue":
+			out.Values[i] = ec._Product_quantityValue(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "quantityType":
+			out.Values[i] = ec._Product_quantityType(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "lowestRecordedPrice":
 			out.Values[i] = ec._Product_lowestRecordedPrice(ctx, field, obj)
 		case "highestRecordedPrice":

@@ -45,6 +45,8 @@ type Product {
   stock: Stock
   weightValue: Float
   weightType: String
+  quantityValue: Int!
+  quantityType: String!
   lowestRecordedPrice: Float
   highestRecordedPrice: Float
   createdAt: Time!
@@ -88,6 +90,8 @@ input CreateProduct {
   model: String
   categoryId: ID! @goTag(key: "validate", value: "required")
   weight: String
+  quantityValue: Int
+  quantityType: String
   lowestRecordedPrice: Float
   highestRecordedPrice: Float
   imageFile: Upload
@@ -105,6 +109,8 @@ input UpdateProduct {
   model: String
   categoryId: ID
   weight: String
+  quantityValue: Int
+  quantityType: String
   lowestRecordedPrice: Float
   highestRecordedPrice: Float
   imageFile: Upload
