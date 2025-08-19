@@ -33,4 +33,6 @@ type Product struct {
 	Views                int64
 	WeightType           *string
 	WeightValue          *float64
+	QuantityValue        int32
+	QuantityType         string
 }
