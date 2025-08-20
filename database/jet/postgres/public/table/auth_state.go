@@ -17,7 +17,7 @@ type authStateTable struct {
 	postgres.Table
 
 	// Columns
-	ID            postgres.ColumnInteger
+	ID            postgres.ColumnString
 	LoggedInAt    postgres.ColumnTimestampz
 	UserID        postgres.ColumnInteger
 	IPAddress     postgres.ColumnString
@@ -64,7 +64,7 @@ func newAuthStateTable(schemaName, tableName, alias string) *AuthStateTable {
 
 func newAuthStateTableImpl(schemaName, tableName, alias string) authStateTable {
 	var (
-		IDColumn            = postgres.IntegerColumn("id")
+		IDColumn            = postgres.StringColumn("id")
 		LoggedInAtColumn    = postgres.TimestampzColumn("logged_in_at")
 		UserIDColumn        = postgres.IntegerColumn("user_id")
 		IPAddressColumn     = postgres.StringColumn("ip_address")

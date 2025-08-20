@@ -514,7 +514,7 @@ type User struct {
 	Active        bool              `json:"active"`
 	AuthPlatform  *AuthPlatformType `json:"authPlatform,omitempty" alias:"auth_state.platform"`
 	AuthDevice    *AuthDeviceType   `json:"authDevice,omitempty" alias:"auth_state.device_type"`
-	AuthStateID   *int64            `json:"authStateId,omitempty" alias:"auth_state.id"`
+	AuthStateID   *string           `json:"authStateId,omitempty" alias:"auth_state.id"`
 	ExpoPushToken *string           `json:"expoPushToken,omitempty" alias:"auth_state.expo_push_token"`
 	Role          UserRole          `json:"role"`
 	AddressID     *int64            `json:"addressId,omitempty"`

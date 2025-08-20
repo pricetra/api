@@ -160,7 +160,7 @@ func TestUser(t *testing.T) {
 					var auth_state model.AuthState
 					qb := table.AuthState.SELECT(table.AuthState.AllColumns).
 						FROM(table.AuthState).
-						WHERE(table.AuthState.ID.EQ(postgres.Int(*user1_auth.User.AuthStateID))).
+						WHERE(table.AuthState.ID.EQ(postgres.String(*user1_auth.User.AuthStateID))).
 						LIMIT(1)
 					if err := qb.QueryContext(ctx, db, &auth_state); err != nil {
 						t.Fatal("could not find auth_state entry", err.Error())
@@ -184,7 +184,7 @@ func TestUser(t *testing.T) {
 						t.Fatal("auth device is not 'android'")
 					}
 
-					var logins []int
+					var logins []string
 					qb := table.AuthState.SELECT(table.AuthState.ID).
 						FROM(table.AuthState).
 						WHERE(table.AuthState.UserID.EQ(postgres.Int(user1.ID)))
