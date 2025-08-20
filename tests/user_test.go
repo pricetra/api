@@ -184,7 +184,7 @@ func TestUser(t *testing.T) {
 						t.Fatal("auth device is not 'android'")
 					}
 
-					var logins []int
+					var logins []string
 					qb := table.AuthState.SELECT(table.AuthState.ID).
 						FROM(table.AuthState).
 						WHERE(table.AuthState.UserID.EQ(postgres.Int(user1.ID)))
