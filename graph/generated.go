@@ -21669,9 +21669,9 @@ func (ec *executionContext) _User_authStateId(ctx context.Context, field graphql
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*int64)
+	res := resTmp.(*string)
 	fc.Result = res
-	return ec.marshalOID2ᚖint64(ctx, field.Selections, res)
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_User_authStateId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -21681,7 +21681,7 @@ func (ec *executionContext) fieldContext_User_authStateId(ctx context.Context, f
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
