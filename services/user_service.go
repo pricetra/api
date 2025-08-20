@@ -61,7 +61,7 @@ func (s Service) FindUserById(ctx context.Context, id int64) (gmodel.User, error
 	return user, nil
 }
 
-func (s Service) FindAuthUserById(ctx context.Context, user_id int64, auth_state_id int64) (user gmodel.User, err error) {
+func (s Service) FindAuthUserById(ctx context.Context, user_id int64, auth_state_id string) (user gmodel.User, err error) {
 	qb := table.User.
 		SELECT(
 			table.User.AllColumns,
@@ -81,7 +81,7 @@ func (s Service) FindAuthUserById(ctx context.Context, user_id int64, auth_state
 		WHERE(
 			table.User.ID.
 				EQ(postgres.Int64(user_id)).
-				AND(table.AuthState.ID.EQ(postgres.Int64(auth_state_id))),
+				AND(table.AuthState.ID.EQ(postgres.String(auth_state_id))),
 		).
 		LIMIT(1)
 	err = qb.QueryContext(ctx, s.DbOrTxQueryable(), &user)
@@ -261,11 +261,13 @@ func (s Service) CreateAuthState(
 		device_type = &new_device
 	}
 	query := table.AuthState.INSERT(
+		table.AuthState.ID,
 		table.AuthState.UserID,
 		table.AuthState.IPAddress,
 		table.AuthState.Platform,
 		table.AuthState.DeviceType,
 	).MODEL(model.AuthState{
+		ID: uuid.NewString(),
 		UserID: user.ID,
 		IPAddress: ip_address,
 		Platform: auth_platform,
@@ -427,7 +429,7 @@ func (s Service) VerifyJwt(ctx context.Context, authorization types.Authorizatio
 		return gmodel.User{}, fmt.Errorf("token expired")
 	}
 
-	auth_state_id := int64(claims["authStateId"].(float64))
+	auth_state_id := claims["authStateId"].(string)
 	user_id := int64(claims["id"].(float64))
 	email := claims["email"].(string)
 	user, err = s.FindAuthUserById(ctx, user_id, auth_state_id)
@@ -529,18 +531,18 @@ func (s Service) UpdateUser(ctx context.Context, user gmodel.User, input gmodel.
 	})
 }
 
-func (s Service) Logout(ctx context.Context, user gmodel.User, auth_state_id int64) error {
+func (s Service) Logout(ctx context.Context, user gmodel.User, auth_state_id string) error {
 	db := s.DbOrTxQueryable()
 	qb := table.AuthState.
 		SELECT(table.AuthState.ID.AS("id")).
 		FROM(table.AuthState).
 		WHERE(
 			postgres.AND(
-				table.AuthState.ID.EQ(postgres.Int64(auth_state_id)),
+				table.AuthState.ID.EQ(postgres.String(auth_state_id)),
 				table.AuthState.UserID.EQ(postgres.Int64(user.ID)),
 			),
 		)
-	var res struct { ID int64 }
+	var res struct { ID string }
 	if err := qb.QueryContext(ctx, db, &res); err != nil {
 		return err
 	}
@@ -548,7 +550,7 @@ func (s Service) Logout(ctx context.Context, user gmodel.User, auth_state_id int
 	_, err := table.AuthState.
 		DELETE().
 		WHERE(table.AuthState.ID.EQ(
-			postgres.Int64(res.ID),
+			postgres.String(res.ID),
 		)).
 		ExecContext(ctx, s.DB)
 	return err
@@ -814,7 +816,7 @@ func (s Service) ResetPassword(
 
 func (s Service) AddExpoPushTokenToAuthState(
 	ctx context.Context,
-	auth_state_id int64,
+	auth_state_id string,
 	expo_push_token string,
 ) error {
 	qb := table.AuthState.
@@ -822,7 +824,7 @@ func (s Service) AddExpoPushTokenToAuthState(
 		MODEL(model.AuthState{
 			ExpoPushToken: &expo_push_token,
 		}).
-		WHERE(table.AuthState.ID.EQ(postgres.Int(auth_state_id))).
+		WHERE(table.AuthState.ID.EQ(postgres.String(auth_state_id))).
 		RETURNING(table.AuthState.AllColumns)
 	var dest model.AuthState
 	return qb.QueryContext(ctx, s.DbOrTxQueryable(), &dest)
