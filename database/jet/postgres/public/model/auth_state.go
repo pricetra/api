@@ -8,11 +8,12 @@
 package model
 
 import (
+	"github.com/google/uuid"
 	"time"
 )
 
 type AuthState struct {
-	ID            string `sql:"primary_key"`
+	ID            uuid.UUID `sql:"primary_key"`
 	LoggedInAt    time.Time
 	UserID        int64
 	IPAddress     *string

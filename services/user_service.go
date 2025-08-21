@@ -62,6 +62,11 @@ func (s Service) FindUserById(ctx context.Context, id int64) (gmodel.User, error
 }
 
 func (s Service) FindAuthUserById(ctx context.Context, user_id int64, auth_state_id string) (user gmodel.User, err error) {
+	auth_state_uuid, err := uuid.Parse(auth_state_id)
+	if err != nil {
+		return gmodel.User{}, fmt.Errorf("invalid uuid value")
+	}
+
 	qb := table.User.
 		SELECT(
 			table.User.AllColumns,
@@ -81,7 +86,7 @@ func (s Service) FindAuthUserById(ctx context.Context, user_id int64, auth_state
 		WHERE(
 			table.User.ID.
 				EQ(postgres.Int64(user_id)).
-				AND(table.AuthState.ID.EQ(postgres.String(auth_state_id))),
+				AND(table.AuthState.ID.EQ(postgres.UUID(auth_state_uuid))),
 		).
 		LIMIT(1)
 	err = qb.QueryContext(ctx, s.DbOrTxQueryable(), &user)
@@ -232,7 +237,7 @@ func (s Service) CreateAuthStateWithJwt(
 		return gmodel.Auth{}, fmt.Errorf("could not create auth state")
 	}
 
-	user, err := s.FindAuthUserById(ctx, user_id, auth_state.ID)
+	user, err := s.FindAuthUserById(ctx, user_id, auth_state.ID.String())
 	if err != nil {
 		return gmodel.Auth{}, fmt.Errorf("internal error")
 	}
@@ -267,7 +272,7 @@ func (s Service) CreateAuthState(
 		table.AuthState.Platform,
 		table.AuthState.DeviceType,
 	).MODEL(model.AuthState{
-		ID: uuid.NewString(),
+		ID: uuid.New(),
 		UserID: user.ID,
 		IPAddress: ip_address,
 		Platform: auth_platform,

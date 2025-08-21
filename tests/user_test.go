@@ -157,10 +157,11 @@ func TestUser(t *testing.T) {
 				})
 
 				t.Run("check if auth_state entry exists", func(t *testing.T) {
+					user1_auth_state_uuid, _ := uuid.Parse(*user1_auth.User.AuthStateID)
 					var auth_state model.AuthState
 					qb := table.AuthState.SELECT(table.AuthState.AllColumns).
 						FROM(table.AuthState).
-						WHERE(table.AuthState.ID.EQ(postgres.String(*user1_auth.User.AuthStateID))).
+						WHERE(table.AuthState.ID.EQ(postgres.UUID(user1_auth_state_uuid))).
 						LIMIT(1)
 					if err := qb.QueryContext(ctx, db, &auth_state); err != nil {
 						t.Fatal("could not find auth_state entry", err.Error())
