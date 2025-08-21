@@ -537,25 +537,30 @@ func (s Service) UpdateUser(ctx context.Context, user gmodel.User, input gmodel.
 }
 
 func (s Service) Logout(ctx context.Context, user gmodel.User, auth_state_id string) error {
+	auth_state_uuid, err := uuid.Parse(auth_state_id)
+	if err != nil {
+		return err
+	}
+
 	db := s.DbOrTxQueryable()
 	qb := table.AuthState.
 		SELECT(table.AuthState.ID.AS("id")).
 		FROM(table.AuthState).
 		WHERE(
 			postgres.AND(
-				table.AuthState.ID.EQ(postgres.String(auth_state_id)),
+				table.AuthState.ID.EQ(postgres.UUID(auth_state_uuid)),
 				table.AuthState.UserID.EQ(postgres.Int64(user.ID)),
 			),
 		)
-	var res struct { ID string }
+	var res struct { ID uuid.UUID }
 	if err := qb.QueryContext(ctx, db, &res); err != nil {
 		return err
 	}
 
-	_, err := table.AuthState.
+	_, err = table.AuthState.
 		DELETE().
 		WHERE(table.AuthState.ID.EQ(
-			postgres.String(res.ID),
+			postgres.UUID(res.ID),
 		)).
 		ExecContext(ctx, s.DB)
 	return err
@@ -824,12 +829,17 @@ func (s Service) AddExpoPushTokenToAuthState(
 	auth_state_id string,
 	expo_push_token string,
 ) error {
+	auth_state_uuid, err := uuid.Parse(auth_state_id)
+	if err != nil {
+		return err
+	}
+
 	qb := table.AuthState.
 		UPDATE(table.AuthState.ExpoPushToken).
 		MODEL(model.AuthState{
 			ExpoPushToken: &expo_push_token,
 		}).
-		WHERE(table.AuthState.ID.EQ(postgres.String(auth_state_id))).
+		WHERE(table.AuthState.ID.EQ(postgres.UUID(auth_state_uuid))).
 		RETURNING(table.AuthState.AllColumns)
 	var dest model.AuthState
 	return qb.QueryContext(ctx, s.DbOrTxQueryable(), &dest)
