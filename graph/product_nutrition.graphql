@@ -1,0 +1,146 @@
+type ProductNutrition {
+  id: ID! @goTag(key: "sql", value: "primary_key")
+  ingredients: String
+  ingredientList: [String!]
+  nutriments: ProductNutriment
+  servingSize: String
+  servingSizeValue: Float
+  servingSizeUnit: String
+  openfoodfactsUpdatedAt: String!
+  vegan: Boolean
+  vegetarian: Boolean
+  glutenFree: Boolean
+  lactoseFree: Boolean
+  halal: Boolean
+  kosher: Boolean
+  createdAt: Time!
+  updatedAt: Time!
+}
+
+type ProductNutriment {
+  salt: Float @goTag(key: "json", value: "salt")
+  salt100g: Float @goTag(key: "json", value: "salt_100g")
+  saltValue: Float @goTag(key: "json", value: "salt_value")
+  saltServing: Float @goTag(key: "json", value: "salt_serving")
+  saltUnit: String @goTag(key: "json", value: "salt_unit")
+
+  sugars100g: Float @goTag(key: "json", value: "sugars_100g")
+  sugars: Float @goTag(key: "json", value: "sugars")
+  sugarsUnit: String @goTag(key: "json", value: "sugars_unit")
+  sugarsServing: Float @goTag(key: "json", value: "sugars_serving")
+  sugarsValue: Float @goTag(key: "json", value: "sugars_value")
+
+  iron: Float @goTag(key: "json", value: "iron")
+  ironValue: Float @goTag(key: "json", value: "iron_value")
+  ironLabel: String @goTag(key: "json", value: "iron_label")
+  ironUnit: String @goTag(key: "json", value: "iron_unit")
+  iron100g: Float @goTag(key: "json", value: "iron_100g")
+  ironServing: Float @goTag(key: "json", value: "iron_serving")
+
+  calciumUnit: String @goTag(key: "json", value: "calcium_unit")
+  calciumServing: Float @goTag(key: "json", value: "calcium_serving")
+  calcium: Float @goTag(key: "json", value: "calcium")
+  calciumValue: Float @goTag(key: "json", value: "calcium_value")
+  calciumLabel: String @goTag(key: "json", value: "calcium_label")
+  calcium100g: Float @goTag(key: "json", value: "calcium_100g")
+
+  cholesterol100g: Float @goTag(key: "json", value: "cholesterol_100g")
+
+  saturatedFat100g: Float @goTag(key: "json", value: "saturated-fat_100g")
+  saturatedFatServing: Float @goTag(key: "json", value: "saturated-fat_serving")
+  saturatedFat: Float @goTag(key: "json", value: "saturated-fat")
+  saturatedFatValue: Float @goTag(key: "json", value: "saturated-fat_value")
+  saturatedFatUnit: String @goTag(key: "json", value: "saturated-fat_unit")
+
+  fat100g: Float @goTag(key: "json", value: "fat_100g")
+  fatServing: Float @goTag(key: "json", value: "fat_serving")
+  fatValue: Float @goTag(key: "json", value: "fat_value")
+  fatUnit: String @goTag(key: "json", value: "fat_unit")
+  fat: Float @goTag(key: "json", value: "fat")
+
+  transFatLabel: String @goTag(key: "json", value: "trans-fat_label")
+  transFatUnit: String @goTag(key: "json", value: "trans-fat_unit")
+  transFat: Float @goTag(key: "json", value: "trans-fat")
+  transFat100g: Float @goTag(key: "json", value: "trans-fat_100g")
+  transFatServing: Float @goTag(key: "json", value: "trans-fat_serving")
+  transFatValue: Float @goTag(key: "json", value: "trans-fat_value")
+
+  vitaminA: Float @goTag(key: "json", value: "vitamin-a")
+  vitaminA100g: Float @goTag(key: "json", value: "vitamin-a_100g")
+  vitaminAValue: Float @goTag(key: "json", value: "vitamin-a_value")
+  vitaminAServing: Float @goTag(key: "json", value: "vitamin-a_serving")
+  vitaminAUnit: String @goTag(key: "json", value: "vitamin-a_unit")
+  vitaminALabel: String @goTag(key: "json", value: "vitamin-a_label")
+
+  vitaminCValue: Float @goTag(key: "json", value: "vitamin-c_value")
+  vitaminCUnit: String @goTag(key: "json", value: "vitamin-c_unit")
+  vitaminC100g: Float @goTag(key: "json", value: "vitamin-c_100g")
+  vitaminC: Float @goTag(key: "json", value: "vitamin-c")
+  vitaminCServing: Float @goTag(key: "json", value: "vitamin-c_serving")
+  vitaminCLabel: String @goTag(key: "json", value: "vitamin-c_label")
+
+  proteins100g: Float @goTag(key: "json", value: "proteins_100g")
+  proteinsServing: Float @goTag(key: "json", value: "proteins_serving")
+  proteinsValue: Float @goTag(key: "json", value: "proteins_value")
+  proteinsUnit: String @goTag(key: "json", value: "proteins_unit")
+  proteins: Float @goTag(key: "json", value: "proteins")
+
+  polyunsaturatedFat100g: Float
+    @goTag(key: "json", value: "polyunsaturated-fat_100g")
+
+  potassium100g: Float @goTag(key: "json", value: "potassium_100g")
+
+  sodium: Float @goTag(key: "json", value: "sodium")
+  sodiumServing: Float @goTag(key: "json", value: "sodium_serving")
+  sodiumValue: Float @goTag(key: "json", value: "sodium_value")
+  sodium100g: Float @goTag(key: "json", value: "sodium_100g")
+  sodiumUnit: String @goTag(key: "json", value: "sodium_unit")
+
+  carbohydratesUnit: String @goTag(key: "json", value: "carbohydrates_unit")
+  carbohydratesValue: Float @goTag(key: "json", value: "carbohydrates_value")
+  carbohydrates100g: Float @goTag(key: "json", value: "carbohydrates_100g")
+  carbohydrates: Float @goTag(key: "json", value: "carbohydrates")
+  carbohydratesServing: Float
+    @goTag(key: "json", value: "carbohydrates_serving")
+
+  alcoholValue: Float @goTag(key: "json", value: "alcohol_value")
+  alcoholServing: Float @goTag(key: "json", value: "alcohol_serving")
+  alcoholUnit: String @goTag(key: "json", value: "alcohol_unit")
+  alcohol100g: Float @goTag(key: "json", value: "alcohol_100g")
+  alcohol: Float @goTag(key: "json", value: "alcohol")
+
+  monounsaturatedFat100g: Float
+    @goTag(key: "json", value: "monounsaturated-fat_100g")
+
+  novaGroup: Float @goTag(key: "json", value: "nova-group")
+  novaGroupServing: Float @goTag(key: "json", value: "nova-group_serving")
+  novaGroup100g: Float @goTag(key: "json", value: "nova-group_100g")
+
+  energy: Float @goTag(key: "json", value: "energy")
+  energyServing: Float @goTag(key: "json", value: "energy_serving")
+  energyKcalServing: Float @goTag(key: "json", value: "energy-kcal_serving")
+  energyKcal: Float @goTag(key: "json", value: "energy-kcal")
+  energy100g: Float @goTag(key: "json", value: "energy_100g")
+  energyUnit: String @goTag(key: "json", value: "energy_unit")
+  energyKcalValue: Float @goTag(key: "json", value: "energy-kcal_value")
+  energyKcalUnit: String @goTag(key: "json", value: "energy-kcal_unit")
+  energyKcal100g: Float @goTag(key: "json", value: "energy-kcal_100g")
+  energyValue: Float @goTag(key: "json", value: "energy_value")
+
+  nutritionScoreUk100g: Float
+    @goTag(key: "json", value: "nutrition-score-uk_100g")
+  nutritionScoreFrServing: Float
+    @goTag(key: "json", value: "nutrition-score-fr_serving")
+  nutritionScoreFr: Float @goTag(key: "json", value: "nutrition-score-fr")
+  nutritionScoreFr100g: Float
+    @goTag(key: "json", value: "nutrition-score-fr_100g")
+  nutritionScoreUkServing: Float
+    @goTag(key: "json", value: "nutrition-score-uk_serving")
+  nutritionScoreUk: Float @goTag(key: "json", value: "nutrition-score-uk")
+
+  fiber: Float @goTag(key: "json", value: "fiber")
+  fiber100g: Float @goTag(key: "json", value: "fiber_100g")
+  fiberValue: Float @goTag(key: "json", value: "fiber_value")
+  fiberServing: Float @goTag(key: "json", value: "fiber_serving")
+  fiberUnit: String @goTag(key: "json", value: "fiber_unit")
+}
