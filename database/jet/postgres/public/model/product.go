@@ -35,4 +35,5 @@ type Product struct {
 	WeightValue          *float64
 	QuantityValue        int32
 	QuantityType         string
+	ProductNutritionID   *int64
 }
