@@ -13,14 +13,14 @@ import (
 
 type ProductNutrition struct {
 	ID                     int64 `sql:"primary_key"`
-	ProductID              *int64
+	ProductID              int64
 	IngredientText         *string
 	IngredientList         *string
 	Nutriments             *string
 	ServingSize            *string
 	ServingSizeValue       *float64
 	ServingSizeUnit        *string
-	OpenfoodfactsUpdatedAt *time.Time
+	OpenfoodfactsUpdatedAt time.Time
 	Vegan                  *bool
 	Vegetarian             *bool
 	GlutenFree             *bool
