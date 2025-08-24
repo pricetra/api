@@ -18,9 +18,6 @@ create table "product_nutrition" (
     "updated_at" timestamp default now() not null
 );
 
-alter table "product"
-add column "product_nutrition_id" bigint references "product_nutrition"("id") on delete set null;
-
 create index if not exists "product_nutrition_ingredient_text_idx" on "product_nutrition"("ingredient_text");
 create index if not exists "product_nutrition_ingredient_list_idx" on "product_nutrition"("ingredient_list");
 create index if not exists "product_nutrition_openfoodfacts_updated_at_idx" on "product_nutrition"("openfoodfacts_updated_at");
