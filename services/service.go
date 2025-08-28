@@ -7,6 +7,7 @@ import (
 	"github.com/cloudinary/cloudinary-go/v2"
 	"github.com/go-jet/jet/v2/qrm"
 	"github.com/go-playground/validator/v10"
+	"github.com/openfoodfacts/openfoodfacts-go"
 	"github.com/pricetra/api/types"
 	"googlemaps.github.io/maps"
 
@@ -22,6 +23,7 @@ type Service struct {
 	ExpoPushClient *expo.PushClient
 	GoogleMapsClient *maps.Client
 	GoogleVisionApiClient *vision.ImageAnnotatorClient
+	OpenFoodFactsClient *openfoodfacts.Client
 }
 
 // Returns a transaction if present.
