@@ -83,6 +83,10 @@ func NewServer(db_conn *sql.DB, router *chi.Mux) *types.ServerBase {
 	}
 
 	openfoodfacts_client := openfoodfacts.NewClient("world", server.Tokens.OpenFoodFacts.Username, server.Tokens.OpenFoodFacts.Password)
+	// Use sandbox version of OpenFoodFacts for non-production environments
+	if os.Getenv("ENV") != "production" {
+		openfoodfacts_client.Sandbox()
+	}
 
 	service := services.Service{
 		DB: server.DB,

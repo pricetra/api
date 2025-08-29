@@ -6,19 +6,14 @@ package gresolver
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"log"
-	"os"
 	"strings"
 
-	unit_converter "github.com/bcicen/go-units"
 	"github.com/cloudinary/cloudinary-go/v2/api/uploader"
-	openfoodfacts "github.com/openfoodfacts/openfoodfacts-go"
 	"github.com/pricetra/api/database/jet/postgres/public/model"
 	"github.com/pricetra/api/graph/gmodel"
 	"github.com/pricetra/api/services"
-	"github.com/pricetra/api/utils"
 )
 
 // CreateProduct is the resolver for the createProduct field.
@@ -208,35 +203,9 @@ func (r *queryResolver) Product(ctx context.Context, id int64, viewerTrail *gmod
 		r.Service.AddProductViewer(ctx, product.ID, trail_input)
 	}()
 
-	go func() {
-		client := openfoodfacts.NewClient("world", "", "")
-		if os.Getenv("ENV") != "production" {
-			client.Sandbox()
-		}
-
-		product_facts, err := client.Product(product.Code)
-		if err != nil {
-			return
-		}
-
-		log.Println(product.Code, " - ", product_facts.ProductName)
-
-		log.Println("Ingredients: ", product_facts.IngredientsText)
-
-		for _, ing := range product_facts.Ingredients {
-			log.Println(ing.Text)
-		}
-
-		if serving_weight_comps, err := utils.ParseWeightIntoStruct(product_facts.ServingSize); err == nil {
-			if serving_quantity, err := product_facts.ServingQuantity.Float64(); err == nil && serving_weight_comps.Weight == serving_quantity {
-				log.Println("Serving quantity: ", serving_weight_comps.Weight, serving_weight_comps.WeightType)
-			}
-			log.Println("Serving size: ", product_facts.ServingSize)
-		}
-		if nutriments, err := json.Marshal(product_facts.Nutriments); err == nil {
-			log.Println("Nutriments: ", string(nutriments))
-		}
-		unit_converter.NewValue(product_facts.Nutriments.Cholesterol100G/100, unit_converter.Gram).Convert(unit_converter.MilliLiter)
+	go func ()  {
+		ctx := context.Background()
+		r.Service.ProcessOpenFoodFactsData(ctx, product)
 	}()
 	return &product, nil
 }
