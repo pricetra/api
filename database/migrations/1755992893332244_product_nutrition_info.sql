@@ -1,6 +1,5 @@
 create table "product_nutrition" (
-    "id" bigserial primary key,
-    "product_id" bigint references "product"("id") on delete cascade not null,
+    "product_id" bigint references "product"("id") on delete cascade primary key,
     "ingredient_text" text,
     "ingredient_list" text[],
     "nutriments" jsonb,

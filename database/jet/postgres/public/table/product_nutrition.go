@@ -17,7 +17,6 @@ type productNutritionTable struct {
 	postgres.Table
 
 	// Columns
-	ID                     postgres.ColumnInteger
 	ProductID              postgres.ColumnInteger
 	IngredientText         postgres.ColumnString
 	IngredientList         postgres.ColumnString
@@ -74,7 +73,6 @@ func newProductNutritionTable(schemaName, tableName, alias string) *ProductNutri
 
 func newProductNutritionTableImpl(schemaName, tableName, alias string) productNutritionTable {
 	var (
-		IDColumn                     = postgres.IntegerColumn("id")
 		ProductIDColumn              = postgres.IntegerColumn("product_id")
 		IngredientTextColumn         = postgres.StringColumn("ingredient_text")
 		IngredientListColumn         = postgres.StringColumn("ingredient_list")
@@ -91,15 +89,14 @@ func newProductNutritionTableImpl(schemaName, tableName, alias string) productNu
 		KosherColumn                 = postgres.BoolColumn("kosher")
 		CreatedAtColumn              = postgres.TimestampColumn("created_at")
 		UpdatedAtColumn              = postgres.TimestampColumn("updated_at")
-		allColumns                   = postgres.ColumnList{IDColumn, ProductIDColumn, IngredientTextColumn, IngredientListColumn, NutrimentsColumn, ServingSizeColumn, ServingSizeValueColumn, ServingSizeUnitColumn, OpenfoodfactsUpdatedAtColumn, VeganColumn, VegetarianColumn, GlutenFreeColumn, LactoseFreeColumn, HalalColumn, KosherColumn, CreatedAtColumn, UpdatedAtColumn}
-		mutableColumns               = postgres.ColumnList{ProductIDColumn, IngredientTextColumn, IngredientListColumn, NutrimentsColumn, ServingSizeColumn, ServingSizeValueColumn, ServingSizeUnitColumn, OpenfoodfactsUpdatedAtColumn, VeganColumn, VegetarianColumn, GlutenFreeColumn, LactoseFreeColumn, HalalColumn, KosherColumn, CreatedAtColumn, UpdatedAtColumn}
+		allColumns                   = postgres.ColumnList{ProductIDColumn, IngredientTextColumn, IngredientListColumn, NutrimentsColumn, ServingSizeColumn, ServingSizeValueColumn, ServingSizeUnitColumn, OpenfoodfactsUpdatedAtColumn, VeganColumn, VegetarianColumn, GlutenFreeColumn, LactoseFreeColumn, HalalColumn, KosherColumn, CreatedAtColumn, UpdatedAtColumn}
+		mutableColumns               = postgres.ColumnList{IngredientTextColumn, IngredientListColumn, NutrimentsColumn, ServingSizeColumn, ServingSizeValueColumn, ServingSizeUnitColumn, OpenfoodfactsUpdatedAtColumn, VeganColumn, VegetarianColumn, GlutenFreeColumn, LactoseFreeColumn, HalalColumn, KosherColumn, CreatedAtColumn, UpdatedAtColumn}
 	)
 
 	return productNutritionTable{
 		Table: postgres.NewTable(schemaName, tableName, alias, allColumns...),
 
 		//Columns
-		ID:                     IDColumn,
 		ProductID:              ProductIDColumn,
 		IngredientText:         IngredientTextColumn,
 		IngredientList:         IngredientListColumn,

@@ -12,8 +12,7 @@ import (
 )
 
 type ProductNutrition struct {
-	ID                     int64 `sql:"primary_key"`
-	ProductID              int64
+	ProductID              int64 `sql:"primary_key"`
 	IngredientText         *string
 	IngredientList         *string
 	Nutriments             *string
