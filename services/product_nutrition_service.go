@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/Goldziher/go-utils/sliceutils"
+	"github.com/go-jet/jet/v2/postgres"
 	"github.com/openfoodfacts/openfoodfacts-go"
 	"github.com/pricetra/api/database/jet/postgres/public/model"
 	"github.com/pricetra/api/database/jet/postgres/public/table"
@@ -43,7 +44,24 @@ func (s Service) CreateProductNutrition(ctx context.Context, product_id int64, i
 	return res, nil
 }
 
+func (s Service) FindProductNutrition(ctx context.Context, product_id int64) (p gmodel.ProductNutrition, err error) {
+	qb := table.ProductNutrition.
+		SELECT(table.ProductNutrition.AllColumns).
+		WHERE(table.ProductNutrition.ProductID.EQ(postgres.Int(product_id))).
+		LIMIT(1)
+	if err := qb.QueryContext(ctx, s.DbOrTxQueryable(), &p); err != nil {
+		return gmodel.ProductNutrition{}, err
+	}
+	return p, nil
+}
+
+// Given a product, fetch its nutrition data from OpenFoodFacts and store it in the database.
+// If the product nutrition data already exists, return the row directly
 func (s Service) ProcessOpenFoodFactsData(ctx context.Context, product gmodel.Product) (product_nutrition gmodel.ProductNutrition, err error) {
+	if pn, err := s.FindProductNutrition(ctx, product.ID); err == nil {
+		return pn, nil
+	}
+
 	product_facts, err := s.OpenFoodFactsClient.Product(product.Code)
 	if err != nil {
 		return gmodel.ProductNutrition{}, err
