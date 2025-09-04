@@ -20,3 +20,17 @@ func (value AuthorizationKeyType) GetToken() (string, error) {
 
 type AuthUserKeyType string
 const AuthUserKey AuthUserKeyType = "AUTH_USER"
+
+type IngredientLabelType string
+func (i IngredientLabelType) ToBool() *bool {
+	switch strings.ToLower(string(i)) {
+	case "yes", "true", "1":
+		v := true
+		return &v
+	case "no", "false", "0":
+		v := false
+		return &v
+	default:
+		return nil
+	}
+}

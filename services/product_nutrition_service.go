@@ -5,12 +5,11 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/Goldziher/go-utils/sliceutils"
 	"github.com/go-jet/jet/v2/postgres"
-	"github.com/openfoodfacts/openfoodfacts-go"
 	"github.com/pricetra/api/database/jet/postgres/public/model"
 	"github.com/pricetra/api/database/jet/postgres/public/table"
 	"github.com/pricetra/api/graph/gmodel"
+	"github.com/pricetra/api/types"
 	"github.com/pricetra/api/utils"
 )
 
@@ -37,6 +36,37 @@ func (s Service) CreateProductNutrition(ctx context.Context, product_id int64, i
 			table.ProductNutrition.Kosher,
 		).
 		MODEL(input).
+		RETURNING(table.ProductNutrition.AllColumns)
+	if err := qb.QueryContext(ctx, s.DbOrTxQueryable(), &res); err != nil {
+		return gmodel.ProductNutrition{}, err
+	}
+	return res, nil
+}
+
+func (s Service) UpdateProductNutrition(ctx context.Context, product_id int64, input model.ProductNutrition) (res gmodel.ProductNutrition, err error) {
+	if input.ProductID == 0 {
+		input.ProductID = product_id
+	}
+
+	qb := table.ProductNutrition.
+		UPDATE(
+			table.ProductNutrition.ProductID,
+			table.ProductNutrition.IngredientText,
+			table.ProductNutrition.IngredientList,
+			table.ProductNutrition.Nutriments,
+			table.ProductNutrition.ServingSize,
+			table.ProductNutrition.ServingSizeValue,
+			table.ProductNutrition.ServingSizeUnit,
+			table.ProductNutrition.OpenfoodfactsUpdatedAt,
+			table.ProductNutrition.Vegan,
+			table.ProductNutrition.Vegetarian,
+			table.ProductNutrition.GlutenFree,
+			table.ProductNutrition.LactoseFree,
+			table.ProductNutrition.Halal,
+			table.ProductNutrition.Kosher,
+		).
+		MODEL(input).
+		WHERE(table.ProductNutrition.ProductID.EQ(postgres.Int(product_id))).
 		RETURNING(table.ProductNutrition.AllColumns)
 	if err := qb.QueryContext(ctx, s.DbOrTxQueryable(), &res); err != nil {
 		return gmodel.ProductNutrition{}, err
@@ -85,14 +115,22 @@ func (s Service) ProcessOpenFoodFactsData(ctx context.Context, product gmodel.Pr
 		nutriments = &nutriment_json_str
 	}
 
-	ingredients_pg_array := utils.ToPostgresArray(
-		sliceutils.Map(
-			product_facts.Ingredients, 
-			func(v openfoodfacts.Ingredient, i int, s []openfoodfacts.Ingredient) string {
-				return v.Text
-			},
-		),
-	)
+	ingredients := make([]string, len(product_facts.Ingredients))
+	var vegan, vegetarian, gluten_free, lactose_free, halal, kosher *bool
+	for i, ingredient := range product_facts.Ingredients {
+		ingredients[i] = ingredient.Text
+
+		if ingredient.Vegan != "" {
+			vegan = types.IngredientLabelType(ingredient.Vegan).ToBool()
+		}
+		if ingredient.Vegetarian != "" {
+			vegetarian = types.IngredientLabelType(ingredient.Vegetarian).ToBool()
+		}
+
+		// TODO: check for gluten free, lactose free, halal, and kosher
+	}
+	ingredients_pg_array := utils.ToPostgresArray(ingredients)
+
 	product_nutrition, err = s.CreateProductNutrition(ctx, product.ID, model.ProductNutrition{
 		IngredientText: &product_facts.IngredientsText,
 		IngredientList: &ingredients_pg_array,
@@ -101,6 +139,12 @@ func (s Service) ProcessOpenFoodFactsData(ctx context.Context, product gmodel.Pr
 		ServingSizeUnit: serving_weight_unit,
 		ServingSize: serving_size,
 		OpenfoodfactsUpdatedAt: product_facts.LastModifiedTime.Time,
+		Vegan: vegan,
+		Vegetarian: vegetarian,
+		GlutenFree: gluten_free,
+		LactoseFree: lactose_free,
+		Halal: halal,
+		Kosher: kosher,
 	})
 	if err != nil {
 		return gmodel.ProductNutrition{}, err
