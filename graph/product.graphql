@@ -3,12 +3,13 @@ extend type Query {
   allProducts(
     paginator: PaginatorInput!
     search: ProductSearch
-  ): PaginatedProducts! @isAuthenticated
+  ): PaginatedProducts!
   allBrands: [Brand!]! @isAuthenticated
-  product(id: ID!, viewerTrail: ViewerTrailInput): Product! @isAuthenticated
+  product(id: ID!, viewerTrail: ViewerTrailInput): Product!
   extractProductFields(base64Image: String!): ProductExtractionResponse!
     @isAuthenticated
   myProductViewHistory(paginator: PaginatorInput!): PaginatedProducts! @isAuthenticated
+  getProductNutritionData(productId: ID!): ProductNutrition!
 }
 
 extend type Mutation {
@@ -18,6 +19,8 @@ extend type Mutation {
     @isAuthenticated(role: "CONTRIBUTOR")
   saveProductsFromUPCItemDb(input: SaveExternalProductInput!): SearchResult!
     @isAuthenticated(role: "SUPER_ADMIN")
+  updateProductNutritionData(productId: ID!): ProductNutrition!
+    @isAuthenticated(role: "CONTRIBUTOR")
 }
 
 type PaginatedProducts {

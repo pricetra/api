@@ -215,6 +215,7 @@ type ComplexityRoot struct {
 		UpdateGroceryListItem       func(childComplexity int, groceryListItemID int64, input gmodel.CreateGroceryListItemInput) int
 		UpdatePasswordWithResetCode func(childComplexity int, email string, code string, newPassword string) int
 		UpdateProduct               func(childComplexity int, id int64, input gmodel.UpdateProduct) int
+		UpdateProductNutritionData  func(childComplexity int, productID int64) int
 		UpdateProfile               func(childComplexity int, input gmodel.UpdateUser) int
 		UpdateUserByID              func(childComplexity int, userID int64, input gmodel.UpdateUserFull) int
 		VerifyEmail                 func(childComplexity int, verificationCode string) int
@@ -356,6 +357,126 @@ type ComplexityRoot struct {
 		UserID    func(childComplexity int) int
 	}
 
+	ProductNutriment struct {
+		Alcohol                 func(childComplexity int) int
+		Alcohol100g             func(childComplexity int) int
+		AlcoholServing          func(childComplexity int) int
+		AlcoholUnit             func(childComplexity int) int
+		AlcoholValue            func(childComplexity int) int
+		Calcium                 func(childComplexity int) int
+		Calcium100g             func(childComplexity int) int
+		CalciumLabel            func(childComplexity int) int
+		CalciumServing          func(childComplexity int) int
+		CalciumUnit             func(childComplexity int) int
+		CalciumValue            func(childComplexity int) int
+		Carbohydrates           func(childComplexity int) int
+		Carbohydrates100g       func(childComplexity int) int
+		CarbohydratesServing    func(childComplexity int) int
+		CarbohydratesUnit       func(childComplexity int) int
+		CarbohydratesValue      func(childComplexity int) int
+		Cholesterol100g         func(childComplexity int) int
+		Energy                  func(childComplexity int) int
+		Energy100g              func(childComplexity int) int
+		EnergyKcal              func(childComplexity int) int
+		EnergyKcal100g          func(childComplexity int) int
+		EnergyKcalServing       func(childComplexity int) int
+		EnergyKcalUnit          func(childComplexity int) int
+		EnergyKcalValue         func(childComplexity int) int
+		EnergyServing           func(childComplexity int) int
+		EnergyUnit              func(childComplexity int) int
+		EnergyValue             func(childComplexity int) int
+		Fat                     func(childComplexity int) int
+		Fat100g                 func(childComplexity int) int
+		FatServing              func(childComplexity int) int
+		FatUnit                 func(childComplexity int) int
+		FatValue                func(childComplexity int) int
+		Fiber                   func(childComplexity int) int
+		Fiber100g               func(childComplexity int) int
+		FiberServing            func(childComplexity int) int
+		FiberUnit               func(childComplexity int) int
+		FiberValue              func(childComplexity int) int
+		Iron                    func(childComplexity int) int
+		Iron100g                func(childComplexity int) int
+		IronLabel               func(childComplexity int) int
+		IronServing             func(childComplexity int) int
+		IronUnit                func(childComplexity int) int
+		IronValue               func(childComplexity int) int
+		MonounsaturatedFat100g  func(childComplexity int) int
+		NovaGroup               func(childComplexity int) int
+		NovaGroup100g           func(childComplexity int) int
+		NovaGroupServing        func(childComplexity int) int
+		NutritionScoreFr        func(childComplexity int) int
+		NutritionScoreFr100g    func(childComplexity int) int
+		NutritionScoreFrServing func(childComplexity int) int
+		NutritionScoreUk        func(childComplexity int) int
+		NutritionScoreUk100g    func(childComplexity int) int
+		NutritionScoreUkServing func(childComplexity int) int
+		PolyunsaturatedFat100g  func(childComplexity int) int
+		Potassium100g           func(childComplexity int) int
+		Proteins                func(childComplexity int) int
+		Proteins100g            func(childComplexity int) int
+		ProteinsServing         func(childComplexity int) int
+		ProteinsUnit            func(childComplexity int) int
+		ProteinsValue           func(childComplexity int) int
+		Salt                    func(childComplexity int) int
+		Salt100g                func(childComplexity int) int
+		SaltServing             func(childComplexity int) int
+		SaltUnit                func(childComplexity int) int
+		SaltValue               func(childComplexity int) int
+		SaturatedFat            func(childComplexity int) int
+		SaturatedFat100g        func(childComplexity int) int
+		SaturatedFatServing     func(childComplexity int) int
+		SaturatedFatUnit        func(childComplexity int) int
+		SaturatedFatValue       func(childComplexity int) int
+		Sodium                  func(childComplexity int) int
+		Sodium100g              func(childComplexity int) int
+		SodiumServing           func(childComplexity int) int
+		SodiumUnit              func(childComplexity int) int
+		SodiumValue             func(childComplexity int) int
+		Sugars                  func(childComplexity int) int
+		Sugars100g              func(childComplexity int) int
+		SugarsServing           func(childComplexity int) int
+		SugarsUnit              func(childComplexity int) int
+		SugarsValue             func(childComplexity int) int
+		TransFat                func(childComplexity int) int
+		TransFat100g            func(childComplexity int) int
+		TransFatLabel           func(childComplexity int) int
+		TransFatServing         func(childComplexity int) int
+		TransFatUnit            func(childComplexity int) int
+		TransFatValue           func(childComplexity int) int
+		VitaminA                func(childComplexity int) int
+		VitaminA100g            func(childComplexity int) int
+		VitaminALabel           func(childComplexity int) int
+		VitaminAServing         func(childComplexity int) int
+		VitaminAUnit            func(childComplexity int) int
+		VitaminAValue           func(childComplexity int) int
+		VitaminC                func(childComplexity int) int
+		VitaminC100g            func(childComplexity int) int
+		VitaminCLabel           func(childComplexity int) int
+		VitaminCServing         func(childComplexity int) int
+		VitaminCUnit            func(childComplexity int) int
+		VitaminCValue           func(childComplexity int) int
+	}
+
+	ProductNutrition struct {
+		CreatedAt              func(childComplexity int) int
+		GlutenFree             func(childComplexity int) int
+		Halal                  func(childComplexity int) int
+		ID                     func(childComplexity int) int
+		IngredientList         func(childComplexity int) int
+		Ingredients            func(childComplexity int) int
+		Kosher                 func(childComplexity int) int
+		LactoseFree            func(childComplexity int) int
+		Nutriments             func(childComplexity int) int
+		OpenfoodfactsUpdatedAt func(childComplexity int) int
+		ServingSize            func(childComplexity int) int
+		ServingSizeUnit        func(childComplexity int) int
+		ServingSizeValue       func(childComplexity int) int
+		UpdatedAt              func(childComplexity int) int
+		Vegan                  func(childComplexity int) int
+		Vegetarian             func(childComplexity int) int
+	}
+
 	Query struct {
 		AllBranches                   func(childComplexity int, storeID int64, paginator gmodel.PaginatorInput, search *string, location *gmodel.LocationInput) int
 		AllBrands                     func(childComplexity int) int
@@ -375,6 +496,7 @@ type ComplexityRoot struct {
 		GetAllUsers                   func(childComplexity int, paginator gmodel.PaginatorInput, filters *gmodel.UserFilter) int
 		GetCategories                 func(childComplexity int, depth *int, parentID *int64, search *string) int
 		GetFavoriteBranchesWithPrices func(childComplexity int, productID int64) int
+		GetProductNutritionData       func(childComplexity int, productID int64) int
 		GetProductStocks              func(childComplexity int, productID int64, location *gmodel.LocationInput) int
 		GoogleOAuth                   func(childComplexity int, accessToken string, ipAddress *string, device *gmodel.AuthDeviceType) int
 		GroceryList                   func(childComplexity int, groceryListID int64) int
@@ -487,6 +609,7 @@ type MutationResolver interface {
 	CreateProduct(ctx context.Context, input gmodel.CreateProduct) (*gmodel.Product, error)
 	UpdateProduct(ctx context.Context, id int64, input gmodel.UpdateProduct) (*gmodel.Product, error)
 	SaveProductsFromUPCItemDb(ctx context.Context, input gmodel.SaveExternalProductInput) (*gmodel.SearchResult, error)
+	UpdateProductNutritionData(ctx context.Context, productID int64) (*gmodel.ProductNutrition, error)
 	DeleteSearchByID(ctx context.Context, id int64) (bool, error)
 	ClearSearchHistory(ctx context.Context) (bool, error)
 	CreateStore(ctx context.Context, input gmodel.CreateStore) (*gmodel.Store, error)
@@ -524,6 +647,7 @@ type QueryResolver interface {
 	Product(ctx context.Context, id int64, viewerTrail *gmodel.ViewerTrailInput) (*gmodel.Product, error)
 	ExtractProductFields(ctx context.Context, base64Image string) (*gmodel.ProductExtractionResponse, error)
 	MyProductViewHistory(ctx context.Context, paginator gmodel.PaginatorInput) (*gmodel.PaginatedProducts, error)
+	GetProductNutritionData(ctx context.Context, productID int64) (*gmodel.ProductNutrition, error)
 	MySearchHistory(ctx context.Context, paginator gmodel.PaginatorInput) (*gmodel.PaginatedSearch, error)
 	Stock(ctx context.Context, stockID int64) (*gmodel.Stock, error)
 	GetProductStocks(ctx context.Context, productID int64, location *gmodel.LocationInput) ([]*gmodel.Stock, error)
@@ -1541,6 +1665,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.UpdateProduct(childComplexity, args["id"].(int64), args["input"].(gmodel.UpdateProduct)), true
 
+	case "Mutation.updateProductNutritionData":
+		if e.complexity.Mutation.UpdateProductNutritionData == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_updateProductNutritionData_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.UpdateProductNutritionData(childComplexity, args["productId"].(int64)), true
+
 	case "Mutation.updateProfile":
 		if e.complexity.Mutation.UpdateProfile == nil {
 			break
@@ -2256,6 +2392,804 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.ProductList.UserID(childComplexity), true
 
+	case "ProductNutriment.alcohol":
+		if e.complexity.ProductNutriment.Alcohol == nil {
+			break
+		}
+
+		return e.complexity.ProductNutriment.Alcohol(childComplexity), true
+
+	case "ProductNutriment.alcohol100g":
+		if e.complexity.ProductNutriment.Alcohol100g == nil {
+			break
+		}
+
+		return e.complexity.ProductNutriment.Alcohol100g(childComplexity), true
+
+	case "ProductNutriment.alcoholServing":
+		if e.complexity.ProductNutriment.AlcoholServing == nil {
+			break
+		}
+
+		return e.complexity.ProductNutriment.AlcoholServing(childComplexity), true
+
+	case "ProductNutriment.alcoholUnit":
+		if e.complexity.ProductNutriment.AlcoholUnit == nil {
+			break
+		}
+
+		return e.complexity.ProductNutriment.AlcoholUnit(childComplexity), true
+
+	case "ProductNutriment.alcoholValue":
+		if e.complexity.ProductNutriment.AlcoholValue == nil {
+			break
+		}
+
+		return e.complexity.ProductNutriment.AlcoholValue(childComplexity), true
+
+	case "ProductNutriment.calcium":
+		if e.complexity.ProductNutriment.Calcium == nil {
+			break
+		}
+
+		return e.complexity.ProductNutriment.Calcium(childComplexity), true
+
+	case "ProductNutriment.calcium100g":
+		if e.complexity.ProductNutriment.Calcium100g == nil {
+			break
+		}
+
+		return e.complexity.ProductNutriment.Calcium100g(childComplexity), true
+
+	case "ProductNutriment.calciumLabel":
+		if e.complexity.ProductNutriment.CalciumLabel == nil {
+			break
+		}
+
+		return e.complexity.ProductNutriment.CalciumLabel(childComplexity), true
+
+	case "ProductNutriment.calciumServing":
+		if e.complexity.ProductNutriment.CalciumServing == nil {
+			break
+		}
+
+		return e.complexity.ProductNutriment.CalciumServing(childComplexity), true
+
+	case "ProductNutriment.calciumUnit":
+		if e.complexity.ProductNutriment.CalciumUnit == nil {
+			break
+		}
+
+		return e.complexity.ProductNutriment.CalciumUnit(childComplexity), true
+
+	case "ProductNutriment.calciumValue":
+		if e.complexity.ProductNutriment.CalciumValue == nil {
+			break
+		}
+
+		return e.complexity.ProductNutriment.CalciumValue(childComplexity), true
+
+	case "ProductNutriment.carbohydrates":
+		if e.complexity.ProductNutriment.Carbohydrates == nil {
+			break
+		}
+
+		return e.complexity.ProductNutriment.Carbohydrates(childComplexity), true
+
+	case "ProductNutriment.carbohydrates100g":
+		if e.complexity.ProductNutriment.Carbohydrates100g == nil {
+			break
+		}
+
+		return e.complexity.ProductNutriment.Carbohydrates100g(childComplexity), true
+
+	case "ProductNutriment.carbohydratesServing":
+		if e.complexity.ProductNutriment.CarbohydratesServing == nil {
+			break
+		}
+
+		return e.complexity.ProductNutriment.CarbohydratesServing(childComplexity), true
+
+	case "ProductNutriment.carbohydratesUnit":
+		if e.complexity.ProductNutriment.CarbohydratesUnit == nil {
+			break
+		}
+
+		return e.complexity.ProductNutriment.CarbohydratesUnit(childComplexity), true
+
+	case "ProductNutriment.carbohydratesValue":
+		if e.complexity.ProductNutriment.CarbohydratesValue == nil {
+			break
+		}
+
+		return e.complexity.ProductNutriment.CarbohydratesValue(childComplexity), true
+
+	case "ProductNutriment.cholesterol100g":
+		if e.complexity.ProductNutriment.Cholesterol100g == nil {
+			break
+		}
+
+		return e.complexity.ProductNutriment.Cholesterol100g(childComplexity), true
+
+	case "ProductNutriment.energy":
+		if e.complexity.ProductNutriment.Energy == nil {
+			break
+		}
+
+		return e.complexity.ProductNutriment.Energy(childComplexity), true
+
+	case "ProductNutriment.energy100g":
+		if e.complexity.ProductNutriment.Energy100g == nil {
+			break
+		}
+
+		return e.complexity.ProductNutriment.Energy100g(childComplexity), true
+
+	case "ProductNutriment.energyKcal":
+		if e.complexity.ProductNutriment.EnergyKcal == nil {
+			break
+		}
+
+		return e.complexity.ProductNutriment.EnergyKcal(childComplexity), true
+
+	case "ProductNutriment.energyKcal100g":
+		if e.complexity.ProductNutriment.EnergyKcal100g == nil {
+			break
+		}
+
+		return e.complexity.ProductNutriment.EnergyKcal100g(childComplexity), true
+
+	case "ProductNutriment.energyKcalServing":
+		if e.complexity.ProductNutriment.EnergyKcalServing == nil {
+			break
+		}
+
+		return e.complexity.ProductNutriment.EnergyKcalServing(childComplexity), true
+
+	case "ProductNutriment.energyKcalUnit":
+		if e.complexity.ProductNutriment.EnergyKcalUnit == nil {
+			break
+		}
+
+		return e.complexity.ProductNutriment.EnergyKcalUnit(childComplexity), true
+
+	case "ProductNutriment.energyKcalValue":
+		if e.complexity.ProductNutriment.EnergyKcalValue == nil {
+			break
+		}
+
+		return e.complexity.ProductNutriment.EnergyKcalValue(childComplexity), true
+
+	case "ProductNutriment.energyServing":
+		if e.complexity.ProductNutriment.EnergyServing == nil {
+			break
+		}
+
+		return e.complexity.ProductNutriment.EnergyServing(childComplexity), true
+
+	case "ProductNutriment.energyUnit":
+		if e.complexity.ProductNutriment.EnergyUnit == nil {
+			break
+		}
+
+		return e.complexity.ProductNutriment.EnergyUnit(childComplexity), true
+
+	case "ProductNutriment.energyValue":
+		if e.complexity.ProductNutriment.EnergyValue == nil {
+			break
+		}
+
+		return e.complexity.ProductNutriment.EnergyValue(childComplexity), true
+
+	case "ProductNutriment.fat":
+		if e.complexity.ProductNutriment.Fat == nil {
+			break
+		}
+
+		return e.complexity.ProductNutriment.Fat(childComplexity), true
+
+	case "ProductNutriment.fat100g":
+		if e.complexity.ProductNutriment.Fat100g == nil {
+			break
+		}
+
+		return e.complexity.ProductNutriment.Fat100g(childComplexity), true
+
+	case "ProductNutriment.fatServing":
+		if e.complexity.ProductNutriment.FatServing == nil {
+			break
+		}
+
+		return e.complexity.ProductNutriment.FatServing(childComplexity), true
+
+	case "ProductNutriment.fatUnit":
+		if e.complexity.ProductNutriment.FatUnit == nil {
+			break
+		}
+
+		return e.complexity.ProductNutriment.FatUnit(childComplexity), true
+
+	case "ProductNutriment.fatValue":
+		if e.complexity.ProductNutriment.FatValue == nil {
+			break
+		}
+
+		return e.complexity.ProductNutriment.FatValue(childComplexity), true
+
+	case "ProductNutriment.fiber":
+		if e.complexity.ProductNutriment.Fiber == nil {
+			break
+		}
+
+		return e.complexity.ProductNutriment.Fiber(childComplexity), true
+
+	case "ProductNutriment.fiber100g":
+		if e.complexity.ProductNutriment.Fiber100g == nil {
+			break
+		}
+
+		return e.complexity.ProductNutriment.Fiber100g(childComplexity), true
+
+	case "ProductNutriment.fiberServing":
+		if e.complexity.ProductNutriment.FiberServing == nil {
+			break
+		}
+
+		return e.complexity.ProductNutriment.FiberServing(childComplexity), true
+
+	case "ProductNutriment.fiberUnit":
+		if e.complexity.ProductNutriment.FiberUnit == nil {
+			break
+		}
+
+		return e.complexity.ProductNutriment.FiberUnit(childComplexity), true
+
+	case "ProductNutriment.fiberValue":
+		if e.complexity.ProductNutriment.FiberValue == nil {
+			break
+		}
+
+		return e.complexity.ProductNutriment.FiberValue(childComplexity), true
+
+	case "ProductNutriment.iron":
+		if e.complexity.ProductNutriment.Iron == nil {
+			break
+		}
+
+		return e.complexity.ProductNutriment.Iron(childComplexity), true
+
+	case "ProductNutriment.iron100g":
+		if e.complexity.ProductNutriment.Iron100g == nil {
+			break
+		}
+
+		return e.complexity.ProductNutriment.Iron100g(childComplexity), true
+
+	case "ProductNutriment.ironLabel":
+		if e.complexity.ProductNutriment.IronLabel == nil {
+			break
+		}
+
+		return e.complexity.ProductNutriment.IronLabel(childComplexity), true
+
+	case "ProductNutriment.ironServing":
+		if e.complexity.ProductNutriment.IronServing == nil {
+			break
+		}
+
+		return e.complexity.ProductNutriment.IronServing(childComplexity), true
+
+	case "ProductNutriment.ironUnit":
+		if e.complexity.ProductNutriment.IronUnit == nil {
+			break
+		}
+
+		return e.complexity.ProductNutriment.IronUnit(childComplexity), true
+
+	case "ProductNutriment.ironValue":
+		if e.complexity.ProductNutriment.IronValue == nil {
+			break
+		}
+
+		return e.complexity.ProductNutriment.IronValue(childComplexity), true
+
+	case "ProductNutriment.monounsaturatedFat100g":
+		if e.complexity.ProductNutriment.MonounsaturatedFat100g == nil {
+			break
+		}
+
+		return e.complexity.ProductNutriment.MonounsaturatedFat100g(childComplexity), true
+
+	case "ProductNutriment.novaGroup":
+		if e.complexity.ProductNutriment.NovaGroup == nil {
+			break
+		}
+
+		return e.complexity.ProductNutriment.NovaGroup(childComplexity), true
+
+	case "ProductNutriment.novaGroup100g":
+		if e.complexity.ProductNutriment.NovaGroup100g == nil {
+			break
+		}
+
+		return e.complexity.ProductNutriment.NovaGroup100g(childComplexity), true
+
+	case "ProductNutriment.novaGroupServing":
+		if e.complexity.ProductNutriment.NovaGroupServing == nil {
+			break
+		}
+
+		return e.complexity.ProductNutriment.NovaGroupServing(childComplexity), true
+
+	case "ProductNutriment.nutritionScoreFr":
+		if e.complexity.ProductNutriment.NutritionScoreFr == nil {
+			break
+		}
+
+		return e.complexity.ProductNutriment.NutritionScoreFr(childComplexity), true
+
+	case "ProductNutriment.nutritionScoreFr100g":
+		if e.complexity.ProductNutriment.NutritionScoreFr100g == nil {
+			break
+		}
+
+		return e.complexity.ProductNutriment.NutritionScoreFr100g(childComplexity), true
+
+	case "ProductNutriment.nutritionScoreFrServing":
+		if e.complexity.ProductNutriment.NutritionScoreFrServing == nil {
+			break
+		}
+
+		return e.complexity.ProductNutriment.NutritionScoreFrServing(childComplexity), true
+
+	case "ProductNutriment.nutritionScoreUk":
+		if e.complexity.ProductNutriment.NutritionScoreUk == nil {
+			break
+		}
+
+		return e.complexity.ProductNutriment.NutritionScoreUk(childComplexity), true
+
+	case "ProductNutriment.nutritionScoreUk100g":
+		if e.complexity.ProductNutriment.NutritionScoreUk100g == nil {
+			break
+		}
+
+		return e.complexity.ProductNutriment.NutritionScoreUk100g(childComplexity), true
+
+	case "ProductNutriment.nutritionScoreUkServing":
+		if e.complexity.ProductNutriment.NutritionScoreUkServing == nil {
+			break
+		}
+
+		return e.complexity.ProductNutriment.NutritionScoreUkServing(childComplexity), true
+
+	case "ProductNutriment.polyunsaturatedFat100g":
+		if e.complexity.ProductNutriment.PolyunsaturatedFat100g == nil {
+			break
+		}
+
+		return e.complexity.ProductNutriment.PolyunsaturatedFat100g(childComplexity), true
+
+	case "ProductNutriment.potassium100g":
+		if e.complexity.ProductNutriment.Potassium100g == nil {
+			break
+		}
+
+		return e.complexity.ProductNutriment.Potassium100g(childComplexity), true
+
+	case "ProductNutriment.proteins":
+		if e.complexity.ProductNutriment.Proteins == nil {
+			break
+		}
+
+		return e.complexity.ProductNutriment.Proteins(childComplexity), true
+
+	case "ProductNutriment.proteins100g":
+		if e.complexity.ProductNutriment.Proteins100g == nil {
+			break
+		}
+
+		return e.complexity.ProductNutriment.Proteins100g(childComplexity), true
+
+	case "ProductNutriment.proteinsServing":
+		if e.complexity.ProductNutriment.ProteinsServing == nil {
+			break
+		}
+
+		return e.complexity.ProductNutriment.ProteinsServing(childComplexity), true
+
+	case "ProductNutriment.proteinsUnit":
+		if e.complexity.ProductNutriment.ProteinsUnit == nil {
+			break
+		}
+
+		return e.complexity.ProductNutriment.ProteinsUnit(childComplexity), true
+
+	case "ProductNutriment.proteinsValue":
+		if e.complexity.ProductNutriment.ProteinsValue == nil {
+			break
+		}
+
+		return e.complexity.ProductNutriment.ProteinsValue(childComplexity), true
+
+	case "ProductNutriment.salt":
+		if e.complexity.ProductNutriment.Salt == nil {
+			break
+		}
+
+		return e.complexity.ProductNutriment.Salt(childComplexity), true
+
+	case "ProductNutriment.salt100g":
+		if e.complexity.ProductNutriment.Salt100g == nil {
+			break
+		}
+
+		return e.complexity.ProductNutriment.Salt100g(childComplexity), true
+
+	case "ProductNutriment.saltServing":
+		if e.complexity.ProductNutriment.SaltServing == nil {
+			break
+		}
+
+		return e.complexity.ProductNutriment.SaltServing(childComplexity), true
+
+	case "ProductNutriment.saltUnit":
+		if e.complexity.ProductNutriment.SaltUnit == nil {
+			break
+		}
+
+		return e.complexity.ProductNutriment.SaltUnit(childComplexity), true
+
+	case "ProductNutriment.saltValue":
+		if e.complexity.ProductNutriment.SaltValue == nil {
+			break
+		}
+
+		return e.complexity.ProductNutriment.SaltValue(childComplexity), true
+
+	case "ProductNutriment.saturatedFat":
+		if e.complexity.ProductNutriment.SaturatedFat == nil {
+			break
+		}
+
+		return e.complexity.ProductNutriment.SaturatedFat(childComplexity), true
+
+	case "ProductNutriment.saturatedFat100g":
+		if e.complexity.ProductNutriment.SaturatedFat100g == nil {
+			break
+		}
+
+		return e.complexity.ProductNutriment.SaturatedFat100g(childComplexity), true
+
+	case "ProductNutriment.saturatedFatServing":
+		if e.complexity.ProductNutriment.SaturatedFatServing == nil {
+			break
+		}
+
+		return e.complexity.ProductNutriment.SaturatedFatServing(childComplexity), true
+
+	case "ProductNutriment.saturatedFatUnit":
+		if e.complexity.ProductNutriment.SaturatedFatUnit == nil {
+			break
+		}
+
+		return e.complexity.ProductNutriment.SaturatedFatUnit(childComplexity), true
+
+	case "ProductNutriment.saturatedFatValue":
+		if e.complexity.ProductNutriment.SaturatedFatValue == nil {
+			break
+		}
+
+		return e.complexity.ProductNutriment.SaturatedFatValue(childComplexity), true
+
+	case "ProductNutriment.sodium":
+		if e.complexity.ProductNutriment.Sodium == nil {
+			break
+		}
+
+		return e.complexity.ProductNutriment.Sodium(childComplexity), true
+
+	case "ProductNutriment.sodium100g":
+		if e.complexity.ProductNutriment.Sodium100g == nil {
+			break
+		}
+
+		return e.complexity.ProductNutriment.Sodium100g(childComplexity), true
+
+	case "ProductNutriment.sodiumServing":
+		if e.complexity.ProductNutriment.SodiumServing == nil {
+			break
+		}
+
+		return e.complexity.ProductNutriment.SodiumServing(childComplexity), true
+
+	case "ProductNutriment.sodiumUnit":
+		if e.complexity.ProductNutriment.SodiumUnit == nil {
+			break
+		}
+
+		return e.complexity.ProductNutriment.SodiumUnit(childComplexity), true
+
+	case "ProductNutriment.sodiumValue":
+		if e.complexity.ProductNutriment.SodiumValue == nil {
+			break
+		}
+
+		return e.complexity.ProductNutriment.SodiumValue(childComplexity), true
+
+	case "ProductNutriment.sugars":
+		if e.complexity.ProductNutriment.Sugars == nil {
+			break
+		}
+
+		return e.complexity.ProductNutriment.Sugars(childComplexity), true
+
+	case "ProductNutriment.sugars100g":
+		if e.complexity.ProductNutriment.Sugars100g == nil {
+			break
+		}
+
+		return e.complexity.ProductNutriment.Sugars100g(childComplexity), true
+
+	case "ProductNutriment.sugarsServing":
+		if e.complexity.ProductNutriment.SugarsServing == nil {
+			break
+		}
+
+		return e.complexity.ProductNutriment.SugarsServing(childComplexity), true
+
+	case "ProductNutriment.sugarsUnit":
+		if e.complexity.ProductNutriment.SugarsUnit == nil {
+			break
+		}
+
+		return e.complexity.ProductNutriment.SugarsUnit(childComplexity), true
+
+	case "ProductNutriment.sugarsValue":
+		if e.complexity.ProductNutriment.SugarsValue == nil {
+			break
+		}
+
+		return e.complexity.ProductNutriment.SugarsValue(childComplexity), true
+
+	case "ProductNutriment.transFat":
+		if e.complexity.ProductNutriment.TransFat == nil {
+			break
+		}
+
+		return e.complexity.ProductNutriment.TransFat(childComplexity), true
+
+	case "ProductNutriment.transFat100g":
+		if e.complexity.ProductNutriment.TransFat100g == nil {
+			break
+		}
+
+		return e.complexity.ProductNutriment.TransFat100g(childComplexity), true
+
+	case "ProductNutriment.transFatLabel":
+		if e.complexity.ProductNutriment.TransFatLabel == nil {
+			break
+		}
+
+		return e.complexity.ProductNutriment.TransFatLabel(childComplexity), true
+
+	case "ProductNutriment.transFatServing":
+		if e.complexity.ProductNutriment.TransFatServing == nil {
+			break
+		}
+
+		return e.complexity.ProductNutriment.TransFatServing(childComplexity), true
+
+	case "ProductNutriment.transFatUnit":
+		if e.complexity.ProductNutriment.TransFatUnit == nil {
+			break
+		}
+
+		return e.complexity.ProductNutriment.TransFatUnit(childComplexity), true
+
+	case "ProductNutriment.transFatValue":
+		if e.complexity.ProductNutriment.TransFatValue == nil {
+			break
+		}
+
+		return e.complexity.ProductNutriment.TransFatValue(childComplexity), true
+
+	case "ProductNutriment.vitaminA":
+		if e.complexity.ProductNutriment.VitaminA == nil {
+			break
+		}
+
+		return e.complexity.ProductNutriment.VitaminA(childComplexity), true
+
+	case "ProductNutriment.vitaminA100g":
+		if e.complexity.ProductNutriment.VitaminA100g == nil {
+			break
+		}
+
+		return e.complexity.ProductNutriment.VitaminA100g(childComplexity), true
+
+	case "ProductNutriment.vitaminALabel":
+		if e.complexity.ProductNutriment.VitaminALabel == nil {
+			break
+		}
+
+		return e.complexity.ProductNutriment.VitaminALabel(childComplexity), true
+
+	case "ProductNutriment.vitaminAServing":
+		if e.complexity.ProductNutriment.VitaminAServing == nil {
+			break
+		}
+
+		return e.complexity.ProductNutriment.VitaminAServing(childComplexity), true
+
+	case "ProductNutriment.vitaminAUnit":
+		if e.complexity.ProductNutriment.VitaminAUnit == nil {
+			break
+		}
+
+		return e.complexity.ProductNutriment.VitaminAUnit(childComplexity), true
+
+	case "ProductNutriment.vitaminAValue":
+		if e.complexity.ProductNutriment.VitaminAValue == nil {
+			break
+		}
+
+		return e.complexity.ProductNutriment.VitaminAValue(childComplexity), true
+
+	case "ProductNutriment.vitaminC":
+		if e.complexity.ProductNutriment.VitaminC == nil {
+			break
+		}
+
+		return e.complexity.ProductNutriment.VitaminC(childComplexity), true
+
+	case "ProductNutriment.vitaminC100g":
+		if e.complexity.ProductNutriment.VitaminC100g == nil {
+			break
+		}
+
+		return e.complexity.ProductNutriment.VitaminC100g(childComplexity), true
+
+	case "ProductNutriment.vitaminCLabel":
+		if e.complexity.ProductNutriment.VitaminCLabel == nil {
+			break
+		}
+
+		return e.complexity.ProductNutriment.VitaminCLabel(childComplexity), true
+
+	case "ProductNutriment.vitaminCServing":
+		if e.complexity.ProductNutriment.VitaminCServing == nil {
+			break
+		}
+
+		return e.complexity.ProductNutriment.VitaminCServing(childComplexity), true
+
+	case "ProductNutriment.vitaminCUnit":
+		if e.complexity.ProductNutriment.VitaminCUnit == nil {
+			break
+		}
+
+		return e.complexity.ProductNutriment.VitaminCUnit(childComplexity), true
+
+	case "ProductNutriment.vitaminCValue":
+		if e.complexity.ProductNutriment.VitaminCValue == nil {
+			break
+		}
+
+		return e.complexity.ProductNutriment.VitaminCValue(childComplexity), true
+
+	case "ProductNutrition.createdAt":
+		if e.complexity.ProductNutrition.CreatedAt == nil {
+			break
+		}
+
+		return e.complexity.ProductNutrition.CreatedAt(childComplexity), true
+
+	case "ProductNutrition.glutenFree":
+		if e.complexity.ProductNutrition.GlutenFree == nil {
+			break
+		}
+
+		return e.complexity.ProductNutrition.GlutenFree(childComplexity), true
+
+	case "ProductNutrition.halal":
+		if e.complexity.ProductNutrition.Halal == nil {
+			break
+		}
+
+		return e.complexity.ProductNutrition.Halal(childComplexity), true
+
+	case "ProductNutrition.id":
+		if e.complexity.ProductNutrition.ID == nil {
+			break
+		}
+
+		return e.complexity.ProductNutrition.ID(childComplexity), true
+
+	case "ProductNutrition.ingredientList":
+		if e.complexity.ProductNutrition.IngredientList == nil {
+			break
+		}
+
+		return e.complexity.ProductNutrition.IngredientList(childComplexity), true
+
+	case "ProductNutrition.ingredients":
+		if e.complexity.ProductNutrition.Ingredients == nil {
+			break
+		}
+
+		return e.complexity.ProductNutrition.Ingredients(childComplexity), true
+
+	case "ProductNutrition.kosher":
+		if e.complexity.ProductNutrition.Kosher == nil {
+			break
+		}
+
+		return e.complexity.ProductNutrition.Kosher(childComplexity), true
+
+	case "ProductNutrition.lactoseFree":
+		if e.complexity.ProductNutrition.LactoseFree == nil {
+			break
+		}
+
+		return e.complexity.ProductNutrition.LactoseFree(childComplexity), true
+
+	case "ProductNutrition.nutriments":
+		if e.complexity.ProductNutrition.Nutriments == nil {
+			break
+		}
+
+		return e.complexity.ProductNutrition.Nutriments(childComplexity), true
+
+	case "ProductNutrition.openfoodfactsUpdatedAt":
+		if e.complexity.ProductNutrition.OpenfoodfactsUpdatedAt == nil {
+			break
+		}
+
+		return e.complexity.ProductNutrition.OpenfoodfactsUpdatedAt(childComplexity), true
+
+	case "ProductNutrition.servingSize":
+		if e.complexity.ProductNutrition.ServingSize == nil {
+			break
+		}
+
+		return e.complexity.ProductNutrition.ServingSize(childComplexity), true
+
+	case "ProductNutrition.servingSizeUnit":
+		if e.complexity.ProductNutrition.ServingSizeUnit == nil {
+			break
+		}
+
+		return e.complexity.ProductNutrition.ServingSizeUnit(childComplexity), true
+
+	case "ProductNutrition.servingSizeValue":
+		if e.complexity.ProductNutrition.ServingSizeValue == nil {
+			break
+		}
+
+		return e.complexity.ProductNutrition.ServingSizeValue(childComplexity), true
+
+	case "ProductNutrition.updatedAt":
+		if e.complexity.ProductNutrition.UpdatedAt == nil {
+			break
+		}
+
+		return e.complexity.ProductNutrition.UpdatedAt(childComplexity), true
+
+	case "ProductNutrition.vegan":
+		if e.complexity.ProductNutrition.Vegan == nil {
+			break
+		}
+
+		return e.complexity.ProductNutrition.Vegan(childComplexity), true
+
+	case "ProductNutrition.vegetarian":
+		if e.complexity.ProductNutrition.Vegetarian == nil {
+			break
+		}
+
+		return e.complexity.ProductNutrition.Vegetarian(childComplexity), true
+
 	case "Query.allBranches":
 		if e.complexity.Query.AllBranches == nil {
 			break
@@ -2451,6 +3385,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.GetFavoriteBranchesWithPrices(childComplexity, args["productId"].(int64)), true
+
+	case "Query.getProductNutritionData":
+		if e.complexity.Query.GetProductNutritionData == nil {
+			break
+		}
+
+		args, err := ec.field_Query_getProductNutritionData_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetProductNutritionData(childComplexity, args["productId"].(int64)), true
 
 	case "Query.getProductStocks":
 		if e.complexity.Query.GetProductStocks == nil {
@@ -3124,7 +4070,7 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 	return introspection.WrapTypeFromDef(ec.Schema(), ec.Schema().Types[name]), nil
 }
 
-//go:embed "address.graphql" "app_version_requirement.graphql" "billing.graphql" "branch.graphql" "category.graphql" "countries.graphql" "directives.graphql" "enums.graphql" "grocery_list.graphql" "list.graphql" "paginator.graphql" "price.graphql" "product.graphql" "scalars.graphql" "search.graphql" "stock.graphql" "store.graphql" "user.graphql"
+//go:embed "address.graphql" "app_version_requirement.graphql" "billing.graphql" "branch.graphql" "category.graphql" "countries.graphql" "directives.graphql" "enums.graphql" "grocery_list.graphql" "list.graphql" "paginator.graphql" "price.graphql" "product.graphql" "product_nutrition.graphql" "scalars.graphql" "search.graphql" "stock.graphql" "store.graphql" "user.graphql"
 var sourcesFS embed.FS
 
 func sourceData(filename string) string {
@@ -3149,6 +4095,7 @@ var sources = []*ast.Source{
 	{Name: "paginator.graphql", Input: sourceData("paginator.graphql"), BuiltIn: false},
 	{Name: "price.graphql", Input: sourceData("price.graphql"), BuiltIn: false},
 	{Name: "product.graphql", Input: sourceData("product.graphql"), BuiltIn: false},
+	{Name: "product_nutrition.graphql", Input: sourceData("product_nutrition.graphql"), BuiltIn: false},
 	{Name: "scalars.graphql", Input: sourceData("scalars.graphql"), BuiltIn: false},
 	{Name: "search.graphql", Input: sourceData("search.graphql"), BuiltIn: false},
 	{Name: "stock.graphql", Input: sourceData("stock.graphql"), BuiltIn: false},
@@ -3662,6 +4609,21 @@ func (ec *executionContext) field_Mutation_updatePasswordWithResetCode_args(ctx 
 	return args, nil
 }
 
+func (ec *executionContext) field_Mutation_updateProductNutritionData_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 int64
+	if tmp, ok := rawArgs["productId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("productId"))
+		arg0, err = ec.unmarshalNID2int64(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["productId"] = arg0
+	return args, nil
+}
+
 func (ec *executionContext) field_Mutation_updateProduct_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -4059,6 +5021,21 @@ func (ec *executionContext) field_Query_getCategories_args(ctx context.Context, 
 }
 
 func (ec *executionContext) field_Query_getFavoriteBranchesWithPrices_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 int64
+	if tmp, ok := rawArgs["productId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("productId"))
+		arg0, err = ec.unmarshalNID2int64(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["productId"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_getProductNutritionData_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 int64
@@ -10731,6 +11708,119 @@ func (ec *executionContext) fieldContext_Mutation_saveProductsFromUPCItemDb(ctx 
 	return fc, nil
 }
 
+func (ec *executionContext) _Mutation_updateProductNutritionData(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_updateProductNutritionData(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().UpdateProductNutritionData(rctx, fc.Args["productId"].(int64))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			role, err := ec.unmarshalOUserRole2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐUserRole(ctx, "CONTRIBUTOR")
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.IsAuthenticated == nil {
+				return nil, errors.New("directive isAuthenticated is not implemented")
+			}
+			return ec.directives.IsAuthenticated(ctx, nil, directive0, role)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*gmodel.ProductNutrition); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/pricetra/api/graph/gmodel.ProductNutrition`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*gmodel.ProductNutrition)
+	fc.Result = res
+	return ec.marshalNProductNutrition2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐProductNutrition(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_updateProductNutritionData(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_ProductNutrition_id(ctx, field)
+			case "ingredients":
+				return ec.fieldContext_ProductNutrition_ingredients(ctx, field)
+			case "ingredientList":
+				return ec.fieldContext_ProductNutrition_ingredientList(ctx, field)
+			case "nutriments":
+				return ec.fieldContext_ProductNutrition_nutriments(ctx, field)
+			case "servingSize":
+				return ec.fieldContext_ProductNutrition_servingSize(ctx, field)
+			case "servingSizeValue":
+				return ec.fieldContext_ProductNutrition_servingSizeValue(ctx, field)
+			case "servingSizeUnit":
+				return ec.fieldContext_ProductNutrition_servingSizeUnit(ctx, field)
+			case "openfoodfactsUpdatedAt":
+				return ec.fieldContext_ProductNutrition_openfoodfactsUpdatedAt(ctx, field)
+			case "vegan":
+				return ec.fieldContext_ProductNutrition_vegan(ctx, field)
+			case "vegetarian":
+				return ec.fieldContext_ProductNutrition_vegetarian(ctx, field)
+			case "glutenFree":
+				return ec.fieldContext_ProductNutrition_glutenFree(ctx, field)
+			case "lactoseFree":
+				return ec.fieldContext_ProductNutrition_lactoseFree(ctx, field)
+			case "halal":
+				return ec.fieldContext_ProductNutrition_halal(ctx, field)
+			case "kosher":
+				return ec.fieldContext_ProductNutrition_kosher(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_ProductNutrition_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_ProductNutrition_updatedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ProductNutrition", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_updateProductNutritionData_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Mutation_deleteSearchById(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Mutation_deleteSearchById(ctx, field)
 	if err != nil {
@@ -16546,6 +17636,4890 @@ func (ec *executionContext) fieldContext_ProductList_createdAt(ctx context.Conte
 	return fc, nil
 }
 
+func (ec *executionContext) _ProductNutriment_salt(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutriment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutriment_salt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Salt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*float64)
+	fc.Result = res
+	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutriment_salt(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutriment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutriment_salt100g(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutriment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutriment_salt100g(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Salt100g, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*float64)
+	fc.Result = res
+	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutriment_salt100g(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutriment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutriment_saltValue(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutriment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutriment_saltValue(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.SaltValue, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*float64)
+	fc.Result = res
+	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutriment_saltValue(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutriment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutriment_saltServing(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutriment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutriment_saltServing(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.SaltServing, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*float64)
+	fc.Result = res
+	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutriment_saltServing(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutriment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutriment_saltUnit(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutriment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutriment_saltUnit(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.SaltUnit, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutriment_saltUnit(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutriment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutriment_sugars100g(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutriment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutriment_sugars100g(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Sugars100g, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*float64)
+	fc.Result = res
+	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutriment_sugars100g(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutriment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutriment_sugars(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutriment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutriment_sugars(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Sugars, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*float64)
+	fc.Result = res
+	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutriment_sugars(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutriment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutriment_sugarsUnit(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutriment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutriment_sugarsUnit(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.SugarsUnit, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutriment_sugarsUnit(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutriment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutriment_sugarsServing(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutriment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutriment_sugarsServing(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.SugarsServing, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*float64)
+	fc.Result = res
+	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutriment_sugarsServing(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutriment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutriment_sugarsValue(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutriment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutriment_sugarsValue(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.SugarsValue, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*float64)
+	fc.Result = res
+	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutriment_sugarsValue(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutriment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutriment_iron(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutriment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutriment_iron(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Iron, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*float64)
+	fc.Result = res
+	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutriment_iron(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutriment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutriment_ironValue(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutriment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutriment_ironValue(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.IronValue, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*float64)
+	fc.Result = res
+	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutriment_ironValue(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutriment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutriment_ironLabel(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutriment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutriment_ironLabel(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.IronLabel, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutriment_ironLabel(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutriment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutriment_ironUnit(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutriment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutriment_ironUnit(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.IronUnit, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutriment_ironUnit(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutriment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutriment_iron100g(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutriment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutriment_iron100g(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Iron100g, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*float64)
+	fc.Result = res
+	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutriment_iron100g(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutriment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutriment_ironServing(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutriment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutriment_ironServing(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.IronServing, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*float64)
+	fc.Result = res
+	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutriment_ironServing(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutriment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutriment_calciumUnit(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutriment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutriment_calciumUnit(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CalciumUnit, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutriment_calciumUnit(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutriment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutriment_calciumServing(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutriment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutriment_calciumServing(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CalciumServing, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*float64)
+	fc.Result = res
+	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutriment_calciumServing(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutriment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutriment_calcium(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutriment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutriment_calcium(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Calcium, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*float64)
+	fc.Result = res
+	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutriment_calcium(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutriment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutriment_calciumValue(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutriment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutriment_calciumValue(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CalciumValue, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*float64)
+	fc.Result = res
+	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutriment_calciumValue(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutriment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutriment_calciumLabel(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutriment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutriment_calciumLabel(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CalciumLabel, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutriment_calciumLabel(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutriment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutriment_calcium100g(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutriment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutriment_calcium100g(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Calcium100g, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*float64)
+	fc.Result = res
+	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutriment_calcium100g(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutriment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutriment_cholesterol100g(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutriment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutriment_cholesterol100g(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Cholesterol100g, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*float64)
+	fc.Result = res
+	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutriment_cholesterol100g(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutriment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutriment_saturatedFat100g(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutriment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutriment_saturatedFat100g(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.SaturatedFat100g, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*float64)
+	fc.Result = res
+	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutriment_saturatedFat100g(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutriment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutriment_saturatedFatServing(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutriment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutriment_saturatedFatServing(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.SaturatedFatServing, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*float64)
+	fc.Result = res
+	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutriment_saturatedFatServing(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutriment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutriment_saturatedFat(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutriment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutriment_saturatedFat(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.SaturatedFat, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*float64)
+	fc.Result = res
+	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutriment_saturatedFat(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutriment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutriment_saturatedFatValue(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutriment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutriment_saturatedFatValue(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.SaturatedFatValue, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*float64)
+	fc.Result = res
+	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutriment_saturatedFatValue(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutriment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutriment_saturatedFatUnit(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutriment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutriment_saturatedFatUnit(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.SaturatedFatUnit, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutriment_saturatedFatUnit(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutriment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutriment_fat100g(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutriment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutriment_fat100g(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Fat100g, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*float64)
+	fc.Result = res
+	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutriment_fat100g(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutriment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutriment_fatServing(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutriment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutriment_fatServing(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.FatServing, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*float64)
+	fc.Result = res
+	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutriment_fatServing(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutriment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutriment_fatValue(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutriment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutriment_fatValue(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.FatValue, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*float64)
+	fc.Result = res
+	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutriment_fatValue(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutriment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutriment_fatUnit(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutriment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutriment_fatUnit(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.FatUnit, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutriment_fatUnit(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutriment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutriment_fat(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutriment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutriment_fat(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Fat, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*float64)
+	fc.Result = res
+	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutriment_fat(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutriment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutriment_transFatLabel(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutriment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutriment_transFatLabel(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TransFatLabel, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutriment_transFatLabel(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutriment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutriment_transFatUnit(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutriment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutriment_transFatUnit(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TransFatUnit, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutriment_transFatUnit(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutriment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutriment_transFat(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutriment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutriment_transFat(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TransFat, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*float64)
+	fc.Result = res
+	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutriment_transFat(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutriment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutriment_transFat100g(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutriment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutriment_transFat100g(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TransFat100g, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*float64)
+	fc.Result = res
+	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutriment_transFat100g(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutriment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutriment_transFatServing(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutriment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutriment_transFatServing(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TransFatServing, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*float64)
+	fc.Result = res
+	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutriment_transFatServing(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutriment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutriment_transFatValue(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutriment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutriment_transFatValue(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TransFatValue, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*float64)
+	fc.Result = res
+	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutriment_transFatValue(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutriment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutriment_vitaminA(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutriment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutriment_vitaminA(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.VitaminA, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*float64)
+	fc.Result = res
+	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutriment_vitaminA(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutriment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutriment_vitaminA100g(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutriment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutriment_vitaminA100g(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.VitaminA100g, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*float64)
+	fc.Result = res
+	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutriment_vitaminA100g(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutriment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutriment_vitaminAValue(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutriment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutriment_vitaminAValue(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.VitaminAValue, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*float64)
+	fc.Result = res
+	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutriment_vitaminAValue(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutriment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutriment_vitaminAServing(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutriment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutriment_vitaminAServing(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.VitaminAServing, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*float64)
+	fc.Result = res
+	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutriment_vitaminAServing(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutriment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutriment_vitaminAUnit(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutriment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutriment_vitaminAUnit(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.VitaminAUnit, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutriment_vitaminAUnit(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutriment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutriment_vitaminALabel(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutriment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutriment_vitaminALabel(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.VitaminALabel, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutriment_vitaminALabel(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutriment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutriment_vitaminCValue(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutriment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutriment_vitaminCValue(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.VitaminCValue, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*float64)
+	fc.Result = res
+	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutriment_vitaminCValue(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutriment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutriment_vitaminCUnit(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutriment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutriment_vitaminCUnit(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.VitaminCUnit, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutriment_vitaminCUnit(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutriment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutriment_vitaminC100g(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutriment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutriment_vitaminC100g(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.VitaminC100g, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*float64)
+	fc.Result = res
+	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutriment_vitaminC100g(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutriment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutriment_vitaminC(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutriment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutriment_vitaminC(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.VitaminC, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*float64)
+	fc.Result = res
+	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutriment_vitaminC(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutriment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutriment_vitaminCServing(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutriment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutriment_vitaminCServing(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.VitaminCServing, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*float64)
+	fc.Result = res
+	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutriment_vitaminCServing(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutriment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutriment_vitaminCLabel(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutriment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutriment_vitaminCLabel(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.VitaminCLabel, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutriment_vitaminCLabel(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutriment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutriment_proteins100g(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutriment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutriment_proteins100g(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Proteins100g, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*float64)
+	fc.Result = res
+	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutriment_proteins100g(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutriment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutriment_proteinsServing(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutriment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutriment_proteinsServing(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ProteinsServing, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*float64)
+	fc.Result = res
+	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutriment_proteinsServing(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutriment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutriment_proteinsValue(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutriment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutriment_proteinsValue(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ProteinsValue, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*float64)
+	fc.Result = res
+	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutriment_proteinsValue(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutriment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutriment_proteinsUnit(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutriment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutriment_proteinsUnit(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ProteinsUnit, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutriment_proteinsUnit(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutriment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutriment_proteins(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutriment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutriment_proteins(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Proteins, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*float64)
+	fc.Result = res
+	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutriment_proteins(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutriment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutriment_polyunsaturatedFat100g(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutriment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutriment_polyunsaturatedFat100g(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.PolyunsaturatedFat100g, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*float64)
+	fc.Result = res
+	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutriment_polyunsaturatedFat100g(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutriment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutriment_potassium100g(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutriment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutriment_potassium100g(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Potassium100g, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*float64)
+	fc.Result = res
+	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutriment_potassium100g(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutriment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutriment_sodium(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutriment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutriment_sodium(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Sodium, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*float64)
+	fc.Result = res
+	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutriment_sodium(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutriment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutriment_sodiumServing(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutriment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutriment_sodiumServing(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.SodiumServing, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*float64)
+	fc.Result = res
+	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutriment_sodiumServing(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutriment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutriment_sodiumValue(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutriment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutriment_sodiumValue(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.SodiumValue, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*float64)
+	fc.Result = res
+	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutriment_sodiumValue(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutriment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutriment_sodium100g(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutriment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutriment_sodium100g(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Sodium100g, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*float64)
+	fc.Result = res
+	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutriment_sodium100g(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutriment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutriment_sodiumUnit(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutriment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutriment_sodiumUnit(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.SodiumUnit, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutriment_sodiumUnit(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutriment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutriment_carbohydratesUnit(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutriment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutriment_carbohydratesUnit(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CarbohydratesUnit, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutriment_carbohydratesUnit(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutriment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutriment_carbohydratesValue(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutriment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutriment_carbohydratesValue(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CarbohydratesValue, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*float64)
+	fc.Result = res
+	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutriment_carbohydratesValue(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutriment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutriment_carbohydrates100g(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutriment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutriment_carbohydrates100g(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Carbohydrates100g, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*float64)
+	fc.Result = res
+	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutriment_carbohydrates100g(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutriment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutriment_carbohydrates(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutriment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutriment_carbohydrates(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Carbohydrates, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*float64)
+	fc.Result = res
+	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutriment_carbohydrates(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutriment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutriment_carbohydratesServing(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutriment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutriment_carbohydratesServing(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CarbohydratesServing, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*float64)
+	fc.Result = res
+	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutriment_carbohydratesServing(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutriment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutriment_alcoholValue(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutriment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutriment_alcoholValue(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.AlcoholValue, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*float64)
+	fc.Result = res
+	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutriment_alcoholValue(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutriment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutriment_alcoholServing(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutriment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutriment_alcoholServing(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.AlcoholServing, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*float64)
+	fc.Result = res
+	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutriment_alcoholServing(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutriment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutriment_alcoholUnit(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutriment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutriment_alcoholUnit(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.AlcoholUnit, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutriment_alcoholUnit(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutriment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutriment_alcohol100g(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutriment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutriment_alcohol100g(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Alcohol100g, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*float64)
+	fc.Result = res
+	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutriment_alcohol100g(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutriment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutriment_alcohol(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutriment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutriment_alcohol(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Alcohol, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*float64)
+	fc.Result = res
+	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutriment_alcohol(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutriment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutriment_monounsaturatedFat100g(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutriment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutriment_monounsaturatedFat100g(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.MonounsaturatedFat100g, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*float64)
+	fc.Result = res
+	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutriment_monounsaturatedFat100g(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutriment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutriment_novaGroup(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutriment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutriment_novaGroup(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.NovaGroup, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*float64)
+	fc.Result = res
+	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutriment_novaGroup(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutriment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutriment_novaGroupServing(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutriment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutriment_novaGroupServing(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.NovaGroupServing, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*float64)
+	fc.Result = res
+	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutriment_novaGroupServing(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutriment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutriment_novaGroup100g(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutriment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutriment_novaGroup100g(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.NovaGroup100g, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*float64)
+	fc.Result = res
+	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutriment_novaGroup100g(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutriment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutriment_energy(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutriment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutriment_energy(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Energy, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*float64)
+	fc.Result = res
+	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutriment_energy(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutriment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutriment_energyServing(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutriment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutriment_energyServing(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.EnergyServing, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*float64)
+	fc.Result = res
+	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutriment_energyServing(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutriment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutriment_energyKcalServing(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutriment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutriment_energyKcalServing(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.EnergyKcalServing, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*float64)
+	fc.Result = res
+	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutriment_energyKcalServing(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutriment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutriment_energyKcal(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutriment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutriment_energyKcal(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.EnergyKcal, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*float64)
+	fc.Result = res
+	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutriment_energyKcal(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutriment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutriment_energy100g(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutriment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutriment_energy100g(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Energy100g, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*float64)
+	fc.Result = res
+	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutriment_energy100g(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutriment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutriment_energyUnit(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutriment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutriment_energyUnit(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.EnergyUnit, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutriment_energyUnit(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutriment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutriment_energyKcalValue(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutriment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutriment_energyKcalValue(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.EnergyKcalValue, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*float64)
+	fc.Result = res
+	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutriment_energyKcalValue(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutriment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutriment_energyKcalUnit(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutriment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutriment_energyKcalUnit(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.EnergyKcalUnit, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutriment_energyKcalUnit(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutriment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutriment_energyKcal100g(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutriment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutriment_energyKcal100g(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.EnergyKcal100g, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*float64)
+	fc.Result = res
+	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutriment_energyKcal100g(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutriment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutriment_energyValue(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutriment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutriment_energyValue(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.EnergyValue, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*float64)
+	fc.Result = res
+	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutriment_energyValue(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutriment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutriment_nutritionScoreUk100g(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutriment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutriment_nutritionScoreUk100g(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.NutritionScoreUk100g, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*float64)
+	fc.Result = res
+	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutriment_nutritionScoreUk100g(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutriment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutriment_nutritionScoreFrServing(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutriment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutriment_nutritionScoreFrServing(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.NutritionScoreFrServing, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*float64)
+	fc.Result = res
+	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutriment_nutritionScoreFrServing(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutriment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutriment_nutritionScoreFr(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutriment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutriment_nutritionScoreFr(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.NutritionScoreFr, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*float64)
+	fc.Result = res
+	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutriment_nutritionScoreFr(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutriment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutriment_nutritionScoreFr100g(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutriment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutriment_nutritionScoreFr100g(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.NutritionScoreFr100g, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*float64)
+	fc.Result = res
+	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutriment_nutritionScoreFr100g(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutriment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutriment_nutritionScoreUkServing(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutriment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutriment_nutritionScoreUkServing(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.NutritionScoreUkServing, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*float64)
+	fc.Result = res
+	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutriment_nutritionScoreUkServing(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutriment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutriment_nutritionScoreUk(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutriment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutriment_nutritionScoreUk(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.NutritionScoreUk, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*float64)
+	fc.Result = res
+	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutriment_nutritionScoreUk(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutriment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutriment_fiber(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutriment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutriment_fiber(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Fiber, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*float64)
+	fc.Result = res
+	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutriment_fiber(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutriment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutriment_fiber100g(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutriment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutriment_fiber100g(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Fiber100g, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*float64)
+	fc.Result = res
+	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutriment_fiber100g(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutriment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutriment_fiberValue(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutriment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutriment_fiberValue(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.FiberValue, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*float64)
+	fc.Result = res
+	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutriment_fiberValue(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutriment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutriment_fiberServing(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutriment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutriment_fiberServing(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.FiberServing, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*float64)
+	fc.Result = res
+	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutriment_fiberServing(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutriment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutriment_fiberUnit(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutriment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutriment_fiberUnit(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.FiberUnit, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutriment_fiberUnit(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutriment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutrition_id(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutrition) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutrition_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int64)
+	fc.Result = res
+	return ec.marshalNID2int64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutrition_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutrition",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutrition_ingredients(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutrition) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutrition_ingredients(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Ingredients, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutrition_ingredients(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutrition",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutrition_ingredientList(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutrition) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutrition_ingredientList(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.IngredientList, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]string)
+	fc.Result = res
+	return ec.marshalOString2ᚕstringᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutrition_ingredientList(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutrition",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutrition_nutriments(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutrition) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutrition_nutriments(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Nutriments, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*gmodel.ProductNutriment)
+	fc.Result = res
+	return ec.marshalOProductNutriment2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐProductNutriment(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutrition_nutriments(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutrition",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "salt":
+				return ec.fieldContext_ProductNutriment_salt(ctx, field)
+			case "salt100g":
+				return ec.fieldContext_ProductNutriment_salt100g(ctx, field)
+			case "saltValue":
+				return ec.fieldContext_ProductNutriment_saltValue(ctx, field)
+			case "saltServing":
+				return ec.fieldContext_ProductNutriment_saltServing(ctx, field)
+			case "saltUnit":
+				return ec.fieldContext_ProductNutriment_saltUnit(ctx, field)
+			case "sugars100g":
+				return ec.fieldContext_ProductNutriment_sugars100g(ctx, field)
+			case "sugars":
+				return ec.fieldContext_ProductNutriment_sugars(ctx, field)
+			case "sugarsUnit":
+				return ec.fieldContext_ProductNutriment_sugarsUnit(ctx, field)
+			case "sugarsServing":
+				return ec.fieldContext_ProductNutriment_sugarsServing(ctx, field)
+			case "sugarsValue":
+				return ec.fieldContext_ProductNutriment_sugarsValue(ctx, field)
+			case "iron":
+				return ec.fieldContext_ProductNutriment_iron(ctx, field)
+			case "ironValue":
+				return ec.fieldContext_ProductNutriment_ironValue(ctx, field)
+			case "ironLabel":
+				return ec.fieldContext_ProductNutriment_ironLabel(ctx, field)
+			case "ironUnit":
+				return ec.fieldContext_ProductNutriment_ironUnit(ctx, field)
+			case "iron100g":
+				return ec.fieldContext_ProductNutriment_iron100g(ctx, field)
+			case "ironServing":
+				return ec.fieldContext_ProductNutriment_ironServing(ctx, field)
+			case "calciumUnit":
+				return ec.fieldContext_ProductNutriment_calciumUnit(ctx, field)
+			case "calciumServing":
+				return ec.fieldContext_ProductNutriment_calciumServing(ctx, field)
+			case "calcium":
+				return ec.fieldContext_ProductNutriment_calcium(ctx, field)
+			case "calciumValue":
+				return ec.fieldContext_ProductNutriment_calciumValue(ctx, field)
+			case "calciumLabel":
+				return ec.fieldContext_ProductNutriment_calciumLabel(ctx, field)
+			case "calcium100g":
+				return ec.fieldContext_ProductNutriment_calcium100g(ctx, field)
+			case "cholesterol100g":
+				return ec.fieldContext_ProductNutriment_cholesterol100g(ctx, field)
+			case "saturatedFat100g":
+				return ec.fieldContext_ProductNutriment_saturatedFat100g(ctx, field)
+			case "saturatedFatServing":
+				return ec.fieldContext_ProductNutriment_saturatedFatServing(ctx, field)
+			case "saturatedFat":
+				return ec.fieldContext_ProductNutriment_saturatedFat(ctx, field)
+			case "saturatedFatValue":
+				return ec.fieldContext_ProductNutriment_saturatedFatValue(ctx, field)
+			case "saturatedFatUnit":
+				return ec.fieldContext_ProductNutriment_saturatedFatUnit(ctx, field)
+			case "fat100g":
+				return ec.fieldContext_ProductNutriment_fat100g(ctx, field)
+			case "fatServing":
+				return ec.fieldContext_ProductNutriment_fatServing(ctx, field)
+			case "fatValue":
+				return ec.fieldContext_ProductNutriment_fatValue(ctx, field)
+			case "fatUnit":
+				return ec.fieldContext_ProductNutriment_fatUnit(ctx, field)
+			case "fat":
+				return ec.fieldContext_ProductNutriment_fat(ctx, field)
+			case "transFatLabel":
+				return ec.fieldContext_ProductNutriment_transFatLabel(ctx, field)
+			case "transFatUnit":
+				return ec.fieldContext_ProductNutriment_transFatUnit(ctx, field)
+			case "transFat":
+				return ec.fieldContext_ProductNutriment_transFat(ctx, field)
+			case "transFat100g":
+				return ec.fieldContext_ProductNutriment_transFat100g(ctx, field)
+			case "transFatServing":
+				return ec.fieldContext_ProductNutriment_transFatServing(ctx, field)
+			case "transFatValue":
+				return ec.fieldContext_ProductNutriment_transFatValue(ctx, field)
+			case "vitaminA":
+				return ec.fieldContext_ProductNutriment_vitaminA(ctx, field)
+			case "vitaminA100g":
+				return ec.fieldContext_ProductNutriment_vitaminA100g(ctx, field)
+			case "vitaminAValue":
+				return ec.fieldContext_ProductNutriment_vitaminAValue(ctx, field)
+			case "vitaminAServing":
+				return ec.fieldContext_ProductNutriment_vitaminAServing(ctx, field)
+			case "vitaminAUnit":
+				return ec.fieldContext_ProductNutriment_vitaminAUnit(ctx, field)
+			case "vitaminALabel":
+				return ec.fieldContext_ProductNutriment_vitaminALabel(ctx, field)
+			case "vitaminCValue":
+				return ec.fieldContext_ProductNutriment_vitaminCValue(ctx, field)
+			case "vitaminCUnit":
+				return ec.fieldContext_ProductNutriment_vitaminCUnit(ctx, field)
+			case "vitaminC100g":
+				return ec.fieldContext_ProductNutriment_vitaminC100g(ctx, field)
+			case "vitaminC":
+				return ec.fieldContext_ProductNutriment_vitaminC(ctx, field)
+			case "vitaminCServing":
+				return ec.fieldContext_ProductNutriment_vitaminCServing(ctx, field)
+			case "vitaminCLabel":
+				return ec.fieldContext_ProductNutriment_vitaminCLabel(ctx, field)
+			case "proteins100g":
+				return ec.fieldContext_ProductNutriment_proteins100g(ctx, field)
+			case "proteinsServing":
+				return ec.fieldContext_ProductNutriment_proteinsServing(ctx, field)
+			case "proteinsValue":
+				return ec.fieldContext_ProductNutriment_proteinsValue(ctx, field)
+			case "proteinsUnit":
+				return ec.fieldContext_ProductNutriment_proteinsUnit(ctx, field)
+			case "proteins":
+				return ec.fieldContext_ProductNutriment_proteins(ctx, field)
+			case "polyunsaturatedFat100g":
+				return ec.fieldContext_ProductNutriment_polyunsaturatedFat100g(ctx, field)
+			case "potassium100g":
+				return ec.fieldContext_ProductNutriment_potassium100g(ctx, field)
+			case "sodium":
+				return ec.fieldContext_ProductNutriment_sodium(ctx, field)
+			case "sodiumServing":
+				return ec.fieldContext_ProductNutriment_sodiumServing(ctx, field)
+			case "sodiumValue":
+				return ec.fieldContext_ProductNutriment_sodiumValue(ctx, field)
+			case "sodium100g":
+				return ec.fieldContext_ProductNutriment_sodium100g(ctx, field)
+			case "sodiumUnit":
+				return ec.fieldContext_ProductNutriment_sodiumUnit(ctx, field)
+			case "carbohydratesUnit":
+				return ec.fieldContext_ProductNutriment_carbohydratesUnit(ctx, field)
+			case "carbohydratesValue":
+				return ec.fieldContext_ProductNutriment_carbohydratesValue(ctx, field)
+			case "carbohydrates100g":
+				return ec.fieldContext_ProductNutriment_carbohydrates100g(ctx, field)
+			case "carbohydrates":
+				return ec.fieldContext_ProductNutriment_carbohydrates(ctx, field)
+			case "carbohydratesServing":
+				return ec.fieldContext_ProductNutriment_carbohydratesServing(ctx, field)
+			case "alcoholValue":
+				return ec.fieldContext_ProductNutriment_alcoholValue(ctx, field)
+			case "alcoholServing":
+				return ec.fieldContext_ProductNutriment_alcoholServing(ctx, field)
+			case "alcoholUnit":
+				return ec.fieldContext_ProductNutriment_alcoholUnit(ctx, field)
+			case "alcohol100g":
+				return ec.fieldContext_ProductNutriment_alcohol100g(ctx, field)
+			case "alcohol":
+				return ec.fieldContext_ProductNutriment_alcohol(ctx, field)
+			case "monounsaturatedFat100g":
+				return ec.fieldContext_ProductNutriment_monounsaturatedFat100g(ctx, field)
+			case "novaGroup":
+				return ec.fieldContext_ProductNutriment_novaGroup(ctx, field)
+			case "novaGroupServing":
+				return ec.fieldContext_ProductNutriment_novaGroupServing(ctx, field)
+			case "novaGroup100g":
+				return ec.fieldContext_ProductNutriment_novaGroup100g(ctx, field)
+			case "energy":
+				return ec.fieldContext_ProductNutriment_energy(ctx, field)
+			case "energyServing":
+				return ec.fieldContext_ProductNutriment_energyServing(ctx, field)
+			case "energyKcalServing":
+				return ec.fieldContext_ProductNutriment_energyKcalServing(ctx, field)
+			case "energyKcal":
+				return ec.fieldContext_ProductNutriment_energyKcal(ctx, field)
+			case "energy100g":
+				return ec.fieldContext_ProductNutriment_energy100g(ctx, field)
+			case "energyUnit":
+				return ec.fieldContext_ProductNutriment_energyUnit(ctx, field)
+			case "energyKcalValue":
+				return ec.fieldContext_ProductNutriment_energyKcalValue(ctx, field)
+			case "energyKcalUnit":
+				return ec.fieldContext_ProductNutriment_energyKcalUnit(ctx, field)
+			case "energyKcal100g":
+				return ec.fieldContext_ProductNutriment_energyKcal100g(ctx, field)
+			case "energyValue":
+				return ec.fieldContext_ProductNutriment_energyValue(ctx, field)
+			case "nutritionScoreUk100g":
+				return ec.fieldContext_ProductNutriment_nutritionScoreUk100g(ctx, field)
+			case "nutritionScoreFrServing":
+				return ec.fieldContext_ProductNutriment_nutritionScoreFrServing(ctx, field)
+			case "nutritionScoreFr":
+				return ec.fieldContext_ProductNutriment_nutritionScoreFr(ctx, field)
+			case "nutritionScoreFr100g":
+				return ec.fieldContext_ProductNutriment_nutritionScoreFr100g(ctx, field)
+			case "nutritionScoreUkServing":
+				return ec.fieldContext_ProductNutriment_nutritionScoreUkServing(ctx, field)
+			case "nutritionScoreUk":
+				return ec.fieldContext_ProductNutriment_nutritionScoreUk(ctx, field)
+			case "fiber":
+				return ec.fieldContext_ProductNutriment_fiber(ctx, field)
+			case "fiber100g":
+				return ec.fieldContext_ProductNutriment_fiber100g(ctx, field)
+			case "fiberValue":
+				return ec.fieldContext_ProductNutriment_fiberValue(ctx, field)
+			case "fiberServing":
+				return ec.fieldContext_ProductNutriment_fiberServing(ctx, field)
+			case "fiberUnit":
+				return ec.fieldContext_ProductNutriment_fiberUnit(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ProductNutriment", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutrition_servingSize(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutrition) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutrition_servingSize(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ServingSize, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutrition_servingSize(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutrition",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutrition_servingSizeValue(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutrition) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutrition_servingSizeValue(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ServingSizeValue, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*float64)
+	fc.Result = res
+	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutrition_servingSizeValue(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutrition",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutrition_servingSizeUnit(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutrition) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutrition_servingSizeUnit(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ServingSizeUnit, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutrition_servingSizeUnit(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutrition",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutrition_openfoodfactsUpdatedAt(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutrition) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutrition_openfoodfactsUpdatedAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.OpenfoodfactsUpdatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutrition_openfoodfactsUpdatedAt(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutrition",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutrition_vegan(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutrition) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutrition_vegan(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Vegan, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*bool)
+	fc.Result = res
+	return ec.marshalOBoolean2ᚖbool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutrition_vegan(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutrition",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutrition_vegetarian(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutrition) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutrition_vegetarian(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Vegetarian, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*bool)
+	fc.Result = res
+	return ec.marshalOBoolean2ᚖbool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutrition_vegetarian(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutrition",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutrition_glutenFree(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutrition) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutrition_glutenFree(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.GlutenFree, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*bool)
+	fc.Result = res
+	return ec.marshalOBoolean2ᚖbool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutrition_glutenFree(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutrition",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutrition_lactoseFree(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutrition) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutrition_lactoseFree(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.LactoseFree, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*bool)
+	fc.Result = res
+	return ec.marshalOBoolean2ᚖbool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutrition_lactoseFree(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutrition",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutrition_halal(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutrition) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutrition_halal(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Halal, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*bool)
+	fc.Result = res
+	return ec.marshalOBoolean2ᚖbool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutrition_halal(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutrition",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutrition_kosher(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutrition) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutrition_kosher(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Kosher, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*bool)
+	fc.Result = res
+	return ec.marshalOBoolean2ᚖbool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutrition_kosher(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutrition",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutrition_createdAt(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutrition) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutrition_createdAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CreatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutrition_createdAt(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutrition",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductNutrition_updatedAt(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutrition) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutrition_updatedAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UpdatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductNutrition_updatedAt(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductNutrition",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Query_checkAppVersion(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Query_checkAppVersion(ctx, field)
 	if err != nil {
@@ -18142,28 +24116,8 @@ func (ec *executionContext) _Query_allProducts(ctx context.Context, field graphq
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		directive0 := func(rctx context.Context) (interface{}, error) {
-			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Query().AllProducts(rctx, fc.Args["paginator"].(gmodel.PaginatorInput), fc.Args["search"].(*gmodel.ProductSearch))
-		}
-		directive1 := func(ctx context.Context) (interface{}, error) {
-			if ec.directives.IsAuthenticated == nil {
-				return nil, errors.New("directive isAuthenticated is not implemented")
-			}
-			return ec.directives.IsAuthenticated(ctx, nil, directive0, nil)
-		}
-
-		tmp, err := directive1(rctx)
-		if err != nil {
-			return nil, graphql.ErrorOnPath(ctx, err)
-		}
-		if tmp == nil {
-			return nil, nil
-		}
-		if data, ok := tmp.(*gmodel.PaginatedProducts); ok {
-			return data, nil
-		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/pricetra/api/graph/gmodel.PaginatedProducts`, tmp)
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().AllProducts(rctx, fc.Args["paginator"].(gmodel.PaginatorInput), fc.Args["search"].(*gmodel.ProductSearch))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -18293,28 +24247,8 @@ func (ec *executionContext) _Query_product(ctx context.Context, field graphql.Co
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		directive0 := func(rctx context.Context) (interface{}, error) {
-			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Query().Product(rctx, fc.Args["id"].(int64), fc.Args["viewerTrail"].(*gmodel.ViewerTrailInput))
-		}
-		directive1 := func(ctx context.Context) (interface{}, error) {
-			if ec.directives.IsAuthenticated == nil {
-				return nil, errors.New("directive isAuthenticated is not implemented")
-			}
-			return ec.directives.IsAuthenticated(ctx, nil, directive0, nil)
-		}
-
-		tmp, err := directive1(rctx)
-		if err != nil {
-			return nil, graphql.ErrorOnPath(ctx, err)
-		}
-		if tmp == nil {
-			return nil, nil
-		}
-		if data, ok := tmp.(*gmodel.Product); ok {
-			return data, nil
-		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/pricetra/api/graph/gmodel.Product`, tmp)
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().Product(rctx, fc.Args["id"].(int64), fc.Args["viewerTrail"].(*gmodel.ViewerTrailInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -18573,6 +24507,95 @@ func (ec *executionContext) fieldContext_Query_myProductViewHistory(ctx context.
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Query_myProductViewHistory_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_getProductNutritionData(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_getProductNutritionData(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetProductNutritionData(rctx, fc.Args["productId"].(int64))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*gmodel.ProductNutrition)
+	fc.Result = res
+	return ec.marshalNProductNutrition2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐProductNutrition(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_getProductNutritionData(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_ProductNutrition_id(ctx, field)
+			case "ingredients":
+				return ec.fieldContext_ProductNutrition_ingredients(ctx, field)
+			case "ingredientList":
+				return ec.fieldContext_ProductNutrition_ingredientList(ctx, field)
+			case "nutriments":
+				return ec.fieldContext_ProductNutrition_nutriments(ctx, field)
+			case "servingSize":
+				return ec.fieldContext_ProductNutrition_servingSize(ctx, field)
+			case "servingSizeValue":
+				return ec.fieldContext_ProductNutrition_servingSizeValue(ctx, field)
+			case "servingSizeUnit":
+				return ec.fieldContext_ProductNutrition_servingSizeUnit(ctx, field)
+			case "openfoodfactsUpdatedAt":
+				return ec.fieldContext_ProductNutrition_openfoodfactsUpdatedAt(ctx, field)
+			case "vegan":
+				return ec.fieldContext_ProductNutrition_vegan(ctx, field)
+			case "vegetarian":
+				return ec.fieldContext_ProductNutrition_vegetarian(ctx, field)
+			case "glutenFree":
+				return ec.fieldContext_ProductNutrition_glutenFree(ctx, field)
+			case "lactoseFree":
+				return ec.fieldContext_ProductNutrition_lactoseFree(ctx, field)
+			case "halal":
+				return ec.fieldContext_ProductNutrition_halal(ctx, field)
+			case "kosher":
+				return ec.fieldContext_ProductNutrition_kosher(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_ProductNutrition_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_ProductNutrition_updatedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ProductNutrition", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_getProductNutritionData_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -26041,6 +32064,13 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "updateProductNutritionData":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_updateProductNutritionData(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "deleteSearchById":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_deleteSearchById(ctx, field)
@@ -26952,6 +32982,314 @@ func (ec *executionContext) _ProductList(ctx context.Context, sel ast.SelectionS
 	return out
 }
 
+var productNutrimentImplementors = []string{"ProductNutriment"}
+
+func (ec *executionContext) _ProductNutriment(ctx context.Context, sel ast.SelectionSet, obj *gmodel.ProductNutriment) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, productNutrimentImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ProductNutriment")
+		case "salt":
+			out.Values[i] = ec._ProductNutriment_salt(ctx, field, obj)
+		case "salt100g":
+			out.Values[i] = ec._ProductNutriment_salt100g(ctx, field, obj)
+		case "saltValue":
+			out.Values[i] = ec._ProductNutriment_saltValue(ctx, field, obj)
+		case "saltServing":
+			out.Values[i] = ec._ProductNutriment_saltServing(ctx, field, obj)
+		case "saltUnit":
+			out.Values[i] = ec._ProductNutriment_saltUnit(ctx, field, obj)
+		case "sugars100g":
+			out.Values[i] = ec._ProductNutriment_sugars100g(ctx, field, obj)
+		case "sugars":
+			out.Values[i] = ec._ProductNutriment_sugars(ctx, field, obj)
+		case "sugarsUnit":
+			out.Values[i] = ec._ProductNutriment_sugarsUnit(ctx, field, obj)
+		case "sugarsServing":
+			out.Values[i] = ec._ProductNutriment_sugarsServing(ctx, field, obj)
+		case "sugarsValue":
+			out.Values[i] = ec._ProductNutriment_sugarsValue(ctx, field, obj)
+		case "iron":
+			out.Values[i] = ec._ProductNutriment_iron(ctx, field, obj)
+		case "ironValue":
+			out.Values[i] = ec._ProductNutriment_ironValue(ctx, field, obj)
+		case "ironLabel":
+			out.Values[i] = ec._ProductNutriment_ironLabel(ctx, field, obj)
+		case "ironUnit":
+			out.Values[i] = ec._ProductNutriment_ironUnit(ctx, field, obj)
+		case "iron100g":
+			out.Values[i] = ec._ProductNutriment_iron100g(ctx, field, obj)
+		case "ironServing":
+			out.Values[i] = ec._ProductNutriment_ironServing(ctx, field, obj)
+		case "calciumUnit":
+			out.Values[i] = ec._ProductNutriment_calciumUnit(ctx, field, obj)
+		case "calciumServing":
+			out.Values[i] = ec._ProductNutriment_calciumServing(ctx, field, obj)
+		case "calcium":
+			out.Values[i] = ec._ProductNutriment_calcium(ctx, field, obj)
+		case "calciumValue":
+			out.Values[i] = ec._ProductNutriment_calciumValue(ctx, field, obj)
+		case "calciumLabel":
+			out.Values[i] = ec._ProductNutriment_calciumLabel(ctx, field, obj)
+		case "calcium100g":
+			out.Values[i] = ec._ProductNutriment_calcium100g(ctx, field, obj)
+		case "cholesterol100g":
+			out.Values[i] = ec._ProductNutriment_cholesterol100g(ctx, field, obj)
+		case "saturatedFat100g":
+			out.Values[i] = ec._ProductNutriment_saturatedFat100g(ctx, field, obj)
+		case "saturatedFatServing":
+			out.Values[i] = ec._ProductNutriment_saturatedFatServing(ctx, field, obj)
+		case "saturatedFat":
+			out.Values[i] = ec._ProductNutriment_saturatedFat(ctx, field, obj)
+		case "saturatedFatValue":
+			out.Values[i] = ec._ProductNutriment_saturatedFatValue(ctx, field, obj)
+		case "saturatedFatUnit":
+			out.Values[i] = ec._ProductNutriment_saturatedFatUnit(ctx, field, obj)
+		case "fat100g":
+			out.Values[i] = ec._ProductNutriment_fat100g(ctx, field, obj)
+		case "fatServing":
+			out.Values[i] = ec._ProductNutriment_fatServing(ctx, field, obj)
+		case "fatValue":
+			out.Values[i] = ec._ProductNutriment_fatValue(ctx, field, obj)
+		case "fatUnit":
+			out.Values[i] = ec._ProductNutriment_fatUnit(ctx, field, obj)
+		case "fat":
+			out.Values[i] = ec._ProductNutriment_fat(ctx, field, obj)
+		case "transFatLabel":
+			out.Values[i] = ec._ProductNutriment_transFatLabel(ctx, field, obj)
+		case "transFatUnit":
+			out.Values[i] = ec._ProductNutriment_transFatUnit(ctx, field, obj)
+		case "transFat":
+			out.Values[i] = ec._ProductNutriment_transFat(ctx, field, obj)
+		case "transFat100g":
+			out.Values[i] = ec._ProductNutriment_transFat100g(ctx, field, obj)
+		case "transFatServing":
+			out.Values[i] = ec._ProductNutriment_transFatServing(ctx, field, obj)
+		case "transFatValue":
+			out.Values[i] = ec._ProductNutriment_transFatValue(ctx, field, obj)
+		case "vitaminA":
+			out.Values[i] = ec._ProductNutriment_vitaminA(ctx, field, obj)
+		case "vitaminA100g":
+			out.Values[i] = ec._ProductNutriment_vitaminA100g(ctx, field, obj)
+		case "vitaminAValue":
+			out.Values[i] = ec._ProductNutriment_vitaminAValue(ctx, field, obj)
+		case "vitaminAServing":
+			out.Values[i] = ec._ProductNutriment_vitaminAServing(ctx, field, obj)
+		case "vitaminAUnit":
+			out.Values[i] = ec._ProductNutriment_vitaminAUnit(ctx, field, obj)
+		case "vitaminALabel":
+			out.Values[i] = ec._ProductNutriment_vitaminALabel(ctx, field, obj)
+		case "vitaminCValue":
+			out.Values[i] = ec._ProductNutriment_vitaminCValue(ctx, field, obj)
+		case "vitaminCUnit":
+			out.Values[i] = ec._ProductNutriment_vitaminCUnit(ctx, field, obj)
+		case "vitaminC100g":
+			out.Values[i] = ec._ProductNutriment_vitaminC100g(ctx, field, obj)
+		case "vitaminC":
+			out.Values[i] = ec._ProductNutriment_vitaminC(ctx, field, obj)
+		case "vitaminCServing":
+			out.Values[i] = ec._ProductNutriment_vitaminCServing(ctx, field, obj)
+		case "vitaminCLabel":
+			out.Values[i] = ec._ProductNutriment_vitaminCLabel(ctx, field, obj)
+		case "proteins100g":
+			out.Values[i] = ec._ProductNutriment_proteins100g(ctx, field, obj)
+		case "proteinsServing":
+			out.Values[i] = ec._ProductNutriment_proteinsServing(ctx, field, obj)
+		case "proteinsValue":
+			out.Values[i] = ec._ProductNutriment_proteinsValue(ctx, field, obj)
+		case "proteinsUnit":
+			out.Values[i] = ec._ProductNutriment_proteinsUnit(ctx, field, obj)
+		case "proteins":
+			out.Values[i] = ec._ProductNutriment_proteins(ctx, field, obj)
+		case "polyunsaturatedFat100g":
+			out.Values[i] = ec._ProductNutriment_polyunsaturatedFat100g(ctx, field, obj)
+		case "potassium100g":
+			out.Values[i] = ec._ProductNutriment_potassium100g(ctx, field, obj)
+		case "sodium":
+			out.Values[i] = ec._ProductNutriment_sodium(ctx, field, obj)
+		case "sodiumServing":
+			out.Values[i] = ec._ProductNutriment_sodiumServing(ctx, field, obj)
+		case "sodiumValue":
+			out.Values[i] = ec._ProductNutriment_sodiumValue(ctx, field, obj)
+		case "sodium100g":
+			out.Values[i] = ec._ProductNutriment_sodium100g(ctx, field, obj)
+		case "sodiumUnit":
+			out.Values[i] = ec._ProductNutriment_sodiumUnit(ctx, field, obj)
+		case "carbohydratesUnit":
+			out.Values[i] = ec._ProductNutriment_carbohydratesUnit(ctx, field, obj)
+		case "carbohydratesValue":
+			out.Values[i] = ec._ProductNutriment_carbohydratesValue(ctx, field, obj)
+		case "carbohydrates100g":
+			out.Values[i] = ec._ProductNutriment_carbohydrates100g(ctx, field, obj)
+		case "carbohydrates":
+			out.Values[i] = ec._ProductNutriment_carbohydrates(ctx, field, obj)
+		case "carbohydratesServing":
+			out.Values[i] = ec._ProductNutriment_carbohydratesServing(ctx, field, obj)
+		case "alcoholValue":
+			out.Values[i] = ec._ProductNutriment_alcoholValue(ctx, field, obj)
+		case "alcoholServing":
+			out.Values[i] = ec._ProductNutriment_alcoholServing(ctx, field, obj)
+		case "alcoholUnit":
+			out.Values[i] = ec._ProductNutriment_alcoholUnit(ctx, field, obj)
+		case "alcohol100g":
+			out.Values[i] = ec._ProductNutriment_alcohol100g(ctx, field, obj)
+		case "alcohol":
+			out.Values[i] = ec._ProductNutriment_alcohol(ctx, field, obj)
+		case "monounsaturatedFat100g":
+			out.Values[i] = ec._ProductNutriment_monounsaturatedFat100g(ctx, field, obj)
+		case "novaGroup":
+			out.Values[i] = ec._ProductNutriment_novaGroup(ctx, field, obj)
+		case "novaGroupServing":
+			out.Values[i] = ec._ProductNutriment_novaGroupServing(ctx, field, obj)
+		case "novaGroup100g":
+			out.Values[i] = ec._ProductNutriment_novaGroup100g(ctx, field, obj)
+		case "energy":
+			out.Values[i] = ec._ProductNutriment_energy(ctx, field, obj)
+		case "energyServing":
+			out.Values[i] = ec._ProductNutriment_energyServing(ctx, field, obj)
+		case "energyKcalServing":
+			out.Values[i] = ec._ProductNutriment_energyKcalServing(ctx, field, obj)
+		case "energyKcal":
+			out.Values[i] = ec._ProductNutriment_energyKcal(ctx, field, obj)
+		case "energy100g":
+			out.Values[i] = ec._ProductNutriment_energy100g(ctx, field, obj)
+		case "energyUnit":
+			out.Values[i] = ec._ProductNutriment_energyUnit(ctx, field, obj)
+		case "energyKcalValue":
+			out.Values[i] = ec._ProductNutriment_energyKcalValue(ctx, field, obj)
+		case "energyKcalUnit":
+			out.Values[i] = ec._ProductNutriment_energyKcalUnit(ctx, field, obj)
+		case "energyKcal100g":
+			out.Values[i] = ec._ProductNutriment_energyKcal100g(ctx, field, obj)
+		case "energyValue":
+			out.Values[i] = ec._ProductNutriment_energyValue(ctx, field, obj)
+		case "nutritionScoreUk100g":
+			out.Values[i] = ec._ProductNutriment_nutritionScoreUk100g(ctx, field, obj)
+		case "nutritionScoreFrServing":
+			out.Values[i] = ec._ProductNutriment_nutritionScoreFrServing(ctx, field, obj)
+		case "nutritionScoreFr":
+			out.Values[i] = ec._ProductNutriment_nutritionScoreFr(ctx, field, obj)
+		case "nutritionScoreFr100g":
+			out.Values[i] = ec._ProductNutriment_nutritionScoreFr100g(ctx, field, obj)
+		case "nutritionScoreUkServing":
+			out.Values[i] = ec._ProductNutriment_nutritionScoreUkServing(ctx, field, obj)
+		case "nutritionScoreUk":
+			out.Values[i] = ec._ProductNutriment_nutritionScoreUk(ctx, field, obj)
+		case "fiber":
+			out.Values[i] = ec._ProductNutriment_fiber(ctx, field, obj)
+		case "fiber100g":
+			out.Values[i] = ec._ProductNutriment_fiber100g(ctx, field, obj)
+		case "fiberValue":
+			out.Values[i] = ec._ProductNutriment_fiberValue(ctx, field, obj)
+		case "fiberServing":
+			out.Values[i] = ec._ProductNutriment_fiberServing(ctx, field, obj)
+		case "fiberUnit":
+			out.Values[i] = ec._ProductNutriment_fiberUnit(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var productNutritionImplementors = []string{"ProductNutrition"}
+
+func (ec *executionContext) _ProductNutrition(ctx context.Context, sel ast.SelectionSet, obj *gmodel.ProductNutrition) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, productNutritionImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ProductNutrition")
+		case "id":
+			out.Values[i] = ec._ProductNutrition_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "ingredients":
+			out.Values[i] = ec._ProductNutrition_ingredients(ctx, field, obj)
+		case "ingredientList":
+			out.Values[i] = ec._ProductNutrition_ingredientList(ctx, field, obj)
+		case "nutriments":
+			out.Values[i] = ec._ProductNutrition_nutriments(ctx, field, obj)
+		case "servingSize":
+			out.Values[i] = ec._ProductNutrition_servingSize(ctx, field, obj)
+		case "servingSizeValue":
+			out.Values[i] = ec._ProductNutrition_servingSizeValue(ctx, field, obj)
+		case "servingSizeUnit":
+			out.Values[i] = ec._ProductNutrition_servingSizeUnit(ctx, field, obj)
+		case "openfoodfactsUpdatedAt":
+			out.Values[i] = ec._ProductNutrition_openfoodfactsUpdatedAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "vegan":
+			out.Values[i] = ec._ProductNutrition_vegan(ctx, field, obj)
+		case "vegetarian":
+			out.Values[i] = ec._ProductNutrition_vegetarian(ctx, field, obj)
+		case "glutenFree":
+			out.Values[i] = ec._ProductNutrition_glutenFree(ctx, field, obj)
+		case "lactoseFree":
+			out.Values[i] = ec._ProductNutrition_lactoseFree(ctx, field, obj)
+		case "halal":
+			out.Values[i] = ec._ProductNutrition_halal(ctx, field, obj)
+		case "kosher":
+			out.Values[i] = ec._ProductNutrition_kosher(ctx, field, obj)
+		case "createdAt":
+			out.Values[i] = ec._ProductNutrition_createdAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "updatedAt":
+			out.Values[i] = ec._ProductNutrition_updatedAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var queryImplementors = []string{"Query"}
 
 func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) graphql.Marshaler {
@@ -27465,6 +33803,28 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_myProductViewHistory(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "getProductNutritionData":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getProductNutritionData(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -29612,6 +35972,20 @@ func (ec *executionContext) marshalNProductList2ᚖgithubᚗcomᚋpricetraᚋapi
 	return ec._ProductList(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNProductNutrition2githubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐProductNutrition(ctx context.Context, sel ast.SelectionSet, v gmodel.ProductNutrition) graphql.Marshaler {
+	return ec._ProductNutrition(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNProductNutrition2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐProductNutrition(ctx context.Context, sel ast.SelectionSet, v *gmodel.ProductNutrition) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._ProductNutrition(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalNSaveExternalProductInput2githubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐSaveExternalProductInput(ctx context.Context, v interface{}) (gmodel.SaveExternalProductInput, error) {
 	res, err := ec.unmarshalInputSaveExternalProductInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -30523,6 +36897,13 @@ func (ec *executionContext) marshalOProductList2ᚕᚖgithubᚗcomᚋpricetraᚋ
 	}
 
 	return ret
+}
+
+func (ec *executionContext) marshalOProductNutriment2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐProductNutriment(ctx context.Context, sel ast.SelectionSet, v *gmodel.ProductNutriment) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._ProductNutriment(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalOProductSearch2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐProductSearch(ctx context.Context, v interface{}) (*gmodel.ProductSearch, error) {

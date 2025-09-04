@@ -13,6 +13,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-playground/validator/v10"
 	expo "github.com/oliveroneill/exponent-server-sdk-golang/sdk"
+	"github.com/openfoodfacts/openfoodfacts-go"
 	"github.com/pricetra/api/graph"
 	gresolver "github.com/pricetra/api/graph/resolver"
 	"github.com/pricetra/api/services"
@@ -54,6 +55,10 @@ func NewServer(db_conn *sql.DB, router *chi.Mux) *types.ServerBase {
 		ExpoPushNotificationClientKey: os.Getenv("EXPO_PUSH_NOTIFICATION_CLIENT_KEY"),
 		GoogleCloudVisionApiKey: os.Getenv("GOOGLE_CLOUD_VISION_API_KEY"),
 		OpenAiApiKey: os.Getenv("OPENAI_API_SECRET"),
+		OpenFoodFacts: types.OpenFoodFactsTokens{
+			Username: os.Getenv("OPEN_FOOD_FACTS_USERNAME"),
+			Password: os.Getenv("OPEN_FOOD_FACTS_PASSWORD"),
+		},
 	}
 
 	// Setup Cloudinary CDN
@@ -77,6 +82,12 @@ func NewServer(db_conn *sql.DB, router *chi.Mux) *types.ServerBase {
 		panic(err)
 	}
 
+	openfoodfacts_client := openfoodfacts.NewClient("world", server.Tokens.OpenFoodFacts.Username, server.Tokens.OpenFoodFacts.Password)
+	// Use sandbox version of OpenFoodFacts for non-production environments
+	if os.Getenv("ENV") != "production" {
+		openfoodfacts_client.Sandbox()
+	}
+
 	service := services.Service{
 		DB: server.DB,
 		StructValidator: server.StructValidator,
@@ -87,6 +98,7 @@ func NewServer(db_conn *sql.DB, router *chi.Mux) *types.ServerBase {
 			AccessToken: server.Tokens.ExpoPushNotificationClientKey,
 		}),
 		GoogleVisionApiClient: vision_client,
+		OpenFoodFactsClient: &openfoodfacts_client,
 	}
 
 	// Startup utils...

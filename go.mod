@@ -1,6 +1,6 @@
 module github.com/pricetra/api
 
-go 1.23.0
+go 1.24.0
 
 toolchain go1.24.6
 
@@ -8,16 +8,18 @@ require (
 	cloud.google.com/go/vision v1.2.0
 	cloud.google.com/go/vision/v2 v2.7.5
 	github.com/99designs/gqlgen v0.17.44
+	github.com/bcicen/go-units v1.0.5
 	github.com/cloudinary/cloudinary-go/v2 v2.7.0
 	github.com/go-chi/chi/v5 v5.0.12
 	github.com/go-jet/jet/v2 v2.11.0
 	github.com/joho/godotenv v1.5.1
 	github.com/oapi-codegen/oapi-codegen/v2 v2.4.1
 	github.com/oliveroneill/exponent-server-sdk-golang v0.0.0-20210823140141-d050598be512
+	github.com/openfoodfacts/openfoodfacts-go v1.0.0
 	github.com/ory/dockertest/v3 v3.10.0
 	github.com/thanhpk/randstr v1.0.6
 	github.com/vektah/gqlparser/v2 v2.5.11
-	golang.org/x/crypto v0.40.0
+	golang.org/x/crypto v0.41.0
 	googlemaps.github.io/maps v1.7.0
 )
 
@@ -27,8 +29,11 @@ require (
 	cloud.google.com/go/compute/metadata v0.2.3 // indirect
 	cloud.google.com/go/longrunning v0.5.4 // indirect
 	github.com/Azure/go-ansiterm v0.0.0-20230124172434-306776ec8161 // indirect
+	github.com/Goldziher/go-utils v1.8.1 // indirect
+	github.com/Knetic/govaluate v3.0.0+incompatible // indirect
 	github.com/Microsoft/go-winio v0.6.1 // indirect
 	github.com/Nvveen/Gotty v0.0.0-20120604004816-cd527374f1e5 // indirect
+	github.com/bcicen/bfstree v1.0.0 // indirect
 	github.com/cenkalti/backoff/v4 v4.2.1 // indirect
 	github.com/containerd/continuity v0.4.3 // indirect
 	github.com/creasty/defaults v1.5.1 // indirect
@@ -92,7 +97,8 @@ require (
 	go.opentelemetry.io/otel v1.24.0 // indirect
 	go.opentelemetry.io/otel/metric v1.24.0 // indirect
 	go.opentelemetry.io/otel/trace v1.24.0 // indirect
-	golang.org/x/net v0.42.0 // indirect
+	golang.org/x/exp v0.0.0-20250819193227-8b4c13bb791b // indirect
+	golang.org/x/net v0.43.0 // indirect
 	golang.org/x/oauth2 v0.18.0 // indirect
 	golang.org/x/sync v0.16.0 // indirect
 	golang.org/x/time v0.5.0 // indirect
@@ -133,9 +139,9 @@ require (
 	github.com/urfave/cli/v2 v2.27.1 // indirect
 	github.com/xrash/smetrics v0.0.0-20201216005158-039620a65673 // indirect
 	golang.org/x/mod v0.27.0
-	golang.org/x/sys v0.34.0 // indirect
-	golang.org/x/text v0.27.0 // indirect
-	golang.org/x/tools v0.35.0 // indirect
+	golang.org/x/sys v0.35.0 // indirect
+	golang.org/x/text v0.28.0 // indirect
+	golang.org/x/tools v0.36.0 // indirect
 	google.golang.org/api v0.172.0
 	google.golang.org/protobuf v1.33.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect

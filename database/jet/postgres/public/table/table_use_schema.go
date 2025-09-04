@@ -33,6 +33,7 @@ func UseSchema(schema string) {
 	ProductBilling = ProductBilling.FromSchema(schema)
 	ProductBillingRate = ProductBillingRate.FromSchema(schema)
 	ProductList = ProductList.FromSchema(schema)
+	ProductNutrition = ProductNutrition.FromSchema(schema)
 	ProductView = ProductView.FromSchema(schema)
 	PushNotification = PushNotification.FromSchema(schema)
 	SearchHistory = SearchHistory.FromSchema(schema)

@@ -13,7 +13,6 @@ import (
 	"github.com/pricetra/api/database/jet/postgres/public/table"
 	"github.com/pricetra/api/graph"
 	"github.com/pricetra/api/graph/gmodel"
-
 	"golang.org/x/mod/semver"
 )
 
@@ -37,7 +36,7 @@ func (r *queryResolver) CheckAppVersion(ctx context.Context, platform gmodel.Aut
 	if err := qb.QueryContext(ctx, r.Service.DB, &ver); err != nil {
 		return false, fmt.Errorf("could not get versioning information")
 	}
-	return semver.Compare(cur_version, "v" + ver.MinVersion) >= 0, nil
+	return semver.Compare(cur_version, "v"+ver.MinVersion) >= 0, nil
 }
 
 // Query returns graph.QueryResolver implementation.

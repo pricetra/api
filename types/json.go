@@ -11,6 +11,11 @@ type CloudinaryTokens struct {
 	CloudName string
 }
 
+type OpenFoodFactsTokens struct {
+	Username string
+	Password string
+}
+
 type Tokens struct {
 	JwtKey string
 	EmailServer EmailServer
@@ -20,4 +25,5 @@ type Tokens struct {
 	ExpoPushNotificationClientKey string
 	GoogleCloudVisionApiKey string
 	OpenAiApiKey string
+	OpenFoodFacts OpenFoodFactsTokens
 }
