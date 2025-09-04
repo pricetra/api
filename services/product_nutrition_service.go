@@ -85,16 +85,10 @@ func (s Service) FindProductNutrition(ctx context.Context, product_id int64) (p 
 	return p, nil
 }
 
-// Given a product, fetch its nutrition data from OpenFoodFacts and store it in the database.
-// If the product nutrition data already exists, return the row directly
-func (s Service) ProcessOpenFoodFactsData(ctx context.Context, product gmodel.Product) (product_nutrition gmodel.ProductNutrition, err error) {
-	if pn, err := s.FindProductNutrition(ctx, product.ID); err == nil {
-		return pn, nil
-	}
-
-	product_facts, err := s.OpenFoodFactsClient.Product(product.Code)
+func (s Service) FetchOpenFoodFactsDataAndMapToProductNutrition(ctx context.Context, upc string) (model.ProductNutrition, error) {
+	product_facts, err := s.OpenFoodFactsClient.Product(upc)
 	if err != nil {
-		return gmodel.ProductNutrition{}, err
+		return model.ProductNutrition{}, err
 	}
 
 	var serving_weight_unit, serving_size *string
@@ -102,7 +96,7 @@ func (s Service) ProcessOpenFoodFactsData(ctx context.Context, product gmodel.Pr
 	if serving_weight_comps, err := utils.ParseWeightIntoStruct(product_facts.ServingSize); err == nil {
 		serving_quantity, err := product_facts.ServingQuantity.Float64()
 		if err != nil || serving_weight_comps.Weight != serving_quantity {
-			return gmodel.ProductNutrition{}, fmt.Errorf("serving size parsing mismatch");
+			return model.ProductNutrition{}, fmt.Errorf("serving size parsing mismatch");
 		}
 		serving_weight_value = &serving_quantity
 		serving_weight_unit = &serving_weight_comps.WeightType
@@ -131,7 +125,7 @@ func (s Service) ProcessOpenFoodFactsData(ctx context.Context, product gmodel.Pr
 	}
 	ingredients_pg_array := utils.ToPostgresArray(ingredients)
 
-	product_nutrition, err = s.CreateProductNutrition(ctx, product.ID, model.ProductNutrition{
+	return model.ProductNutrition{
 		IngredientText: &product_facts.IngredientsText,
 		IngredientList: &ingredients_pg_array,
 		Nutriments: nutriments,
@@ -145,10 +139,27 @@ func (s Service) ProcessOpenFoodFactsData(ctx context.Context, product gmodel.Pr
 		LactoseFree: lactose_free,
 		Halal: halal,
 		Kosher: kosher,
-	})
+	}, nil
+}
+
+// Given a product, fetch its nutrition data from OpenFoodFacts and store it in the database.
+// If the product nutrition data already exists, return the row directly
+func (s Service) ProcessOpenFoodFactsData(ctx context.Context, product gmodel.Product) (product_nutrition gmodel.ProductNutrition, err error) {
+	if pn, err := s.FindProductNutrition(ctx, product.ID); err == nil {
+		return pn, nil
+	}
+
+	product_nutrition_model, err := s.FetchOpenFoodFactsDataAndMapToProductNutrition(ctx, product.Code)
 	if err != nil {
 		return gmodel.ProductNutrition{}, err
 	}
+	return s.CreateProductNutrition(ctx, product.ID, product_nutrition_model)
+}
 
-	return product_nutrition, nil
+func (s Service) UpdateOpenFoodFactsDataForProduct(ctx context.Context, product gmodel.Product) (product_nutrition gmodel.ProductNutrition, err error) {
+	product_nutrition_model, err := s.FetchOpenFoodFactsDataAndMapToProductNutrition(ctx, product.Code)
+	if err != nil {
+		return gmodel.ProductNutrition{}, err
+	}
+	return s.UpdateProductNutrition(ctx, product.ID, product_nutrition_model)
 }
