@@ -9,6 +9,7 @@ extend type Query {
   extractProductFields(base64Image: String!): ProductExtractionResponse!
     @isAuthenticated
   myProductViewHistory(paginator: PaginatorInput!): PaginatedProducts! @isAuthenticated
+  getProductNutritionData(productId: ID!): ProductNutrition! @isAuthenticated
 }
 
 extend type Mutation {
@@ -18,6 +19,8 @@ extend type Mutation {
     @isAuthenticated(role: "CONTRIBUTOR")
   saveProductsFromUPCItemDb(input: SaveExternalProductInput!): SearchResult!
     @isAuthenticated(role: "SUPER_ADMIN")
+  updateProductNutritionData(productId: ID!): ProductNutrition!
+    @isAuthenticated(role: "CONTRIBUTOR")
 }
 
 type PaginatedProducts {

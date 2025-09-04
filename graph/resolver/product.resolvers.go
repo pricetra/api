@@ -81,6 +81,20 @@ func (r *mutationResolver) SaveProductsFromUPCItemDb(ctx context.Context, input 
 	return &res, nil
 }
 
+// UpdateProductNutritionData is the resolver for the updateProductNutritionData field.
+func (r *mutationResolver) UpdateProductNutritionData(ctx context.Context, productID int64) (*gmodel.ProductNutrition, error) {
+	product, err := r.Service.FindProductById(ctx, productID)
+	if err != nil {
+		return nil, err
+	}
+
+	product_nutrition, err := r.Service.UpdateOpenFoodFactsDataForProduct(ctx, product)
+	if err != nil {
+		return nil, err
+	}
+	return &product_nutrition, nil
+}
+
 // BarcodeScan is the resolver for the barcodeScan field.
 func (r *queryResolver) BarcodeScan(ctx context.Context, barcode string, searchMode *bool) (*gmodel.Product, error) {
 	user := r.Service.GetAuthUserFromContext(ctx)
@@ -203,7 +217,7 @@ func (r *queryResolver) Product(ctx context.Context, id int64, viewerTrail *gmod
 		r.Service.AddProductViewer(ctx, product.ID, trail_input)
 	}()
 
-	go func ()  {
+	go func() {
 		ctx := context.Background()
 		r.Service.ProcessOpenFoodFactsData(ctx, product)
 	}()
@@ -228,4 +242,13 @@ func (r *queryResolver) MyProductViewHistory(ctx context.Context, paginator gmod
 		return nil, err
 	}
 	return &paginated_products, nil
+}
+
+// GetProductNutritionData is the resolver for the getProductNutritionData field.
+func (r *queryResolver) GetProductNutritionData(ctx context.Context, productID int64) (*gmodel.ProductNutrition, error) {
+	product_nutrition, err := r.Service.FindProductNutrition(ctx, productID)
+	if err != nil {
+		return nil, err
+	}
+	return &product_nutrition, nil
 }

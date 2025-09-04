@@ -215,6 +215,7 @@ type ComplexityRoot struct {
 		UpdateGroceryListItem       func(childComplexity int, groceryListItemID int64, input gmodel.CreateGroceryListItemInput) int
 		UpdatePasswordWithResetCode func(childComplexity int, email string, code string, newPassword string) int
 		UpdateProduct               func(childComplexity int, id int64, input gmodel.UpdateProduct) int
+		UpdateProductNutritionData  func(childComplexity int, productID int64) int
 		UpdateProfile               func(childComplexity int, input gmodel.UpdateUser) int
 		UpdateUserByID              func(childComplexity int, userID int64, input gmodel.UpdateUserFull) int
 		VerifyEmail                 func(childComplexity int, verificationCode string) int
@@ -495,6 +496,7 @@ type ComplexityRoot struct {
 		GetAllUsers                   func(childComplexity int, paginator gmodel.PaginatorInput, filters *gmodel.UserFilter) int
 		GetCategories                 func(childComplexity int, depth *int, parentID *int64, search *string) int
 		GetFavoriteBranchesWithPrices func(childComplexity int, productID int64) int
+		GetProductNutritionData       func(childComplexity int, productID int64) int
 		GetProductStocks              func(childComplexity int, productID int64, location *gmodel.LocationInput) int
 		GoogleOAuth                   func(childComplexity int, accessToken string, ipAddress *string, device *gmodel.AuthDeviceType) int
 		GroceryList                   func(childComplexity int, groceryListID int64) int
@@ -607,6 +609,7 @@ type MutationResolver interface {
 	CreateProduct(ctx context.Context, input gmodel.CreateProduct) (*gmodel.Product, error)
 	UpdateProduct(ctx context.Context, id int64, input gmodel.UpdateProduct) (*gmodel.Product, error)
 	SaveProductsFromUPCItemDb(ctx context.Context, input gmodel.SaveExternalProductInput) (*gmodel.SearchResult, error)
+	UpdateProductNutritionData(ctx context.Context, productID int64) (*gmodel.ProductNutrition, error)
 	DeleteSearchByID(ctx context.Context, id int64) (bool, error)
 	ClearSearchHistory(ctx context.Context) (bool, error)
 	CreateStore(ctx context.Context, input gmodel.CreateStore) (*gmodel.Store, error)
@@ -644,6 +647,7 @@ type QueryResolver interface {
 	Product(ctx context.Context, id int64, viewerTrail *gmodel.ViewerTrailInput) (*gmodel.Product, error)
 	ExtractProductFields(ctx context.Context, base64Image string) (*gmodel.ProductExtractionResponse, error)
 	MyProductViewHistory(ctx context.Context, paginator gmodel.PaginatorInput) (*gmodel.PaginatedProducts, error)
+	GetProductNutritionData(ctx context.Context, productID int64) (*gmodel.ProductNutrition, error)
 	MySearchHistory(ctx context.Context, paginator gmodel.PaginatorInput) (*gmodel.PaginatedSearch, error)
 	Stock(ctx context.Context, stockID int64) (*gmodel.Stock, error)
 	GetProductStocks(ctx context.Context, productID int64, location *gmodel.LocationInput) ([]*gmodel.Stock, error)
@@ -1660,6 +1664,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.UpdateProduct(childComplexity, args["id"].(int64), args["input"].(gmodel.UpdateProduct)), true
+
+	case "Mutation.updateProductNutritionData":
+		if e.complexity.Mutation.UpdateProductNutritionData == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_updateProductNutritionData_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.UpdateProductNutritionData(childComplexity, args["productId"].(int64)), true
 
 	case "Mutation.updateProfile":
 		if e.complexity.Mutation.UpdateProfile == nil {
@@ -3370,6 +3386,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.GetFavoriteBranchesWithPrices(childComplexity, args["productId"].(int64)), true
 
+	case "Query.getProductNutritionData":
+		if e.complexity.Query.GetProductNutritionData == nil {
+			break
+		}
+
+		args, err := ec.field_Query_getProductNutritionData_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetProductNutritionData(childComplexity, args["productId"].(int64)), true
+
 	case "Query.getProductStocks":
 		if e.complexity.Query.GetProductStocks == nil {
 			break
@@ -4581,6 +4609,21 @@ func (ec *executionContext) field_Mutation_updatePasswordWithResetCode_args(ctx 
 	return args, nil
 }
 
+func (ec *executionContext) field_Mutation_updateProductNutritionData_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 int64
+	if tmp, ok := rawArgs["productId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("productId"))
+		arg0, err = ec.unmarshalNID2int64(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["productId"] = arg0
+	return args, nil
+}
+
 func (ec *executionContext) field_Mutation_updateProduct_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -4978,6 +5021,21 @@ func (ec *executionContext) field_Query_getCategories_args(ctx context.Context, 
 }
 
 func (ec *executionContext) field_Query_getFavoriteBranchesWithPrices_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 int64
+	if tmp, ok := rawArgs["productId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("productId"))
+		arg0, err = ec.unmarshalNID2int64(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["productId"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_getProductNutritionData_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 int64
@@ -11644,6 +11702,119 @@ func (ec *executionContext) fieldContext_Mutation_saveProductsFromUPCItemDb(ctx 
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_saveProductsFromUPCItemDb_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_updateProductNutritionData(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_updateProductNutritionData(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().UpdateProductNutritionData(rctx, fc.Args["productId"].(int64))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			role, err := ec.unmarshalOUserRole2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐUserRole(ctx, "CONTRIBUTOR")
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.IsAuthenticated == nil {
+				return nil, errors.New("directive isAuthenticated is not implemented")
+			}
+			return ec.directives.IsAuthenticated(ctx, nil, directive0, role)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*gmodel.ProductNutrition); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/pricetra/api/graph/gmodel.ProductNutrition`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*gmodel.ProductNutrition)
+	fc.Result = res
+	return ec.marshalNProductNutrition2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐProductNutrition(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_updateProductNutritionData(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_ProductNutrition_id(ctx, field)
+			case "ingredients":
+				return ec.fieldContext_ProductNutrition_ingredients(ctx, field)
+			case "ingredientList":
+				return ec.fieldContext_ProductNutrition_ingredientList(ctx, field)
+			case "nutriments":
+				return ec.fieldContext_ProductNutrition_nutriments(ctx, field)
+			case "servingSize":
+				return ec.fieldContext_ProductNutrition_servingSize(ctx, field)
+			case "servingSizeValue":
+				return ec.fieldContext_ProductNutrition_servingSizeValue(ctx, field)
+			case "servingSizeUnit":
+				return ec.fieldContext_ProductNutrition_servingSizeUnit(ctx, field)
+			case "openfoodfactsUpdatedAt":
+				return ec.fieldContext_ProductNutrition_openfoodfactsUpdatedAt(ctx, field)
+			case "vegan":
+				return ec.fieldContext_ProductNutrition_vegan(ctx, field)
+			case "vegetarian":
+				return ec.fieldContext_ProductNutrition_vegetarian(ctx, field)
+			case "glutenFree":
+				return ec.fieldContext_ProductNutrition_glutenFree(ctx, field)
+			case "lactoseFree":
+				return ec.fieldContext_ProductNutrition_lactoseFree(ctx, field)
+			case "halal":
+				return ec.fieldContext_ProductNutrition_halal(ctx, field)
+			case "kosher":
+				return ec.fieldContext_ProductNutrition_kosher(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_ProductNutrition_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_ProductNutrition_updatedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ProductNutrition", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_updateProductNutritionData_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -24382,6 +24553,115 @@ func (ec *executionContext) fieldContext_Query_myProductViewHistory(ctx context.
 	return fc, nil
 }
 
+func (ec *executionContext) _Query_getProductNutritionData(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_getProductNutritionData(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().GetProductNutritionData(rctx, fc.Args["productId"].(int64))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.IsAuthenticated == nil {
+				return nil, errors.New("directive isAuthenticated is not implemented")
+			}
+			return ec.directives.IsAuthenticated(ctx, nil, directive0, nil)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*gmodel.ProductNutrition); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/pricetra/api/graph/gmodel.ProductNutrition`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*gmodel.ProductNutrition)
+	fc.Result = res
+	return ec.marshalNProductNutrition2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐProductNutrition(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_getProductNutritionData(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_ProductNutrition_id(ctx, field)
+			case "ingredients":
+				return ec.fieldContext_ProductNutrition_ingredients(ctx, field)
+			case "ingredientList":
+				return ec.fieldContext_ProductNutrition_ingredientList(ctx, field)
+			case "nutriments":
+				return ec.fieldContext_ProductNutrition_nutriments(ctx, field)
+			case "servingSize":
+				return ec.fieldContext_ProductNutrition_servingSize(ctx, field)
+			case "servingSizeValue":
+				return ec.fieldContext_ProductNutrition_servingSizeValue(ctx, field)
+			case "servingSizeUnit":
+				return ec.fieldContext_ProductNutrition_servingSizeUnit(ctx, field)
+			case "openfoodfactsUpdatedAt":
+				return ec.fieldContext_ProductNutrition_openfoodfactsUpdatedAt(ctx, field)
+			case "vegan":
+				return ec.fieldContext_ProductNutrition_vegan(ctx, field)
+			case "vegetarian":
+				return ec.fieldContext_ProductNutrition_vegetarian(ctx, field)
+			case "glutenFree":
+				return ec.fieldContext_ProductNutrition_glutenFree(ctx, field)
+			case "lactoseFree":
+				return ec.fieldContext_ProductNutrition_lactoseFree(ctx, field)
+			case "halal":
+				return ec.fieldContext_ProductNutrition_halal(ctx, field)
+			case "kosher":
+				return ec.fieldContext_ProductNutrition_kosher(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_ProductNutrition_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_ProductNutrition_updatedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ProductNutrition", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_getProductNutritionData_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Query_mySearchHistory(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Query_mySearchHistory(ctx, field)
 	if err != nil {
@@ -31844,6 +32124,13 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "updateProductNutritionData":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_updateProductNutritionData(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "deleteSearchById":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_deleteSearchById(ctx, field)
@@ -33576,6 +33863,28 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_myProductViewHistory(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "getProductNutritionData":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getProductNutritionData(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -35721,6 +36030,20 @@ func (ec *executionContext) marshalNProductList2ᚖgithubᚗcomᚋpricetraᚋapi
 		return graphql.Null
 	}
 	return ec._ProductList(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNProductNutrition2githubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐProductNutrition(ctx context.Context, sel ast.SelectionSet, v gmodel.ProductNutrition) graphql.Marshaler {
+	return ec._ProductNutrition(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNProductNutrition2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐProductNutrition(ctx context.Context, sel ast.SelectionSet, v *gmodel.ProductNutrition) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._ProductNutrition(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNSaveExternalProductInput2githubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐSaveExternalProductInput(ctx context.Context, v interface{}) (gmodel.SaveExternalProductInput, error) {
