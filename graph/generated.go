@@ -24116,28 +24116,8 @@ func (ec *executionContext) _Query_allProducts(ctx context.Context, field graphq
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		directive0 := func(rctx context.Context) (interface{}, error) {
-			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Query().AllProducts(rctx, fc.Args["paginator"].(gmodel.PaginatorInput), fc.Args["search"].(*gmodel.ProductSearch))
-		}
-		directive1 := func(ctx context.Context) (interface{}, error) {
-			if ec.directives.IsAuthenticated == nil {
-				return nil, errors.New("directive isAuthenticated is not implemented")
-			}
-			return ec.directives.IsAuthenticated(ctx, nil, directive0, nil)
-		}
-
-		tmp, err := directive1(rctx)
-		if err != nil {
-			return nil, graphql.ErrorOnPath(ctx, err)
-		}
-		if tmp == nil {
-			return nil, nil
-		}
-		if data, ok := tmp.(*gmodel.PaginatedProducts); ok {
-			return data, nil
-		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/pricetra/api/graph/gmodel.PaginatedProducts`, tmp)
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().AllProducts(rctx, fc.Args["paginator"].(gmodel.PaginatorInput), fc.Args["search"].(*gmodel.ProductSearch))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -24267,28 +24247,8 @@ func (ec *executionContext) _Query_product(ctx context.Context, field graphql.Co
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		directive0 := func(rctx context.Context) (interface{}, error) {
-			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Query().Product(rctx, fc.Args["id"].(int64), fc.Args["viewerTrail"].(*gmodel.ViewerTrailInput))
-		}
-		directive1 := func(ctx context.Context) (interface{}, error) {
-			if ec.directives.IsAuthenticated == nil {
-				return nil, errors.New("directive isAuthenticated is not implemented")
-			}
-			return ec.directives.IsAuthenticated(ctx, nil, directive0, nil)
-		}
-
-		tmp, err := directive1(rctx)
-		if err != nil {
-			return nil, graphql.ErrorOnPath(ctx, err)
-		}
-		if tmp == nil {
-			return nil, nil
-		}
-		if data, ok := tmp.(*gmodel.Product); ok {
-			return data, nil
-		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/pricetra/api/graph/gmodel.Product`, tmp)
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().Product(rctx, fc.Args["id"].(int64), fc.Args["viewerTrail"].(*gmodel.ViewerTrailInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -24566,28 +24526,8 @@ func (ec *executionContext) _Query_getProductNutritionData(ctx context.Context, 
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		directive0 := func(rctx context.Context) (interface{}, error) {
-			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Query().GetProductNutritionData(rctx, fc.Args["productId"].(int64))
-		}
-		directive1 := func(ctx context.Context) (interface{}, error) {
-			if ec.directives.IsAuthenticated == nil {
-				return nil, errors.New("directive isAuthenticated is not implemented")
-			}
-			return ec.directives.IsAuthenticated(ctx, nil, directive0, nil)
-		}
-
-		tmp, err := directive1(rctx)
-		if err != nil {
-			return nil, graphql.ErrorOnPath(ctx, err)
-		}
-		if tmp == nil {
-			return nil, nil
-		}
-		if data, ok := tmp.(*gmodel.ProductNutrition); ok {
-			return data, nil
-		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/pricetra/api/graph/gmodel.ProductNutrition`, tmp)
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetProductNutritionData(rctx, fc.Args["productId"].(int64))
 	})
 	if err != nil {
 		ec.Error(ctx, err)

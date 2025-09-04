@@ -156,7 +156,7 @@ func (r *queryResolver) AllProducts(ctx context.Context, paginator gmodel.Pagina
 		return nil, err
 	}
 
-	if search != nil && search.Query != nil && len(*search.Query) > 1 {
+	if user != (gmodel.User{}) && search != nil && search.Query != nil && len(*search.Query) > 1 {
 		// search term is provided so create log in search_history table
 		go func() {
 			ctx := context.Background()
@@ -189,6 +189,11 @@ func (r *queryResolver) Product(ctx context.Context, id int64, viewerTrail *gmod
 	product, err := r.Service.FindProductById(ctx, id)
 	if err != nil {
 		return nil, err
+	}
+
+	if user == (gmodel.User{}) {
+		// user is not authenticated so return basic product info
+		return &product, nil
 	}
 
 	p_lists, err := r.Service.FindProductListsByUserAndProductId(ctx, user, product.ID)

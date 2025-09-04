@@ -3,13 +3,13 @@ extend type Query {
   allProducts(
     paginator: PaginatorInput!
     search: ProductSearch
-  ): PaginatedProducts! @isAuthenticated
+  ): PaginatedProducts!
   allBrands: [Brand!]! @isAuthenticated
-  product(id: ID!, viewerTrail: ViewerTrailInput): Product! @isAuthenticated
+  product(id: ID!, viewerTrail: ViewerTrailInput): Product!
   extractProductFields(base64Image: String!): ProductExtractionResponse!
     @isAuthenticated
   myProductViewHistory(paginator: PaginatorInput!): PaginatedProducts! @isAuthenticated
-  getProductNutritionData(productId: ID!): ProductNutrition! @isAuthenticated
+  getProductNutritionData(productId: ID!): ProductNutrition!
 }
 
 extend type Mutation {

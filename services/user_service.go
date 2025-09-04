@@ -445,7 +445,11 @@ func (s Service) VerifyJwt(ctx context.Context, authorization types.Authorizatio
 }
 
 func (Service) GetAuthUserFromContext(ctx context.Context) gmodel.User {
-	return ctx.Value(types.AuthUserKey).(gmodel.User)
+	val := ctx.Value(types.AuthUserKey)
+	if val == nil {
+		return gmodel.User{}
+	}
+	return val.(gmodel.User)
 }
 
 func (s Service) UpdateUserFull(ctx context.Context, user gmodel.User, input gmodel.UpdateUserFull) (updated_user gmodel.User, err error) {
