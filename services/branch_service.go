@@ -399,14 +399,14 @@ func (s Service) BranchesWithProducts(
 			CategoryID: filters.CategoryID,
 			Category: filters.Category,
 		}
-		products, err := s.PaginatedProducts(ctx, product_paginator_input, &product_input)
-		if err != nil {
+		products_result, err := s.PaginatedProducts(ctx, product_paginator_input, &product_input)
+		if err != nil || products_result.Paginator == nil {
 			return gmodel.PaginatedBranches{}, err
 		}
-		if products.Paginator.Total == 0 {
+		if products_result.Paginator.Total == 0 {
 			continue
 		}
-		paginated_branches.Branches[i].Products = &products
+		paginated_branches.Branches[i].Products = products_result.Products
 	}
 	return paginated_branches, nil
 }

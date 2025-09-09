@@ -5,7 +5,7 @@ type Branch {
   address: Address!
   storeId: ID!
   store: Store
-  products: PaginatedProducts
+  products: [Product!]
 
   createdById: ID
   createdBy: CreatedByUser

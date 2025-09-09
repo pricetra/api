@@ -6,6 +6,7 @@ package gresolver
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/pricetra/api/graph"
 	"github.com/pricetra/api/graph/gmodel"
@@ -61,6 +62,11 @@ func (r *queryResolver) FindBranchesByDistance(ctx context.Context, lat float64,
 		res[i] = &branches[i]
 	}
 	return res, nil
+}
+
+// BranchesWithProducts is the resolver for the branchesWithProducts field.
+func (r *queryResolver) BranchesWithProducts(ctx context.Context, paginator gmodel.PaginatorInput, productPaginator gmodel.PaginatorInput, filters *gmodel.ProductSearch) (*gmodel.PaginatedBranches, error) {
+	panic(fmt.Errorf("not implemented: BranchesWithProducts - branchesWithProducts"))
 }
 
 // Mutation returns graph.MutationResolver implementation.
