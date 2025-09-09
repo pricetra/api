@@ -88,6 +88,7 @@ type ComplexityRoot struct {
 		CreatedByID func(childComplexity int) int
 		ID          func(childComplexity int) int
 		Name        func(childComplexity int) int
+		Products    func(childComplexity int) int
 		Store       func(childComplexity int) int
 		StoreID     func(childComplexity int) int
 		UpdatedBy   func(childComplexity int) int
@@ -881,6 +882,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Branch.Name(childComplexity), true
+
+	case "Branch.products":
+		if e.complexity.Branch.Products == nil {
+			break
+		}
+
+		return e.complexity.Branch.Products(childComplexity), true
 
 	case "Branch.store":
 		if e.complexity.Branch.Store == nil {
@@ -6752,6 +6760,53 @@ func (ec *executionContext) fieldContext_Branch_store(ctx context.Context, field
 	return fc, nil
 }
 
+func (ec *executionContext) _Branch_products(ctx context.Context, field graphql.CollectedField, obj *gmodel.Branch) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Branch_products(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Products, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*gmodel.PaginatedProducts)
+	fc.Result = res
+	return ec.marshalOPaginatedProducts2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐPaginatedProducts(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Branch_products(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Branch",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "products":
+				return ec.fieldContext_PaginatedProducts_products(ctx, field)
+			case "paginator":
+				return ec.fieldContext_PaginatedProducts_paginator(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type PaginatedProducts", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Branch_createdById(ctx context.Context, field graphql.CollectedField, obj *gmodel.Branch) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Branch_createdById(ctx, field)
 	if err != nil {
@@ -7217,6 +7272,8 @@ func (ec *executionContext) fieldContext_BranchList_branch(ctx context.Context, 
 				return ec.fieldContext_Branch_storeId(ctx, field)
 			case "store":
 				return ec.fieldContext_Branch_store(ctx, field)
+			case "products":
+				return ec.fieldContext_Branch_products(ctx, field)
 			case "createdById":
 				return ec.fieldContext_Branch_createdById(ctx, field)
 			case "createdBy":
@@ -7412,6 +7469,8 @@ func (ec *executionContext) fieldContext_BranchListWithPrices_branch(ctx context
 				return ec.fieldContext_Branch_storeId(ctx, field)
 			case "store":
 				return ec.fieldContext_Branch_store(ctx, field)
+			case "products":
+				return ec.fieldContext_Branch_products(ctx, field)
 			case "createdById":
 				return ec.fieldContext_Branch_createdById(ctx, field)
 			case "createdBy":
@@ -9963,6 +10022,8 @@ func (ec *executionContext) fieldContext_Mutation_createBranchWithFullAddress(ct
 				return ec.fieldContext_Branch_storeId(ctx, field)
 			case "store":
 				return ec.fieldContext_Branch_store(ctx, field)
+			case "products":
+				return ec.fieldContext_Branch_products(ctx, field)
 			case "createdById":
 				return ec.fieldContext_Branch_createdById(ctx, field)
 			case "createdBy":
@@ -10064,6 +10125,8 @@ func (ec *executionContext) fieldContext_Mutation_createBranch(ctx context.Conte
 				return ec.fieldContext_Branch_storeId(ctx, field)
 			case "store":
 				return ec.fieldContext_Branch_store(ctx, field)
+			case "products":
+				return ec.fieldContext_Branch_products(ctx, field)
 			case "createdById":
 				return ec.fieldContext_Branch_createdById(ctx, field)
 			case "createdBy":
@@ -12856,6 +12919,8 @@ func (ec *executionContext) fieldContext_PaginatedBranches_branches(ctx context.
 				return ec.fieldContext_Branch_storeId(ctx, field)
 			case "store":
 				return ec.fieldContext_Branch_store(ctx, field)
+			case "products":
+				return ec.fieldContext_Branch_products(ctx, field)
 			case "createdById":
 				return ec.fieldContext_Branch_createdById(ctx, field)
 			case "createdBy":
@@ -14446,6 +14511,8 @@ func (ec *executionContext) fieldContext_Price_branch(ctx context.Context, field
 				return ec.fieldContext_Branch_storeId(ctx, field)
 			case "store":
 				return ec.fieldContext_Branch_store(ctx, field)
+			case "products":
+				return ec.fieldContext_Branch_products(ctx, field)
 			case "createdById":
 				return ec.fieldContext_Branch_createdById(ctx, field)
 			case "createdBy":
@@ -22893,6 +22960,8 @@ func (ec *executionContext) fieldContext_Query_findBranch(ctx context.Context, f
 				return ec.fieldContext_Branch_storeId(ctx, field)
 			case "store":
 				return ec.fieldContext_Branch_store(ctx, field)
+			case "products":
+				return ec.fieldContext_Branch_products(ctx, field)
 			case "createdById":
 				return ec.fieldContext_Branch_createdById(ctx, field)
 			case "createdBy":
@@ -22990,6 +23059,8 @@ func (ec *executionContext) fieldContext_Query_findBranchesByDistance(ctx contex
 				return ec.fieldContext_Branch_storeId(ctx, field)
 			case "store":
 				return ec.fieldContext_Branch_store(ctx, field)
+			case "products":
+				return ec.fieldContext_Branch_products(ctx, field)
 			case "createdById":
 				return ec.fieldContext_Branch_createdById(ctx, field)
 			case "createdBy":
@@ -26209,6 +26280,8 @@ func (ec *executionContext) fieldContext_Stock_branch(ctx context.Context, field
 				return ec.fieldContext_Branch_storeId(ctx, field)
 			case "store":
 				return ec.fieldContext_Branch_store(ctx, field)
+			case "products":
+				return ec.fieldContext_Branch_products(ctx, field)
 			case "createdById":
 				return ec.fieldContext_Branch_createdById(ctx, field)
 			case "createdBy":
@@ -31299,6 +31372,8 @@ func (ec *executionContext) _Branch(ctx context.Context, sel ast.SelectionSet, o
 			}
 		case "store":
 			out.Values[i] = ec._Branch_store(ctx, field, obj)
+		case "products":
+			out.Values[i] = ec._Branch_products(ctx, field, obj)
 		case "createdById":
 			out.Values[i] = ec._Branch_createdById(ctx, field, obj)
 		case "createdBy":
@@ -36828,6 +36903,13 @@ func (ec *executionContext) marshalOOrderByType2ᚖgithubᚗcomᚋpricetraᚋapi
 		return graphql.Null
 	}
 	return v
+}
+
+func (ec *executionContext) marshalOPaginatedProducts2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐPaginatedProducts(ctx context.Context, sel ast.SelectionSet, v *gmodel.PaginatedProducts) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._PaginatedProducts(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalOPrice2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐPrice(ctx context.Context, sel ast.SelectionSet, v *gmodel.Price) graphql.Marshaler {

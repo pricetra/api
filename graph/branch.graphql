@@ -5,6 +5,7 @@ type Branch {
   address: Address!
   storeId: ID!
   store: Store
+  products: PaginatedProducts
 
   createdById: ID
   createdBy: CreatedByUser
@@ -36,6 +37,11 @@ extend type Query {
     lon: Float!
     radiusMeters: Int!
   ): [Branch!]! @isAuthenticated
+  branchesWithProducts(
+    paginator: PaginatorInput!
+    productPaginator: PaginatorInput!
+    filters: ProductSearch
+  ): PaginatedBranches!
 }
 
 extend type Mutation {
