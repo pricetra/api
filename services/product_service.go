@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/Goldziher/go-utils/sliceutils"
 	"github.com/go-jet/jet/v2/postgres"
 	"github.com/pricetra/api/database/jet/postgres/public/model"
 	"github.com/pricetra/api/database/jet/postgres/public/table"
@@ -622,4 +623,92 @@ func (s Service) PaginatedRecentlyViewedProducts(
 	}
 	res.Paginator = &sql_paginator.Paginator
 	return res, nil
+}
+
+// Returns a map of branch_id to list of products for that branch
+func (s Service) BranchProducts(
+	ctx context.Context,
+	branch_ids []int64,
+	limit int,
+	search *gmodel.ProductSearch,
+) (map[int64][]*gmodel.Product, error) {
+	branch_to_product_map := map[int64][]*gmodel.Product{}
+	for _, id := range branch_ids {
+		branch_to_product_map[id] = []*gmodel.Product{}
+	}
+	row_num_col_name := "rn"
+	row_number_col := postgres.
+		ROW_NUMBER().
+		OVER(
+			postgres.
+				PARTITION_BY(table.Stock.BranchID).
+				ORDER_BY(table.Price.CreatedAt.DESC()),
+		).AS(row_num_col_name)
+	stock_cte := postgres.CTE("stock_cte")
+	stock_sub_query := table.Stock.
+			SELECT(
+				table.Stock.ID,
+				row_number_col,
+			).
+			FROM(
+				table.Stock.
+					INNER_JOIN(table.Price, table.Price.ID.EQ(table.Stock.LatestPriceID)).
+					INNER_JOIN(table.Product, table.Product.ID.EQ(table.Stock.ProductID)),
+			).
+			WHERE(
+				table.Stock.BranchID.IN(sliceutils.Map(
+					branch_ids,
+					func(id int64, i int, slice []int64) postgres.Expression {
+						return postgres.Int(id)
+					},
+				)...),
+			)
+	created_user_table, updated_user_table, cols := s.CreatedAndUpdatedUserTable()
+	cols = append(
+		cols,
+		table.Category.AllColumns,
+		table.Stock.AllColumns,
+		table.Store.AllColumns,
+		table.Branch.AllColumns,
+		table.Price.AllColumns,
+		table.Address.AllColumns,
+	)
+	qb := postgres.
+		WITH(stock_cte.AS(stock_sub_query))(
+			table.Product.
+				SELECT(table.Product.AllColumns, cols...).
+				FROM(
+					stock_cte.
+						INNER_JOIN(table.Stock, table.Stock.ID.EQ(table.Stock.ID.From(stock_cte))).
+						INNER_JOIN(table.Product, table.Product.ID.EQ(table.Stock.ProductID)).
+						INNER_JOIN(table.Category, table.Category.ID.EQ(table.Product.CategoryID)).
+						INNER_JOIN(table.Store, table.Store.ID.EQ(table.Stock.StoreID)).
+						INNER_JOIN(table.Branch, table.Branch.ID.EQ(table.Stock.BranchID)).
+						INNER_JOIN(table.Price, table.Price.ID.EQ(table.Stock.LatestPriceID)).
+						INNER_JOIN(table.Address, table.Address.ID.EQ(table.Branch.AddressID)).
+						LEFT_JOIN(created_user_table, created_user_table.ID.EQ(table.Price.CreatedByID)).
+						LEFT_JOIN(updated_user_table, updated_user_table.ID.EQ(table.Price.UpdatedByID)),
+				).WHERE(
+					postgres.AND(
+						table.Stock.ID.IN(table.Stock.ID.From(stock_cte)),
+						postgres.IntegerColumn(row_num_col_name).LT_EQ(postgres.Int(int64(limit))),
+					),
+				).ORDER_BY(
+					table.Price.Sale.DESC(),
+					table.Price.CreatedAt.DESC(),
+					table.Product.Views.DESC(),
+				),
+		)
+	var products []gmodel.Product
+	if err := qb.QueryContext(ctx, s.DbOrTxQueryable(), &products); err != nil {
+		return map[int64][]*gmodel.Product{}, err
+	}
+	for i, p := range products {
+		if p.Stock == nil {
+			continue
+		}
+		branch_id := p.Stock.BranchID
+		branch_to_product_map[branch_id] = append(branch_to_product_map[branch_id], &products[i])
+	}
+	return branch_to_product_map, nil
 }

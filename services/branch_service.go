@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/Goldziher/go-utils/sliceutils"
 	"github.com/go-jet/jet/v2/postgres"
 	"github.com/pricetra/api/database/jet/postgres/public/model"
 	"github.com/pricetra/api/database/jet/postgres/public/table"
@@ -380,7 +381,7 @@ func (s Service) AllFavoriteBranchProductPrices(ctx context.Context, user gmodel
 func (s Service) BranchesWithProducts(
 	ctx context.Context,
 	paginator_input gmodel.PaginatorInput,
-	product_paginator_input gmodel.PaginatorInput,
+	product_limit int,
 	filters *gmodel.ProductSearch,
 ) (res gmodel.PaginatedBranches, err error) {
 	if filters.Location == nil {
@@ -391,22 +392,18 @@ func (s Service) BranchesWithProducts(
 		return gmodel.PaginatedBranches{}, err
 	}
 
+	branch_ids := sliceutils.Map(
+		paginated_branches.Branches, 
+		func(b *gmodel.Branch, i int, slice []*gmodel.Branch) int64 {
+			return b.ID
+		},
+	)
+	branch_to_product_map, err := s.BranchProducts(ctx, branch_ids, product_limit, filters)
+	if err != nil {
+		return gmodel.PaginatedBranches{}, err
+	}
 	for i, branch := range paginated_branches.Branches {
-		product_input := gmodel.ProductSearch{
-			BranchID: &branch.ID,
-			StoreID: &branch.StoreID,
-			Query: filters.Query,
-			CategoryID: filters.CategoryID,
-			Category: filters.Category,
-		}
-		products_result, err := s.PaginatedProducts(ctx, product_paginator_input, &product_input)
-		if err != nil || products_result.Paginator == nil {
-			return gmodel.PaginatedBranches{}, err
-		}
-		if products_result.Paginator.Total == 0 {
-			continue
-		}
-		paginated_branches.Branches[i].Products = products_result.Products
+		paginated_branches.Branches[i].Products = branch_to_product_map[branch.ID]
 	}
 	return paginated_branches, nil
 }

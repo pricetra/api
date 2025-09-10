@@ -484,7 +484,7 @@ type ComplexityRoot struct {
 		AllProducts                   func(childComplexity int, paginator gmodel.PaginatorInput, search *gmodel.ProductSearch) int
 		AllStores                     func(childComplexity int) int
 		BarcodeScan                   func(childComplexity int, barcode string, searchMode *bool) int
-		BranchesWithProducts          func(childComplexity int, paginator gmodel.PaginatorInput, productPaginator gmodel.PaginatorInput, filters *gmodel.ProductSearch) int
+		BranchesWithProducts          func(childComplexity int, paginator gmodel.PaginatorInput, productLimit int, filters *gmodel.ProductSearch) int
 		CheckAppVersion               func(childComplexity int, platform gmodel.AuthDeviceType, version string) int
 		DefaultGroceryListItems       func(childComplexity int) int
 		ExtractProductFields          func(childComplexity int, base64Image string) int
@@ -632,7 +632,7 @@ type QueryResolver interface {
 	AllBranches(ctx context.Context, storeID int64, paginator gmodel.PaginatorInput, search *string, location *gmodel.LocationInput) (*gmodel.PaginatedBranches, error)
 	FindBranch(ctx context.Context, storeID int64, id int64) (*gmodel.Branch, error)
 	FindBranchesByDistance(ctx context.Context, lat float64, lon float64, radiusMeters int) ([]*gmodel.Branch, error)
-	BranchesWithProducts(ctx context.Context, paginator gmodel.PaginatorInput, productPaginator gmodel.PaginatorInput, filters *gmodel.ProductSearch) (*gmodel.PaginatedBranches, error)
+	BranchesWithProducts(ctx context.Context, paginator gmodel.PaginatorInput, productLimit int, filters *gmodel.ProductSearch) (*gmodel.PaginatedBranches, error)
 	GetCategories(ctx context.Context, depth *int, parentID *int64, search *string) ([]*gmodel.Category, error)
 	GetAllCountries(ctx context.Context) ([]*gmodel.Country, error)
 	GroceryLists(ctx context.Context) ([]*gmodel.GroceryList, error)
@@ -3260,7 +3260,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.BranchesWithProducts(childComplexity, args["paginator"].(gmodel.PaginatorInput), args["productPaginator"].(gmodel.PaginatorInput), args["filters"].(*gmodel.ProductSearch)), true
+		return e.complexity.Query.BranchesWithProducts(childComplexity, args["paginator"].(gmodel.PaginatorInput), args["productLimit"].(int), args["filters"].(*gmodel.ProductSearch)), true
 
 	case "Query.checkAppVersion":
 		if e.complexity.Query.CheckAppVersion == nil {
@@ -4841,15 +4841,15 @@ func (ec *executionContext) field_Query_branchesWithProducts_args(ctx context.Co
 		}
 	}
 	args["paginator"] = arg0
-	var arg1 gmodel.PaginatorInput
-	if tmp, ok := rawArgs["productPaginator"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("productPaginator"))
-		arg1, err = ec.unmarshalNPaginatorInput2githubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐPaginatorInput(ctx, tmp)
+	var arg1 int
+	if tmp, ok := rawArgs["productLimit"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("productLimit"))
+		arg1, err = ec.unmarshalNInt2int(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["productPaginator"] = arg1
+	args["productLimit"] = arg1
 	var arg2 *gmodel.ProductSearch
 	if tmp, ok := rawArgs["filters"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("filters"))
@@ -23196,7 +23196,7 @@ func (ec *executionContext) _Query_branchesWithProducts(ctx context.Context, fie
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().BranchesWithProducts(rctx, fc.Args["paginator"].(gmodel.PaginatorInput), fc.Args["productPaginator"].(gmodel.PaginatorInput), fc.Args["filters"].(*gmodel.ProductSearch))
+		return ec.resolvers.Query().BranchesWithProducts(rctx, fc.Args["paginator"].(gmodel.PaginatorInput), fc.Args["productLimit"].(int), fc.Args["filters"].(*gmodel.ProductSearch))
 	})
 	if err != nil {
 		ec.Error(ctx, err)

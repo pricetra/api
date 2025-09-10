@@ -39,7 +39,7 @@ extend type Query {
   ): [Branch!]! @isAuthenticated
   branchesWithProducts(
     paginator: PaginatorInput!
-    productPaginator: PaginatorInput!
+    productLimit: Int!
     filters: ProductSearch
   ): PaginatedBranches!
 }
