@@ -642,33 +642,6 @@ func (s Service) BranchProducts(
 	for _, id := range branch_ids {
 		branch_to_product_map[id] = []*gmodel.Product{}
 	}
-	row_num_col_name := "rn"
-	row_number_col := postgres.
-		ROW_NUMBER().
-		OVER(
-			postgres.
-				PARTITION_BY(table.Stock.BranchID).
-				ORDER_BY(table.Price.CreatedAt.DESC()),
-		).AS(row_num_col_name)
-	stock_cte := postgres.CTE("stock_cte")
-	stock_sub_query := table.Stock.
-			SELECT(
-				table.Stock.ID,
-				row_number_col,
-			).
-			FROM(
-				table.Stock.
-					INNER_JOIN(table.Price, table.Price.ID.EQ(table.Stock.LatestPriceID)).
-					INNER_JOIN(table.Product, table.Product.ID.EQ(table.Stock.ProductID)),
-			).
-			WHERE(
-				table.Stock.BranchID.IN(sliceutils.Map(
-					branch_ids,
-					func(id int64, i int, slice []int64) postgres.Expression {
-						return postgres.Int(id)
-					},
-				)...),
-			)
 	created_user_table, updated_user_table, cols := s.CreatedAndUpdatedUserTable()
 	cols = append(
 		cols,
@@ -679,6 +652,52 @@ func (s Service) BranchProducts(
 		table.Price.AllColumns,
 		table.Address.AllColumns,
 	)
+	search.Location = nil // disable location filtering
+	search.BranchID = nil // disable branch filtering
+	search.StoreID = nil // disable store filtering
+	where_clause, order_by, filter_cols := s.product_filter_builder(search)
+	order_by = append(
+		order_by,
+		table.Price.CreatedAt.DESC(),
+		table.Product.Views.DESC(),
+	)
+	cols = append(cols, filter_cols...)
+
+	row_num_col_name := "rn"
+	row_number_col := postgres.
+		ROW_NUMBER().
+		OVER(
+			postgres.
+				PARTITION_BY(table.Stock.BranchID).
+				ORDER_BY(table.Price.CreatedAt.DESC()),
+		).AS(row_num_col_name)
+	stock_cte := postgres.CTE("stock_cte")
+	stock_sub_query_cols := []postgres.Projection{
+		row_number_col,
+	}
+	stock_sub_query_cols = append(stock_sub_query_cols, filter_cols...)
+	stock_sub_query := table.Stock.
+			SELECT(
+				table.Stock.ID,
+				stock_sub_query_cols...,
+			).
+			FROM(
+				table.Stock.
+					INNER_JOIN(table.Price, table.Price.ID.EQ(table.Stock.LatestPriceID)).
+					INNER_JOIN(table.Product, table.Product.ID.EQ(table.Stock.ProductID)).
+					INNER_JOIN(table.Category, table.Category.ID.EQ(table.Product.CategoryID)),
+			).
+			WHERE(
+				postgres.AND(
+					table.Stock.BranchID.IN(sliceutils.Map(
+						branch_ids,
+						func(id int64, i int, slice []int64) postgres.Expression {
+							return postgres.Int(id)
+						},
+					)...),
+					where_clause,
+				),
+			).ORDER_BY(order_by...)
 	qb := postgres.
 		WITH(stock_cte.AS(stock_sub_query))(
 			table.Product.
@@ -699,10 +718,6 @@ func (s Service) BranchProducts(
 						table.Stock.ID.IN(table.Stock.ID.From(stock_cte)),
 						postgres.IntegerColumn(row_num_col_name).LT_EQ(postgres.Int(int64(limit))),
 					),
-				).ORDER_BY(
-					table.Price.Sale.DESC(),
-					table.Price.CreatedAt.DESC(),
-					table.Product.Views.DESC(),
 				),
 		)
 	var products []gmodel.Product
