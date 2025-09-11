@@ -50,6 +50,7 @@ type Branch struct {
 	Address     *Address       `json:"address"`
 	StoreID     int64          `json:"storeId"`
 	Store       *Store         `json:"store,omitempty"`
+	Products    []*Product     `json:"products,omitempty"`
 	CreatedByID *int64         `json:"createdById,omitempty"`
 	CreatedBy   *CreatedByUser `json:"createdBy,omitempty"`
 	UpdatedByID *int64         `json:"updatedById,omitempty"`

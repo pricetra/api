@@ -63,6 +63,15 @@ func (r *queryResolver) FindBranchesByDistance(ctx context.Context, lat float64,
 	return res, nil
 }
 
+// BranchesWithProducts is the resolver for the branchesWithProducts field.
+func (r *queryResolver) BranchesWithProducts(ctx context.Context, paginator gmodel.PaginatorInput, productLimit int, filters *gmodel.ProductSearch) (*gmodel.PaginatedBranches, error) {
+	res, err := r.Service.BranchesWithProducts(ctx, paginator, productLimit, filters)
+	if err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
 // Mutation returns graph.MutationResolver implementation.
 func (r *Resolver) Mutation() graph.MutationResolver { return &mutationResolver{r} }
 

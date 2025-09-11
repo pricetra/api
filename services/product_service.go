@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/Goldziher/go-utils/sliceutils"
 	"github.com/go-jet/jet/v2/postgres"
 	"github.com/pricetra/api/database/jet/postgres/public/model"
 	"github.com/pricetra/api/database/jet/postgres/public/table"
@@ -205,6 +206,74 @@ func (s Service) FindAllProducts(ctx context.Context) (products []gmodel.Product
 	return products, err
 }
 
+func (s Service) product_filter_builder(search *gmodel.ProductSearch) (where_clause postgres.BoolExpression, order_by []postgres.OrderByClause, filter_cols []postgres.Projection) {
+	where_clause = postgres.Bool(true)
+	if search == nil {
+		return where_clause, order_by, filter_cols
+	}
+
+	if search.StoreID != nil {
+		where_clause = where_clause.AND(
+			table.Store.ID.EQ(postgres.Int(*search.StoreID)),
+		)
+	}
+
+	if search.BranchID != nil {
+		where_clause = where_clause.AND(
+			table.Branch.ID.EQ(postgres.Int(*search.BranchID)),
+		)
+	}
+
+	if search.Location != nil {
+		l := search.Location
+		distance_cols := s.GetDistanceCols(l.Latitude, l.Longitude, l.RadiusMeters)
+		filter_cols = append(filter_cols, distance_cols.DistanceColumn)
+		where_clause = where_clause.AND(distance_cols.DistanceWhereClauseWithRadius)
+		order_by = append(order_by, postgres.FloatColumn(distance_cols.DistanceColumnName).ASC())
+	}
+
+	if search.CategoryID != nil {
+		clause := postgres.RawBool(
+			fmt.Sprintf("$id = any(%s)", utils.BuildFullTableName(table.Category.Path)), 
+			map[string]any{
+				"$id": *search.CategoryID,
+			},
+		)
+		where_clause = where_clause.AND(clause)
+	}
+
+	if search.Category != nil {
+		clause := postgres.RawBool(
+			fmt.Sprintf("%s ILIKE $category", utils.BuildFullTableName(table.Category.ExpandedPathname)), 
+			map[string]any{
+				"$category": fmt.Sprintf("%%%s%%", *search.Category),
+			},
+		)
+		where_clause = where_clause.AND(clause)
+	}
+
+	if search.Query != nil {
+		query := strings.TrimSpace(*search.Query)
+		if len(query) > 0 {
+			product_ft_components := s.BuildFullTextSearchQueryComponents(table.Product.SearchVector, query)
+			category_ft_components := s.BuildFullTextSearchQueryComponents(table.Category.SearchVector, query)
+			filter_cols = append(filter_cols, product_ft_components.RankColumn, category_ft_components.RankColumn)
+			where_clause = where_clause.AND(
+				postgres.OR(
+					product_ft_components.WhereClause,
+					category_ft_components.WhereClause,
+				),
+			)
+			order_by = append(
+				order_by,
+				category_ft_components.OrderByClause.DESC(),
+				product_ft_components.OrderByClause.DESC(),
+			)
+		}
+	}
+	return where_clause, order_by, filter_cols
+}
+
 func (s Service) PaginatedProducts(ctx context.Context, paginator_input gmodel.PaginatorInput, search *gmodel.ProductSearch) (paginated_products gmodel.PaginatedProducts, err error) {
 	db := s.DbOrTxQueryable()
 	created_user_table, updated_user_table, cols := s.CreatedAndUpdatedUserTable()
@@ -218,76 +287,14 @@ func (s Service) PaginatedProducts(ctx context.Context, paginator_input gmodel.P
 		LEFT_JOIN(created_user_table, created_user_table.ID.EQ(table.Price.CreatedByID)).
 		LEFT_JOIN(updated_user_table, updated_user_table.ID.EQ(table.Price.UpdatedByID))
 
-	where_clause := postgres.Bool(true)
-	order_by := []postgres.OrderByClause{}
-
-	if search != nil {
-		if search.StoreID != nil {
-			where_clause = where_clause.AND(
-				table.Store.ID.EQ(postgres.Int(*search.StoreID)),
-			)
-		}
-
-		if search.BranchID != nil {
-			where_clause = where_clause.AND(
-				table.Branch.ID.EQ(postgres.Int(*search.BranchID)),
-			)
-		}
-
-		if search.Location != nil {
-			l := search.Location
-			distance_cols := s.GetDistanceCols(l.Latitude, l.Longitude, l.RadiusMeters)
-			cols = append(cols, distance_cols.DistanceColumn)
-			where_clause = where_clause.AND(distance_cols.DistanceWhereClauseWithRadius)
-			order_by = append(order_by, postgres.FloatColumn(distance_cols.DistanceColumnName).ASC())
-		}
-
-		if search.CategoryID != nil {
-			clause := postgres.RawBool(
-				fmt.Sprintf("$id = any(%s)", utils.BuildFullTableName(table.Category.Path)), 
-				map[string]any{
-					"$id": *search.CategoryID,
-				},
-			)
-			where_clause = where_clause.AND(clause)
-		}
-
-		if search.Category != nil {
-			clause := postgres.RawBool(
-				fmt.Sprintf("%s ILIKE $category", utils.BuildFullTableName(table.Category.ExpandedPathname)), 
-				map[string]any{
-					"$category": fmt.Sprintf("%%%s%%", *search.Category),
-				},
-			)
-			where_clause = where_clause.AND(clause)
-		}
-
-		if search.Query != nil {
-			query := strings.TrimSpace(*search.Query)
-			if len(query) > 0 {
-				product_ft_components := s.BuildFullTextSearchQueryComponents(table.Product.SearchVector, query)
-				category_ft_components := s.BuildFullTextSearchQueryComponents(table.Category.SearchVector, query)
-				cols = append(cols, product_ft_components.RankColumn, category_ft_components.RankColumn)
-				where_clause = where_clause.AND(
-					postgres.OR(
-						product_ft_components.WhereClause,
-						category_ft_components.WhereClause,
-					),
-				)
-				order_by = append(
-					order_by,
-					category_ft_components.OrderByClause.DESC(),
-					product_ft_components.OrderByClause.DESC(),
-				)
-			}
-		}
-	}
+	where_clause, order_by, filter_cols := s.product_filter_builder(search)
 	order_by = append(
 		order_by,
 		table.Product.Views.DESC(),
 		table.Price.CreatedAt.DESC(),
 		table.Product.UpdatedAt.DESC(),
 	)
+	cols = append(cols, filter_cols...)
 
 	// get pagination data
 	sql_paginator, err := s.Paginate(ctx, paginator_input, tables, table.Product.ID, where_clause)
@@ -622,4 +629,111 @@ func (s Service) PaginatedRecentlyViewedProducts(
 	}
 	res.Paginator = &sql_paginator.Paginator
 	return res, nil
+}
+
+// Returns a map of branch_id to list of products for that branch
+func (s Service) BranchProducts(
+	ctx context.Context,
+	branch_ids []int64,
+	limit int,
+	search *gmodel.ProductSearch,
+) (map[int64][]*gmodel.Product, error) {
+	branch_to_product_map := map[int64][]*gmodel.Product{}
+	for _, id := range branch_ids {
+		branch_to_product_map[id] = []*gmodel.Product{}
+	}
+	created_user_table, updated_user_table, cols := s.CreatedAndUpdatedUserTable()
+	cols = append(
+		cols,
+		table.Category.AllColumns,
+		table.Stock.AllColumns,
+		table.Store.AllColumns,
+		table.Branch.AllColumns,
+		table.Price.AllColumns,
+		table.Address.AllColumns,
+	)
+	search.Location = nil // disable location filtering
+	search.BranchID = nil // disable branch filtering
+	search.StoreID = nil // disable store filtering
+	where_clause, order_by, filter_cols := s.product_filter_builder(search)
+	order_by = append(
+		order_by,
+		table.Price.CreatedAt.DESC(),
+		table.Product.Views.DESC(),
+	)
+	cols = append(cols, filter_cols...)
+
+	// Subquery/CTE (Common table expression) to get stocks with row numbers
+	// this allows us to limit the number of products per branch
+	row_num_col_name := "rn"
+	row_number_col := postgres.
+		ROW_NUMBER().
+		OVER(
+			postgres.
+				PARTITION_BY(table.Stock.BranchID).
+				ORDER_BY(table.Price.CreatedAt.DESC()),
+		).AS(row_num_col_name)
+	stock_cte := postgres.CTE("stock_cte")
+	stock_sub_query_cols := []postgres.Projection{
+		row_number_col,
+	}
+	stock_sub_query_cols = append(stock_sub_query_cols, filter_cols...)
+	stock_sub_query := table.Stock.
+			SELECT(
+				table.Stock.ID,
+				stock_sub_query_cols...,
+			).
+			FROM(
+				table.Stock.
+					INNER_JOIN(table.Price, table.Price.ID.EQ(table.Stock.LatestPriceID)).
+					INNER_JOIN(table.Product, table.Product.ID.EQ(table.Stock.ProductID)).
+					INNER_JOIN(table.Category, table.Category.ID.EQ(table.Product.CategoryID)),
+			).
+			WHERE(
+				postgres.AND(
+					table.Stock.BranchID.IN(sliceutils.Map(
+						branch_ids,
+						func(id int64, i int, slice []int64) postgres.Expression {
+							return postgres.Int(id)
+						},
+					)...),
+					where_clause,
+				),
+			).ORDER_BY(order_by...)
+	qb := postgres.
+		WITH(stock_cte.AS(stock_sub_query))(
+			// Main query to select products joining with the Stock CTE
+			table.Product.
+				SELECT(table.Product.AllColumns, cols...).
+				FROM(
+					stock_cte.
+						INNER_JOIN(table.Stock, table.Stock.ID.EQ(table.Stock.ID.From(stock_cte))).
+						INNER_JOIN(table.Product, table.Product.ID.EQ(table.Stock.ProductID)).
+						INNER_JOIN(table.Category, table.Category.ID.EQ(table.Product.CategoryID)).
+						INNER_JOIN(table.Store, table.Store.ID.EQ(table.Stock.StoreID)).
+						INNER_JOIN(table.Branch, table.Branch.ID.EQ(table.Stock.BranchID)).
+						INNER_JOIN(table.Price, table.Price.ID.EQ(table.Stock.LatestPriceID)).
+						INNER_JOIN(table.Address, table.Address.ID.EQ(table.Branch.AddressID)).
+						LEFT_JOIN(created_user_table, created_user_table.ID.EQ(table.Price.CreatedByID)).
+						LEFT_JOIN(updated_user_table, updated_user_table.ID.EQ(table.Price.UpdatedByID)),
+				).WHERE(
+					postgres.AND(
+						table.Stock.ID.IN(table.Stock.ID.From(stock_cte)),
+						postgres.IntegerColumn(row_num_col_name).LT_EQ(postgres.Int(int64(limit))),
+					),
+				).ORDER_BY(order_by...),
+		)
+	var products []gmodel.Product
+	if err := qb.QueryContext(ctx, s.DbOrTxQueryable(), &products); err != nil {
+		return map[int64][]*gmodel.Product{}, err
+	}
+
+	for i, p := range products {
+		if p.Stock == nil {
+			continue
+		}
+		branch_id := p.Stock.BranchID
+		branch_to_product_map[branch_id] = append(branch_to_product_map[branch_id], &products[i])
+	}
+	return branch_to_product_map, nil
 }

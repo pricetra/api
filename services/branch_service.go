@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/Goldziher/go-utils/sliceutils"
 	"github.com/go-jet/jet/v2/postgres"
 	"github.com/pricetra/api/database/jet/postgres/public/model"
 	"github.com/pricetra/api/database/jet/postgres/public/table"
@@ -124,6 +125,67 @@ func (s Service) FindBranchesByStoreId(
 	columns = append(columns, user_cols...)
 
 	where_clause := table.Branch.StoreID.EQ(postgres.Int(store_id))
+	order_by := []postgres.OrderByClause{}
+	if search != nil && len(strings.TrimSpace(*search)) > 0 {
+		full_text_components := s.BuildFullTextSearchQueryComponents(table.Address.SearchVector, *search)
+		columns = append(columns, full_text_components.RankColumn)
+		where_clause = where_clause.AND(full_text_components.WhereClause)
+		order_by = append(order_by, full_text_components.OrderByClause.DESC())
+	}
+	if location != nil {
+		dist := s.GetDistanceCols(location.Latitude, location.Longitude, location.RadiusMeters)
+		columns = append(columns, dist.DistanceColumn)
+		order_by = append(order_by, postgres.FloatColumn(dist.DistanceColumnName).ASC())
+		where_clause = where_clause.AND(dist.DistanceWhereClauseWithRadius)
+	}
+
+	sql_paginator, err := s.Paginate(ctx, paginator_input, tables, table.Branch.ID, where_clause)
+	if err != nil {
+		// Return empty result
+		return gmodel.PaginatedBranches{
+			Branches: []*gmodel.Branch{},
+			Paginator: &gmodel.Paginator{},
+		}, nil
+	}
+
+	order_by = append(order_by, table.Branch.CreatedAt.DESC())
+	qb := table.Branch.
+		SELECT(table.Branch.AllColumns, columns...).
+		FROM(tables).
+		WHERE(where_clause).
+		ORDER_BY(order_by...).
+		LIMIT(int64(sql_paginator.Limit)).
+		OFFSET(int64(sql_paginator.Offset))
+	if err = qb.QueryContext(ctx, s.DbOrTxQueryable(), &res.Branches); err != nil {
+		return gmodel.PaginatedBranches{}, err
+	}
+	
+	res.Paginator = &sql_paginator.Paginator
+	return res, err
+}
+
+func (s Service) PaginatedBranches(
+	ctx context.Context,
+	paginator_input gmodel.PaginatorInput,
+	search *string,
+	location *gmodel.LocationInput,
+) (res gmodel.PaginatedBranches, err error) {
+	created_user_table, updated_user_table, user_cols := s.CreatedAndUpdatedUserTable()
+	tables := table.Branch.
+		INNER_JOIN(table.Store, table.Store.ID.EQ(table.Branch.StoreID)).
+		INNER_JOIN(table.Address, table.Address.ID.EQ(table.Branch.AddressID)).
+		INNER_JOIN(table.Country, table.Country.Code.EQ(table.Address.CountryCode)).
+		LEFT_JOIN(created_user_table, created_user_table.ID.EQ(table.Branch.CreatedByID)).
+		LEFT_JOIN(updated_user_table, updated_user_table.ID.EQ(table.Branch.UpdatedByID))
+
+	columns := []postgres.Projection{
+		table.Store.AllColumns,
+		table.Address.AllColumns,
+		table.Country.Name,
+	}
+	columns = append(columns, user_cols...)
+
+	where_clause := postgres.Bool(true)
 	order_by := []postgres.OrderByClause{}
 	if search != nil && len(strings.TrimSpace(*search)) > 0 {
 		full_text_components := s.BuildFullTextSearchQueryComponents(table.Address.SearchVector, *search)
@@ -314,4 +376,34 @@ func (s Service) AllFavoriteBranchProductPrices(ctx context.Context, user gmodel
 		}
 	}
 	return branches, nil
+}
+
+func (s Service) BranchesWithProducts(
+	ctx context.Context,
+	paginator_input gmodel.PaginatorInput,
+	product_limit int,
+	filters *gmodel.ProductSearch,
+) (res gmodel.PaginatedBranches, err error) {
+	if filters.Location == nil {
+		return gmodel.PaginatedBranches{}, fmt.Errorf("location is required")
+	}
+	paginated_branches, err := s.PaginatedBranches(ctx, paginator_input, nil, filters.Location)
+	if err != nil {
+		return gmodel.PaginatedBranches{}, err
+	}
+
+	branch_ids := sliceutils.Map(
+		paginated_branches.Branches, 
+		func(b *gmodel.Branch, i int, slice []*gmodel.Branch) int64 {
+			return b.ID
+		},
+	)
+	branch_to_product_map, err := s.BranchProducts(ctx, branch_ids, product_limit, filters)
+	if err != nil {
+		return gmodel.PaginatedBranches{}, err
+	}
+	for i, branch := range paginated_branches.Branches {
+		paginated_branches.Branches[i].Products = branch_to_product_map[branch.ID]
+	}
+	return paginated_branches, nil
 }
