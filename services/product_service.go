@@ -663,6 +663,8 @@ func (s Service) BranchProducts(
 	)
 	cols = append(cols, filter_cols...)
 
+	// Subquery/CTE (Common table expression) to get stocks with row numbers
+	// this allows us to limit the number of products per branch
 	row_num_col_name := "rn"
 	row_number_col := postgres.
 		ROW_NUMBER().
@@ -700,6 +702,7 @@ func (s Service) BranchProducts(
 			).ORDER_BY(order_by...)
 	qb := postgres.
 		WITH(stock_cte.AS(stock_sub_query))(
+			// Main query to select products joining with the Stock CTE
 			table.Product.
 				SELECT(table.Product.AllColumns, cols...).
 				FROM(
@@ -724,6 +727,7 @@ func (s Service) BranchProducts(
 	if err := qb.QueryContext(ctx, s.DbOrTxQueryable(), &products); err != nil {
 		return map[int64][]*gmodel.Product{}, err
 	}
+
 	for i, p := range products {
 		if p.Stock == nil {
 			continue
