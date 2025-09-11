@@ -206,6 +206,74 @@ func (s Service) FindAllProducts(ctx context.Context) (products []gmodel.Product
 	return products, err
 }
 
+func (s Service) product_filter_builder(search *gmodel.ProductSearch) (where_clause postgres.BoolExpression, order_by []postgres.OrderByClause, filter_cols []postgres.Projection) {
+	where_clause = postgres.Bool(true)
+	if search == nil {
+		return where_clause, order_by, filter_cols
+	}
+
+	if search.StoreID != nil {
+		where_clause = where_clause.AND(
+			table.Store.ID.EQ(postgres.Int(*search.StoreID)),
+		)
+	}
+
+	if search.BranchID != nil {
+		where_clause = where_clause.AND(
+			table.Branch.ID.EQ(postgres.Int(*search.BranchID)),
+		)
+	}
+
+	if search.Location != nil {
+		l := search.Location
+		distance_cols := s.GetDistanceCols(l.Latitude, l.Longitude, l.RadiusMeters)
+		filter_cols = append(filter_cols, distance_cols.DistanceColumn)
+		where_clause = where_clause.AND(distance_cols.DistanceWhereClauseWithRadius)
+		order_by = append(order_by, postgres.FloatColumn(distance_cols.DistanceColumnName).ASC())
+	}
+
+	if search.CategoryID != nil {
+		clause := postgres.RawBool(
+			fmt.Sprintf("$id = any(%s)", utils.BuildFullTableName(table.Category.Path)), 
+			map[string]any{
+				"$id": *search.CategoryID,
+			},
+		)
+		where_clause = where_clause.AND(clause)
+	}
+
+	if search.Category != nil {
+		clause := postgres.RawBool(
+			fmt.Sprintf("%s ILIKE $category", utils.BuildFullTableName(table.Category.ExpandedPathname)), 
+			map[string]any{
+				"$category": fmt.Sprintf("%%%s%%", *search.Category),
+			},
+		)
+		where_clause = where_clause.AND(clause)
+	}
+
+	if search.Query != nil {
+		query := strings.TrimSpace(*search.Query)
+		if len(query) > 0 {
+			product_ft_components := s.BuildFullTextSearchQueryComponents(table.Product.SearchVector, query)
+			category_ft_components := s.BuildFullTextSearchQueryComponents(table.Category.SearchVector, query)
+			filter_cols = append(filter_cols, product_ft_components.RankColumn, category_ft_components.RankColumn)
+			where_clause = where_clause.AND(
+				postgres.OR(
+					product_ft_components.WhereClause,
+					category_ft_components.WhereClause,
+				),
+			)
+			order_by = append(
+				order_by,
+				category_ft_components.OrderByClause.DESC(),
+				product_ft_components.OrderByClause.DESC(),
+			)
+		}
+	}
+	return where_clause, order_by, filter_cols
+}
+
 func (s Service) PaginatedProducts(ctx context.Context, paginator_input gmodel.PaginatorInput, search *gmodel.ProductSearch) (paginated_products gmodel.PaginatedProducts, err error) {
 	db := s.DbOrTxQueryable()
 	created_user_table, updated_user_table, cols := s.CreatedAndUpdatedUserTable()
@@ -219,76 +287,14 @@ func (s Service) PaginatedProducts(ctx context.Context, paginator_input gmodel.P
 		LEFT_JOIN(created_user_table, created_user_table.ID.EQ(table.Price.CreatedByID)).
 		LEFT_JOIN(updated_user_table, updated_user_table.ID.EQ(table.Price.UpdatedByID))
 
-	where_clause := postgres.Bool(true)
-	order_by := []postgres.OrderByClause{}
-
-	if search != nil {
-		if search.StoreID != nil {
-			where_clause = where_clause.AND(
-				table.Store.ID.EQ(postgres.Int(*search.StoreID)),
-			)
-		}
-
-		if search.BranchID != nil {
-			where_clause = where_clause.AND(
-				table.Branch.ID.EQ(postgres.Int(*search.BranchID)),
-			)
-		}
-
-		if search.Location != nil {
-			l := search.Location
-			distance_cols := s.GetDistanceCols(l.Latitude, l.Longitude, l.RadiusMeters)
-			cols = append(cols, distance_cols.DistanceColumn)
-			where_clause = where_clause.AND(distance_cols.DistanceWhereClauseWithRadius)
-			order_by = append(order_by, postgres.FloatColumn(distance_cols.DistanceColumnName).ASC())
-		}
-
-		if search.CategoryID != nil {
-			clause := postgres.RawBool(
-				fmt.Sprintf("$id = any(%s)", utils.BuildFullTableName(table.Category.Path)), 
-				map[string]any{
-					"$id": *search.CategoryID,
-				},
-			)
-			where_clause = where_clause.AND(clause)
-		}
-
-		if search.Category != nil {
-			clause := postgres.RawBool(
-				fmt.Sprintf("%s ILIKE $category", utils.BuildFullTableName(table.Category.ExpandedPathname)), 
-				map[string]any{
-					"$category": fmt.Sprintf("%%%s%%", *search.Category),
-				},
-			)
-			where_clause = where_clause.AND(clause)
-		}
-
-		if search.Query != nil {
-			query := strings.TrimSpace(*search.Query)
-			if len(query) > 0 {
-				product_ft_components := s.BuildFullTextSearchQueryComponents(table.Product.SearchVector, query)
-				category_ft_components := s.BuildFullTextSearchQueryComponents(table.Category.SearchVector, query)
-				cols = append(cols, product_ft_components.RankColumn, category_ft_components.RankColumn)
-				where_clause = where_clause.AND(
-					postgres.OR(
-						product_ft_components.WhereClause,
-						category_ft_components.WhereClause,
-					),
-				)
-				order_by = append(
-					order_by,
-					category_ft_components.OrderByClause.DESC(),
-					product_ft_components.OrderByClause.DESC(),
-				)
-			}
-		}
-	}
+	where_clause, order_by, filter_cols := s.product_filter_builder(search)
 	order_by = append(
 		order_by,
 		table.Product.Views.DESC(),
 		table.Price.CreatedAt.DESC(),
 		table.Product.UpdatedAt.DESC(),
 	)
+	cols = append(cols, filter_cols...)
 
 	// get pagination data
 	sql_paginator, err := s.Paginate(ctx, paginator_input, tables, table.Product.ID, where_clause)
