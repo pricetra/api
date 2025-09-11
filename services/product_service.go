@@ -721,7 +721,7 @@ func (s Service) BranchProducts(
 						table.Stock.ID.IN(table.Stock.ID.From(stock_cte)),
 						postgres.IntegerColumn(row_num_col_name).LT_EQ(postgres.Int(int64(limit))),
 					),
-				),
+				).ORDER_BY(order_by...),
 		)
 	var products []gmodel.Product
 	if err := qb.QueryContext(ctx, s.DbOrTxQueryable(), &products); err != nil {
