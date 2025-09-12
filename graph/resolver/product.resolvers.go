@@ -156,11 +156,15 @@ func (r *queryResolver) AllProducts(ctx context.Context, paginator gmodel.Pagina
 		return nil, err
 	}
 
-	if user != (gmodel.User{}) && search != nil && search.Query != nil && len(*search.Query) > 1 {
+	if search != nil && search.Query != nil && len(*search.Query) > 1 {
 		// search term is provided so create log in search_history table
 		go func() {
+			var user_ptr *gmodel.User
+			if user != (gmodel.User{}) {
+				user_ptr = &user
+			}
 			ctx := context.Background()
-			r.Service.CreateSearchHistoryEntry(ctx, *search.Query, &user)
+			r.Service.CreateSearchHistoryEntry(ctx, *search.Query, user_ptr)
 		}()
 	}
 	return &paginated_products, nil
