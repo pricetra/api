@@ -65,9 +65,21 @@ func (r *queryResolver) FindBranchesByDistance(ctx context.Context, lat float64,
 
 // BranchesWithProducts is the resolver for the branchesWithProducts field.
 func (r *queryResolver) BranchesWithProducts(ctx context.Context, paginator gmodel.PaginatorInput, productLimit int, filters *gmodel.ProductSearch) (*gmodel.PaginatedBranches, error) {
+	user := r.Service.GetAuthUserFromContext(ctx)
 	res, err := r.Service.BranchesWithProducts(ctx, paginator, productLimit, filters)
 	if err != nil {
 		return nil, err
+	}
+
+	if filters != nil && filters.Query != nil && len(*filters.Query) > 1 {
+		go func() {
+			var user_ptr *gmodel.User
+			if user != (gmodel.User{}) {
+				user_ptr = &user
+			}
+			ctx := context.Background()
+			r.Service.CreateSearchHistoryEntry(ctx, *filters.Query, user_ptr) 
+		}()
 	}
 	return &res, nil
 }
