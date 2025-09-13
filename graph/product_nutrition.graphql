@@ -1,6 +1,6 @@
 type ProductNutrition {
-  id: ID! @goTag(key: "sql", value: "primary_key")
-  ingredients: String
+  productId: ID! @goTag(key: "sql", value: "primary_key")
+  ingredientText: String
   ingredientList: [String!]
   nutriments: ProductNutriment
   servingSize: String
