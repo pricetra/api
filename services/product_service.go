@@ -713,7 +713,7 @@ func (s Service) BranchProducts(
 					)...),
 					where_clause,
 				),
-			).ORDER_BY(order_by...)
+			)
 	qb := postgres.
 		WITH(stock_cte.AS(stock_sub_query))(
 			// Main query to select products joining with the Stock CTE
