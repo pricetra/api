@@ -78,7 +78,7 @@ func (r *queryResolver) BranchesWithProducts(ctx context.Context, paginator gmod
 				user_ptr = &user
 			}
 			ctx := context.Background()
-			r.Service.CreateSearchHistoryEntry(ctx, *filters.Query, user_ptr) 
+			r.Service.CreateSearchHistoryEntry(ctx, *filters.Query, user_ptr)
 		}()
 	}
 	return &res, nil

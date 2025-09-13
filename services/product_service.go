@@ -212,9 +212,28 @@ func (s Service) product_filter_builder(search *gmodel.ProductSearch) (where_cla
 		return where_clause, order_by, filter_cols
 	}
 
+	if search.SortByPrice != nil {
+		sort_by := strings.ToLower(*search.SortByPrice)
+		switch sort_by {
+		case "asc":
+			order_by = append(order_by, table.Price.Amount.ASC())
+		case "desc":
+			order_by = append(order_by, table.Price.Amount.DESC())
+		}
+	}
+
+	if search.Sale != nil && *search.Sale {
+		where_clause = where_clause.AND(
+			postgres.AND(
+				table.Price.Sale.IS_TRUE(),
+				table.Price.ExpiresAt.GT(postgres.NOW()),
+			),
+		)
+	}
+
 	if search.StoreID != nil {
 		where_clause = where_clause.AND(
-			table.Store.ID.EQ(postgres.Int(*search.StoreID)),
+			table.Branch.StoreID.EQ(postgres.Int(*search.StoreID)),
 		)
 	}
 
@@ -290,9 +309,8 @@ func (s Service) PaginatedProducts(ctx context.Context, paginator_input gmodel.P
 	where_clause, order_by, filter_cols := s.product_filter_builder(search)
 	order_by = append(
 		order_by,
-		table.Product.Views.DESC(),
 		table.Price.CreatedAt.DESC(),
-		table.Product.UpdatedAt.DESC(),
+		table.Product.Views.DESC(),
 	)
 	cols = append(cols, filter_cols...)
 
@@ -671,7 +689,7 @@ func (s Service) BranchProducts(
 		OVER(
 			postgres.
 				PARTITION_BY(table.Stock.BranchID).
-				ORDER_BY(table.Price.CreatedAt.DESC()),
+				ORDER_BY(order_by...),
 		).AS(row_num_col_name)
 	stock_cte := postgres.CTE("stock_cte")
 	stock_sub_query_cols := []postgres.Projection{

@@ -129,6 +129,8 @@ input ProductSearch {
   branchId: ID
   location: LocationInput
   storeId: ID
+  sale: Boolean
+  sortByPrice: String
 }
 
 input SaveExternalProductInput {
