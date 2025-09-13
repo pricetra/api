@@ -290,9 +290,8 @@ func (s Service) PaginatedProducts(ctx context.Context, paginator_input gmodel.P
 	where_clause, order_by, filter_cols := s.product_filter_builder(search)
 	order_by = append(
 		order_by,
-		table.Product.Views.DESC(),
 		table.Price.CreatedAt.DESC(),
-		table.Product.UpdatedAt.DESC(),
+		table.Product.Views.DESC(),
 	)
 	cols = append(cols, filter_cols...)
 
