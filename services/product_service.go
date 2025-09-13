@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/base64"
 	"fmt"
+	"log"
 	"strings"
 	"time"
 
@@ -689,7 +690,7 @@ func (s Service) BranchProducts(
 		OVER(
 			postgres.
 				PARTITION_BY(table.Stock.BranchID).
-				ORDER_BY(table.Price.CreatedAt.DESC()),
+				ORDER_BY(order_by...),
 		).AS(row_num_col_name)
 	stock_cte := postgres.CTE("stock_cte")
 	stock_sub_query_cols := []postgres.Projection{
@@ -741,6 +742,7 @@ func (s Service) BranchProducts(
 					),
 				).ORDER_BY(order_by...),
 		)
+	log.Println(qb.DebugSql())
 	var products []gmodel.Product
 	if err := qb.QueryContext(ctx, s.DbOrTxQueryable(), &products); err != nil {
 		return map[int64][]*gmodel.Product{}, err
