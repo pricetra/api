@@ -27,7 +27,13 @@ func ToPostgresArray[T comparable](arr []T) string {
 }
 
 func PostgresArrayToStrArray(p_array string) []string {
-	return strings.Split(strings.Trim(p_array, "{}"), ",")
+	return strings.Split(
+		strings.Trim(
+			strings.ReplaceAll(p_array, "\"", ""), 
+			"{}",
+		),
+		",",
+	)
 }
 
 func PostgresArrayToIntArray(p_array string) []int {
