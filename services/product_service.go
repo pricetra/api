@@ -276,7 +276,6 @@ func (s Service) product_filter_builder(search *gmodel.ProductSearch) (where_cla
 		if len(query) > 0 {
 			product_ft_components := s.BuildFullTextSearchQueryComponents(table.Product.SearchVector, query)
 			category_ft_components := s.BuildFullTextSearchQueryComponents(table.Category.SearchVector, query)
-			filter_cols = append(filter_cols, product_ft_components.RankColumn, category_ft_components.RankColumn)
 			where_clause = where_clause.AND(
 				postgres.OR(
 					product_ft_components.WhereClause,
@@ -285,8 +284,8 @@ func (s Service) product_filter_builder(search *gmodel.ProductSearch) (where_cla
 			)
 			order_by = append(
 				order_by,
-				category_ft_components.OrderByClause.DESC(),
-				product_ft_components.OrderByClause.DESC(),
+				category_ft_components.OrderByComputeRank.DESC(),
+				product_ft_components.OrderByComputeRank.DESC(),
 			)
 		}
 	}
@@ -692,10 +691,7 @@ func (s Service) BranchProducts(
 				ORDER_BY(order_by...),
 		).AS(row_num_col_name)
 	stock_cte := postgres.CTE("stock_cte")
-	stock_sub_query_cols := []postgres.Projection{
-		row_number_col,
-	}
-	stock_sub_query_cols = append(stock_sub_query_cols, filter_cols...)
+	stock_sub_query_cols := append(filter_cols, row_number_col)
 	stock_sub_query := table.Stock.
 			SELECT(
 				table.Stock.ID,

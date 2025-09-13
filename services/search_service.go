@@ -15,6 +15,7 @@ type FullTextSearchComponents struct {
 	RankColumn postgres.Projection // ts_rank column
 	WhereClause postgres.BoolExpression // where clause with tsquery
 	OrderByClause postgres.ColumnFloat // float column using the rank column
+	OrderByComputeRank postgres.Expression
 }
 
 func (s Service) BuildFullTextSearchQueryComponents(search_vector_col postgres.ColumnString, query string) (res FullTextSearchComponents) {
@@ -22,14 +23,16 @@ func (s Service) BuildFullTextSearchQueryComponents(search_vector_col postgres.C
 	search_vector_col_name := utils.BuildFullTableName(search_vector_col)
 	args := postgres.RawArgs{"$query": query}
 
-	// Rank column
-	res.RankColumn = postgres.RawFloat(
+	rank_computation := postgres.RawFloat(
 		fmt.Sprintf(
 			"ts_rank(%s, plainto_tsquery('english', $query::TEXT))",
 			search_vector_col_name,
 		),
 		args,
-	).AS(rank_col)
+	)
+
+	// Rank column
+	res.RankColumn = rank_computation.AS(rank_col)
 
 	// Where clause with tsquery
 	res.WhereClause = postgres.RawBool(
@@ -39,6 +42,7 @@ func (s Service) BuildFullTextSearchQueryComponents(search_vector_col postgres.C
 
 	// Order by
 	res.OrderByClause = postgres.FloatColumn(rank_col)
+	res.OrderByComputeRank = rank_computation
 	return res
 }
 
