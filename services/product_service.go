@@ -212,6 +212,15 @@ func (s Service) product_filter_builder(search *gmodel.ProductSearch) (where_cla
 		return where_clause, order_by, filter_cols
 	}
 
+	if search.Sale != nil && *search.Sale {
+		where_clause = where_clause.AND(
+			postgres.AND(
+				table.Price.Sale.IS_TRUE(),
+				table.Price.ExpiresAt.GT(postgres.NOW()),
+			),
+		)
+	}
+
 	if search.StoreID != nil {
 		where_clause = where_clause.AND(
 			table.Store.ID.EQ(postgres.Int(*search.StoreID)),
