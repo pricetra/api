@@ -514,12 +514,14 @@ type ProductNutrition struct {
 }
 
 type ProductSearch struct {
-	Query      *string        `json:"query,omitempty"`
-	Category   *string        `json:"category,omitempty"`
-	CategoryID *int64         `json:"categoryId,omitempty"`
-	BranchID   *int64         `json:"branchId,omitempty"`
-	Location   *LocationInput `json:"location,omitempty"`
-	StoreID    *int64         `json:"storeId,omitempty"`
+	Query       *string        `json:"query,omitempty"`
+	Category    *string        `json:"category,omitempty"`
+	CategoryID  *int64         `json:"categoryId,omitempty"`
+	BranchID    *int64         `json:"branchId,omitempty"`
+	Location    *LocationInput `json:"location,omitempty"`
+	StoreID     *int64         `json:"storeId,omitempty"`
+	Sale        *bool          `json:"sale,omitempty"`
+	SortByPrice *string        `json:"sortByPrice,omitempty"`
 }
 
 type Query struct {
