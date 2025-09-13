@@ -212,6 +212,16 @@ func (s Service) product_filter_builder(search *gmodel.ProductSearch) (where_cla
 		return where_clause, order_by, filter_cols
 	}
 
+	if search.SortByPrice != nil {
+		sort_by := strings.ToLower(*search.SortByPrice)
+		switch sort_by {
+		case "asc":
+			order_by = append(order_by, table.Price.Amount.ASC())
+		case "desc":
+			order_by = append(order_by, table.Price.Amount.DESC())
+		}
+	}
+
 	if search.Sale != nil && *search.Sale {
 		where_clause = where_clause.AND(
 			postgres.AND(
@@ -223,7 +233,7 @@ func (s Service) product_filter_builder(search *gmodel.ProductSearch) (where_cla
 
 	if search.StoreID != nil {
 		where_clause = where_clause.AND(
-			table.Store.ID.EQ(postgres.Int(*search.StoreID)),
+			table.Branch.StoreID.EQ(postgres.Int(*search.StoreID)),
 		)
 	}
 
