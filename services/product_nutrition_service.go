@@ -74,15 +74,42 @@ func (s Service) UpdateProductNutrition(ctx context.Context, product_id int64, i
 	return res, nil
 }
 
-func (s Service) FindProductNutrition(ctx context.Context, product_id int64) (p gmodel.ProductNutrition, err error) {
+func (s Service) FindProductNutrition(ctx context.Context, product_id int64) (product_nutrition gmodel.ProductNutrition, err error) {
 	qb := table.ProductNutrition.
 		SELECT(table.ProductNutrition.AllColumns).
 		WHERE(table.ProductNutrition.ProductID.EQ(postgres.Int(product_id))).
 		LIMIT(1)
-	if err := qb.QueryContext(ctx, s.DbOrTxQueryable(), &p); err != nil {
+	var pn model.ProductNutrition
+	if err := qb.QueryContext(ctx, s.DbOrTxQueryable(), &pn); err != nil {
 		return gmodel.ProductNutrition{}, err
 	}
-	return p, nil
+
+	product_nutrition = gmodel.ProductNutrition{
+		ProductID: pn.ProductID,
+		IngredientText: pn.IngredientText,
+		ServingSize: pn.ServingSize,
+		ServingSizeValue: pn.ServingSizeValue,
+		ServingSizeUnit: pn.ServingSizeUnit,
+		Vegan: pn.Vegan,
+		Vegetarian: pn.Vegetarian,
+		GlutenFree: pn.GlutenFree,
+		LactoseFree: pn.LactoseFree,
+		Halal: pn.Halal,
+		Kosher: pn.Kosher,
+		CreatedAt: pn.CreatedAt,
+		UpdatedAt: pn.UpdatedAt,
+	}
+	if pn.IngredientList != nil {
+		product_nutrition.IngredientList = utils.PostgresArrayToStrArray(*pn.IngredientList)
+	}
+	if pn.Nutriments != nil {
+		var nutriments gmodel.ProductNutriment
+		if err = json.Unmarshal([]byte(*pn.Nutriments), &nutriments); err != nil {
+			return gmodel.ProductNutrition{}, err
+		}
+		product_nutrition.Nutriments = &nutriments
+	}
+	return product_nutrition, nil
 }
 
 func (s Service) FetchOpenFoodFactsDataAndMapToProductNutrition(ctx context.Context, upc string) (model.ProductNutrition, error) {

@@ -463,13 +463,13 @@ type ComplexityRoot struct {
 		CreatedAt              func(childComplexity int) int
 		GlutenFree             func(childComplexity int) int
 		Halal                  func(childComplexity int) int
-		ID                     func(childComplexity int) int
 		IngredientList         func(childComplexity int) int
-		Ingredients            func(childComplexity int) int
+		IngredientText         func(childComplexity int) int
 		Kosher                 func(childComplexity int) int
 		LactoseFree            func(childComplexity int) int
 		Nutriments             func(childComplexity int) int
 		OpenfoodfactsUpdatedAt func(childComplexity int) int
+		ProductID              func(childComplexity int) int
 		ServingSize            func(childComplexity int) int
 		ServingSizeUnit        func(childComplexity int) int
 		ServingSizeValue       func(childComplexity int) int
@@ -3109,13 +3109,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.ProductNutrition.Halal(childComplexity), true
 
-	case "ProductNutrition.id":
-		if e.complexity.ProductNutrition.ID == nil {
-			break
-		}
-
-		return e.complexity.ProductNutrition.ID(childComplexity), true
-
 	case "ProductNutrition.ingredientList":
 		if e.complexity.ProductNutrition.IngredientList == nil {
 			break
@@ -3123,12 +3116,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.ProductNutrition.IngredientList(childComplexity), true
 
-	case "ProductNutrition.ingredients":
-		if e.complexity.ProductNutrition.Ingredients == nil {
+	case "ProductNutrition.ingredientText":
+		if e.complexity.ProductNutrition.IngredientText == nil {
 			break
 		}
 
-		return e.complexity.ProductNutrition.Ingredients(childComplexity), true
+		return e.complexity.ProductNutrition.IngredientText(childComplexity), true
 
 	case "ProductNutrition.kosher":
 		if e.complexity.ProductNutrition.Kosher == nil {
@@ -3157,6 +3150,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.ProductNutrition.OpenfoodfactsUpdatedAt(childComplexity), true
+
+	case "ProductNutrition.productId":
+		if e.complexity.ProductNutrition.ProductID == nil {
+			break
+		}
+
+		return e.complexity.ProductNutrition.ProductID(childComplexity), true
 
 	case "ProductNutrition.servingSize":
 		if e.complexity.ProductNutrition.ServingSize == nil {
@@ -11929,10 +11929,10 @@ func (ec *executionContext) fieldContext_Mutation_updateProductNutritionData(ctx
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "id":
-				return ec.fieldContext_ProductNutrition_id(ctx, field)
-			case "ingredients":
-				return ec.fieldContext_ProductNutrition_ingredients(ctx, field)
+			case "productId":
+				return ec.fieldContext_ProductNutrition_productId(ctx, field)
+			case "ingredientText":
+				return ec.fieldContext_ProductNutrition_ingredientText(ctx, field)
 			case "ingredientList":
 				return ec.fieldContext_ProductNutrition_ingredientList(ctx, field)
 			case "nutriments":
@@ -21816,8 +21816,8 @@ func (ec *executionContext) fieldContext_ProductNutriment_fiberUnit(ctx context.
 	return fc, nil
 }
 
-func (ec *executionContext) _ProductNutrition_id(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutrition) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ProductNutrition_id(ctx, field)
+func (ec *executionContext) _ProductNutrition_productId(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutrition) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutrition_productId(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -21830,7 +21830,7 @@ func (ec *executionContext) _ProductNutrition_id(ctx context.Context, field grap
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.ID, nil
+		return obj.ProductID, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -21847,7 +21847,7 @@ func (ec *executionContext) _ProductNutrition_id(ctx context.Context, field grap
 	return ec.marshalNID2int64(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ProductNutrition_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ProductNutrition_productId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ProductNutrition",
 		Field:      field,
@@ -21860,8 +21860,8 @@ func (ec *executionContext) fieldContext_ProductNutrition_id(ctx context.Context
 	return fc, nil
 }
 
-func (ec *executionContext) _ProductNutrition_ingredients(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutrition) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ProductNutrition_ingredients(ctx, field)
+func (ec *executionContext) _ProductNutrition_ingredientText(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductNutrition) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductNutrition_ingredientText(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -21874,7 +21874,7 @@ func (ec *executionContext) _ProductNutrition_ingredients(ctx context.Context, f
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Ingredients, nil
+		return obj.IngredientText, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -21888,7 +21888,7 @@ func (ec *executionContext) _ProductNutrition_ingredients(ctx context.Context, f
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_ProductNutrition_ingredients(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_ProductNutrition_ingredientText(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "ProductNutrition",
 		Field:      field,
@@ -24779,10 +24779,10 @@ func (ec *executionContext) fieldContext_Query_getProductNutritionData(ctx conte
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "id":
-				return ec.fieldContext_ProductNutrition_id(ctx, field)
-			case "ingredients":
-				return ec.fieldContext_ProductNutrition_ingredients(ctx, field)
+			case "productId":
+				return ec.fieldContext_ProductNutrition_productId(ctx, field)
+			case "ingredientText":
+				return ec.fieldContext_ProductNutrition_ingredientText(ctx, field)
 			case "ingredientList":
 				return ec.fieldContext_ProductNutrition_ingredientList(ctx, field)
 			case "nutriments":
@@ -33468,13 +33468,13 @@ func (ec *executionContext) _ProductNutrition(ctx context.Context, sel ast.Selec
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("ProductNutrition")
-		case "id":
-			out.Values[i] = ec._ProductNutrition_id(ctx, field, obj)
+		case "productId":
+			out.Values[i] = ec._ProductNutrition_productId(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "ingredients":
-			out.Values[i] = ec._ProductNutrition_ingredients(ctx, field, obj)
+		case "ingredientText":
+			out.Values[i] = ec._ProductNutrition_ingredientText(ctx, field, obj)
 		case "ingredientList":
 			out.Values[i] = ec._ProductNutrition_ingredientList(ctx, field, obj)
 		case "nutriments":

@@ -495,8 +495,8 @@ type ProductNutriment struct {
 }
 
 type ProductNutrition struct {
-	ID                     int64             `json:"id" sql:"primary_key"`
-	Ingredients            *string           `json:"ingredients,omitempty"`
+	ProductID              int64             `json:"productId" sql:"primary_key"`
+	IngredientText         *string           `json:"ingredientText,omitempty"`
 	IngredientList         []string          `json:"ingredientList,omitempty"`
 	Nutriments             *ProductNutriment `json:"nutriments,omitempty"`
 	ServingSize            *string           `json:"servingSize,omitempty"`
