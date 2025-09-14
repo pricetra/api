@@ -255,7 +255,17 @@ func (r *queryResolver) MyProductViewHistory(ctx context.Context, paginator gmod
 
 // GetProductNutritionData is the resolver for the getProductNutritionData field.
 func (r *queryResolver) GetProductNutritionData(ctx context.Context, productID int64) (*gmodel.ProductNutrition, error) {
+	product, err := r.Service.FindProductById(ctx, productID)
+	if err != nil {
+		return nil, fmt.Errorf("product does not exist")
+	}
+
 	product_nutrition, err := r.Service.FindProductNutrition(ctx, productID)
+	if err == nil {
+		return &product_nutrition, nil
+	}
+
+	product_nutrition, err = r.Service.ProcessOpenFoodFactsData(ctx, product)
 	if err != nil {
 		return nil, err
 	}
