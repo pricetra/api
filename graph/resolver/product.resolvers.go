@@ -225,11 +225,6 @@ func (r *queryResolver) Product(ctx context.Context, id int64, viewerTrail *gmod
 		}
 		r.Service.AddProductViewer(ctx, product.ID, trail_input)
 	}()
-
-	go func() {
-		ctx := context.Background()
-		r.Service.ProcessOpenFoodFactsData(ctx, product)
-	}()
 	return &product, nil
 }
 
