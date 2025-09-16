@@ -37,11 +37,11 @@ func (s Service) CreatePrice(ctx context.Context, user gmodel.User, input gmodel
 		input.OriginalPrice = nil
 	}
 
-	if input.Sale && input.OriginalPrice != nil && *input.OriginalPrice <= input.Amount {
-		return gmodel.Price{}, fmt.Errorf("original price must be greater than the current price")
-	}
-
 	if input.Sale && input.OriginalPrice != nil {
+		if *input.OriginalPrice <= input.Amount {
+			return gmodel.Price{}, fmt.Errorf("original price must be greater than the current price")
+		}
+
 		// if original price is provided then add that first as an entry
 		_, err = s.CreatePrice(ctx, user, gmodel.CreatePrice{
 			ProductID: input.ProductID,
@@ -59,19 +59,22 @@ func (s Service) CreatePrice(ctx context.Context, user gmodel.User, input gmodel
 		return gmodel.Price{}, err
 	}
 
-	if input.OriginalPrice == nil && stock.LatestPrice != nil {
+	if input.Sale {
 		// if original price is not provided use latest stock price
-		input.OriginalPrice = &stock.LatestPrice.Amount
+		if input.OriginalPrice == nil && stock.LatestPrice != nil {
+			input.OriginalPrice = &stock.LatestPrice.Amount
+		}
+	
+		if input.ExpiresAt == nil {
+			next_week := time.Now().Add(time.Hour * 24 * 7)
+			input.ExpiresAt = &next_week
+		}
+	
+		if input.ExpiresAt.Before(time.Now()) {
+			return gmodel.Price{}, fmt.Errorf("expiration date cannot be in the past")
+		}
 	}
 
-	if input.Sale && input.ExpiresAt == nil {
-		next_week := time.Now().Add(time.Hour * 24 * 7)
-		input.ExpiresAt = &next_week
-	}
-
-	if input.Sale && input.ExpiresAt.Before(time.Now()) {
-		return gmodel.Price{}, fmt.Errorf("expiration date cannot be in the past")
-	}
 
 	currency_code := "USD"
 	if input.CurrencyCode != nil {

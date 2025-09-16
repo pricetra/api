@@ -125,14 +125,11 @@ func TestPrice(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			if new_price.OriginalPrice == nil {
-				t.Fatal("original price should be set, but got nil")
+			if new_price.OriginalPrice != nil {
+				t.Fatal("original_price should not be set if sale is false")
 			}
-			if *new_price.OriginalPrice == org_price {
-				t.Fatal("original price should not be equal to the current price since sale is not set")
-			}
-			if *new_price.OriginalPrice != price.Amount {
-				t.Fatal("since sale is not set original price should be equal to the current price, but got", *new_price.OriginalPrice)	
+			if new_price.ExpiresAt != nil {
+				t.Fatal("expires_at should only be set when sale is true")
 			}
 			price = new_price
 
@@ -142,6 +139,11 @@ func TestPrice(t *testing.T) {
 		})
 
 		t.Run("create price with empty sale", func(t *testing.T) {
+			stock, err := service.FindStock(ctx, product.ID, branch.ID, store.ID)
+			if err != nil {
+				t.Fatal(err)
+			}
+
 			price_input.Amount = 5.99
 			price_input.OriginalPrice = nil
 			price_input.Sale = true
@@ -162,8 +164,19 @@ func TestPrice(t *testing.T) {
 			if *new_price.OriginalPrice != price.Amount {
 				t.Fatal("original price should be equal to the current price, but got", *new_price.OriginalPrice)
 			}
+			if *new_price.OriginalPrice != stock.LatestPrice.Amount {
+				t.Fatal("original price is incorrect")
+			}
 			if prices, err := service.FindPrices(ctx, product.ID, branch.ID); err != nil || len(prices) != 3 {
 				t.Fatal("there should only be 3 price row")
+			}
+
+			prices, err := service.FindPrices(ctx, product.ID, branch.ID)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if len(prices) != 3 && prices[0].ID == new_price.ID {
+				t.Fatal("prices returned are incorrect")
 			}
 		})
 
