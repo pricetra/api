@@ -95,6 +95,8 @@ func (s Service) CreatePrice(ctx context.Context, user gmodel.User, input gmodel
 		table.Price.ExpiresAt,
 		table.Price.CreatedByID,
 		table.Price.UpdatedByID,
+		table.Price.CreatedAt,
+		table.Price.UpdatedAt,
 	).MODEL(model.Price{
 		Amount: input.Amount,
 		CurrencyCode: currency_code,
@@ -110,6 +112,8 @@ func (s Service) CreatePrice(ctx context.Context, user gmodel.User, input gmodel
 		ExpiresAt: input.ExpiresAt,
 		CreatedByID: &user.ID,
 		UpdatedByID: &user.ID,
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
 	}).RETURNING(table.Price.AllColumns)
 	if err = qb.QueryContext(ctx, s.TX, &price); err != nil {
 		return gmodel.Price{}, err
