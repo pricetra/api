@@ -37,11 +37,11 @@ func (s Service) CreatePrice(ctx context.Context, user gmodel.User, input gmodel
 		input.OriginalPrice = nil
 	}
 
-	if input.Sale && input.OriginalPrice != nil && *input.OriginalPrice <= input.Amount {
-		return gmodel.Price{}, fmt.Errorf("original price must be greater than the current price")
-	}
-
 	if input.Sale && input.OriginalPrice != nil {
+		if *input.OriginalPrice <= input.Amount {
+			return gmodel.Price{}, fmt.Errorf("original price must be greater than the current price")
+		}
+
 		// if original price is provided then add that first as an entry
 		_, err = s.CreatePrice(ctx, user, gmodel.CreatePrice{
 			ProductID: input.ProductID,
