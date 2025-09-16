@@ -281,11 +281,11 @@ func (s Service) PaginatedPrices(
 		if filters.OrderBy != nil {
 			switch *filters.OrderBy {
 				case gmodel.OrderByTypeAsc:
-					order_by = table.Price.CreatedAt.ASC()
+					order_by = table.Price.ID.ASC()
 				case gmodel.OrderByTypeDesc:
-					order_by = table.Price.CreatedAt.DESC()
+					order_by = table.Price.ID.DESC()
 				default:
-					order_by = table.Price.CreatedAt.DESC()
+					order_by = table.Price.ID.DESC()
 			}
 		}
 	}
