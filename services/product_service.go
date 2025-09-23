@@ -276,11 +276,28 @@ func (s Service) product_filter_builder(search *gmodel.ProductSearch) (where_cla
 		if len(query) > 0 {
 			product_ft_components := s.BuildFullTextSearchQueryComponents(table.Product.SearchVector, query)
 			category_ft_components := s.BuildFullTextSearchQueryComponents(table.Category.SearchVector, query)
+			or_clause := []postgres.BoolExpression{
+				product_ft_components.WhereClause,
+				category_ft_components.WhereClause,
+			}
+
+			// Perform wide search if enabled
+			if search.WideSearch != nil && *search.WideSearch {
+				if query_terms := strings.Split(query, " "); len(query_terms) > 1 {
+					for _, term := range query_terms {
+						product_ft_components := s.BuildFullTextSearchQueryComponents(table.Product.SearchVector, term)
+						category_ft_components := s.BuildFullTextSearchQueryComponents(table.Category.SearchVector, term)
+						or_clause = append(
+							or_clause,
+							product_ft_components.WhereClause,
+							category_ft_components.WhereClause,
+						)
+					}
+				}
+			}
+
 			where_clause = where_clause.AND(
-				postgres.OR(
-					product_ft_components.WhereClause,
-					category_ft_components.WhereClause,
-				),
+				postgres.OR(or_clause...),
 			)
 			order_by = append(
 				order_by,
