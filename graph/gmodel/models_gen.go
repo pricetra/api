@@ -522,6 +522,10 @@ type ProductSearch struct {
 	StoreID     *int64         `json:"storeId,omitempty"`
 	Sale        *bool          `json:"sale,omitempty"`
 	SortByPrice *string        `json:"sortByPrice,omitempty"`
+	WideSearch  *bool          `json:"wideSearch,omitempty"`
+	Weight      *string        `json:"weight,omitempty"`
+	Quantity    *int           `json:"quantity,omitempty"`
+	Brand       *string        `json:"brand,omitempty"`
 }
 
 type Query struct {
