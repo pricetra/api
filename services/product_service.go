@@ -67,18 +67,13 @@ func (s Service) CreateProduct(
 			table.Product.Name,
 			table.Product.Image,
 			table.Product.Description,
-			table.Product.URL,
 			table.Product.Brand,
 			table.Product.Code,
-			table.Product.Color,
-			table.Product.Model,
 			table.Product.CategoryID,
 			table.Product.WeightValue,
 			table.Product.WeightType,
 			table.Product.QuantityValue,
 			table.Product.QuantityType,
-			table.Product.LowestRecordedPrice,
-			table.Product.HighestRecordedPrice,
 			table.Product.Source,
 			table.Product.CreatedByID,
 			table.Product.UpdatedByID,
@@ -276,11 +271,28 @@ func (s Service) product_filter_builder(search *gmodel.ProductSearch) (where_cla
 		if len(query) > 0 {
 			product_ft_components := s.BuildFullTextSearchQueryComponents(table.Product.SearchVector, query)
 			category_ft_components := s.BuildFullTextSearchQueryComponents(table.Category.SearchVector, query)
+			or_clause := []postgres.BoolExpression{
+				product_ft_components.WhereClause,
+				category_ft_components.WhereClause,
+			}
+
+			// Perform wide search if enabled
+			if search.WideSearch != nil && *search.WideSearch {
+				if query_terms := strings.Split(query, " "); len(query_terms) > 1 {
+					for _, term := range query_terms {
+						product_ft_components := s.BuildFullTextSearchQueryComponents(table.Product.SearchVector, term)
+						category_ft_components := s.BuildFullTextSearchQueryComponents(table.Category.SearchVector, term)
+						or_clause = append(
+							or_clause,
+							product_ft_components.WhereClause,
+							category_ft_components.WhereClause,
+						)
+					}
+				}
+			}
+
 			where_clause = where_clause.AND(
-				postgres.OR(
-					product_ft_components.WhereClause,
-					category_ft_components.WhereClause,
-				),
+				postgres.OR(or_clause...),
 			)
 			order_by = append(
 				order_by,
@@ -288,6 +300,34 @@ func (s Service) product_filter_builder(search *gmodel.ProductSearch) (where_cla
 				product_ft_components.OrderByComputeRank.DESC(),
 			)
 		}
+	}
+
+	if search.Brand != nil {
+		where_clause = where_clause.AND(
+			postgres.RawBool(
+				fmt.Sprintf("%s ILIKE $brand", utils.BuildFullTableName(table.Product.Brand)), 
+				map[string]any{
+					"$brand": search.Brand,
+				},
+			),
+		)
+	}
+
+	if search.Weight != nil {
+		weight_components, err := utils.ParseWeightIntoStruct(*search.Weight)
+		if err == nil {
+			condition := postgres.AND(
+				table.Product.WeightType.EQ(postgres.String(weight_components.WeightType)),
+				table.Product.WeightValue.EQ(postgres.Float(weight_components.Weight)),
+			)
+			where_clause = where_clause.AND(condition)
+		}
+	}
+
+	if search.Quantity != nil {
+		where_clause = where_clause.AND(
+			table.Product.QuantityValue.EQ(postgres.Int(int64(*search.Quantity))),
+		)
 	}
 	return where_clause, order_by, filter_cols
 }
@@ -364,9 +404,6 @@ func (s Service) UpdateProductById(ctx context.Context, user gmodel.User, id int
 	if input.Description != nil && *input.Description != product.Description {
 		cols = append(cols, table.Product.Description)
 	}
-	if input.URL != nil {
-		cols = append(cols, table.Product.URL)
-	}
 	if input.Brand != nil && *input.Brand != product.Brand {
 		cols = append(cols, table.Product.Brand)
 	}
@@ -375,12 +412,6 @@ func (s Service) UpdateProductById(ctx context.Context, user gmodel.User, id int
 			return gmodel.Product{}, gmodel.Product{}, fmt.Errorf("new barcode is already in use")
 		}
 		cols = append(cols, table.Product.Code)
-	}
-	if input.Color != nil {
-		cols = append(cols, table.Product.Color)
-	}
-	if input.Model != nil {
-		cols = append(cols, table.Product.Model)
 	}
 	if input.CategoryID != nil {
 		cols = append(cols, table.Product.CategoryID)
@@ -408,13 +439,6 @@ func (s Service) UpdateProductById(ctx context.Context, user gmodel.User, id int
 		weight_value = &weight_components.Weight
 		weight_type = &weight_components.WeightType
 		cols = append(cols, table.Product.WeightValue, table.Product.WeightType)
-	}
-
-	if input.LowestRecordedPrice != nil {
-		cols = append(cols, table.Product.LowestRecordedPrice)
-	}
-	if input.HighestRecordedPrice != nil {
-		cols = append(cols, table.Product.HighestRecordedPrice)
 	}
 
 	if len(cols) == 0 {
