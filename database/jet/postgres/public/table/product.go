@@ -17,29 +17,24 @@ type productTable struct {
 	postgres.Table
 
 	// Columns
-	ID                   postgres.ColumnInteger
-	Name                 postgres.ColumnString
-	Image                postgres.ColumnString
-	Description          postgres.ColumnString
-	URL                  postgres.ColumnString
-	Brand                postgres.ColumnString
-	Code                 postgres.ColumnString
-	Color                postgres.ColumnString
-	Model                postgres.ColumnString
-	LowestRecordedPrice  postgres.ColumnFloat
-	HighestRecordedPrice postgres.ColumnFloat
-	CreatedByID          postgres.ColumnInteger
-	UpdatedByID          postgres.ColumnInteger
-	CreatedAt            postgres.ColumnTimestampz
-	UpdatedAt            postgres.ColumnTimestampz
-	Source               postgres.ColumnString
-	CategoryID           postgres.ColumnInteger
-	SearchVector         postgres.ColumnString
-	Views                postgres.ColumnInteger
-	WeightType           postgres.ColumnString
-	WeightValue          postgres.ColumnFloat
-	QuantityValue        postgres.ColumnInteger
-	QuantityType         postgres.ColumnString
+	ID            postgres.ColumnInteger
+	Name          postgres.ColumnString
+	Image         postgres.ColumnString
+	Description   postgres.ColumnString
+	Brand         postgres.ColumnString
+	Code          postgres.ColumnString
+	CreatedByID   postgres.ColumnInteger
+	UpdatedByID   postgres.ColumnInteger
+	CreatedAt     postgres.ColumnTimestampz
+	UpdatedAt     postgres.ColumnTimestampz
+	Source        postgres.ColumnString
+	CategoryID    postgres.ColumnInteger
+	Views         postgres.ColumnInteger
+	WeightType    postgres.ColumnString
+	WeightValue   postgres.ColumnFloat
+	QuantityValue postgres.ColumnInteger
+	QuantityType  postgres.ColumnString
+	SearchVector  postgres.ColumnString
 
 	AllColumns     postgres.ColumnList
 	MutableColumns postgres.ColumnList
@@ -80,60 +75,50 @@ func newProductTable(schemaName, tableName, alias string) *ProductTable {
 
 func newProductTableImpl(schemaName, tableName, alias string) productTable {
 	var (
-		IDColumn                   = postgres.IntegerColumn("id")
-		NameColumn                 = postgres.StringColumn("name")
-		ImageColumn                = postgres.StringColumn("image")
-		DescriptionColumn          = postgres.StringColumn("description")
-		URLColumn                  = postgres.StringColumn("url")
-		BrandColumn                = postgres.StringColumn("brand")
-		CodeColumn                 = postgres.StringColumn("code")
-		ColorColumn                = postgres.StringColumn("color")
-		ModelColumn                = postgres.StringColumn("model")
-		LowestRecordedPriceColumn  = postgres.FloatColumn("lowest_recorded_price")
-		HighestRecordedPriceColumn = postgres.FloatColumn("highest_recorded_price")
-		CreatedByIDColumn          = postgres.IntegerColumn("created_by_id")
-		UpdatedByIDColumn          = postgres.IntegerColumn("updated_by_id")
-		CreatedAtColumn            = postgres.TimestampzColumn("created_at")
-		UpdatedAtColumn            = postgres.TimestampzColumn("updated_at")
-		SourceColumn               = postgres.StringColumn("source")
-		CategoryIDColumn           = postgres.IntegerColumn("category_id")
-		SearchVectorColumn         = postgres.StringColumn("search_vector")
-		ViewsColumn                = postgres.IntegerColumn("views")
-		WeightTypeColumn           = postgres.StringColumn("weight_type")
-		WeightValueColumn          = postgres.FloatColumn("weight_value")
-		QuantityValueColumn        = postgres.IntegerColumn("quantity_value")
-		QuantityTypeColumn         = postgres.StringColumn("quantity_type")
-		allColumns                 = postgres.ColumnList{IDColumn, NameColumn, ImageColumn, DescriptionColumn, URLColumn, BrandColumn, CodeColumn, ColorColumn, ModelColumn, LowestRecordedPriceColumn, HighestRecordedPriceColumn, CreatedByIDColumn, UpdatedByIDColumn, CreatedAtColumn, UpdatedAtColumn, SourceColumn, CategoryIDColumn, SearchVectorColumn, ViewsColumn, WeightTypeColumn, WeightValueColumn, QuantityValueColumn, QuantityTypeColumn}
-		mutableColumns             = postgres.ColumnList{NameColumn, ImageColumn, DescriptionColumn, URLColumn, BrandColumn, CodeColumn, ColorColumn, ModelColumn, LowestRecordedPriceColumn, HighestRecordedPriceColumn, CreatedByIDColumn, UpdatedByIDColumn, CreatedAtColumn, UpdatedAtColumn, SourceColumn, CategoryIDColumn, ViewsColumn, WeightTypeColumn, WeightValueColumn, QuantityValueColumn, QuantityTypeColumn}
+		IDColumn            = postgres.IntegerColumn("id")
+		NameColumn          = postgres.StringColumn("name")
+		ImageColumn         = postgres.StringColumn("image")
+		DescriptionColumn   = postgres.StringColumn("description")
+		BrandColumn         = postgres.StringColumn("brand")
+		CodeColumn          = postgres.StringColumn("code")
+		CreatedByIDColumn   = postgres.IntegerColumn("created_by_id")
+		UpdatedByIDColumn   = postgres.IntegerColumn("updated_by_id")
+		CreatedAtColumn     = postgres.TimestampzColumn("created_at")
+		UpdatedAtColumn     = postgres.TimestampzColumn("updated_at")
+		SourceColumn        = postgres.StringColumn("source")
+		CategoryIDColumn    = postgres.IntegerColumn("category_id")
+		ViewsColumn         = postgres.IntegerColumn("views")
+		WeightTypeColumn    = postgres.StringColumn("weight_type")
+		WeightValueColumn   = postgres.FloatColumn("weight_value")
+		QuantityValueColumn = postgres.IntegerColumn("quantity_value")
+		QuantityTypeColumn  = postgres.StringColumn("quantity_type")
+		SearchVectorColumn  = postgres.StringColumn("search_vector")
+		allColumns          = postgres.ColumnList{IDColumn, NameColumn, ImageColumn, DescriptionColumn, BrandColumn, CodeColumn, CreatedByIDColumn, UpdatedByIDColumn, CreatedAtColumn, UpdatedAtColumn, SourceColumn, CategoryIDColumn, ViewsColumn, WeightTypeColumn, WeightValueColumn, QuantityValueColumn, QuantityTypeColumn, SearchVectorColumn}
+		mutableColumns      = postgres.ColumnList{NameColumn, ImageColumn, DescriptionColumn, BrandColumn, CodeColumn, CreatedByIDColumn, UpdatedByIDColumn, CreatedAtColumn, UpdatedAtColumn, SourceColumn, CategoryIDColumn, ViewsColumn, WeightTypeColumn, WeightValueColumn, QuantityValueColumn, QuantityTypeColumn}
 	)
 
 	return productTable{
 		Table: postgres.NewTable(schemaName, tableName, alias, allColumns...),
 
 		//Columns
-		ID:                   IDColumn,
-		Name:                 NameColumn,
-		Image:                ImageColumn,
-		Description:          DescriptionColumn,
-		URL:                  URLColumn,
-		Brand:                BrandColumn,
-		Code:                 CodeColumn,
-		Color:                ColorColumn,
-		Model:                ModelColumn,
-		LowestRecordedPrice:  LowestRecordedPriceColumn,
-		HighestRecordedPrice: HighestRecordedPriceColumn,
-		CreatedByID:          CreatedByIDColumn,
-		UpdatedByID:          UpdatedByIDColumn,
-		CreatedAt:            CreatedAtColumn,
-		UpdatedAt:            UpdatedAtColumn,
-		Source:               SourceColumn,
-		CategoryID:           CategoryIDColumn,
-		SearchVector:         SearchVectorColumn,
-		Views:                ViewsColumn,
-		WeightType:           WeightTypeColumn,
-		WeightValue:          WeightValueColumn,
-		QuantityValue:        QuantityValueColumn,
-		QuantityType:         QuantityTypeColumn,
+		ID:            IDColumn,
+		Name:          NameColumn,
+		Image:         ImageColumn,
+		Description:   DescriptionColumn,
+		Brand:         BrandColumn,
+		Code:          CodeColumn,
+		CreatedByID:   CreatedByIDColumn,
+		UpdatedByID:   UpdatedByIDColumn,
+		CreatedAt:     CreatedAtColumn,
+		UpdatedAt:     UpdatedAtColumn,
+		Source:        SourceColumn,
+		CategoryID:    CategoryIDColumn,
+		Views:         ViewsColumn,
+		WeightType:    WeightTypeColumn,
+		WeightValue:   WeightValueColumn,
+		QuantityValue: QuantityValueColumn,
+		QuantityType:  QuantityTypeColumn,
+		SearchVector:  SearchVectorColumn,
 
 		AllColumns:     allColumns,
 		MutableColumns: mutableColumns,

@@ -80,12 +80,8 @@ func (ob UPCItemDbJsonResultItem) ToCreateProduct(ctx context.Context, service S
 		Description: ob.Description,
 		Brand: ob.Brand,
 		Code: barcode,
-		Color: ob.Color,
-		Model: ob.Model,
 		CategoryID: category.ID,
 		Weight: weight,
-		LowestRecordedPrice: ob.LowestRecordedPrice,
-		HighestRecordedPrice: ob.HighestRecordedPrice,
 	}
 }
 

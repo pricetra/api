@@ -67,18 +67,13 @@ func (s Service) CreateProduct(
 			table.Product.Name,
 			table.Product.Image,
 			table.Product.Description,
-			table.Product.URL,
 			table.Product.Brand,
 			table.Product.Code,
-			table.Product.Color,
-			table.Product.Model,
 			table.Product.CategoryID,
 			table.Product.WeightValue,
 			table.Product.WeightType,
 			table.Product.QuantityValue,
 			table.Product.QuantityType,
-			table.Product.LowestRecordedPrice,
-			table.Product.HighestRecordedPrice,
 			table.Product.Source,
 			table.Product.CreatedByID,
 			table.Product.UpdatedByID,
@@ -409,9 +404,6 @@ func (s Service) UpdateProductById(ctx context.Context, user gmodel.User, id int
 	if input.Description != nil && *input.Description != product.Description {
 		cols = append(cols, table.Product.Description)
 	}
-	if input.URL != nil {
-		cols = append(cols, table.Product.URL)
-	}
 	if input.Brand != nil && *input.Brand != product.Brand {
 		cols = append(cols, table.Product.Brand)
 	}
@@ -420,12 +412,6 @@ func (s Service) UpdateProductById(ctx context.Context, user gmodel.User, id int
 			return gmodel.Product{}, gmodel.Product{}, fmt.Errorf("new barcode is already in use")
 		}
 		cols = append(cols, table.Product.Code)
-	}
-	if input.Color != nil {
-		cols = append(cols, table.Product.Color)
-	}
-	if input.Model != nil {
-		cols = append(cols, table.Product.Model)
 	}
 	if input.CategoryID != nil {
 		cols = append(cols, table.Product.CategoryID)
@@ -453,13 +439,6 @@ func (s Service) UpdateProductById(ctx context.Context, user gmodel.User, id int
 		weight_value = &weight_components.Weight
 		weight_type = &weight_components.WeightType
 		cols = append(cols, table.Product.WeightValue, table.Product.WeightType)
-	}
-
-	if input.LowestRecordedPrice != nil {
-		cols = append(cols, table.Product.LowestRecordedPrice)
-	}
-	if input.HighestRecordedPrice != nil {
-		cols = append(cols, table.Product.HighestRecordedPrice)
 	}
 
 	if len(cols) == 0 {
