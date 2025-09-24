@@ -306,6 +306,34 @@ func (s Service) product_filter_builder(search *gmodel.ProductSearch) (where_cla
 			)
 		}
 	}
+
+	if search.Brand != nil {
+		where_clause = where_clause.AND(
+			postgres.RawBool(
+				fmt.Sprintf("%s ILIKE $brand", utils.BuildFullTableName(table.Product.Brand)), 
+				map[string]any{
+					"$brand": search.Brand,
+				},
+			),
+		)
+	}
+
+	if search.Weight != nil {
+		weight_components, err := utils.ParseWeightIntoStruct(*search.Weight)
+		if err == nil {
+			condition := postgres.AND(
+				table.Product.WeightType.EQ(postgres.String(weight_components.WeightType)),
+				table.Product.WeightValue.EQ(postgres.Float(weight_components.Weight)),
+			)
+			where_clause = where_clause.AND(condition)
+		}
+	}
+
+	if search.Quantity != nil {
+		where_clause = where_clause.AND(
+			table.Product.QuantityValue.EQ(postgres.Int(int64(*search.Quantity))),
+		)
+	}
 	return where_clause, order_by, filter_cols
 }
 
