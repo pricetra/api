@@ -32,6 +32,10 @@ func (s Service) CreatePrice(ctx context.Context, user gmodel.User, input gmodel
 		return gmodel.Price{}, fmt.Errorf("could not find branch")
 	}
 
+	if input.UnitType == "" {
+		input.UnitType = "item"
+	}
+
 	if !input.Sale && input.OriginalPrice != nil {
 		// if original price is provided but not on sale then ignore it
 		input.OriginalPrice = nil
