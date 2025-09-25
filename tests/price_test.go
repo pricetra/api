@@ -84,7 +84,6 @@ func TestPrice(t *testing.T) {
 			ExpiresAt: nil,
 			OriginalPrice: nil,
 			Condition: nil,
-			UnitType: "item",
 			ImageID: nil,
 		}
 		price, err := service.CreatePrice(ctx, user, price_input)
@@ -96,6 +95,9 @@ func TestPrice(t *testing.T) {
 		}
 		if price.ExpiresAt != nil {
 			t.Fatal("expiresAt should be nil, but got", price.ExpiresAt)
+		}
+		if price.UnitType != "item" {
+			t.Fatal("unit type should be item by default, but got", price.UnitType)
 		}
 
 		stock, err := service.FindStock(ctx, product.ID, branch.ID, branch.StoreID)
@@ -146,12 +148,16 @@ func TestPrice(t *testing.T) {
 
 			price_input.Amount = 5.99
 			price_input.OriginalPrice = nil
+			price_input.UnitType = "lb"
 			price_input.Sale = true
 			new_price, err := service.CreatePrice(ctx, user, price_input)
 			if err != nil {
 				t.Fatal(err)
 			}
 			
+			if new_price.UnitType != "lb" {
+				t.Fatal("unit type should be lb, but got", new_price.UnitType)
+			}
 			if new_price.Sale != true {
 				t.Fatal("sale should be true, but got false")
 			}
@@ -196,6 +202,7 @@ func TestPrice(t *testing.T) {
 			org_price := 10.99
 			price_input.OriginalPrice = &org_price
 			price_input.Sale = true
+			price_input.UnitType = "oz"
 			exp_date := time.Now().Add(time.Hour * 24 * 3 * 7) // 3 weeks from now
 			price_input.ExpiresAt = &exp_date
 			new_price, err := service.CreatePrice(ctx, user, price_input)
@@ -215,8 +222,19 @@ func TestPrice(t *testing.T) {
 			if *new_price.OriginalPrice != org_price {
 				t.Fatal("original price should be equal to the provided original price, but got", *new_price.OriginalPrice)
 			}
-			if prices, err := service.FindPrices(ctx, product.ID, branch.ID); err != nil || len(prices) != 5 {
+
+			prices, err := service.FindPrices(ctx, product.ID, branch.ID)
+			if err != nil || len(prices) != 5 {
 				t.Fatal("there should only be 4 price row")
+			}
+			if prices[0].ID != new_price.ID {
+				t.Fatal("latest price is not being returned first")
+			}
+			if prices[1].Amount != *new_price.OriginalPrice {
+				t.Fatal("second latest price should be the original price")
+			}
+			if prices[1].UnitType != new_price.UnitType {
+				t.Fatal("unit type should be same as the sale price")
 			}
 
 			stock, err := service.FindStock(ctx, product.ID, branch.ID, branch.StoreID)
