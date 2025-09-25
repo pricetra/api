@@ -49,9 +49,10 @@ func (s Service) CreatePrice(ctx context.Context, user gmodel.User, input gmodel
 		// if original price is provided then add that first as an entry
 		_, err = s.CreatePrice(ctx, user, gmodel.CreatePrice{
 			ProductID: input.ProductID,
-			Amount: *input.OriginalPrice,
 			BranchID: input.BranchID,
+			Amount: *input.OriginalPrice,
 			CurrencyCode: input.CurrencyCode,
+			UnitType: input.UnitType,
 		})
 		if err != nil {
 			return gmodel.Price{}, fmt.Errorf("could not create original price entry: %w", err)
