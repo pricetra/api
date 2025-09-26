@@ -75,7 +75,7 @@ func (s Service) PaginatedStores(ctx context.Context, paginator_input gmodel.Pag
 			postgres.RawBool(
 				fmt.Sprintf("%s ILIKE $store_name", utils.BuildFullTableName(table.Store.Name)), 
 				map[string]any{
-					"$store_name": search,
+					"$store_name": "%" + *search + "%",
 				},
 			),
 		)
