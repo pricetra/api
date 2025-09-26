@@ -21,7 +21,7 @@ func (r *queryResolver) Stock(ctx context.Context, stockID int64) (*gmodel.Stock
 }
 
 // GetProductStocks is the resolver for the getProductStocks field.
-func (r *queryResolver) GetProductStocks(ctx context.Context, productID int64, location *gmodel.LocationInput) ([]*gmodel.Stock, error) {
+func (r *queryResolver) GetProductStocks(ctx context.Context, paginator gmodel.PaginatorInput, productID int64, location *gmodel.LocationInput) (*gmodel.PaginatedStocks, error) {
 	stocks, err := r.Service.GetStocksForProduct(ctx, productID, location)
 	if err != nil {
 		return nil, err

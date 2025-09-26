@@ -1,7 +1,10 @@
 extend type Query {
-  stock(stockId: ID!): Stock! @isAuthenticated
-  getProductStocks(productId: ID!, location: LocationInput): [Stock!]!
-    @isAuthenticated
+  stock(stockId: ID!): Stock!
+  getProductStocks(
+    paginator: PaginatorInput!
+    productId: ID!
+    location: LocationInput
+  ): PaginatedStocks!
 }
 
 type Stock {
@@ -20,6 +23,11 @@ type Stock {
   createdBy: CreatedByUser
   updatedById: ID
   updatedBy: UpdatedByUser
+}
+
+type PaginatedStocks {
+  stocks: [Stock!]!
+  paginator: Paginator!
 }
 
 input CreateStock {
