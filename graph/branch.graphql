@@ -30,13 +30,13 @@ extend type Query {
     paginator: PaginatorInput!
     search: String
     location: LocationInput
-  ): PaginatedBranches! @isAuthenticated
-  findBranch(storeId: ID!, id: ID!): Branch! @isAuthenticated
+  ): PaginatedBranches!
+  findBranch(storeId: ID!, id: ID!): Branch!
   findBranchesByDistance(
     lat: Float!
     lon: Float!
     radiusMeters: Int!
-  ): [Branch!]! @isAuthenticated
+  ): [Branch!]!
   branchesWithProducts(
     paginator: PaginatorInput!
     productLimit: Int!

@@ -23078,28 +23078,8 @@ func (ec *executionContext) _Query_allBranches(ctx context.Context, field graphq
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		directive0 := func(rctx context.Context) (interface{}, error) {
-			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Query().AllBranches(rctx, fc.Args["storeId"].(int64), fc.Args["paginator"].(gmodel.PaginatorInput), fc.Args["search"].(*string), fc.Args["location"].(*gmodel.LocationInput))
-		}
-		directive1 := func(ctx context.Context) (interface{}, error) {
-			if ec.directives.IsAuthenticated == nil {
-				return nil, errors.New("directive isAuthenticated is not implemented")
-			}
-			return ec.directives.IsAuthenticated(ctx, nil, directive0, nil)
-		}
-
-		tmp, err := directive1(rctx)
-		if err != nil {
-			return nil, graphql.ErrorOnPath(ctx, err)
-		}
-		if tmp == nil {
-			return nil, nil
-		}
-		if data, ok := tmp.(*gmodel.PaginatedBranches); ok {
-			return data, nil
-		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/pricetra/api/graph/gmodel.PaginatedBranches`, tmp)
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().AllBranches(rctx, fc.Args["storeId"].(int64), fc.Args["paginator"].(gmodel.PaginatorInput), fc.Args["search"].(*string), fc.Args["location"].(*gmodel.LocationInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -23159,28 +23139,8 @@ func (ec *executionContext) _Query_findBranch(ctx context.Context, field graphql
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		directive0 := func(rctx context.Context) (interface{}, error) {
-			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Query().FindBranch(rctx, fc.Args["storeId"].(int64), fc.Args["id"].(int64))
-		}
-		directive1 := func(ctx context.Context) (interface{}, error) {
-			if ec.directives.IsAuthenticated == nil {
-				return nil, errors.New("directive isAuthenticated is not implemented")
-			}
-			return ec.directives.IsAuthenticated(ctx, nil, directive0, nil)
-		}
-
-		tmp, err := directive1(rctx)
-		if err != nil {
-			return nil, graphql.ErrorOnPath(ctx, err)
-		}
-		if tmp == nil {
-			return nil, nil
-		}
-		if data, ok := tmp.(*gmodel.Branch); ok {
-			return data, nil
-		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/pricetra/api/graph/gmodel.Branch`, tmp)
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().FindBranch(rctx, fc.Args["storeId"].(int64), fc.Args["id"].(int64))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -23258,28 +23218,8 @@ func (ec *executionContext) _Query_findBranchesByDistance(ctx context.Context, f
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		directive0 := func(rctx context.Context) (interface{}, error) {
-			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Query().FindBranchesByDistance(rctx, fc.Args["lat"].(float64), fc.Args["lon"].(float64), fc.Args["radiusMeters"].(int))
-		}
-		directive1 := func(ctx context.Context) (interface{}, error) {
-			if ec.directives.IsAuthenticated == nil {
-				return nil, errors.New("directive isAuthenticated is not implemented")
-			}
-			return ec.directives.IsAuthenticated(ctx, nil, directive0, nil)
-		}
-
-		tmp, err := directive1(rctx)
-		if err != nil {
-			return nil, graphql.ErrorOnPath(ctx, err)
-		}
-		if tmp == nil {
-			return nil, nil
-		}
-		if data, ok := tmp.([]*gmodel.Branch); ok {
-			return data, nil
-		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*github.com/pricetra/api/graph/gmodel.Branch`, tmp)
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().FindBranchesByDistance(rctx, fc.Args["lat"].(float64), fc.Args["lon"].(float64), fc.Args["radiusMeters"].(int))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -23418,28 +23358,8 @@ func (ec *executionContext) _Query_getCategories(ctx context.Context, field grap
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		directive0 := func(rctx context.Context) (interface{}, error) {
-			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Query().GetCategories(rctx, fc.Args["depth"].(*int), fc.Args["parentId"].(*int64), fc.Args["search"].(*string))
-		}
-		directive1 := func(ctx context.Context) (interface{}, error) {
-			if ec.directives.IsAuthenticated == nil {
-				return nil, errors.New("directive isAuthenticated is not implemented")
-			}
-			return ec.directives.IsAuthenticated(ctx, nil, directive0, nil)
-		}
-
-		tmp, err := directive1(rctx)
-		if err != nil {
-			return nil, graphql.ErrorOnPath(ctx, err)
-		}
-		if tmp == nil {
-			return nil, nil
-		}
-		if data, ok := tmp.([]*gmodel.Category); ok {
-			return data, nil
-		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*github.com/pricetra/api/graph/gmodel.Category`, tmp)
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetCategories(rctx, fc.Args["depth"].(*int), fc.Args["parentId"].(*int64), fc.Args["search"].(*string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
