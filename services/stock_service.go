@@ -176,3 +176,63 @@ func (s Service) GetStocksForProduct(ctx context.Context, product_id int64, loca
 	}
 	return stocks, nil
 }
+
+func (s Service) PaginatedStocksForProduct(ctx context.Context, paginator_input gmodel.PaginatorInput, product_id int64, location *gmodel.LocationInput) (paginated_stocks gmodel.PaginatedStocks, err error) {
+	if !s.ProductExists(ctx, product_id) {
+		return gmodel.PaginatedStocks{}, fmt.Errorf("invalid product id")
+	}
+
+	created_at_table, updated_at_table, cols := s.CreatedAndUpdatedUserTable()
+	cols = append(
+		cols,
+		table.Branch.AllColumns,
+		table.Store.AllColumns,
+		table.Address.AllColumns,
+		table.Price.AllColumns,
+	)
+	where_clause := table.Product.ID.EQ(postgres.Int(product_id))
+	order_by := []postgres.OrderByClause{}
+	if location != nil {
+		l := *location
+		d := s.GetDistanceCols(l.Latitude, l.Longitude, l.RadiusMeters)
+		cols = append(cols, d.DistanceColumn)
+		where_clause = where_clause.AND(d.DistanceWhereClauseWithRadius)
+		order_by = append(order_by, postgres.FloatColumn(d.DistanceColumnName).ASC())
+	}
+	order_by = append(
+		order_by,
+		table.Price.CreatedAt.DESC(),
+		table.Stock.CreatedAt.DESC(),
+	)
+	tables := table.Stock.
+		INNER_JOIN(table.Product, table.Product.ID.EQ(table.Stock.ProductID)).
+		INNER_JOIN(table.Branch, table.Branch.ID.EQ(table.Stock.BranchID)).
+		INNER_JOIN(table.Store, table.Store.ID.EQ(table.Stock.StoreID)).
+		INNER_JOIN(table.Address, table.Address.ID.EQ(table.Branch.AddressID)).
+		INNER_JOIN(table.Price, table.Price.ID.EQ(table.Stock.LatestPriceID)).
+		LEFT_JOIN(created_at_table, created_at_table.ID.EQ(table.Price.CreatedByID)).
+		LEFT_JOIN(updated_at_table, updated_at_table.ID.EQ(table.Price.UpdatedByID))
+	
+	sql_paginator, err := s.Paginate(ctx, paginator_input, tables, table.Stock.ID, where_clause)
+	if err != nil {
+		// Return empty result
+		return gmodel.PaginatedStocks{
+			Stocks: []*gmodel.Stock{},
+			Paginator: &gmodel.Paginator{},
+		}, nil
+	}
+
+	qb := table.Stock.
+		SELECT(table.Stock.AllColumns, cols...).
+		FROM(tables).
+		WHERE(where_clause).
+		ORDER_BY(order_by...).
+		LIMIT(int64(sql_paginator.Limit)).
+		OFFSET(int64(sql_paginator.Offset))
+	if err = qb.QueryContext(ctx, s.DbOrTxQueryable(), &paginated_stocks.Stocks); err != nil {
+		return gmodel.PaginatedStocks{}, err
+	}
+
+	paginated_stocks.Paginator = &sql_paginator.Paginator
+	return paginated_stocks, nil
+}

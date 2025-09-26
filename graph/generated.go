@@ -247,6 +247,11 @@ type ComplexityRoot struct {
 		Searches  func(childComplexity int) int
 	}
 
+	PaginatedStocks struct {
+		Paginator func(childComplexity int) int
+		Stocks    func(childComplexity int) int
+	}
+
 	PaginatedStores struct {
 		Paginator func(childComplexity int) int
 		Stores    func(childComplexity int) int
@@ -504,7 +509,7 @@ type ComplexityRoot struct {
 		GetCategories                 func(childComplexity int, depth *int, parentID *int64, search *string) int
 		GetFavoriteBranchesWithPrices func(childComplexity int, productID int64) int
 		GetProductNutritionData       func(childComplexity int, productID int64) int
-		GetProductStocks              func(childComplexity int, productID int64, location *gmodel.LocationInput) int
+		GetProductStocks              func(childComplexity int, paginator gmodel.PaginatorInput, productID int64, location *gmodel.LocationInput) int
 		GoogleOAuth                   func(childComplexity int, accessToken string, ipAddress *string, device *gmodel.AuthDeviceType) int
 		GroceryList                   func(childComplexity int, groceryListID int64) int
 		GroceryListItems              func(childComplexity int, groceryListID int64) int
@@ -658,7 +663,7 @@ type QueryResolver interface {
 	GetProductNutritionData(ctx context.Context, productID int64) (*gmodel.ProductNutrition, error)
 	MySearchHistory(ctx context.Context, paginator gmodel.PaginatorInput) (*gmodel.PaginatedSearch, error)
 	Stock(ctx context.Context, stockID int64) (*gmodel.Stock, error)
-	GetProductStocks(ctx context.Context, productID int64, location *gmodel.LocationInput) ([]*gmodel.Stock, error)
+	GetProductStocks(ctx context.Context, paginator gmodel.PaginatorInput, productID int64, location *gmodel.LocationInput) (*gmodel.PaginatedStocks, error)
 	AllStores(ctx context.Context, paginator gmodel.PaginatorInput, search *string) (*gmodel.PaginatedStores, error)
 	FindStore(ctx context.Context, id int64) (*gmodel.Store, error)
 	Login(ctx context.Context, email string, password string, ipAddress *string, device *gmodel.AuthDeviceType) (*gmodel.Auth, error)
@@ -1797,6 +1802,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.PaginatedSearch.Searches(childComplexity), true
+
+	case "PaginatedStocks.paginator":
+		if e.complexity.PaginatedStocks.Paginator == nil {
+			break
+		}
+
+		return e.complexity.PaginatedStocks.Paginator(childComplexity), true
+
+	case "PaginatedStocks.stocks":
+		if e.complexity.PaginatedStocks.Stocks == nil {
+			break
+		}
+
+		return e.complexity.PaginatedStocks.Stocks(childComplexity), true
 
 	case "PaginatedStores.paginator":
 		if e.complexity.PaginatedStores.Paginator == nil {
@@ -3454,7 +3473,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.GetProductStocks(childComplexity, args["productId"].(int64), args["location"].(*gmodel.LocationInput)), true
+		return e.complexity.Query.GetProductStocks(childComplexity, args["paginator"].(gmodel.PaginatorInput), args["productId"].(int64), args["location"].(*gmodel.LocationInput)), true
 
 	case "Query.googleOAuth":
 		if e.complexity.Query.GoogleOAuth == nil {
@@ -5156,24 +5175,33 @@ func (ec *executionContext) field_Query_getProductNutritionData_args(ctx context
 func (ec *executionContext) field_Query_getProductStocks_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 int64
+	var arg0 gmodel.PaginatorInput
+	if tmp, ok := rawArgs["paginator"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("paginator"))
+		arg0, err = ec.unmarshalNPaginatorInput2githubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐPaginatorInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["paginator"] = arg0
+	var arg1 int64
 	if tmp, ok := rawArgs["productId"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("productId"))
-		arg0, err = ec.unmarshalNID2int64(ctx, tmp)
+		arg1, err = ec.unmarshalNID2int64(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["productId"] = arg0
-	var arg1 *gmodel.LocationInput
+	args["productId"] = arg1
+	var arg2 *gmodel.LocationInput
 	if tmp, ok := rawArgs["location"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("location"))
-		arg1, err = ec.unmarshalOLocationInput2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐLocationInput(ctx, tmp)
+		arg2, err = ec.unmarshalOLocationInput2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐLocationInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["location"] = arg1
+	args["location"] = arg2
 	return args, nil
 }
 
@@ -13651,6 +13679,140 @@ func (ec *executionContext) _PaginatedSearch_paginator(ctx context.Context, fiel
 func (ec *executionContext) fieldContext_PaginatedSearch_paginator(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "PaginatedSearch",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "next":
+				return ec.fieldContext_Paginator_next(ctx, field)
+			case "page":
+				return ec.fieldContext_Paginator_page(ctx, field)
+			case "prev":
+				return ec.fieldContext_Paginator_prev(ctx, field)
+			case "total":
+				return ec.fieldContext_Paginator_total(ctx, field)
+			case "limit":
+				return ec.fieldContext_Paginator_limit(ctx, field)
+			case "numPages":
+				return ec.fieldContext_Paginator_numPages(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Paginator", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PaginatedStocks_stocks(ctx context.Context, field graphql.CollectedField, obj *gmodel.PaginatedStocks) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PaginatedStocks_stocks(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Stocks, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*gmodel.Stock)
+	fc.Result = res
+	return ec.marshalNStock2ᚕᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐStockᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PaginatedStocks_stocks(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PaginatedStocks",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Stock_id(ctx, field)
+			case "productId":
+				return ec.fieldContext_Stock_productId(ctx, field)
+			case "product":
+				return ec.fieldContext_Stock_product(ctx, field)
+			case "storeId":
+				return ec.fieldContext_Stock_storeId(ctx, field)
+			case "store":
+				return ec.fieldContext_Stock_store(ctx, field)
+			case "branchId":
+				return ec.fieldContext_Stock_branchId(ctx, field)
+			case "branch":
+				return ec.fieldContext_Stock_branch(ctx, field)
+			case "latestPriceId":
+				return ec.fieldContext_Stock_latestPriceId(ctx, field)
+			case "latestPrice":
+				return ec.fieldContext_Stock_latestPrice(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Stock_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Stock_updatedAt(ctx, field)
+			case "createdById":
+				return ec.fieldContext_Stock_createdById(ctx, field)
+			case "createdBy":
+				return ec.fieldContext_Stock_createdBy(ctx, field)
+			case "updatedById":
+				return ec.fieldContext_Stock_updatedById(ctx, field)
+			case "updatedBy":
+				return ec.fieldContext_Stock_updatedBy(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Stock", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PaginatedStocks_paginator(ctx context.Context, field graphql.CollectedField, obj *gmodel.PaginatedStocks) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PaginatedStocks_paginator(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Paginator, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*gmodel.Paginator)
+	fc.Result = res
+	return ec.marshalNPaginator2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐPaginator(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PaginatedStocks_paginator(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PaginatedStocks",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -23084,28 +23246,8 @@ func (ec *executionContext) _Query_allBranches(ctx context.Context, field graphq
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		directive0 := func(rctx context.Context) (interface{}, error) {
-			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Query().AllBranches(rctx, fc.Args["storeId"].(int64), fc.Args["paginator"].(gmodel.PaginatorInput), fc.Args["search"].(*string), fc.Args["location"].(*gmodel.LocationInput))
-		}
-		directive1 := func(ctx context.Context) (interface{}, error) {
-			if ec.directives.IsAuthenticated == nil {
-				return nil, errors.New("directive isAuthenticated is not implemented")
-			}
-			return ec.directives.IsAuthenticated(ctx, nil, directive0, nil)
-		}
-
-		tmp, err := directive1(rctx)
-		if err != nil {
-			return nil, graphql.ErrorOnPath(ctx, err)
-		}
-		if tmp == nil {
-			return nil, nil
-		}
-		if data, ok := tmp.(*gmodel.PaginatedBranches); ok {
-			return data, nil
-		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/pricetra/api/graph/gmodel.PaginatedBranches`, tmp)
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().AllBranches(rctx, fc.Args["storeId"].(int64), fc.Args["paginator"].(gmodel.PaginatorInput), fc.Args["search"].(*string), fc.Args["location"].(*gmodel.LocationInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -23165,28 +23307,8 @@ func (ec *executionContext) _Query_findBranch(ctx context.Context, field graphql
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		directive0 := func(rctx context.Context) (interface{}, error) {
-			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Query().FindBranch(rctx, fc.Args["storeId"].(int64), fc.Args["id"].(int64))
-		}
-		directive1 := func(ctx context.Context) (interface{}, error) {
-			if ec.directives.IsAuthenticated == nil {
-				return nil, errors.New("directive isAuthenticated is not implemented")
-			}
-			return ec.directives.IsAuthenticated(ctx, nil, directive0, nil)
-		}
-
-		tmp, err := directive1(rctx)
-		if err != nil {
-			return nil, graphql.ErrorOnPath(ctx, err)
-		}
-		if tmp == nil {
-			return nil, nil
-		}
-		if data, ok := tmp.(*gmodel.Branch); ok {
-			return data, nil
-		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/pricetra/api/graph/gmodel.Branch`, tmp)
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().FindBranch(rctx, fc.Args["storeId"].(int64), fc.Args["id"].(int64))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -23264,28 +23386,8 @@ func (ec *executionContext) _Query_findBranchesByDistance(ctx context.Context, f
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		directive0 := func(rctx context.Context) (interface{}, error) {
-			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Query().FindBranchesByDistance(rctx, fc.Args["lat"].(float64), fc.Args["lon"].(float64), fc.Args["radiusMeters"].(int))
-		}
-		directive1 := func(ctx context.Context) (interface{}, error) {
-			if ec.directives.IsAuthenticated == nil {
-				return nil, errors.New("directive isAuthenticated is not implemented")
-			}
-			return ec.directives.IsAuthenticated(ctx, nil, directive0, nil)
-		}
-
-		tmp, err := directive1(rctx)
-		if err != nil {
-			return nil, graphql.ErrorOnPath(ctx, err)
-		}
-		if tmp == nil {
-			return nil, nil
-		}
-		if data, ok := tmp.([]*gmodel.Branch); ok {
-			return data, nil
-		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*github.com/pricetra/api/graph/gmodel.Branch`, tmp)
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().FindBranchesByDistance(rctx, fc.Args["lat"].(float64), fc.Args["lon"].(float64), fc.Args["radiusMeters"].(int))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -23424,28 +23526,8 @@ func (ec *executionContext) _Query_getCategories(ctx context.Context, field grap
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		directive0 := func(rctx context.Context) (interface{}, error) {
-			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Query().GetCategories(rctx, fc.Args["depth"].(*int), fc.Args["parentId"].(*int64), fc.Args["search"].(*string))
-		}
-		directive1 := func(ctx context.Context) (interface{}, error) {
-			if ec.directives.IsAuthenticated == nil {
-				return nil, errors.New("directive isAuthenticated is not implemented")
-			}
-			return ec.directives.IsAuthenticated(ctx, nil, directive0, nil)
-		}
-
-		tmp, err := directive1(rctx)
-		if err != nil {
-			return nil, graphql.ErrorOnPath(ctx, err)
-		}
-		if tmp == nil {
-			return nil, nil
-		}
-		if data, ok := tmp.([]*gmodel.Category); ok {
-			return data, nil
-		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*github.com/pricetra/api/graph/gmodel.Category`, tmp)
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetCategories(rctx, fc.Args["depth"].(*int), fc.Args["parentId"].(*int64), fc.Args["search"].(*string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -24382,28 +24464,8 @@ func (ec *executionContext) _Query_barcodeScan(ctx context.Context, field graphq
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		directive0 := func(rctx context.Context) (interface{}, error) {
-			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Query().BarcodeScan(rctx, fc.Args["barcode"].(string), fc.Args["searchMode"].(*bool))
-		}
-		directive1 := func(ctx context.Context) (interface{}, error) {
-			if ec.directives.IsAuthenticated == nil {
-				return nil, errors.New("directive isAuthenticated is not implemented")
-			}
-			return ec.directives.IsAuthenticated(ctx, nil, directive0, nil)
-		}
-
-		tmp, err := directive1(rctx)
-		if err != nil {
-			return nil, graphql.ErrorOnPath(ctx, err)
-		}
-		if tmp == nil {
-			return nil, nil
-		}
-		if data, ok := tmp.(*gmodel.Product); ok {
-			return data, nil
-		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/pricetra/api/graph/gmodel.Product`, tmp)
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().BarcodeScan(rctx, fc.Args["barcode"].(string), fc.Args["searchMode"].(*bool))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -24572,28 +24634,8 @@ func (ec *executionContext) _Query_allBrands(ctx context.Context, field graphql.
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		directive0 := func(rctx context.Context) (interface{}, error) {
-			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Query().AllBrands(rctx)
-		}
-		directive1 := func(ctx context.Context) (interface{}, error) {
-			if ec.directives.IsAuthenticated == nil {
-				return nil, errors.New("directive isAuthenticated is not implemented")
-			}
-			return ec.directives.IsAuthenticated(ctx, nil, directive0, nil)
-		}
-
-		tmp, err := directive1(rctx)
-		if err != nil {
-			return nil, graphql.ErrorOnPath(ctx, err)
-		}
-		if tmp == nil {
-			return nil, nil
-		}
-		if data, ok := tmp.([]*gmodel.Brand); ok {
-			return data, nil
-		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*github.com/pricetra/api/graph/gmodel.Brand`, tmp)
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().AllBrands(rctx)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -25091,28 +25133,8 @@ func (ec *executionContext) _Query_stock(ctx context.Context, field graphql.Coll
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		directive0 := func(rctx context.Context) (interface{}, error) {
-			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Query().Stock(rctx, fc.Args["stockId"].(int64))
-		}
-		directive1 := func(ctx context.Context) (interface{}, error) {
-			if ec.directives.IsAuthenticated == nil {
-				return nil, errors.New("directive isAuthenticated is not implemented")
-			}
-			return ec.directives.IsAuthenticated(ctx, nil, directive0, nil)
-		}
-
-		tmp, err := directive1(rctx)
-		if err != nil {
-			return nil, graphql.ErrorOnPath(ctx, err)
-		}
-		if tmp == nil {
-			return nil, nil
-		}
-		if data, ok := tmp.(*gmodel.Stock); ok {
-			return data, nil
-		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/pricetra/api/graph/gmodel.Stock`, tmp)
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().Stock(rctx, fc.Args["stockId"].(int64))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -25198,28 +25220,8 @@ func (ec *executionContext) _Query_getProductStocks(ctx context.Context, field g
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		directive0 := func(rctx context.Context) (interface{}, error) {
-			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Query().GetProductStocks(rctx, fc.Args["productId"].(int64), fc.Args["location"].(*gmodel.LocationInput))
-		}
-		directive1 := func(ctx context.Context) (interface{}, error) {
-			if ec.directives.IsAuthenticated == nil {
-				return nil, errors.New("directive isAuthenticated is not implemented")
-			}
-			return ec.directives.IsAuthenticated(ctx, nil, directive0, nil)
-		}
-
-		tmp, err := directive1(rctx)
-		if err != nil {
-			return nil, graphql.ErrorOnPath(ctx, err)
-		}
-		if tmp == nil {
-			return nil, nil
-		}
-		if data, ok := tmp.([]*gmodel.Stock); ok {
-			return data, nil
-		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*github.com/pricetra/api/graph/gmodel.Stock`, tmp)
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetProductStocks(rctx, fc.Args["paginator"].(gmodel.PaginatorInput), fc.Args["productId"].(int64), fc.Args["location"].(*gmodel.LocationInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -25231,9 +25233,9 @@ func (ec *executionContext) _Query_getProductStocks(ctx context.Context, field g
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*gmodel.Stock)
+	res := resTmp.(*gmodel.PaginatedStocks)
 	fc.Result = res
-	return ec.marshalNStock2ᚕᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐStockᚄ(ctx, field.Selections, res)
+	return ec.marshalNPaginatedStocks2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐPaginatedStocks(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_getProductStocks(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -25244,38 +25246,12 @@ func (ec *executionContext) fieldContext_Query_getProductStocks(ctx context.Cont
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "id":
-				return ec.fieldContext_Stock_id(ctx, field)
-			case "productId":
-				return ec.fieldContext_Stock_productId(ctx, field)
-			case "product":
-				return ec.fieldContext_Stock_product(ctx, field)
-			case "storeId":
-				return ec.fieldContext_Stock_storeId(ctx, field)
-			case "store":
-				return ec.fieldContext_Stock_store(ctx, field)
-			case "branchId":
-				return ec.fieldContext_Stock_branchId(ctx, field)
-			case "branch":
-				return ec.fieldContext_Stock_branch(ctx, field)
-			case "latestPriceId":
-				return ec.fieldContext_Stock_latestPriceId(ctx, field)
-			case "latestPrice":
-				return ec.fieldContext_Stock_latestPrice(ctx, field)
-			case "createdAt":
-				return ec.fieldContext_Stock_createdAt(ctx, field)
-			case "updatedAt":
-				return ec.fieldContext_Stock_updatedAt(ctx, field)
-			case "createdById":
-				return ec.fieldContext_Stock_createdById(ctx, field)
-			case "createdBy":
-				return ec.fieldContext_Stock_createdBy(ctx, field)
-			case "updatedById":
-				return ec.fieldContext_Stock_updatedById(ctx, field)
-			case "updatedBy":
-				return ec.fieldContext_Stock_updatedBy(ctx, field)
+			case "stocks":
+				return ec.fieldContext_PaginatedStocks_stocks(ctx, field)
+			case "paginator":
+				return ec.fieldContext_PaginatedStocks_paginator(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type Stock", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type PaginatedStocks", field.Name)
 		},
 	}
 	defer func() {
@@ -32798,6 +32774,50 @@ func (ec *executionContext) _PaginatedSearch(ctx context.Context, sel ast.Select
 	return out
 }
 
+var paginatedStocksImplementors = []string{"PaginatedStocks"}
+
+func (ec *executionContext) _PaginatedStocks(ctx context.Context, sel ast.SelectionSet, obj *gmodel.PaginatedStocks) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, paginatedStocksImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("PaginatedStocks")
+		case "stocks":
+			out.Values[i] = ec._PaginatedStocks_stocks(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "paginator":
+			out.Values[i] = ec._PaginatedStocks_paginator(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var paginatedStoresImplementors = []string{"PaginatedStores"}
 
 func (ec *executionContext) _PaginatedStores(ctx context.Context, sel ast.SelectionSet, obj *gmodel.PaginatedStores) graphql.Marshaler {
@@ -36165,6 +36185,20 @@ func (ec *executionContext) marshalNPaginatedSearch2ᚖgithubᚗcomᚋpricetra�
 		return graphql.Null
 	}
 	return ec._PaginatedSearch(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNPaginatedStocks2githubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐPaginatedStocks(ctx context.Context, sel ast.SelectionSet, v gmodel.PaginatedStocks) graphql.Marshaler {
+	return ec._PaginatedStocks(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNPaginatedStocks2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐPaginatedStocks(ctx context.Context, sel ast.SelectionSet, v *gmodel.PaginatedStocks) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._PaginatedStocks(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNPaginatedStores2githubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐPaginatedStores(ctx context.Context, sel ast.SelectionSet, v gmodel.PaginatedStores) graphql.Marshaler {

@@ -1,10 +1,10 @@
 extend type Query {
-  barcodeScan(barcode: String!, searchMode: Boolean): Product! @isAuthenticated
+  barcodeScan(barcode: String!, searchMode: Boolean): Product!
   allProducts(
     paginator: PaginatorInput!
     search: ProductSearch
   ): PaginatedProducts!
-  allBrands: [Brand!]! @isAuthenticated
+  allBrands: [Brand!]!
   product(id: ID!, viewerTrail: ViewerTrailInput): Product!
   extractProductFields(base64Image: String!): ProductExtractionResponse!
     @isAuthenticated
