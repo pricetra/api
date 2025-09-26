@@ -20,6 +20,7 @@ func (s Service) Paginate(
 	sql_table postgres.ReadableTable,
 	id_column postgres.Column,
 	where_clause postgres.BoolExpression,
+	group_clauses ...postgres.GroupByClause,
 ) (SqlPaginator, error) {
 	if err := s.StructValidator.StructCtx(ctx, paginator_input); err != nil {
 		return SqlPaginator{}, err
@@ -30,6 +31,10 @@ func (s Service) Paginate(
 		SELECT(postgres.COUNT(id_column).AS("total")).
 		FROM(sql_table).
 		WHERE(where_clause)
+	if len(group_clauses) > 0 {
+		total_qb = total_qb.GROUP_BY(group_clauses...)
+	}
+
 	var p_total struct{ Total int }
 	if err := total_qb.QueryContext(ctx, db, &p_total); err != nil {
 		return SqlPaginator{}, err

@@ -33,17 +33,12 @@ func (r *mutationResolver) CreateStore(ctx context.Context, input gmodel.CreateS
 }
 
 // AllStores is the resolver for the allStores field.
-func (r *queryResolver) AllStores(ctx context.Context) ([]*gmodel.Store, error) {
-	stores, err := r.Service.GetAllStores(ctx)
+func (r *queryResolver) AllStores(ctx context.Context, paginator gmodel.PaginatorInput, search *string) (*gmodel.PaginatedStores, error) {
+	res, err := r.Service.PaginatedStores(ctx, paginator, search)
 	if err != nil {
 		return nil, err
 	}
-
-	result := make([]*gmodel.Store, len(stores))
-	for i := range stores {
-		result[i] = &stores[i]
-	}
-	return result, nil
+	return &res, nil
 }
 
 // FindStore is the resolver for the findStore field.
