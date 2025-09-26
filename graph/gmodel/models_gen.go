@@ -278,6 +278,11 @@ type PaginatedStocks struct {
 	Paginator *Paginator `json:"paginator"`
 }
 
+type PaginatedStores struct {
+	Stores    []*Store   `json:"stores"`
+	Paginator *Paginator `json:"paginator"`
+}
+
 type PaginatedUsers struct {
 	Users     []*User    `json:"users"`
 	Paginator *Paginator `json:"paginator"`
