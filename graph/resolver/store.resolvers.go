@@ -33,7 +33,7 @@ func (r *mutationResolver) CreateStore(ctx context.Context, input gmodel.CreateS
 }
 
 // AllStores is the resolver for the allStores field.
-func (r *queryResolver) AllStores(ctx context.Context) ([]*gmodel.Store, error) {
+func (r *queryResolver) AllStores(ctx context.Context, paginator gmodel.PaginatorInput, search *string) (*gmodel.PaginatedStores, error) {
 	stores, err := r.Service.GetAllStores(ctx)
 	if err != nil {
 		return nil, err

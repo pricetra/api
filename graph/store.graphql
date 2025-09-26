@@ -10,16 +10,21 @@ type Store {
   updatedBy: UpdatedByUser
 }
 
+type PaginatedStores {
+  stores: [Store!]!
+  paginator: Paginator!
+}
+
 input CreateStore {
   name: String!
   logoBase64: String
-  website: String! @goTag(key: "validate", value:"http_url")
+  website: String! @goTag(key: "validate", value: "http_url")
   logoFile: Upload
 }
 
 extend type Query {
-  allStores: [Store!]! @isAuthenticated
-  findStore(id: ID!): Store! @isAuthenticated
+  allStores(paginator: PaginatorInput!, search: String): PaginatedStores!
+  findStore(id: ID!): Store!
 }
 
 extend type Mutation {
