@@ -602,6 +602,13 @@ func (s Service) ExtractProductTextFromBase64Image(ctx context.Context, user gmo
 	if extracted_fields.Weight != nil {
 		extraction_ob.Weight = utils.ParseWeight(*extracted_fields.Weight)
 	}
+	if extracted_fields.Quantity != nil {
+		quantity := *extracted_fields.Quantity
+		if *extracted_fields.Quantity == 0 {
+			quantity = 1
+		}
+		extraction_ob.Quantity = &quantity
+	}
 	if len(extracted_fields.Category) > 0 {
 		category, err := s.CategoryRecursiveInsert(ctx, extracted_fields.Category)
 		if err == nil {
