@@ -384,7 +384,7 @@ func (s Service) BranchesWithProducts(
 	product_limit int,
 	filters *gmodel.ProductSearch,
 ) (res gmodel.PaginatedBranches, err error) {
-	if filters.Location == nil {
+	if filters == nil || filters.Location == nil {
 		return gmodel.PaginatedBranches{}, fmt.Errorf("location is required")
 	}
 	paginated_branches, err := s.PaginatedBranches(ctx, paginator_input, nil, filters.Location)
