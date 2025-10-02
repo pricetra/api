@@ -127,6 +127,7 @@ input ProductSearch {
   category: String
   categoryId: ID
   branchId: ID
+  branchIds: [ID!]
   location: LocationInput
   storeId: ID
   sale: Boolean

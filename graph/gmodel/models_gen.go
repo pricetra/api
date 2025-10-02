@@ -528,6 +528,7 @@ type ProductSearch struct {
 	Category    *string        `json:"category,omitempty"`
 	CategoryID  *int64         `json:"categoryId,omitempty"`
 	BranchID    *int64         `json:"branchId,omitempty"`
+	BranchIds   []int64        `json:"branchIds,omitempty"`
 	Location    *LocationInput `json:"location,omitempty"`
 	StoreID     *int64         `json:"storeId,omitempty"`
 	Sale        *bool          `json:"sale,omitempty"`
