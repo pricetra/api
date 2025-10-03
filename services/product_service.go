@@ -614,6 +614,10 @@ func (s Service) ExtractProductTextFromBase64Image(ctx context.Context, user gmo
 		if err == nil {
 			extraction_ob.CategoryID = &category.ID
 			extraction_ob.Category = &category
+		} else {
+			cat, _ := s.FindCategoryById(ctx, 842)
+			extraction_ob.CategoryID = &cat.ID
+			extraction_ob.Category = &cat
 		}
 	}
 
