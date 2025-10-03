@@ -21,6 +21,7 @@ extend type Mutation {
     @isAuthenticated(role: "SUPER_ADMIN")
   updateProductNutritionData(productId: ID!): ProductNutrition!
     @isAuthenticated(role: "CONTRIBUTOR")
+  extractAndCreateProduct(barcode: String!, base64Image: String!): Product! @isAuthenticated
 }
 
 type PaginatedProducts {
