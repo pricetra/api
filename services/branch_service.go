@@ -169,6 +169,7 @@ func (s Service) PaginatedBranches(
 	paginator_input gmodel.PaginatorInput,
 	search *string,
 	location *gmodel.LocationInput,
+	branch_ids ...int64,
 ) (res gmodel.PaginatedBranches, err error) {
 	created_user_table, updated_user_table, user_cols := s.CreatedAndUpdatedUserTable()
 	tables := table.Branch.
@@ -198,6 +199,12 @@ func (s Service) PaginatedBranches(
 		columns = append(columns, dist.DistanceColumn)
 		order_by = append(order_by, postgres.FloatColumn(dist.DistanceColumnName).ASC())
 		where_clause = where_clause.AND(dist.DistanceWhereClauseWithRadius)
+	}
+	if len(branch_ids) > 0 {
+		ids := sliceutils.Map(branch_ids, func(val int64, index int, arr []int64) postgres.Expression {
+			return postgres.Int(val)
+		})
+		where_clause = where_clause.AND(table.Branch.ID.IN(ids...))
 	}
 
 	sql_paginator, err := s.Paginate(ctx, paginator_input, tables, table.Branch.ID, where_clause)
@@ -384,10 +391,10 @@ func (s Service) BranchesWithProducts(
 	product_limit int,
 	filters *gmodel.ProductSearch,
 ) (res gmodel.PaginatedBranches, err error) {
-	if filters.Location == nil {
+	if filters == nil || filters.Location == nil {
 		return gmodel.PaginatedBranches{}, fmt.Errorf("location is required")
 	}
-	paginated_branches, err := s.PaginatedBranches(ctx, paginator_input, nil, filters.Location)
+	paginated_branches, err := s.PaginatedBranches(ctx, paginator_input, nil, filters.Location, filters.BranchIds...)
 	if err != nil {
 		return gmodel.PaginatedBranches{}, err
 	}
