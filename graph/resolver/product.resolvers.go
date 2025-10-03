@@ -95,6 +95,29 @@ func (r *mutationResolver) UpdateProductNutritionData(ctx context.Context, produ
 	return &product_nutrition, nil
 }
 
+// ExtractAndCreateProduct is the resolver for the extractAndCreateProduct field.
+func (r *mutationResolver) ExtractAndCreateProduct(ctx context.Context, barcode string, base64Image string) (*gmodel.Product, error) {
+	if p, err := r.Service.FindProductWithCode(ctx, barcode); err == nil {
+		return &p, nil
+	}
+
+	user := r.Service.GetAuthUserFromContext(ctx)
+	fields, err := r.Service.ExtractProductTextFromBase64Image(ctx, user, base64Image)
+	if err != nil {
+		return nil, err
+	}
+
+	return r.CreateProduct(ctx, gmodel.CreateProduct{
+		Code: barcode,
+		Brand: fields.Brand,
+		Name: fields.Name,
+		Weight: fields.Weight,
+		QuantityValue: fields.Quantity,
+		CategoryID: *fields.CategoryID,
+		ImageBase64: &base64Image,
+	})
+}
+
 // BarcodeScan is the resolver for the barcodeScan field.
 func (r *queryResolver) BarcodeScan(ctx context.Context, barcode string, searchMode *bool) (*gmodel.Product, error) {
 	user := r.Service.GetAuthUserFromContext(ctx)
