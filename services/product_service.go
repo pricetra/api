@@ -702,6 +702,7 @@ func (s Service) BranchProducts(
 	)
 	search.Location = nil // disable location filtering
 	search.BranchID = nil // disable branch filtering
+	search.BranchIds = nil // disable branch filtering
 	search.StoreID = nil // disable store filtering
 	where_clause, order_by, filter_cols := s.product_filter_builder(search)
 	order_by = append(
