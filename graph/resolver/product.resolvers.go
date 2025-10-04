@@ -38,8 +38,11 @@ func (r *mutationResolver) CreateProduct(ctx context.Context, input gmodel.Creat
 		r.Service.ImageUrlUpload(ctx, *input.ImageURL, upload_params)
 	}
 
-	// Handle billing
-	r.Service.CreateProductBilling(ctx, user, model.ProductBillingType_Create, product, input, nil)
+	// handle billing
+	go func() {
+		ctx := context.Background()
+		r.Service.CreateProductBilling(ctx, user, model.ProductBillingType_Create, product, input, nil)
+	}()
 	return &product, nil
 }
 
@@ -66,8 +69,10 @@ func (r *mutationResolver) UpdateProduct(ctx context.Context, id int64, input gm
 	}
 
 	// Handle billing
-	// TODO: fetch old product info
-	r.Service.CreateProductBilling(ctx, user, model.ProductBillingType_Update, product, input, old_product)
+	go func() {
+		ctx := context.Background()
+		r.Service.CreateProductBilling(ctx, user, model.ProductBillingType_Update, product, input, old_product)
+	}()
 	return &product, nil
 }
 
