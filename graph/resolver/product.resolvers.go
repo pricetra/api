@@ -25,23 +25,21 @@ func (r *mutationResolver) CreateProduct(ctx context.Context, input gmodel.Creat
 		return nil, err
 	}
 
-	go func ()  {
-		// upload image file to CDN
-		upload_params := uploader.UploadParams{
-			PublicID: product.Code,
-			Tags:     []string{"PRODUCT"},
-		}
-		if input.ImageFile != nil {
-			r.Service.GraphImageUpload(ctx, *input.ImageFile, upload_params)
-		} else if input.ImageBase64 != nil {
-			r.Service.Base64ImageUpload(ctx, *input.ImageBase64, upload_params)
-		} else if input.ImageURL != nil {
-			r.Service.ImageUrlUpload(ctx, *input.ImageURL, upload_params)
-		}
+	// upload image file to CDN
+	upload_params := uploader.UploadParams{
+		PublicID: product.Code,
+		Tags:     []string{"PRODUCT"},
+	}
+	if input.ImageFile != nil {
+		r.Service.GraphImageUpload(ctx, *input.ImageFile, upload_params)
+	} else if input.ImageBase64 != nil {
+		r.Service.Base64ImageUpload(ctx, *input.ImageBase64, upload_params)
+	} else if input.ImageURL != nil {
+		r.Service.ImageUrlUpload(ctx, *input.ImageURL, upload_params)
+	}
 
-		// handle billing/logging
-		r.Service.CreateProductBilling(ctx, user, model.ProductBillingType_Create, product, input, nil)
-	}()
+	// Handle billing
+	r.Service.CreateProductBilling(ctx, user, model.ProductBillingType_Create, product, input, nil)
 	return &product, nil
 }
 
@@ -53,24 +51,23 @@ func (r *mutationResolver) UpdateProduct(ctx context.Context, id int64, input gm
 		return nil, err
 	}
 
-	go func() {
-		// upload image file to CDN
-		if input.ImageFile != nil || input.ImageBase64 != nil {
-			r.Service.DeleteImageUpload(ctx, product.Code)
-		}
-		upload_params := uploader.UploadParams{
-			PublicID: product.Code,
-			Tags:     []string{"PRODUCT"},
-		}
-		if input.ImageFile != nil {
-			r.Service.GraphImageUpload(ctx, *input.ImageFile, upload_params)
-		} else if input.ImageBase64 != nil {
-			r.Service.Base64ImageUpload(ctx, *input.ImageBase64, upload_params)
-		}
-	
-		// handle billing
-		r.Service.CreateProductBilling(ctx, user, model.ProductBillingType_Update, product, input, old_product)
-	}()
+	// upload image file to CDN
+	if input.ImageFile != nil || input.ImageBase64 != nil {
+		r.Service.DeleteImageUpload(ctx, product.Code)
+	}
+	upload_params := uploader.UploadParams{
+		PublicID: product.Code,
+		Tags:     []string{"PRODUCT"},
+	}
+	if input.ImageFile != nil {
+		r.Service.GraphImageUpload(ctx, *input.ImageFile, upload_params)
+	} else if input.ImageBase64 != nil {
+		r.Service.Base64ImageUpload(ctx, *input.ImageBase64, upload_params)
+	}
+
+	// Handle billing
+	// TODO: fetch old product info
+	r.Service.CreateProductBilling(ctx, user, model.ProductBillingType_Update, product, input, old_product)
 	return &product, nil
 }
 
