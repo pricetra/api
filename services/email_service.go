@@ -72,16 +72,18 @@ func (s Service) SendPasswordResetCode(
 	if err != nil {
 		return nil, err
 	}
-	var avatar_url *string = nil
+	var avatar_url string
 	if user.Avatar != nil {
-		url := CLOUDINARY_UPLOAD_BASE + "/" + *user.Avatar
-		avatar_url = &url
-	} 
+		avatar_url = CLOUDINARY_UPLOAD_BASE + "/" + *user.Avatar
+	} else {
+		no_profile_id := "f89a1553-b74e-426c-a82a-359787168a53"
+		avatar_url = CLOUDINARY_UPLOAD_BASE + "/" + no_profile_id
+	}
 	res, err := client.SendPasswordResetCodeWithResponse(ctx, oapi.PasswordResetRequest{
 		RecipientEmail: user.Email,
 		FullName: user.Name,
 		Code: password_reset.Code,
-		AvatarUrl: avatar_url,
+		AvatarUrl: &avatar_url,
 	})
 	return res, err
 }
