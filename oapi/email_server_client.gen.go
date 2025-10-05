@@ -14,38 +14,53 @@ import (
 	"strings"
 )
 
+// EmailRequest defines model for EmailRequest.
+type EmailRequest struct {
+	RecipientEmail string `json:"recipientEmail"`
+}
+
 // EmailResponse defines model for EmailResponse.
 type EmailResponse struct {
-	Content        *string `json:"content,omitempty"`
-	RecipientEmail *string `json:"recipientEmail,omitempty"`
-	Status         *string `json:"status,omitempty"`
-	Subject        *string `json:"subject,omitempty"`
+	Content        string  `json:"content"`
+	RecipientEmail string  `json:"recipientEmail"`
+	Status         float64 `json:"status"`
+	Subject        string  `json:"subject"`
 }
 
 // EmailVerificationRequest defines model for EmailVerificationRequest.
 type EmailVerificationRequest struct {
-	Code           *string `json:"code,omitempty"`
-	Name           *string `json:"name,omitempty"`
-	RecipientEmail *string `json:"recipientEmail,omitempty"`
+	Code           string `json:"code"`
+	Name           string `json:"name"`
+	RecipientEmail string `json:"recipientEmail"`
+}
+
+// EmailVerificationResponse defines model for EmailVerificationResponse.
+type EmailVerificationResponse struct {
+	Code           string  `json:"code"`
+	Content        string  `json:"content"`
+	Name           string  `json:"name"`
+	RecipientEmail string  `json:"recipientEmail"`
+	Status         float64 `json:"status"`
+	Subject        string  `json:"subject"`
 }
 
 // PasswordResetRequest defines model for PasswordResetRequest.
 type PasswordResetRequest struct {
 	AvatarUrl      *string `json:"avatarUrl,omitempty"`
-	Code           *string `json:"code,omitempty"`
-	FullName       *string `json:"fullName,omitempty"`
-	RecipientEmail *string `json:"recipientEmail,omitempty"`
+	Code           string  `json:"code"`
+	FullName       string  `json:"fullName"`
+	RecipientEmail string  `json:"recipientEmail"`
 }
 
 // PasswordResetResponse defines model for PasswordResetResponse.
 type PasswordResetResponse struct {
 	AvatarUrl      *string `json:"avatarUrl,omitempty"`
-	Code           *string `json:"code,omitempty"`
-	Content        *string `json:"content,omitempty"`
-	FullName       *string `json:"fullName,omitempty"`
-	RecipientEmail *string `json:"recipientEmail,omitempty"`
-	Status         *string `json:"status,omitempty"`
-	Subject        *string `json:"subject,omitempty"`
+	Code           string  `json:"code"`
+	Content        string  `json:"content"`
+	FullName       string  `json:"fullName"`
+	RecipientEmail string  `json:"recipientEmail"`
+	Status         float64 `json:"status"`
+	Subject        string  `json:"subject"`
 }
 
 // SendEmailVerificationCodeJSONRequestBody defines body for SendEmailVerificationCode for application/json ContentType.
@@ -323,6 +338,7 @@ type ClientWithResponsesInterface interface {
 type SendEmailVerificationCodeResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
+	JSON200      *EmailVerificationResponse
 }
 
 // Status returns HTTPResponse.Status
@@ -344,6 +360,7 @@ func (r SendEmailVerificationCodeResponse) StatusCode() int {
 type SendPasswordResetCodeResponse struct {
 	Body         []byte
 	HTTPResponse *http.Response
+	JSON200      *PasswordResetResponse
 }
 
 // Status returns HTTPResponse.Status
@@ -409,6 +426,16 @@ func ParseSendEmailVerificationCodeResponse(rsp *http.Response) (*SendEmailVerif
 		HTTPResponse: rsp,
 	}
 
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest EmailVerificationResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
+	}
+
 	return response, nil
 }
 
@@ -423,6 +450,16 @@ func ParseSendPasswordResetCodeResponse(rsp *http.Response) (*SendPasswordResetC
 	response := &SendPasswordResetCodeResponse{
 		Body:         bodyBytes,
 		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 200:
+		var dest PasswordResetResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON200 = &dest
+
 	}
 
 	return response, nil

@@ -19,7 +19,7 @@ test:
 
 # Email server open api codegen
 email-server-schema:
-	wget 'http://localhost:3001/v3/api-docs' -O ./email-server-schema.json
+	wget 'http://localhost:3001/api-docs' -O ./email-server-schema.json
 email-server-codegen: 
 	go run github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen -config oapi-codegen.yml email-server-schema.json
 
