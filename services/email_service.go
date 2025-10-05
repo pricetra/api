@@ -53,9 +53,9 @@ func (s Service) SendEmailVerification(
 		return nil, err
 	}
 	res, err := client.SendEmailVerificationCodeWithResponse(ctx, oapi.EmailVerificationRequest{
-		RecipientEmail: &user.Email,
-		Name: &user.Name,
-		Code: &email_verification.Code,
+		RecipientEmail: user.Email,
+		Name: user.Name,
+		Code: email_verification.Code,
 	})
 	if err != nil {
 		return nil, err
@@ -78,9 +78,9 @@ func (s Service) SendPasswordResetCode(
 		avatar_url = &url
 	} 
 	res, err := client.SendPasswordResetCodeWithResponse(ctx, oapi.PasswordResetRequest{
-		RecipientEmail: &user.Email,
-		FullName: &user.Name,
-		Code: &password_reset.Code,
+		RecipientEmail: user.Email,
+		FullName: user.Name,
+		Code: password_reset.Code,
 		AvatarUrl: avatar_url,
 	})
 	return res, err
