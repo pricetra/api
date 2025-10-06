@@ -114,18 +114,20 @@ func (r *mutationResolver) UpdateUserByID(ctx context.Context, userID int64, inp
 		return nil, err
 	}
 
-	upload_params := uploader.UploadParams{
-		PublicID: *updated_user.Avatar,
-		Tags:     []string{"USER_PROFILE"},
-	}
-	if input.AvatarFile != nil {
-		r.Service.GraphImageUpload(ctx, *input.AvatarFile, upload_params)
-	} else if input.AvatarBase64 != nil {
-		r.Service.Base64ImageUpload(ctx, *input.AvatarBase64, upload_params)
-	}
-	// Delete old avatar
-	if updated_user.Avatar != nil && user.Avatar != nil && *updated_user.Avatar != *user.Avatar {
-		r.Service.DeleteImageUpload(ctx, *user.Avatar)
+	if updated_user.Avatar != nil {
+		upload_params := uploader.UploadParams{
+			PublicID: *updated_user.Avatar,
+			Tags:     []string{"USER_PROFILE"},
+		}
+		if input.AvatarFile != nil {
+			r.Service.GraphImageUpload(ctx, *input.AvatarFile, upload_params)
+		} else if input.AvatarBase64 != nil {
+			r.Service.Base64ImageUpload(ctx, *input.AvatarBase64, upload_params)
+		}
+		// Delete old avatar
+		if user.Avatar != nil && *updated_user.Avatar != *user.Avatar {
+			r.Service.DeleteImageUpload(ctx, *user.Avatar)
+		}
 	}
 	return &updated_user, nil
 }
