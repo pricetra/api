@@ -409,12 +409,28 @@ func (s Service) BranchesWithProducts(
 			return b.ID
 		},
 	)
-	branch_to_product_map, err := s.BranchProducts(ctx, branch_ids, product_limit, filters)
+	search := *filters // copy pointer because BranchProducts mutates the search param
+	branch_to_product_map, err := s.BranchProducts(ctx, branch_ids, product_limit, &search)
 	if err != nil {
 		return gmodel.PaginatedBranches{}, err
 	}
 	for i, branch := range paginated_branches.Branches {
 		paginated_branches.Branches[i].Products = branch_to_product_map[branch.ID]
+	}
+	
+	// Sort to match filters.BranchIds order
+	if len(filters.BranchIds) > 0 {
+		sorted_branch_ids := []*gmodel.Branch{}
+		for _, cur_branch_id := range filters.BranchIds {
+			branch := sliceutils.Find(paginated_branches.Branches, func(branch *gmodel.Branch, idx int, arr []*gmodel.Branch) bool {
+				return branch.ID == cur_branch_id
+			})
+			if branch == nil {
+				continue
+			}
+			sorted_branch_ids = append(sorted_branch_ids, *branch)
+		}
+		paginated_branches.Branches = sorted_branch_ids
 	}
 	return paginated_branches, nil
 }
