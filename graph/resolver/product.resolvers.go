@@ -113,13 +113,13 @@ func (r *mutationResolver) ExtractAndCreateProduct(ctx context.Context, barcode 
 	}
 
 	return r.CreateProduct(ctx, gmodel.CreateProduct{
-		Code: barcode,
-		Brand: fields.Brand,
-		Name: fields.Name,
-		Weight: fields.Weight,
+		Code:          barcode,
+		Brand:         fields.Brand,
+		Name:          fields.Name,
+		Weight:        fields.Weight,
 		QuantityValue: fields.Quantity,
-		CategoryID: *fields.CategoryID,
-		ImageBase64: &base64Image,
+		CategoryID:    *fields.CategoryID,
+		ImageBase64:   &base64Image,
 	})
 }
 
@@ -293,4 +293,13 @@ func (r *queryResolver) GetProductNutritionData(ctx context.Context, productID i
 		return nil, err
 	}
 	return &product_nutrition, nil
+}
+
+// ProductSearch is the resolver for the productSearch field.
+func (r *queryResolver) ProductSearch(ctx context.Context, paginator gmodel.PaginatorInput, search string) (*gmodel.PaginatedProducts, error) {
+	paginated_products, err := r.Service.ProductSearch(ctx, paginator, search)
+	if err != nil {
+		return nil, err
+	}
+	return &paginated_products, nil
 }
