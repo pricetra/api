@@ -159,6 +159,50 @@ func (s Service) BarcodeSearch(ctx context.Context, barcode string, exact bool) 
 	return product, err
 }
 
+func (s Service) ProductSearch(ctx context.Context, paginator_input gmodel.PaginatorInput, search string) (paginated_products gmodel.PaginatedProducts, err error) {
+	tables := table.Product.
+		INNER_JOIN(table.Category, table.Category.ID.EQ(table.Product.CategoryID))
+	product_ft_components := s.BuildFullTextSearchQueryComponents(table.Product.SearchVector, search)
+	category_ft_components := s.BuildFullTextSearchQueryComponents(table.Category.SearchVector, search)
+	where_clause := postgres.OR(
+		product_ft_components.WhereClause,
+		category_ft_components.WhereClause,
+	)
+
+	paginator, err := s.Paginate(ctx, paginator_input, tables, table.Product.ID, where_clause)
+	if err != nil {
+		return gmodel.PaginatedProducts{
+			Products: []*gmodel.Product{},
+			Paginator: &gmodel.Paginator{},
+		}, nil
+	}
+
+	qb := table.Product.
+		SELECT(
+			table.Product.AllColumns,
+			table.Category.AllColumns,
+			product_ft_components.RankColumn,
+			category_ft_components.RankColumn,
+		).
+		FROM(tables).
+		WHERE(where_clause).
+		ORDER_BY(
+			table.Product.Views.DESC(),
+			table.Product.UpdatedAt.DESC(),
+		).
+		LIMIT(int64(paginator.Limit)).
+		OFFSET(int64(paginator.Offset))
+	if err = qb.QueryContext(ctx, s.DbOrTxQueryable(), &paginated_products.Products); err != nil {
+		return gmodel.PaginatedProducts{
+			Products: []*gmodel.Product{},
+			Paginator: &gmodel.Paginator{},
+		}, err
+	}
+
+	paginated_products.Paginator = &paginator.Paginator
+	return paginated_products, nil
+}
+
 func (s Service) BarcodeExists(ctx context.Context, barcode string) bool {
 	qb := table.Product.
 		SELECT(table.Product.Code.AS("code")).

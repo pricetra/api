@@ -294,3 +294,12 @@ func (r *queryResolver) GetProductNutritionData(ctx context.Context, productID i
 	}
 	return &product_nutrition, nil
 }
+
+// ProductSearch is the resolver for the productSearch field.
+func (r *queryResolver) ProductSearch(ctx context.Context, paginator gmodel.PaginatorInput, search string) (*gmodel.PaginatedProducts, error) {
+	paginated_products, err := r.Service.ProductSearch(ctx, paginator, search)
+	if err != nil {
+		return nil, err
+	}
+	return &paginated_products, nil
+}
