@@ -113,13 +113,13 @@ func (r *mutationResolver) ExtractAndCreateProduct(ctx context.Context, barcode 
 	}
 
 	return r.CreateProduct(ctx, gmodel.CreateProduct{
-		Code: barcode,
-		Brand: fields.Brand,
-		Name: fields.Name,
-		Weight: fields.Weight,
+		Code:          barcode,
+		Brand:         fields.Brand,
+		Name:          fields.Name,
+		Weight:        fields.Weight,
 		QuantityValue: fields.Quantity,
-		CategoryID: *fields.CategoryID,
-		ImageBase64: &base64Image,
+		CategoryID:    *fields.CategoryID,
+		ImageBase64:   &base64Image,
 	})
 }
 
