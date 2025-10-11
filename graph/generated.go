@@ -523,6 +523,7 @@ type ComplexityRoot struct {
 		PriceChangeHistory            func(childComplexity int, productID int64, stockID int64, paginator gmodel.PaginatorInput, filters *gmodel.PriceHistoryFilter) int
 		Product                       func(childComplexity int, id int64, viewerTrail *gmodel.ViewerTrailInput) int
 		ProductBillingDataByUserID    func(childComplexity int, userID int64, paginator gmodel.PaginatorInput) int
+		ProductSearch                 func(childComplexity int, paginator gmodel.PaginatorInput, search string) int
 		Stock                         func(childComplexity int, stockID int64) int
 		VerifyPasswordResetCode       func(childComplexity int, email string, code string) int
 	}
@@ -663,6 +664,7 @@ type QueryResolver interface {
 	ExtractProductFields(ctx context.Context, base64Image string) (*gmodel.ProductExtractionResponse, error)
 	MyProductViewHistory(ctx context.Context, paginator gmodel.PaginatorInput) (*gmodel.PaginatedProducts, error)
 	GetProductNutritionData(ctx context.Context, productID int64) (*gmodel.ProductNutrition, error)
+	ProductSearch(ctx context.Context, paginator gmodel.PaginatorInput, search string) (*gmodel.PaginatedProducts, error)
 	MySearchHistory(ctx context.Context, paginator gmodel.PaginatorInput) (*gmodel.PaginatedSearch, error)
 	Stock(ctx context.Context, stockID int64) (*gmodel.Stock, error)
 	GetProductStocks(ctx context.Context, paginator gmodel.PaginatorInput, productID int64, location *gmodel.LocationInput) (*gmodel.PaginatedStocks, error)
@@ -3623,6 +3625,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.ProductBillingDataByUserID(childComplexity, args["userId"].(int64), args["paginator"].(gmodel.PaginatorInput)), true
 
+	case "Query.productSearch":
+		if e.complexity.Query.ProductSearch == nil {
+			break
+		}
+
+		args, err := ec.field_Query_productSearch_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.ProductSearch(childComplexity, args["paginator"].(gmodel.PaginatorInput), args["search"].(string)), true
+
 	case "Query.stock":
 		if e.complexity.Query.Stock == nil {
 			break
@@ -5456,6 +5470,30 @@ func (ec *executionContext) field_Query_productBillingDataByUserId_args(ctx cont
 		}
 	}
 	args["paginator"] = arg1
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_productSearch_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 gmodel.PaginatorInput
+	if tmp, ok := rawArgs["paginator"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("paginator"))
+		arg0, err = ec.unmarshalNPaginatorInput2githubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐPaginatorInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["paginator"] = arg0
+	var arg1 string
+	if tmp, ok := rawArgs["search"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("search"))
+		arg1, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["search"] = arg1
 	return args, nil
 }
 
@@ -25206,6 +25244,67 @@ func (ec *executionContext) fieldContext_Query_getProductNutritionData(ctx conte
 	return fc, nil
 }
 
+func (ec *executionContext) _Query_productSearch(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_productSearch(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().ProductSearch(rctx, fc.Args["paginator"].(gmodel.PaginatorInput), fc.Args["search"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*gmodel.PaginatedProducts)
+	fc.Result = res
+	return ec.marshalNPaginatedProducts2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐPaginatedProducts(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_productSearch(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "products":
+				return ec.fieldContext_PaginatedProducts_products(ctx, field)
+			case "paginator":
+				return ec.fieldContext_PaginatedProducts_paginator(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type PaginatedProducts", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_productSearch_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Query_mySearchHistory(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Query_mySearchHistory(ctx, field)
 	if err != nil {
@@ -34492,6 +34591,28 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_getProductNutritionData(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "productSearch":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_productSearch(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}

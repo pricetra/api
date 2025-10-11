@@ -10,6 +10,7 @@ extend type Query {
     @isAuthenticated
   myProductViewHistory(paginator: PaginatorInput!): PaginatedProducts! @isAuthenticated
   getProductNutritionData(productId: ID!): ProductNutrition!
+  productSearch(paginator: PaginatorInput!, search: String!): PaginatedProducts!
 }
 
 extend type Mutation {
