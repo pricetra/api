@@ -8,9 +8,11 @@ extend type Query {
   product(id: ID!, viewerTrail: ViewerTrailInput): Product!
   extractProductFields(base64Image: String!): ProductExtractionResponse!
     @isAuthenticated
-  myProductViewHistory(paginator: PaginatorInput!): PaginatedProducts! @isAuthenticated
+  myProductViewHistory(paginator: PaginatorInput!): PaginatedProducts!
+    @isAuthenticated
   getProductNutritionData(productId: ID!): ProductNutrition!
   productSearch(paginator: PaginatorInput!, search: String!): PaginatedProducts!
+  weightComponentsFromCategoryId(categoryId: ID!): [ProductWeightComponents!]!
 }
 
 extend type Mutation {
@@ -22,7 +24,8 @@ extend type Mutation {
     @isAuthenticated(role: "SUPER_ADMIN")
   updateProductNutritionData(productId: ID!): ProductNutrition!
     @isAuthenticated(role: "CONTRIBUTOR")
-  extractAndCreateProduct(barcode: String!, base64Image: String!): Product! @isAuthenticated
+  extractAndCreateProduct(barcode: String!, base64Image: String!): Product!
+    @isAuthenticated
 }
 
 type PaginatedProducts {
@@ -85,6 +88,11 @@ type ProductExtractionResponse {
   quantity: Int
   categoryId: ID
   category: Category
+}
+
+type ProductWeightComponents {
+  weightValue: Float! @goTag(key: "alias", value: "product.weight_value")
+  weightType: String! @goTag(key: "alias", value: "product.weight_type")
 }
 
 input CreateProduct {

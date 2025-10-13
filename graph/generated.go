@@ -489,44 +489,50 @@ type ComplexityRoot struct {
 		Vegetarian             func(childComplexity int) int
 	}
 
+	ProductWeightComponents struct {
+		WeightType  func(childComplexity int) int
+		WeightValue func(childComplexity int) int
+	}
+
 	Query struct {
-		AllBranches                   func(childComplexity int, storeID int64, paginator gmodel.PaginatorInput, search *string, location *gmodel.LocationInput) int
-		AllBrands                     func(childComplexity int) int
-		AllProducts                   func(childComplexity int, paginator gmodel.PaginatorInput, search *gmodel.ProductSearch) int
-		AllStores                     func(childComplexity int, paginator gmodel.PaginatorInput, search *string) int
-		BarcodeScan                   func(childComplexity int, barcode string, searchMode *bool) int
-		BranchesWithProducts          func(childComplexity int, paginator gmodel.PaginatorInput, productLimit int, filters *gmodel.ProductSearch) int
-		CategorySearch                func(childComplexity int, search string, quickSearchMode *bool) int
-		CheckAppVersion               func(childComplexity int, platform gmodel.AuthDeviceType, version string) int
-		DefaultGroceryListItems       func(childComplexity int) int
-		ExtractProductFields          func(childComplexity int, base64Image string) int
-		FindBranch                    func(childComplexity int, storeID int64, id int64) int
-		FindBranchesByDistance        func(childComplexity int, lat float64, lon float64, radiusMeters int) int
-		FindStore                     func(childComplexity int, id int64) int
-		GetAllBranchListsByListID     func(childComplexity int, listID int64) int
-		GetAllCountries               func(childComplexity int) int
-		GetAllLists                   func(childComplexity int, listType *gmodel.ListType) int
-		GetAllProductListsByListID    func(childComplexity int, listID int64) int
-		GetAllUsers                   func(childComplexity int, paginator gmodel.PaginatorInput, filters *gmodel.UserFilter) int
-		GetCategories                 func(childComplexity int, depth *int, parentID *int64, search *string) int
-		GetFavoriteBranchesWithPrices func(childComplexity int, productID int64) int
-		GetProductNutritionData       func(childComplexity int, productID int64) int
-		GetProductStocks              func(childComplexity int, paginator gmodel.PaginatorInput, productID int64, location *gmodel.LocationInput) int
-		GoogleOAuth                   func(childComplexity int, accessToken string, ipAddress *string, device *gmodel.AuthDeviceType) int
-		GroceryList                   func(childComplexity int, groceryListID int64) int
-		GroceryListItems              func(childComplexity int, groceryListID int64) int
-		GroceryLists                  func(childComplexity int) int
-		Login                         func(childComplexity int, email string, password string, ipAddress *string, device *gmodel.AuthDeviceType) int
-		Me                            func(childComplexity int) int
-		MyProductBillingData          func(childComplexity int, paginator gmodel.PaginatorInput) int
-		MyProductViewHistory          func(childComplexity int, paginator gmodel.PaginatorInput) int
-		MySearchHistory               func(childComplexity int, paginator gmodel.PaginatorInput) int
-		PriceChangeHistory            func(childComplexity int, productID int64, stockID int64, paginator gmodel.PaginatorInput, filters *gmodel.PriceHistoryFilter) int
-		Product                       func(childComplexity int, id int64, viewerTrail *gmodel.ViewerTrailInput) int
-		ProductBillingDataByUserID    func(childComplexity int, userID int64, paginator gmodel.PaginatorInput) int
-		ProductSearch                 func(childComplexity int, paginator gmodel.PaginatorInput, search string) int
-		Stock                         func(childComplexity int, stockID int64) int
-		VerifyPasswordResetCode       func(childComplexity int, email string, code string) int
+		AllBranches                    func(childComplexity int, storeID int64, paginator gmodel.PaginatorInput, search *string, location *gmodel.LocationInput) int
+		AllBrands                      func(childComplexity int) int
+		AllProducts                    func(childComplexity int, paginator gmodel.PaginatorInput, search *gmodel.ProductSearch) int
+		AllStores                      func(childComplexity int, paginator gmodel.PaginatorInput, search *string) int
+		BarcodeScan                    func(childComplexity int, barcode string, searchMode *bool) int
+		BranchesWithProducts           func(childComplexity int, paginator gmodel.PaginatorInput, productLimit int, filters *gmodel.ProductSearch) int
+		CategorySearch                 func(childComplexity int, search string, quickSearchMode *bool) int
+		CheckAppVersion                func(childComplexity int, platform gmodel.AuthDeviceType, version string) int
+		DefaultGroceryListItems        func(childComplexity int) int
+		ExtractProductFields           func(childComplexity int, base64Image string) int
+		FindBranch                     func(childComplexity int, storeID int64, id int64) int
+		FindBranchesByDistance         func(childComplexity int, lat float64, lon float64, radiusMeters int) int
+		FindStore                      func(childComplexity int, id int64) int
+		GetAllBranchListsByListID      func(childComplexity int, listID int64) int
+		GetAllCountries                func(childComplexity int) int
+		GetAllLists                    func(childComplexity int, listType *gmodel.ListType) int
+		GetAllProductListsByListID     func(childComplexity int, listID int64) int
+		GetAllUsers                    func(childComplexity int, paginator gmodel.PaginatorInput, filters *gmodel.UserFilter) int
+		GetCategories                  func(childComplexity int, depth *int, parentID *int64, search *string) int
+		GetFavoriteBranchesWithPrices  func(childComplexity int, productID int64) int
+		GetProductNutritionData        func(childComplexity int, productID int64) int
+		GetProductStocks               func(childComplexity int, paginator gmodel.PaginatorInput, productID int64, location *gmodel.LocationInput) int
+		GoogleOAuth                    func(childComplexity int, accessToken string, ipAddress *string, device *gmodel.AuthDeviceType) int
+		GroceryList                    func(childComplexity int, groceryListID int64) int
+		GroceryListItems               func(childComplexity int, groceryListID int64) int
+		GroceryLists                   func(childComplexity int) int
+		Login                          func(childComplexity int, email string, password string, ipAddress *string, device *gmodel.AuthDeviceType) int
+		Me                             func(childComplexity int) int
+		MyProductBillingData           func(childComplexity int, paginator gmodel.PaginatorInput) int
+		MyProductViewHistory           func(childComplexity int, paginator gmodel.PaginatorInput) int
+		MySearchHistory                func(childComplexity int, paginator gmodel.PaginatorInput) int
+		PriceChangeHistory             func(childComplexity int, productID int64, stockID int64, paginator gmodel.PaginatorInput, filters *gmodel.PriceHistoryFilter) int
+		Product                        func(childComplexity int, id int64, viewerTrail *gmodel.ViewerTrailInput) int
+		ProductBillingDataByUserID     func(childComplexity int, userID int64, paginator gmodel.PaginatorInput) int
+		ProductSearch                  func(childComplexity int, paginator gmodel.PaginatorInput, search string) int
+		Stock                          func(childComplexity int, stockID int64) int
+		VerifyPasswordResetCode        func(childComplexity int, email string, code string) int
+		WeightComponentsFromCategoryID func(childComplexity int, categoryID int64) int
 	}
 
 	SearchHistory struct {
@@ -667,6 +673,7 @@ type QueryResolver interface {
 	MyProductViewHistory(ctx context.Context, paginator gmodel.PaginatorInput) (*gmodel.PaginatedProducts, error)
 	GetProductNutritionData(ctx context.Context, productID int64) (*gmodel.ProductNutrition, error)
 	ProductSearch(ctx context.Context, paginator gmodel.PaginatorInput, search string) (*gmodel.PaginatedProducts, error)
+	WeightComponentsFromCategoryID(ctx context.Context, categoryID int64) ([]*gmodel.ProductWeightComponents, error)
 	MySearchHistory(ctx context.Context, paginator gmodel.PaginatorInput) (*gmodel.PaginatedSearch, error)
 	Stock(ctx context.Context, stockID int64) (*gmodel.Stock, error)
 	GetProductStocks(ctx context.Context, paginator gmodel.PaginatorInput, productID int64, location *gmodel.LocationInput) (*gmodel.PaginatedStocks, error)
@@ -3256,6 +3263,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.ProductNutrition.Vegetarian(childComplexity), true
 
+	case "ProductWeightComponents.weightType":
+		if e.complexity.ProductWeightComponents.WeightType == nil {
+			break
+		}
+
+		return e.complexity.ProductWeightComponents.WeightType(childComplexity), true
+
+	case "ProductWeightComponents.weightValue":
+		if e.complexity.ProductWeightComponents.WeightValue == nil {
+			break
+		}
+
+		return e.complexity.ProductWeightComponents.WeightValue(childComplexity), true
+
 	case "Query.allBranches":
 		if e.complexity.Query.AllBranches == nil {
 			break
@@ -3674,6 +3695,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.VerifyPasswordResetCode(childComplexity, args["email"].(string), args["code"].(string)), true
+
+	case "Query.weightComponentsFromCategoryId":
+		if e.complexity.Query.WeightComponentsFromCategoryID == nil {
+			break
+		}
+
+		args, err := ec.field_Query_weightComponentsFromCategoryId_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.WeightComponentsFromCategoryID(childComplexity, args["categoryId"].(int64)), true
 
 	case "SearchHistory.createdAt":
 		if e.complexity.SearchHistory.CreatedAt == nil {
@@ -5595,6 +5628,21 @@ func (ec *executionContext) field_Query_verifyPasswordResetCode_args(ctx context
 		}
 	}
 	args["code"] = arg1
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_weightComponentsFromCategoryId_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 int64
+	if tmp, ok := rawArgs["categoryId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("categoryId"))
+		arg0, err = ec.unmarshalNID2int64(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["categoryId"] = arg0
 	return args, nil
 }
 
@@ -23255,6 +23303,94 @@ func (ec *executionContext) fieldContext_ProductNutrition_updatedAt(ctx context.
 	return fc, nil
 }
 
+func (ec *executionContext) _ProductWeightComponents_weightValue(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductWeightComponents) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductWeightComponents_weightValue(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.WeightValue, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(float64)
+	fc.Result = res
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductWeightComponents_weightValue(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductWeightComponents",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductWeightComponents_weightType(ctx context.Context, field graphql.CollectedField, obj *gmodel.ProductWeightComponents) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductWeightComponents_weightType(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.WeightType, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductWeightComponents_weightType(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductWeightComponents",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Query_checkAppVersion(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Query_checkAppVersion(ctx, field)
 	if err != nil {
@@ -25406,6 +25542,67 @@ func (ec *executionContext) fieldContext_Query_productSearch(ctx context.Context
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Query_productSearch_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_weightComponentsFromCategoryId(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_weightComponentsFromCategoryId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().WeightComponentsFromCategoryID(rctx, fc.Args["categoryId"].(int64))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*gmodel.ProductWeightComponents)
+	fc.Result = res
+	return ec.marshalNProductWeightComponents2ᚕᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐProductWeightComponentsᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_weightComponentsFromCategoryId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "weightValue":
+				return ec.fieldContext_ProductWeightComponents_weightValue(ctx, field)
+			case "weightType":
+				return ec.fieldContext_ProductWeightComponents_weightType(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ProductWeightComponents", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_weightComponentsFromCategoryId_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -34141,6 +34338,50 @@ func (ec *executionContext) _ProductNutrition(ctx context.Context, sel ast.Selec
 	return out
 }
 
+var productWeightComponentsImplementors = []string{"ProductWeightComponents"}
+
+func (ec *executionContext) _ProductWeightComponents(ctx context.Context, sel ast.SelectionSet, obj *gmodel.ProductWeightComponents) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, productWeightComponentsImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ProductWeightComponents")
+		case "weightValue":
+			out.Values[i] = ec._ProductWeightComponents_weightValue(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "weightType":
+			out.Values[i] = ec._ProductWeightComponents_weightType(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var queryImplementors = []string{"Query"}
 
 func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) graphql.Marshaler {
@@ -34742,6 +34983,28 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_productSearch(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "weightComponentsFromCategoryId":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_weightComponentsFromCategoryId(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -36929,6 +37192,60 @@ func (ec *executionContext) marshalNProductNutrition2ᚖgithubᚗcomᚋpricetra�
 		return graphql.Null
 	}
 	return ec._ProductNutrition(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNProductWeightComponents2ᚕᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐProductWeightComponentsᚄ(ctx context.Context, sel ast.SelectionSet, v []*gmodel.ProductWeightComponents) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNProductWeightComponents2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐProductWeightComponents(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNProductWeightComponents2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐProductWeightComponents(ctx context.Context, sel ast.SelectionSet, v *gmodel.ProductWeightComponents) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._ProductWeightComponents(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNSaveExternalProductInput2githubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐSaveExternalProductInput(ctx context.Context, v interface{}) (gmodel.SaveExternalProductInput, error) {

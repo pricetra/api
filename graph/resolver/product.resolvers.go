@@ -303,3 +303,8 @@ func (r *queryResolver) ProductSearch(ctx context.Context, paginator gmodel.Pagi
 	}
 	return &paginated_products, nil
 }
+
+// WeightComponentsFromCategoryID is the resolver for the weightComponentsFromCategoryId field.
+func (r *queryResolver) WeightComponentsFromCategoryID(ctx context.Context, categoryID int64) ([]*gmodel.ProductWeightComponents, error) {
+	return r.Service.GetProductWeightComponents(ctx, categoryID)
+}

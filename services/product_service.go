@@ -833,3 +833,19 @@ func (s Service) BranchProducts(
 	}
 	return branch_to_product_map, nil
 }
+
+func (s Service) GetProductWeightComponents(ctx context.Context, category_id int64) (weight_components []*gmodel.ProductWeightComponents, err error) {
+	qb := table.Product.
+		SELECT(table.Product.WeightValue, table.Product.WeightType).
+		FROM(
+			table.Product.
+				INNER_JOIN(table.Category, table.Category.ID.EQ(table.Product.CategoryID)),
+		).
+		WHERE(table.Category.ID.EQ(postgres.Int(category_id))).
+		GROUP_BY(table.Product.WeightValue, table.Product.WeightType).
+		ORDER_BY(table.Product.WeightValue.DESC())
+	if err := qb.QueryContext(ctx, s.DbOrTxQueryable(), &weight_components); err != nil {
+		return nil, err
+	}
+	return weight_components, nil
+}
