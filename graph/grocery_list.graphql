@@ -3,6 +3,7 @@ extend type Query {
   groceryList(groceryListId: ID!): GroceryList! @isAuthenticated
   groceryListItems(groceryListId: ID!): [GroceryListItem!]! @isAuthenticated
   defaultGroceryListItems: [GroceryListItem!]! @isAuthenticated
+  countGroceryListItems(groceryListId: ID, includeCompleted: Boolean): Int! @isAuthenticated
 }
 
 extend type Mutation {

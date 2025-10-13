@@ -102,3 +102,9 @@ func (r *queryResolver) DefaultGroceryListItems(ctx context.Context) ([]*gmodel.
 	}
 	return r.GroceryListItems(ctx, default_list.ID)
 }
+
+// CountGroceryListItems is the resolver for the countGroceryListItems field.
+func (r *queryResolver) CountGroceryListItems(ctx context.Context, groceryListID *int64, includeCompleted *bool) (int, error) {
+	user := r.Service.GetAuthUserFromContext(ctx)
+	return r.Service.CountGroceryListItems(ctx, user, groceryListID, includeCompleted), nil
+}

@@ -233,3 +233,35 @@ func (s Service) UpdateGroceryListItem(
 	grocery_list_item.Product = product
 	return grocery_list_item, nil
 }
+
+func (s Service) CountGroceryListItems(
+	ctx context.Context, 
+	user gmodel.User,
+	grocery_list_id *int64,
+	include_completed *bool,
+) int {
+	where_clause := table.GroceryList.UserID.EQ(postgres.Int(user.ID))
+	if grocery_list_id != nil {
+		where_clause = where_clause.AND(
+			table.GroceryList.ID.EQ(postgres.Int(*grocery_list_id)),
+		)
+	}
+	if include_completed == nil || *include_completed == false {
+		where_clause = where_clause.AND(table.GroceryListItem.Completed.IS_FALSE())
+	}
+	qb := table.GroceryList.
+		SELECT(postgres.COUNT(table.GroceryListItem.ID).AS("count")).
+		FROM(
+			table.GroceryList.
+				INNER_JOIN(
+					table.GroceryListItem,
+					table.GroceryListItem.GroceryListID.EQ(table.GroceryList.ID),
+				),
+		).
+		WHERE(where_clause)
+	var res struct{Count int}
+	if err := qb.QueryContext(ctx, s.DbOrTxQueryable(), &res); err != nil {
+		return 0
+	}
+	return res.Count
+}
