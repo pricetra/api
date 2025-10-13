@@ -140,7 +140,7 @@ func (s Service) GetGroceryListItems(ctx context.Context, user gmodel.User, groc
 			table.GroceryListItem.UserID.EQ(postgres.Int(user.ID)).
 				AND(table.GroceryListItem.GroceryListID.EQ(postgres.Int(grocery_list_id))),
 		).
-		ORDER_BY(table.GroceryListItem.CreatedAt.ASC())
+		ORDER_BY(table.GroceryListItem.ID.DESC())
 	if err = qb.QueryContext(ctx, s.DbOrTxQueryable(), &grocery_list_items); err != nil {
 		return nil, err
 	}
