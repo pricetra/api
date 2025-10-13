@@ -1,5 +1,6 @@
 extend type Query {
   getCategories(depth: Int, parentId: ID, search: String): [Category!]!
+  categorySearch(search: String!, quickSearchMode: Boolean): [Category!]!
 }
 
 extend type Mutation {

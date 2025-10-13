@@ -210,3 +210,30 @@ func (s Service) CategoryRecursiveInsert(ctx context.Context, category_str strin
 	}
 	return categories[len(categories) - 1], nil
 }
+
+func (s Service) CategorySearch(ctx context.Context, search string, quick_search_mode bool) (categories []*gmodel.Category, err error) {
+	where_clause := postgres.RawBool(
+		fmt.Sprintf("array_length(%s, 1) > %d", utils.BuildFullTableName(table.Category.Path), 1),
+	)
+	if quick_search_mode {
+		where_clause = where_clause.AND(
+			postgres.RawBool(
+				fmt.Sprintf("%s ILIKE $category", utils.BuildFullTableName(table.Category.Name)), 
+				map[string]any{
+					"$category": fmt.Sprintf("%%%s%%", search),
+				},
+			),
+		)
+	} else {
+		fs_components := s.BuildFullTextSearchQueryComponents(table.Category.SearchVector, search)
+		where_clause.AND(fs_components.WhereClause)
+	}
+	qb := table.Category.
+		SELECT(table.Category.AllColumns).
+		WHERE(where_clause).
+		ORDER_BY(table.Category.ID.ASC())
+	if err := qb.QueryContext(ctx, s.DbOrTxQueryable(), &categories); err != nil {
+		return nil, err
+	}
+	return categories, nil
+}

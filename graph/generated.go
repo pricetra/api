@@ -496,6 +496,7 @@ type ComplexityRoot struct {
 		AllStores                     func(childComplexity int, paginator gmodel.PaginatorInput, search *string) int
 		BarcodeScan                   func(childComplexity int, barcode string, searchMode *bool) int
 		BranchesWithProducts          func(childComplexity int, paginator gmodel.PaginatorInput, productLimit int, filters *gmodel.ProductSearch) int
+		CategorySearch                func(childComplexity int, search string, quickSearchMode *bool) int
 		CheckAppVersion               func(childComplexity int, platform gmodel.AuthDeviceType, version string) int
 		DefaultGroceryListItems       func(childComplexity int) int
 		ExtractProductFields          func(childComplexity int, base64Image string) int
@@ -647,6 +648,7 @@ type QueryResolver interface {
 	FindBranchesByDistance(ctx context.Context, lat float64, lon float64, radiusMeters int) ([]*gmodel.Branch, error)
 	BranchesWithProducts(ctx context.Context, paginator gmodel.PaginatorInput, productLimit int, filters *gmodel.ProductSearch) (*gmodel.PaginatedBranches, error)
 	GetCategories(ctx context.Context, depth *int, parentID *int64, search *string) ([]*gmodel.Category, error)
+	CategorySearch(ctx context.Context, search string, quickSearchMode *bool) ([]*gmodel.Category, error)
 	GetAllCountries(ctx context.Context) ([]*gmodel.Country, error)
 	GroceryLists(ctx context.Context) ([]*gmodel.GroceryList, error)
 	GroceryList(ctx context.Context, groceryListID int64) (*gmodel.GroceryList, error)
@@ -3321,6 +3323,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.BranchesWithProducts(childComplexity, args["paginator"].(gmodel.PaginatorInput), args["productLimit"].(int), args["filters"].(*gmodel.ProductSearch)), true
 
+	case "Query.categorySearch":
+		if e.complexity.Query.CategorySearch == nil {
+			break
+		}
+
+		args, err := ec.field_Query_categorySearch_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.CategorySearch(childComplexity, args["search"].(string), args["quickSearchMode"].(*bool)), true
+
 	case "Query.checkAppVersion":
 		if e.complexity.Query.CheckAppVersion == nil {
 			break
@@ -4978,6 +4992,30 @@ func (ec *executionContext) field_Query_branchesWithProducts_args(ctx context.Co
 		}
 	}
 	args["filters"] = arg2
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_categorySearch_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["search"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("search"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["search"] = arg0
+	var arg1 *bool
+	if tmp, ok := rawArgs["quickSearchMode"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("quickSearchMode"))
+		arg1, err = ec.unmarshalOBoolean2ᚖbool(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["quickSearchMode"] = arg1
 	return args, nil
 }
 
@@ -23787,6 +23825,75 @@ func (ec *executionContext) fieldContext_Query_getCategories(ctx context.Context
 	return fc, nil
 }
 
+func (ec *executionContext) _Query_categorySearch(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_categorySearch(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().CategorySearch(rctx, fc.Args["search"].(string), fc.Args["quickSearchMode"].(*bool))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*gmodel.Category)
+	fc.Result = res
+	return ec.marshalNCategory2ᚕᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐCategoryᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_categorySearch(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Category_id(ctx, field)
+			case "name":
+				return ec.fieldContext_Category_name(ctx, field)
+			case "path":
+				return ec.fieldContext_Category_path(ctx, field)
+			case "expandedPathname":
+				return ec.fieldContext_Category_expandedPathname(ctx, field)
+			case "categoryAlias":
+				return ec.fieldContext_Category_categoryAlias(ctx, field)
+			case "depth":
+				return ec.fieldContext_Category_depth(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Category", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_categorySearch_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Query_getAllCountries(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Query_getAllCountries(ctx, field)
 	if err != nil {
@@ -34217,6 +34324,28 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_getCategories(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "categorySearch":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_categorySearch(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
