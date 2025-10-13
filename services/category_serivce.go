@@ -85,6 +85,7 @@ func (s Service) CreateCategory(ctx context.Context, input gmodel.CreateCategory
 	}
 	defer tx.Rollback()
 
+	input.Name = strings.TrimSpace(input.Name)
 	expanded_pathname, err := s.CategoryPathToExpandedPathname(ctx, input.ParentPath, &input.Name)
 	if err != nil {
 		return gmodel.Category{}, err
