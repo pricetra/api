@@ -10,6 +10,7 @@ extend type Mutation {
   addGroceryListItem(input: CreateGroceryListItemInput!, groceryListId: ID): GroceryListItem! @isAuthenticated
   updateGroceryListItem(groceryListItemId: ID!, input: CreateGroceryListItemInput!): GroceryListItem! @isAuthenticated
   markGroceryListItem(groceryListItemId: ID!, completed: Boolean!): GroceryListItem! @isAuthenticated
+  deleteGroceryListItem(groceryListItemId: ID!): GroceryListItem! @isAuthenticated
 }
 
 type GroceryList {

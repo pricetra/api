@@ -202,6 +202,7 @@ type ComplexityRoot struct {
 		CreatePrice                 func(childComplexity int, input gmodel.CreatePrice) int
 		CreateProduct               func(childComplexity int, input gmodel.CreateProduct) int
 		CreateStore                 func(childComplexity int, input gmodel.CreateStore) int
+		DeleteGroceryListItem       func(childComplexity int, groceryListItemID int64) int
 		DeleteList                  func(childComplexity int, listID int64) int
 		DeleteSearchByID            func(childComplexity int, id int64) int
 		ExtractAndCreateProduct     func(childComplexity int, barcode string, base64Image string) int
@@ -619,6 +620,7 @@ type MutationResolver interface {
 	AddGroceryListItem(ctx context.Context, input gmodel.CreateGroceryListItemInput, groceryListID *int64) (*gmodel.GroceryListItem, error)
 	UpdateGroceryListItem(ctx context.Context, groceryListItemID int64, input gmodel.CreateGroceryListItemInput) (*gmodel.GroceryListItem, error)
 	MarkGroceryListItem(ctx context.Context, groceryListItemID int64, completed bool) (*gmodel.GroceryListItem, error)
+	DeleteGroceryListItem(ctx context.Context, groceryListItemID int64) (*gmodel.GroceryListItem, error)
 	CreateList(ctx context.Context, name string) (*gmodel.List, error)
 	DeleteList(ctx context.Context, listID int64) (*gmodel.List, error)
 	AddToList(ctx context.Context, listID int64, productID int64, stockID *int64) (*gmodel.ProductList, error)
@@ -1536,6 +1538,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.CreateStore(childComplexity, args["input"].(gmodel.CreateStore)), true
+
+	case "Mutation.deleteGroceryListItem":
+		if e.complexity.Mutation.DeleteGroceryListItem == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_deleteGroceryListItem_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.DeleteGroceryListItem(childComplexity, args["groceryListItemId"].(int64)), true
 
 	case "Mutation.deleteList":
 		if e.complexity.Mutation.DeleteList == nil {
@@ -4508,6 +4522,21 @@ func (ec *executionContext) field_Mutation_createStore_args(ctx context.Context,
 		}
 	}
 	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_deleteGroceryListItem_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 int64
+	if tmp, ok := rawArgs["groceryListItemId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("groceryListItemId"))
+		arg0, err = ec.unmarshalNID2int64(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["groceryListItemId"] = arg0
 	return args, nil
 }
 
@@ -10914,6 +10943,107 @@ func (ec *executionContext) fieldContext_Mutation_markGroceryListItem(ctx contex
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_markGroceryListItem_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_deleteGroceryListItem(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_deleteGroceryListItem(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().DeleteGroceryListItem(rctx, fc.Args["groceryListItemId"].(int64))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.IsAuthenticated == nil {
+				return nil, errors.New("directive isAuthenticated is not implemented")
+			}
+			return ec.directives.IsAuthenticated(ctx, nil, directive0, nil)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*gmodel.GroceryListItem); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/pricetra/api/graph/gmodel.GroceryListItem`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*gmodel.GroceryListItem)
+	fc.Result = res
+	return ec.marshalNGroceryListItem2ᚖgithubᚗcomᚋpricetraᚋapiᚋgraphᚋgmodelᚐGroceryListItem(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_deleteGroceryListItem(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_GroceryListItem_id(ctx, field)
+			case "groceryListId":
+				return ec.fieldContext_GroceryListItem_groceryListId(ctx, field)
+			case "groceryList":
+				return ec.fieldContext_GroceryListItem_groceryList(ctx, field)
+			case "productId":
+				return ec.fieldContext_GroceryListItem_productId(ctx, field)
+			case "product":
+				return ec.fieldContext_GroceryListItem_product(ctx, field)
+			case "quantity":
+				return ec.fieldContext_GroceryListItem_quantity(ctx, field)
+			case "unit":
+				return ec.fieldContext_GroceryListItem_unit(ctx, field)
+			case "category":
+				return ec.fieldContext_GroceryListItem_category(ctx, field)
+			case "weight":
+				return ec.fieldContext_GroceryListItem_weight(ctx, field)
+			case "completed":
+				return ec.fieldContext_GroceryListItem_completed(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_GroceryListItem_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_GroceryListItem_updatedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type GroceryListItem", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_deleteGroceryListItem_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -33042,6 +33172,13 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		case "markGroceryListItem":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_markGroceryListItem(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "deleteGroceryListItem":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_deleteGroceryListItem(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++

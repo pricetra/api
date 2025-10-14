@@ -55,6 +55,16 @@ func (r *mutationResolver) MarkGroceryListItem(ctx context.Context, groceryListI
 	return &updated_list_item, nil
 }
 
+// DeleteGroceryListItem is the resolver for the deleteGroceryListItem field.
+func (r *mutationResolver) DeleteGroceryListItem(ctx context.Context, groceryListItemID int64) (*gmodel.GroceryListItem, error) {
+	user := r.Service.GetAuthUserFromContext(ctx)
+	grocery_list_item, err := r.Service.DeleteGroceryListItem(ctx, user, groceryListItemID)
+	if err != nil {
+		return nil, err
+	}
+	return &grocery_list_item, nil
+}
+
 // GroceryLists is the resolver for the groceryLists field.
 func (r *queryResolver) GroceryLists(ctx context.Context) ([]*gmodel.GroceryList, error) {
 	user := r.Service.GetAuthUserFromContext(ctx)

@@ -234,6 +234,28 @@ func (s Service) UpdateGroceryListItem(
 	return grocery_list_item, nil
 }
 
+func (s Service) DeleteGroceryListItem(
+	ctx context.Context,
+	user gmodel.User,
+	grocery_list_item_id int64,
+) (grocery_list_item gmodel.GroceryListItem, err error) {
+	grocery_list_item, err = s.GetGroceryListItem(ctx, user, grocery_list_item_id)
+	if err != nil {
+		return gmodel.GroceryListItem{}, fmt.Errorf("grocery list not found")
+	}
+
+	qb := table.GroceryListItem.
+		DELETE().
+		WHERE(
+			table.GroceryListItem.ID.EQ(postgres.Int(grocery_list_item_id)).
+				AND(table.GroceryListItem.UserID.EQ(postgres.Int(user.ID))),
+		)
+	if _, err = qb.ExecContext(ctx, s.DB); err != nil {
+		return gmodel.GroceryListItem{}, err
+	}
+	return grocery_list_item, nil
+}
+
 func (s Service) CountGroceryListItems(
 	ctx context.Context, 
 	user gmodel.User,
