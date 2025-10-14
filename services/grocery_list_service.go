@@ -140,7 +140,7 @@ func (s Service) GetGroceryListItems(ctx context.Context, user gmodel.User, groc
 			table.GroceryListItem.UserID.EQ(postgres.Int(user.ID)).
 				AND(table.GroceryListItem.GroceryListID.EQ(postgres.Int(grocery_list_id))),
 		).
-		ORDER_BY(table.GroceryListItem.CreatedAt.ASC())
+		ORDER_BY(table.GroceryListItem.ID.DESC())
 	if err = qb.QueryContext(ctx, s.DbOrTxQueryable(), &grocery_list_items); err != nil {
 		return nil, err
 	}
@@ -232,4 +232,58 @@ func (s Service) UpdateGroceryListItem(
 	}
 	grocery_list_item.Product = product
 	return grocery_list_item, nil
+}
+
+func (s Service) DeleteGroceryListItem(
+	ctx context.Context,
+	user gmodel.User,
+	grocery_list_item_id int64,
+) (grocery_list_item gmodel.GroceryListItem, err error) {
+	grocery_list_item, err = s.GetGroceryListItem(ctx, user, grocery_list_item_id)
+	if err != nil {
+		return gmodel.GroceryListItem{}, fmt.Errorf("grocery list not found")
+	}
+
+	qb := table.GroceryListItem.
+		DELETE().
+		WHERE(
+			table.GroceryListItem.ID.EQ(postgres.Int(grocery_list_item_id)).
+				AND(table.GroceryListItem.UserID.EQ(postgres.Int(user.ID))),
+		)
+	if _, err = qb.ExecContext(ctx, s.DB); err != nil {
+		return gmodel.GroceryListItem{}, err
+	}
+	return grocery_list_item, nil
+}
+
+func (s Service) CountGroceryListItems(
+	ctx context.Context, 
+	user gmodel.User,
+	grocery_list_id *int64,
+	include_completed *bool,
+) int {
+	where_clause := table.GroceryList.UserID.EQ(postgres.Int(user.ID))
+	if grocery_list_id != nil {
+		where_clause = where_clause.AND(
+			table.GroceryList.ID.EQ(postgres.Int(*grocery_list_id)),
+		)
+	}
+	if include_completed == nil || *include_completed == false {
+		where_clause = where_clause.AND(table.GroceryListItem.Completed.IS_FALSE())
+	}
+	qb := table.GroceryList.
+		SELECT(postgres.COUNT(table.GroceryListItem.ID).AS("count")).
+		FROM(
+			table.GroceryList.
+				INNER_JOIN(
+					table.GroceryListItem,
+					table.GroceryListItem.GroceryListID.EQ(table.GroceryList.ID),
+				),
+		).
+		WHERE(where_clause)
+	var res struct{Count int}
+	if err := qb.QueryContext(ctx, s.DbOrTxQueryable(), &res); err != nil {
+		return 0
+	}
+	return res.Count
 }

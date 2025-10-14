@@ -3,12 +3,14 @@ extend type Query {
   groceryList(groceryListId: ID!): GroceryList! @isAuthenticated
   groceryListItems(groceryListId: ID!): [GroceryListItem!]! @isAuthenticated
   defaultGroceryListItems: [GroceryListItem!]! @isAuthenticated
+  countGroceryListItems(groceryListId: ID, includeCompleted: Boolean): Int! @isAuthenticated
 }
 
 extend type Mutation {
   addGroceryListItem(input: CreateGroceryListItemInput!, groceryListId: ID): GroceryListItem! @isAuthenticated
   updateGroceryListItem(groceryListItemId: ID!, input: CreateGroceryListItemInput!): GroceryListItem! @isAuthenticated
   markGroceryListItem(groceryListItemId: ID!, completed: Boolean!): GroceryListItem! @isAuthenticated
+  deleteGroceryListItem(groceryListItemId: ID!): GroceryListItem! @isAuthenticated
 }
 
 type GroceryList {

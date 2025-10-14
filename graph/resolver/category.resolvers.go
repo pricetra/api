@@ -32,3 +32,12 @@ func (r *queryResolver) GetCategories(ctx context.Context, depth *int, parentID 
 	}
 	return results, nil
 }
+
+// CategorySearch is the resolver for the categorySearch field.
+func (r *queryResolver) CategorySearch(ctx context.Context, search string, quickSearchMode *bool) ([]*gmodel.Category, error) {
+	mode := false
+	if quickSearchMode != nil {
+		mode = *quickSearchMode
+	}
+	return r.Service.CategorySearch(ctx, search, mode)
+}

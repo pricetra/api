@@ -539,6 +539,11 @@ type ProductSearch struct {
 	Brand       *string        `json:"brand,omitempty"`
 }
 
+type ProductWeightComponents struct {
+	WeightValue float64 `json:"weightValue" alias:"product.weight_value"`
+	WeightType  string  `json:"weightType" alias:"product.weight_type"`
+}
+
 type Query struct {
 }
 
