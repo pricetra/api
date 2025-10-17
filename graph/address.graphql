@@ -26,11 +26,6 @@ type Address {
   zipCode: String!
   countryCode: String!
   country: String @goTag(key: "alias", value: "country.name")
-
-  createdById: ID
-  createdBy: CreatedByUser
-  updatedById: ID
-  updatedBy: UpdatedByUser
 }
 
 input LocationInput {

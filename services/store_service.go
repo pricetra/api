@@ -47,28 +47,22 @@ func (s Service) CreateStore(ctx context.Context, user gmodel.User, input gmodel
 }
 
 func (s Service) GetAllStores(ctx context.Context) (stores []gmodel.Store, err error) {
-	created_user_table, updated_user_table, cols := s.CreatedAndUpdatedUserTable()
-
 	stock_count_col_name := "stock_count"
 	stock_count_col := postgres.COUNT(table.Stock.ID)
-	cols = append(cols, stock_count_col.AS(stock_count_col_name))
 	qb := table.Store.SELECT(
 		table.Store.AllColumns,
-		cols...,
+		stock_count_col.AS(stock_count_col_name),
 	).FROM(
 		table.Store.
-			LEFT_JOIN(table.Stock, table.Stock.StoreID.EQ(table.Store.ID)).
-			LEFT_JOIN(created_user_table, created_user_table.ID.EQ(table.Store.CreatedByID)).
-			LEFT_JOIN(updated_user_table, updated_user_table.ID.EQ(table.Store.UpdatedByID)),
+			LEFT_JOIN(table.Stock, table.Stock.StoreID.EQ(table.Store.ID)),
 	).
-	GROUP_BY(table.Store.ID, created_user_table.ID, updated_user_table.ID).
+	GROUP_BY(table.Store.ID).
 	ORDER_BY(stock_count_col.DESC(), table.Store.CreatedAt.ASC())
 	err = qb.QueryContext(ctx, s.DbOrTxQueryable(), &stores)
 	return stores, err
 }
 
 func (s Service) PaginatedStores(ctx context.Context, paginator_input gmodel.PaginatorInput, search *string) (paginated_stores gmodel.PaginatedStores, err error) {
-	created_user_table, updated_user_table, cols := s.CreatedAndUpdatedUserTable()
 	where_clause := postgres.Bool(true)
 	if search != nil && *search != "" {
 		where_clause = where_clause.AND(
@@ -81,14 +75,7 @@ func (s Service) PaginatedStores(ctx context.Context, paginator_input gmodel.Pag
 		)
 	}
 	tables := table.Store.
-			LEFT_JOIN(table.Stock, table.Stock.StoreID.EQ(table.Store.ID)).
-			LEFT_JOIN(created_user_table, created_user_table.ID.EQ(table.Store.CreatedByID)).
-			LEFT_JOIN(updated_user_table, updated_user_table.ID.EQ(table.Store.UpdatedByID))
-	group_by := []postgres.GroupByClause{
-		table.Store.ID,
-		created_user_table.ID,
-		updated_user_table.ID,
-	}
+			LEFT_JOIN(table.Stock, table.Stock.StoreID.EQ(table.Store.ID))
 
 	sql_paginator, err := s.Paginate(
 		ctx,
@@ -106,15 +93,14 @@ func (s Service) PaginatedStores(ctx context.Context, paginator_input gmodel.Pag
 
 	stock_count_col_name := "stock_count"
 	stock_count_col := postgres.COUNT(table.Stock.ID)
-	cols = append(cols, stock_count_col.AS(stock_count_col_name))
 	qb := table.Store.
 		SELECT(
 			table.Store.AllColumns,
-			cols...,
+			stock_count_col.AS(stock_count_col_name),
 		).
 		FROM(tables).
 		WHERE(where_clause).
-		GROUP_BY(group_by...).
+		GROUP_BY(table.Store.ID,).
 		ORDER_BY(stock_count_col.DESC(), table.Store.CreatedAt.ASC()).
 		LIMIT(int64(sql_paginator.Limit)).
 		OFFSET(int64(sql_paginator.Offset))
@@ -127,15 +113,8 @@ func (s Service) PaginatedStores(ctx context.Context, paginator_input gmodel.Pag
 }
 
 func (s Service) FindStore(ctx context.Context, id int64) (store gmodel.Store, err error) {
-	created_user_table, updated_user_table, user_cols := s.CreatedAndUpdatedUserTable()
-	qb := table.Store.SELECT(
-		table.Store.AllColumns,
-		user_cols...,
-	).FROM(
-		table.Store.
-			LEFT_JOIN(created_user_table, created_user_table.ID.EQ(table.Store.CreatedByID)).
-			LEFT_JOIN(updated_user_table, updated_user_table.ID.EQ(table.Store.UpdatedByID)),
-	).
+	qb := table.Store.SELECT(table.Store.AllColumns).
+	FROM(table.Store).
 	WHERE(table.Store.ID.EQ(postgres.Int(id))).
 	LIMIT(1)
 	err = qb.QueryContext(ctx, s.DbOrTxQueryable(), &store)

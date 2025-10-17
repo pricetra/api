@@ -44,7 +44,7 @@ func (s Service) Paginate(
 	num_pages := int(math.Ceil(float64(p_total.Total) / float64(paginator_input.Limit)))
 
 	if paginator_input.Page > num_pages {
-		return SqlPaginator{}, fmt.Errorf("page cannot be exceed total pages amount")
+		return SqlPaginator{}, fmt.Errorf("page cannot exceed the total amount")
 	}
 
 	paginator := SqlPaginator{

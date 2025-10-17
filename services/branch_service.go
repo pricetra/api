@@ -80,12 +80,10 @@ func (s Service) CreateBranch(ctx context.Context, user gmodel.User, input gmode
 }
 
 func (s Service) FindBranchById(ctx context.Context, id int64) (branch gmodel.Branch, err error) {
-	created_user_table, updated_user_table, user_cols := s.CreatedAndUpdatedUserTable()
 	columns := []postgres.Projection{
 		table.Address.AllColumns,
 		table.Country.Name,
 	}
-	columns = append(columns, user_cols...)
 	qb := table.Branch.
 		SELECT(
 			table.Branch.AllColumns,
@@ -94,9 +92,7 @@ func (s Service) FindBranchById(ctx context.Context, id int64) (branch gmodel.Br
 		FROM(
 			table.Branch.
 				INNER_JOIN(table.Address, table.Address.ID.EQ(table.Branch.AddressID)).
-				INNER_JOIN(table.Country, table.Country.Code.EQ(table.Address.CountryCode)).
-				LEFT_JOIN(created_user_table, created_user_table.ID.EQ(table.Branch.CreatedByID)).
-				LEFT_JOIN(updated_user_table, updated_user_table.ID.EQ(table.Branch.UpdatedByID)),
+				INNER_JOIN(table.Country, table.Country.Code.EQ(table.Address.CountryCode)),
 		).
 		WHERE(table.Branch.ID.EQ(postgres.Int(id))).
 		LIMIT(1)
@@ -111,18 +107,14 @@ func (s Service) FindBranchesByStoreId(
 	search *string,
 	location *gmodel.LocationInput,
 ) (res gmodel.PaginatedBranches, err error) {
-	created_user_table, updated_user_table, user_cols := s.CreatedAndUpdatedUserTable()
 	tables := table.Branch.
 		INNER_JOIN(table.Address, table.Address.ID.EQ(table.Branch.AddressID)).
-		INNER_JOIN(table.Country, table.Country.Code.EQ(table.Address.CountryCode)).
-		LEFT_JOIN(created_user_table, created_user_table.ID.EQ(table.Branch.CreatedByID)).
-		LEFT_JOIN(updated_user_table, updated_user_table.ID.EQ(table.Branch.UpdatedByID))
+		INNER_JOIN(table.Country, table.Country.Code.EQ(table.Address.CountryCode))
 
 	columns := []postgres.Projection{
 		table.Address.AllColumns,
 		table.Country.Name,
 	}
-	columns = append(columns, user_cols...)
 
 	where_clause := table.Branch.StoreID.EQ(postgres.Int(store_id))
 	order_by := []postgres.OrderByClause{}
@@ -171,20 +163,16 @@ func (s Service) PaginatedBranches(
 	location *gmodel.LocationInput,
 	branch_ids ...int64,
 ) (res gmodel.PaginatedBranches, err error) {
-	created_user_table, updated_user_table, user_cols := s.CreatedAndUpdatedUserTable()
 	tables := table.Branch.
 		INNER_JOIN(table.Store, table.Store.ID.EQ(table.Branch.StoreID)).
 		INNER_JOIN(table.Address, table.Address.ID.EQ(table.Branch.AddressID)).
-		INNER_JOIN(table.Country, table.Country.Code.EQ(table.Address.CountryCode)).
-		LEFT_JOIN(created_user_table, created_user_table.ID.EQ(table.Branch.CreatedByID)).
-		LEFT_JOIN(updated_user_table, updated_user_table.ID.EQ(table.Branch.UpdatedByID))
+		INNER_JOIN(table.Country, table.Country.Code.EQ(table.Address.CountryCode))
 
 	columns := []postgres.Projection{
 		table.Store.AllColumns,
 		table.Address.AllColumns,
 		table.Country.Name,
 	}
-	columns = append(columns, user_cols...)
 
 	where_clause := postgres.Bool(true)
 	order_by := []postgres.OrderByClause{}
@@ -233,12 +221,10 @@ func (s Service) PaginatedBranches(
 }
 
 func (s Service) FindBranchByBranchIdAndStoreId(ctx context.Context, branch_id int64, store_id int64) (branch gmodel.Branch, err error) {
-	created_user_table, updated_user_table, user_cols := s.CreatedAndUpdatedUserTable()
 	columns := []postgres.Projection{
 		table.Address.AllColumns,
 		table.Country.Name,
 	}
-	columns = append(columns, user_cols...)
 	qb := table.Branch.
 		SELECT(
 			table.Branch.AllColumns,
@@ -247,9 +233,7 @@ func (s Service) FindBranchByBranchIdAndStoreId(ctx context.Context, branch_id i
 		FROM(
 			table.Branch.
 				INNER_JOIN(table.Address, table.Address.ID.EQ(table.Branch.AddressID)).
-				INNER_JOIN(table.Country, table.Country.Code.EQ(table.Address.CountryCode)).
-				LEFT_JOIN(created_user_table, created_user_table.ID.EQ(table.Branch.CreatedByID)).
-				LEFT_JOIN(updated_user_table, updated_user_table.ID.EQ(table.Branch.UpdatedByID)),
+				INNER_JOIN(table.Country, table.Country.Code.EQ(table.Address.CountryCode)),
 		).
 		WHERE(
 			table.Branch.StoreID.EQ(postgres.Int(store_id)).
@@ -275,7 +259,6 @@ func (s Service) FindBranchByStoreIdAndAddressId(ctx context.Context, store_id i
 }
 
 func (s Service) FindBranchesByCoordinates(ctx context.Context, lat float64, lon float64, radius_meters int) (branches []gmodel.Branch, err error) {
-	created_user_table, updated_user_table, user_cols := s.CreatedAndUpdatedUserTable()
 	distance_cols := s.GetDistanceCols(lat, lon, &radius_meters)
 	columns := []postgres.Projection{
 		table.Store.AllColumns,
@@ -283,7 +266,6 @@ func (s Service) FindBranchesByCoordinates(ctx context.Context, lat float64, lon
 		table.Country.Name,
 		distance_cols.DistanceColumn,
 	}
-	columns = append(columns, user_cols...)
 	qb := table.Branch.
 		SELECT(
 			table.Branch.AllColumns,
@@ -293,9 +275,7 @@ func (s Service) FindBranchesByCoordinates(ctx context.Context, lat float64, lon
 			table.Branch.
 				INNER_JOIN(table.Store, table.Store.ID.EQ(table.Branch.StoreID)).
 				INNER_JOIN(table.Address, table.Address.ID.EQ(table.Branch.AddressID)).
-				INNER_JOIN(table.Country, table.Country.Code.EQ(table.Address.CountryCode)).
-				LEFT_JOIN(created_user_table, created_user_table.ID.EQ(table.Branch.CreatedByID)).
-				LEFT_JOIN(updated_user_table, updated_user_table.ID.EQ(table.Branch.UpdatedByID)),
+				INNER_JOIN(table.Country, table.Country.Code.EQ(table.Address.CountryCode)),
 		).
 		WHERE(distance_cols.DistanceWhereClauseWithRadius).
 		ORDER_BY(
@@ -389,48 +369,157 @@ func (s Service) BranchesWithProducts(
 	ctx context.Context,
 	paginator_input gmodel.PaginatorInput,
 	product_limit int,
-	filters *gmodel.ProductSearch,
+	search *gmodel.ProductSearch,
 ) (res gmodel.PaginatedBranches, err error) {
-	if filters == nil {
+	if search == nil {
 		return gmodel.PaginatedBranches{}, fmt.Errorf("filters is required")
 	}
-	if filters.BranchIds == nil && filters.Location == nil {
+	if search.BranchIds == nil && search.Location == nil {
 		return gmodel.PaginatedBranches{}, fmt.Errorf("branch ids or location filters are required")
 	}
 
-	paginated_branches, err := s.PaginatedBranches(ctx, paginator_input, nil, filters.Location, filters.BranchIds...)
+	branch_where_clause, _, _ := s.ProductFiltersBuilder(search)
+	branch_ids_qb_col := []postgres.Projection{}
+	branch_ids_qb_group_by := []postgres.GroupByClause{table.Branch.ID}
+	if search.Location != nil {
+		d := s.GetDistanceCols(search.Location.Latitude, search.Location.Longitude, search.Location.RadiusMeters)
+		branch_ids_qb_col = append(branch_ids_qb_col, d.DistanceColumn)
+		branch_ids_qb_group_by = append(branch_ids_qb_group_by, postgres.FloatColumn(d.DistanceColumnName))
+	}
+	branch_ids_qb := table.Branch.
+		SELECT(table.Branch.ID, branch_ids_qb_col...).
+		FROM(
+			table.Branch.
+				INNER_JOIN(table.Store, table.Store.ID.EQ(table.Branch.StoreID)).
+				INNER_JOIN(table.Address, table.Address.ID.EQ(table.Branch.AddressID)).
+				INNER_JOIN(table.Stock, table.Stock.BranchID.EQ(table.Branch.ID)).
+				INNER_JOIN(table.Price, table.Price.ID.EQ(table.Stock.LatestPriceID)).
+				INNER_JOIN(table.Product, table.Product.ID.EQ(table.Price.ProductID)).
+				INNER_JOIN(table.Category, table.Category.ID.EQ(table.Product.CategoryID)),
+		).
+		WHERE(branch_where_clause).
+		GROUP_BY(branch_ids_qb_group_by...)
+	branch_ids_table := branch_ids_qb.AsTable("branch_ids_table")
+	sql_paginator, err := s.Paginate(
+		ctx,
+		paginator_input, 
+		branch_ids_table,
+		table.Branch.ID.From(branch_ids_table),
+		nil,
+	)
 	if err != nil {
-		return gmodel.PaginatedBranches{}, err
+		// Return empty result
+		return gmodel.PaginatedBranches{
+			Branches: []*gmodel.Branch{},
+			Paginator: &gmodel.Paginator{},
+		}, nil
 	}
 
-	branch_ids := sliceutils.Map(
-		paginated_branches.Branches, 
-		func(b *gmodel.Branch, i int, slice []*gmodel.Branch) int64 {
-			return b.ID
-		},
+	var distance_cols *DistanceColumns
+	if search.Location != nil {
+		d := s.GetDistanceCols(search.Location.Latitude, search.Location.Longitude, search.Location.RadiusMeters)
+		distance_cols = &d
+	}
+
+	created_user_table, updated_user_table, cols := s.CreatedAndUpdatedUserTable()
+	cols = append(
+		cols,
+		table.Category.AllColumns,
+		table.Stock.AllColumns,
+		table.Store.AllColumns,
+		table.Branch.AllColumns,
+		table.Price.AllColumns,
+		table.Address.AllColumns,
 	)
-	search := *filters // copy pointer because BranchProducts mutates the search param
-	branch_to_product_map, err := s.BranchProducts(ctx, branch_ids, product_limit, &search)
-	if err != nil {
-		return gmodel.PaginatedBranches{}, err
+	search.Location = nil // disable location filtering
+	search.BranchID = nil // disable branch filtering
+	search.BranchIds = nil // disable branch filtering
+	search.StoreID = nil // disable store filtering
+
+	where_clause, order_by, filter_cols := s.ProductFiltersBuilder(search)
+
+	order_by_with_distance := []postgres.OrderByClause{}
+	if distance_cols != nil {
+		cols = append(cols, distance_cols.DistanceColumn)
+		order_by_with_distance = append(order_by_with_distance, postgres.FloatColumn(distance_cols.DistanceColumnName).ASC())
 	}
-	for i, branch := range paginated_branches.Branches {
-		paginated_branches.Branches[i].Products = branch_to_product_map[branch.ID]
+	order_by = append(
+		order_by,
+		table.Price.CreatedAt.DESC(),
+		table.Product.Views.DESC(),
+	)
+	cols = append(cols, filter_cols...)
+
+	// Represents all the paginated branch ids
+	if len(order_by_with_distance) > 0 {
+		branch_ids_qb = branch_ids_qb.ORDER_BY(order_by_with_distance...)
 	}
-	
-	// Sort to match filters.BranchIds order
-	if len(filters.BranchIds) > 0 {
-		sorted_branch_ids := []*gmodel.Branch{}
-		for _, cur_branch_id := range filters.BranchIds {
-			branch := sliceutils.Find(paginated_branches.Branches, func(branch *gmodel.Branch, idx int, arr []*gmodel.Branch) bool {
-				return branch.ID == cur_branch_id
-			})
-			if branch == nil {
-				continue
-			}
-			sorted_branch_ids = append(sorted_branch_ids, *branch)
-		}
-		paginated_branches.Branches = sorted_branch_ids
+	paginated_branch_ids_table := branch_ids_qb.
+		LIMIT(int64(sql_paginator.Limit)).
+		OFFSET(int64(sql_paginator.Offset)).
+		AsTable("paginated_branch_ids_table")
+
+	// Subquery/CTE (Common table expression) to get stocks with row numbers
+	// this allows us to limit the number of products per branch
+	row_num_col_name := "rn"
+	row_number_col := postgres.
+		ROW_NUMBER().
+		OVER(
+			postgres.
+				PARTITION_BY(table.Stock.BranchID).
+				ORDER_BY(order_by...),
+		).AS(row_num_col_name)
+	stock_cte := postgres.CTE("stock_cte")
+	stock_sub_query_cols := append(filter_cols, row_number_col)
+	stock_sub_query := table.Stock.
+			SELECT(
+				table.Stock.ID,
+				stock_sub_query_cols...,
+			).
+			FROM(
+				paginated_branch_ids_table.
+					INNER_JOIN(table.Stock, table.Stock.BranchID.EQ(table.Branch.ID.From(paginated_branch_ids_table))).
+					INNER_JOIN(table.Price, table.Price.ID.EQ(table.Stock.LatestPriceID)).
+					INNER_JOIN(table.Product, table.Product.ID.EQ(table.Stock.ProductID)).
+					INNER_JOIN(table.Category, table.Category.ID.EQ(table.Product.CategoryID)),
+			).
+			WHERE(where_clause)
+
+	final_order_by := []postgres.OrderByClause{}
+	final_order_by = append(final_order_by, order_by_with_distance...)
+	final_order_by = append(final_order_by, order_by...)
+	qb := postgres.
+		WITH(stock_cte.AS(stock_sub_query))(
+			// Main query to select products joining with the Stock CTE
+			table.Product.
+				SELECT(table.Product.AllColumns, cols...).
+				FROM(
+					stock_cte.
+						INNER_JOIN(table.Stock, table.Stock.ID.EQ(table.Stock.ID.From(stock_cte))).
+						INNER_JOIN(table.Product, table.Product.ID.EQ(table.Stock.ProductID)).
+						INNER_JOIN(table.Category, table.Category.ID.EQ(table.Product.CategoryID)).
+						INNER_JOIN(table.Store, table.Store.ID.EQ(table.Stock.StoreID)).
+						INNER_JOIN(table.Branch, table.Branch.ID.EQ(table.Stock.BranchID)).
+						INNER_JOIN(table.Price, table.Price.ID.EQ(table.Stock.LatestPriceID)).
+						INNER_JOIN(table.Address, table.Address.ID.EQ(table.Branch.AddressID)).
+						LEFT_JOIN(created_user_table, created_user_table.ID.EQ(table.Price.CreatedByID)).
+						LEFT_JOIN(updated_user_table, updated_user_table.ID.EQ(table.Price.UpdatedByID)),
+				).WHERE(
+					postgres.AND(
+						table.Stock.ID.IN(table.Stock.ID.From(stock_cte)),
+						postgres.IntegerColumn(row_num_col_name).LT_EQ(postgres.Int(int64(product_limit))),
+					),
+				).ORDER_BY(final_order_by...),
+		)
+	var branches []*gmodel.Branch
+	if err := qb.QueryContext(ctx, s.DbOrTxQueryable(), &branches); err != nil {
+		return gmodel.PaginatedBranches{
+			Branches: []*gmodel.Branch{},
+			Paginator: &gmodel.Paginator{},
+		}, nil
 	}
-	return paginated_branches, nil
+
+	res.Branches = branches
+	res.Paginator = &sql_paginator.Paginator
+	return res, nil
 }

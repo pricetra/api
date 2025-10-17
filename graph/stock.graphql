@@ -14,11 +14,30 @@ type Stock {
   storeId: ID!
   store: Store
   branchId: ID!
-  branch: Branch
+  branch: BranchFlat
   latestPriceId: ID!
   latestPrice: Price
+
   createdAt: Time!
   updatedAt: Time!
+
+  createdById: ID
+  createdBy: CreatedByUser
+  updatedById: ID
+  updatedBy: UpdatedByUser
+}
+
+type StockSimple {
+  id: ID! @goTag(key: "sql", value: "primary_key")
+  productId: ID!
+  storeId: ID!
+  branchId: ID!
+  latestPriceId: ID!
+  latestPrice: Price
+
+  createdAt: Time!
+  updatedAt: Time!
+
   createdById: ID
   createdBy: CreatedByUser
   updatedById: ID

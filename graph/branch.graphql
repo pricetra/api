@@ -5,12 +5,15 @@ type Branch {
   address: Address!
   storeId: ID!
   store: Store
-  products: [Product!]
+  products: [ProductSimple!] @goTag(key: "alias", value: "product")
+}
 
-  createdById: ID
-  createdBy: CreatedByUser
-  updatedById: ID
-  updatedBy: UpdatedByUser
+type BranchFlat {
+  id: ID! @goTag(key: "sql", value: "primary_key")
+  name: String!
+  addressId: ID!
+  address: Address!
+  storeId: ID!
 }
 
 type PaginatedBranches {
@@ -45,6 +48,7 @@ extend type Query {
 }
 
 extend type Mutation {
-  createBranchWithFullAddress(storeId: ID!, fullAddress: String!): Branch! @isAuthenticated(role: "ADMIN")
+  createBranchWithFullAddress(storeId: ID!, fullAddress: String!): Branch!
+    @isAuthenticated(role: "ADMIN")
   createBranch(input: CreateBranch!): Branch! @isAuthenticated(role: "ADMIN")
 }

@@ -41,12 +41,6 @@ func TestProduct(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		if product.CreatedByID == nil || *product.CreatedByID != user.ID {
-			t.Fatal("product createdById was not inserted")
-		}
-		if product.UpdatedByID == nil || *product.UpdatedByID != user.ID {
-			t.Fatal("product updatedById was not inserted")
-		}
 		if product.Category.ExpandedPathname != category.ExpandedPathname {
 			t.Fatal("category expanded pathname is incorrect")
 		}

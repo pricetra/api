@@ -1,7 +1,6 @@
 package tests
 
 import (
-	"fmt"
 	"reflect"
 	"testing"
 
@@ -44,7 +43,6 @@ func TestCategory(t *testing.T) {
 			t.Fatal("pathname is incorrect", subcategory.ExpandedPathname)
 		}
 		path := utils.ToPostgresArray(append(parent_path, int(subcategory.ID)))
-		fmt.Println(subcategory.Path, subcategory.ExpandedPathname)
 		if subcategory.Path != path {
 			t.Fatal("paths don't match", subcategory.Path, path)
 		}
