@@ -80,12 +80,10 @@ func (s Service) CreateBranch(ctx context.Context, user gmodel.User, input gmode
 }
 
 func (s Service) FindBranchById(ctx context.Context, id int64) (branch gmodel.Branch, err error) {
-	created_user_table, updated_user_table, user_cols := s.CreatedAndUpdatedUserTable()
 	columns := []postgres.Projection{
 		table.Address.AllColumns,
 		table.Country.Name,
 	}
-	columns = append(columns, user_cols...)
 	qb := table.Branch.
 		SELECT(
 			table.Branch.AllColumns,
@@ -94,9 +92,7 @@ func (s Service) FindBranchById(ctx context.Context, id int64) (branch gmodel.Br
 		FROM(
 			table.Branch.
 				INNER_JOIN(table.Address, table.Address.ID.EQ(table.Branch.AddressID)).
-				INNER_JOIN(table.Country, table.Country.Code.EQ(table.Address.CountryCode)).
-				LEFT_JOIN(created_user_table, created_user_table.ID.EQ(table.Branch.CreatedByID)).
-				LEFT_JOIN(updated_user_table, updated_user_table.ID.EQ(table.Branch.UpdatedByID)),
+				INNER_JOIN(table.Country, table.Country.Code.EQ(table.Address.CountryCode)),
 		).
 		WHERE(table.Branch.ID.EQ(postgres.Int(id))).
 		LIMIT(1)
@@ -111,18 +107,14 @@ func (s Service) FindBranchesByStoreId(
 	search *string,
 	location *gmodel.LocationInput,
 ) (res gmodel.PaginatedBranches, err error) {
-	created_user_table, updated_user_table, user_cols := s.CreatedAndUpdatedUserTable()
 	tables := table.Branch.
 		INNER_JOIN(table.Address, table.Address.ID.EQ(table.Branch.AddressID)).
-		INNER_JOIN(table.Country, table.Country.Code.EQ(table.Address.CountryCode)).
-		LEFT_JOIN(created_user_table, created_user_table.ID.EQ(table.Branch.CreatedByID)).
-		LEFT_JOIN(updated_user_table, updated_user_table.ID.EQ(table.Branch.UpdatedByID))
+		INNER_JOIN(table.Country, table.Country.Code.EQ(table.Address.CountryCode))
 
 	columns := []postgres.Projection{
 		table.Address.AllColumns,
 		table.Country.Name,
 	}
-	columns = append(columns, user_cols...)
 
 	where_clause := table.Branch.StoreID.EQ(postgres.Int(store_id))
 	order_by := []postgres.OrderByClause{}
@@ -171,20 +163,16 @@ func (s Service) PaginatedBranches(
 	location *gmodel.LocationInput,
 	branch_ids ...int64,
 ) (res gmodel.PaginatedBranches, err error) {
-	created_user_table, updated_user_table, user_cols := s.CreatedAndUpdatedUserTable()
 	tables := table.Branch.
 		INNER_JOIN(table.Store, table.Store.ID.EQ(table.Branch.StoreID)).
 		INNER_JOIN(table.Address, table.Address.ID.EQ(table.Branch.AddressID)).
-		INNER_JOIN(table.Country, table.Country.Code.EQ(table.Address.CountryCode)).
-		LEFT_JOIN(created_user_table, created_user_table.ID.EQ(table.Branch.CreatedByID)).
-		LEFT_JOIN(updated_user_table, updated_user_table.ID.EQ(table.Branch.UpdatedByID))
+		INNER_JOIN(table.Country, table.Country.Code.EQ(table.Address.CountryCode))
 
 	columns := []postgres.Projection{
 		table.Store.AllColumns,
 		table.Address.AllColumns,
 		table.Country.Name,
 	}
-	columns = append(columns, user_cols...)
 
 	where_clause := postgres.Bool(true)
 	order_by := []postgres.OrderByClause{}
@@ -233,12 +221,10 @@ func (s Service) PaginatedBranches(
 }
 
 func (s Service) FindBranchByBranchIdAndStoreId(ctx context.Context, branch_id int64, store_id int64) (branch gmodel.Branch, err error) {
-	created_user_table, updated_user_table, user_cols := s.CreatedAndUpdatedUserTable()
 	columns := []postgres.Projection{
 		table.Address.AllColumns,
 		table.Country.Name,
 	}
-	columns = append(columns, user_cols...)
 	qb := table.Branch.
 		SELECT(
 			table.Branch.AllColumns,
@@ -247,9 +233,7 @@ func (s Service) FindBranchByBranchIdAndStoreId(ctx context.Context, branch_id i
 		FROM(
 			table.Branch.
 				INNER_JOIN(table.Address, table.Address.ID.EQ(table.Branch.AddressID)).
-				INNER_JOIN(table.Country, table.Country.Code.EQ(table.Address.CountryCode)).
-				LEFT_JOIN(created_user_table, created_user_table.ID.EQ(table.Branch.CreatedByID)).
-				LEFT_JOIN(updated_user_table, updated_user_table.ID.EQ(table.Branch.UpdatedByID)),
+				INNER_JOIN(table.Country, table.Country.Code.EQ(table.Address.CountryCode)),
 		).
 		WHERE(
 			table.Branch.StoreID.EQ(postgres.Int(store_id)).
@@ -275,7 +259,6 @@ func (s Service) FindBranchByStoreIdAndAddressId(ctx context.Context, store_id i
 }
 
 func (s Service) FindBranchesByCoordinates(ctx context.Context, lat float64, lon float64, radius_meters int) (branches []gmodel.Branch, err error) {
-	created_user_table, updated_user_table, user_cols := s.CreatedAndUpdatedUserTable()
 	distance_cols := s.GetDistanceCols(lat, lon, &radius_meters)
 	columns := []postgres.Projection{
 		table.Store.AllColumns,
@@ -283,7 +266,6 @@ func (s Service) FindBranchesByCoordinates(ctx context.Context, lat float64, lon
 		table.Country.Name,
 		distance_cols.DistanceColumn,
 	}
-	columns = append(columns, user_cols...)
 	qb := table.Branch.
 		SELECT(
 			table.Branch.AllColumns,
@@ -293,9 +275,7 @@ func (s Service) FindBranchesByCoordinates(ctx context.Context, lat float64, lon
 			table.Branch.
 				INNER_JOIN(table.Store, table.Store.ID.EQ(table.Branch.StoreID)).
 				INNER_JOIN(table.Address, table.Address.ID.EQ(table.Branch.AddressID)).
-				INNER_JOIN(table.Country, table.Country.Code.EQ(table.Address.CountryCode)).
-				LEFT_JOIN(created_user_table, created_user_table.ID.EQ(table.Branch.CreatedByID)).
-				LEFT_JOIN(updated_user_table, updated_user_table.ID.EQ(table.Branch.UpdatedByID)),
+				INNER_JOIN(table.Country, table.Country.Code.EQ(table.Address.CountryCode)),
 		).
 		WHERE(distance_cols.DistanceWhereClauseWithRadius).
 		ORDER_BY(

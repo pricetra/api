@@ -27,6 +27,23 @@ type Stock {
   updatedBy: UpdatedByUser
 }
 
+type StockSimple {
+  id: ID! @goTag(key: "sql", value: "primary_key")
+  productId: ID!
+  storeId: ID!
+  branchId: ID!
+  latestPriceId: ID!
+  latestPrice: Price
+
+  createdAt: Time!
+  updatedAt: Time!
+
+  createdById: ID
+  createdBy: CreatedByUser
+  updatedById: ID
+  updatedBy: UpdatedByUser
+}
+
 type PaginatedStocks {
   stocks: [Stock!]!
   paginator: Paginator!

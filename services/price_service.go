@@ -124,17 +124,12 @@ func (s Service) CreatePrice(ctx context.Context, user gmodel.User, input gmodel
 		return gmodel.Price{}, err
 	}
 
-	updated_stock, err := s.UpdateStockWithLatestPrice(ctx, user, stock.ID, price.ID)
-	if err != nil {
+	if _, err := s.UpdateStockWithLatestPrice(ctx, user, stock.ID, price.ID); err != nil {
 		return gmodel.Price{}, fmt.Errorf("could not update stock with latest price")
 	}
 	if err = s.TX.Commit(); err != nil {
 		return gmodel.Price{}, fmt.Errorf("could not commit transaction")
 	}
-	price.Stock = &updated_stock
-	price.Product = &product
-	price.Branch = &branch
-	price.Store = branch.Store
 	return price, nil
 }
 

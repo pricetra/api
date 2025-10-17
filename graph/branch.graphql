@@ -5,7 +5,7 @@ type Branch {
   address: Address!
   storeId: ID!
   store: Store
-  products: [Product!]
+  products: [ProductSimple!]
 }
 
 type BranchFlat {

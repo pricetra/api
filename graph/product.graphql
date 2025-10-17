@@ -61,6 +61,27 @@ type Product {
   productList: [ProductList!]!
 }
 
+type ProductSimple {
+  id: ID! @goTag(key: "sql", value: "primary_key")
+  name: String!
+  image: String!
+  description: String!
+  brand: String!
+  code: String!
+  model: String
+  categoryId: ID!
+  category: Category
+  stock: StockSimple
+  weightValue: Float
+  weightType: String
+  quantityValue: Int!
+  quantityType: String!
+  views: Int!
+
+  createdAt: Time!
+  updatedAt: Time!
+}
+
 type SearchResult {
   total: Int!
   added: Int!

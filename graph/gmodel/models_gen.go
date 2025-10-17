@@ -12,24 +12,20 @@ import (
 )
 
 type Address struct {
-	ID                     int64          `json:"id" sql:"primary_key"`
-	CreatedAt              time.Time      `json:"createdAt"`
-	UpdatedAt              time.Time      `json:"updatedAt"`
-	Latitude               float64        `json:"latitude"`
-	Longitude              float64        `json:"longitude"`
-	Distance               *float64       `json:"distance,omitempty" alias:"address.distance"`
-	MapsLink               string         `json:"mapsLink"`
-	FullAddress            string         `json:"fullAddress"`
-	Street                 *string        `json:"street,omitempty"`
-	City                   string         `json:"city"`
-	AdministrativeDivision string         `json:"administrativeDivision"`
-	ZipCode                string         `json:"zipCode"`
-	CountryCode            string         `json:"countryCode"`
-	Country                *string        `json:"country,omitempty" alias:"country.name"`
-	CreatedByID            *int64         `json:"createdById,omitempty"`
-	CreatedBy              *CreatedByUser `json:"createdBy,omitempty"`
-	UpdatedByID            *int64         `json:"updatedById,omitempty"`
-	UpdatedBy              *UpdatedByUser `json:"updatedBy,omitempty"`
+	ID                     int64     `json:"id" sql:"primary_key"`
+	CreatedAt              time.Time `json:"createdAt"`
+	UpdatedAt              time.Time `json:"updatedAt"`
+	Latitude               float64   `json:"latitude"`
+	Longitude              float64   `json:"longitude"`
+	Distance               *float64  `json:"distance,omitempty" alias:"address.distance"`
+	MapsLink               string    `json:"mapsLink"`
+	FullAddress            string    `json:"fullAddress"`
+	Street                 *string   `json:"street,omitempty"`
+	City                   string    `json:"city"`
+	AdministrativeDivision string    `json:"administrativeDivision"`
+	ZipCode                string    `json:"zipCode"`
+	CountryCode            string    `json:"countryCode"`
+	Country                *string   `json:"country,omitempty" alias:"country.name"`
 }
 
 type AdministrativeDivision struct {
@@ -44,17 +40,21 @@ type Auth struct {
 }
 
 type Branch struct {
-	ID          int64          `json:"id" sql:"primary_key"`
-	Name        string         `json:"name"`
-	AddressID   int64          `json:"addressId"`
-	Address     *Address       `json:"address"`
-	StoreID     int64          `json:"storeId"`
-	Store       *Store         `json:"store,omitempty"`
-	Products    []*Product     `json:"products,omitempty"`
-	CreatedByID *int64         `json:"createdById,omitempty"`
-	CreatedBy   *CreatedByUser `json:"createdBy,omitempty"`
-	UpdatedByID *int64         `json:"updatedById,omitempty"`
-	UpdatedBy   *UpdatedByUser `json:"updatedBy,omitempty"`
+	ID        int64            `json:"id" sql:"primary_key"`
+	Name      string           `json:"name"`
+	AddressID int64            `json:"addressId"`
+	Address   *Address         `json:"address"`
+	StoreID   int64            `json:"storeId"`
+	Store     *Store           `json:"store,omitempty"`
+	Products  []*ProductSimple `json:"products,omitempty"`
+}
+
+type BranchFlat struct {
+	ID        int64    `json:"id" sql:"primary_key"`
+	Name      string   `json:"name"`
+	AddressID int64    `json:"addressId"`
+	Address   *Address `json:"address"`
+	StoreID   int64    `json:"storeId"`
 }
 
 type BranchList struct {
@@ -157,22 +157,18 @@ type CreatePrice struct {
 }
 
 type CreateProduct struct {
-	Name                 string          `json:"name" validate:"required"`
-	Description          string          `json:"description"`
-	URL                  *string         `json:"url,omitempty" validate:"omitempty,http_url"`
-	Brand                string          `json:"brand"`
-	Code                 string          `json:"code" validate:"required"`
-	Color                *string         `json:"color,omitempty"`
-	Model                *string         `json:"model,omitempty"`
-	CategoryID           int64           `json:"categoryId" validate:"required"`
-	Weight               *string         `json:"weight,omitempty"`
-	QuantityValue        *int            `json:"quantityValue,omitempty"`
-	QuantityType         *string         `json:"quantityType,omitempty"`
-	LowestRecordedPrice  *float64        `json:"lowestRecordedPrice,omitempty"`
-	HighestRecordedPrice *float64        `json:"highestRecordedPrice,omitempty"`
-	ImageFile            *graphql.Upload `json:"imageFile,omitempty"`
-	ImageBase64          *string         `json:"imageBase64,omitempty"`
-	ImageURL             *string         `json:"imageUrl,omitempty" validate:"omitempty,http_url"`
+	Name          string          `json:"name" validate:"required"`
+	Description   string          `json:"description"`
+	Brand         string          `json:"brand"`
+	Code          string          `json:"code" validate:"required"`
+	Model         *string         `json:"model,omitempty"`
+	CategoryID    int64           `json:"categoryId" validate:"required"`
+	Weight        *string         `json:"weight,omitempty"`
+	QuantityValue *int            `json:"quantityValue,omitempty"`
+	QuantityType  *string         `json:"quantityType,omitempty"`
+	ImageFile     *graphql.Upload `json:"imageFile,omitempty"`
+	ImageBase64   *string         `json:"imageBase64,omitempty"`
+	ImageURL      *string         `json:"imageUrl,omitempty" validate:"omitempty,http_url"`
 }
 
 type CreateStock struct {
@@ -307,13 +303,9 @@ type Price struct {
 	Amount        float64        `json:"amount"`
 	CurrencyCode  string         `json:"currencyCode"`
 	ProductID     int64          `json:"productId"`
-	Product       *Product       `json:"product,omitempty"`
 	StockID       int64          `json:"stockId"`
-	Stock         *Stock         `json:"stock,omitempty"`
 	StoreID       int64          `json:"storeId"`
-	Store         *Store         `json:"store,omitempty"`
 	BranchID      int64          `json:"branchId"`
-	Branch        *Branch        `json:"branch,omitempty"`
 	Sale          bool           `json:"sale"`
 	OriginalPrice *float64       `json:"originalPrice,omitempty"`
 	Condition     *string        `json:"condition,omitempty"`
@@ -321,11 +313,8 @@ type Price struct {
 	ImageID       *string        `json:"imageId,omitempty"`
 	ExpiresAt     *time.Time     `json:"expiresAt,omitempty"`
 	CreatedAt     time.Time      `json:"createdAt"`
-	UpdatedAt     time.Time      `json:"updatedAt"`
 	CreatedByID   *int64         `json:"createdById,omitempty"`
 	CreatedBy     *CreatedByUser `json:"createdBy,omitempty"`
-	UpdatedByID   *int64         `json:"updatedById,omitempty"`
-	UpdatedBy     *UpdatedByUser `json:"updatedBy,omitempty"`
 }
 
 type PriceHistoryFilter struct {
@@ -333,32 +322,24 @@ type PriceHistoryFilter struct {
 }
 
 type Product struct {
-	ID                   int64          `json:"id" sql:"primary_key"`
-	Name                 string         `json:"name"`
-	Image                string         `json:"image"`
-	Description          string         `json:"description"`
-	URL                  *string        `json:"url,omitempty"`
-	Brand                string         `json:"brand"`
-	Code                 string         `json:"code"`
-	Color                *string        `json:"color,omitempty"`
-	Model                *string        `json:"model,omitempty"`
-	CategoryID           int64          `json:"categoryId"`
-	Category             *Category      `json:"category,omitempty"`
-	Stock                *Stock         `json:"stock,omitempty"`
-	WeightValue          *float64       `json:"weightValue,omitempty"`
-	WeightType           *string        `json:"weightType,omitempty"`
-	QuantityValue        int            `json:"quantityValue"`
-	QuantityType         string         `json:"quantityType"`
-	LowestRecordedPrice  *float64       `json:"lowestRecordedPrice,omitempty"`
-	HighestRecordedPrice *float64       `json:"highestRecordedPrice,omitempty"`
-	CreatedAt            time.Time      `json:"createdAt"`
-	UpdatedAt            time.Time      `json:"updatedAt"`
-	CreatedByID          *int64         `json:"createdById,omitempty"`
-	CreatedBy            *CreatedByUser `json:"createdBy,omitempty"`
-	UpdatedByID          *int64         `json:"updatedById,omitempty"`
-	UpdatedBy            *UpdatedByUser `json:"updatedBy,omitempty"`
-	ProductList          []*ProductList `json:"productList"`
-	Views                int            `json:"views"`
+	ID            int64          `json:"id" sql:"primary_key"`
+	Name          string         `json:"name"`
+	Image         string         `json:"image"`
+	Description   string         `json:"description"`
+	Brand         string         `json:"brand"`
+	Code          string         `json:"code"`
+	Model         *string        `json:"model,omitempty"`
+	CategoryID    int64          `json:"categoryId"`
+	Category      *Category      `json:"category,omitempty"`
+	Stock         *Stock         `json:"stock,omitempty"`
+	WeightValue   *float64       `json:"weightValue,omitempty"`
+	WeightType    *string        `json:"weightType,omitempty"`
+	QuantityValue int            `json:"quantityValue"`
+	QuantityType  string         `json:"quantityType"`
+	Views         int            `json:"views"`
+	CreatedAt     time.Time      `json:"createdAt"`
+	UpdatedAt     time.Time      `json:"updatedAt"`
+	ProductList   []*ProductList `json:"productList"`
 }
 
 type ProductBilling struct {
@@ -539,6 +520,26 @@ type ProductSearch struct {
 	Brand       *string        `json:"brand,omitempty"`
 }
 
+type ProductSimple struct {
+	ID            int64        `json:"id" sql:"primary_key"`
+	Name          string       `json:"name"`
+	Image         string       `json:"image"`
+	Description   string       `json:"description"`
+	Brand         string       `json:"brand"`
+	Code          string       `json:"code"`
+	Model         *string      `json:"model,omitempty"`
+	CategoryID    int64        `json:"categoryId"`
+	Category      *Category    `json:"category,omitempty"`
+	Stock         *StockSimple `json:"stock,omitempty"`
+	WeightValue   *float64     `json:"weightValue,omitempty"`
+	WeightType    *string      `json:"weightType,omitempty"`
+	QuantityValue int          `json:"quantityValue"`
+	QuantityType  string       `json:"quantityType"`
+	Views         int          `json:"views"`
+	CreatedAt     time.Time    `json:"createdAt"`
+	UpdatedAt     time.Time    `json:"updatedAt"`
+}
+
 type ProductWeightComponents struct {
 	WeightValue float64 `json:"weightValue" alias:"product.weight_value"`
 	WeightType  string  `json:"weightType" alias:"product.weight_type"`
@@ -575,7 +576,22 @@ type Stock struct {
 	StoreID       int64          `json:"storeId"`
 	Store         *Store         `json:"store,omitempty"`
 	BranchID      int64          `json:"branchId"`
-	Branch        *Branch        `json:"branch,omitempty"`
+	Branch        *BranchFlat    `json:"branch,omitempty"`
+	LatestPriceID int64          `json:"latestPriceId"`
+	LatestPrice   *Price         `json:"latestPrice,omitempty"`
+	CreatedAt     time.Time      `json:"createdAt"`
+	UpdatedAt     time.Time      `json:"updatedAt"`
+	CreatedByID   *int64         `json:"createdById,omitempty"`
+	CreatedBy     *CreatedByUser `json:"createdBy,omitempty"`
+	UpdatedByID   *int64         `json:"updatedById,omitempty"`
+	UpdatedBy     *UpdatedByUser `json:"updatedBy,omitempty"`
+}
+
+type StockSimple struct {
+	ID            int64          `json:"id" sql:"primary_key"`
+	ProductID     int64          `json:"productId"`
+	StoreID       int64          `json:"storeId"`
+	BranchID      int64          `json:"branchId"`
 	LatestPriceID int64          `json:"latestPriceId"`
 	LatestPrice   *Price         `json:"latestPrice,omitempty"`
 	CreatedAt     time.Time      `json:"createdAt"`
@@ -587,32 +603,24 @@ type Stock struct {
 }
 
 type Store struct {
-	ID          int64          `json:"id" sql:"primary_key"`
-	Name        string         `json:"name"`
-	Logo        string         `json:"logo"`
-	Website     string         `json:"website"`
-	CreatedByID *int64         `json:"createdById,omitempty"`
-	CreatedBy   *CreatedByUser `json:"createdBy,omitempty"`
-	UpdatedByID *int64         `json:"updatedById,omitempty"`
-	UpdatedBy   *UpdatedByUser `json:"updatedBy,omitempty"`
+	ID      int64  `json:"id" sql:"primary_key"`
+	Name    string `json:"name"`
+	Logo    string `json:"logo"`
+	Website string `json:"website"`
 }
 
 type UpdateProduct struct {
-	Name                 *string         `json:"name,omitempty"`
-	Description          *string         `json:"description,omitempty"`
-	URL                  *string         `json:"url,omitempty" validate:"omitempty,http_url"`
-	Brand                *string         `json:"brand,omitempty"`
-	Code                 *string         `json:"code,omitempty"`
-	Color                *string         `json:"color,omitempty"`
-	Model                *string         `json:"model,omitempty"`
-	CategoryID           *int64          `json:"categoryId,omitempty"`
-	Weight               *string         `json:"weight,omitempty"`
-	QuantityValue        *int            `json:"quantityValue,omitempty"`
-	QuantityType         *string         `json:"quantityType,omitempty"`
-	LowestRecordedPrice  *float64        `json:"lowestRecordedPrice,omitempty"`
-	HighestRecordedPrice *float64        `json:"highestRecordedPrice,omitempty"`
-	ImageFile            *graphql.Upload `json:"imageFile,omitempty"`
-	ImageBase64          *string         `json:"imageBase64,omitempty"`
+	Name          *string         `json:"name,omitempty"`
+	Description   *string         `json:"description,omitempty"`
+	Brand         *string         `json:"brand,omitempty"`
+	Code          *string         `json:"code,omitempty"`
+	Model         *string         `json:"model,omitempty"`
+	CategoryID    *int64          `json:"categoryId,omitempty"`
+	Weight        *string         `json:"weight,omitempty"`
+	QuantityValue *int            `json:"quantityValue,omitempty"`
+	QuantityType  *string         `json:"quantityType,omitempty"`
+	ImageFile     *graphql.Upload `json:"imageFile,omitempty"`
+	ImageBase64   *string         `json:"imageBase64,omitempty"`
 }
 
 type UpdateUser struct {

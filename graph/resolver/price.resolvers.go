@@ -25,11 +25,12 @@ func (r *mutationResolver) CreatePrice(ctx context.Context, input gmodel.CreateP
 		return nil, err
 	}
 
+	product, _ := r.Service.FindProductById(ctx, input.ProductID)
 	price_enum := model.ProductBillingType_Price
 	if old_price_err != nil {
-		r.Service.CreateProductBilling(ctx, user, price_enum, *price.Product, input, nil)
+		r.Service.CreateProductBilling(ctx, user, price_enum, product, input, nil)
 	} else {
-		r.Service.CreateProductBilling(ctx, user, price_enum, *price.Product, input, old_price)
+		r.Service.CreateProductBilling(ctx, user, price_enum, product, input, old_price)
 	}
 
 	// Send push notification to users

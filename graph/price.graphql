@@ -36,7 +36,6 @@ type Price {
   expiresAt: Time
 
   createdAt: Time!
-  updatedAt: Time!
 
   createdById: ID
   createdBy: CreatedByUser
