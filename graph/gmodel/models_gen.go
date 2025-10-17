@@ -61,16 +61,8 @@ type BranchList struct {
 	ID        int64     `json:"id" sql:"primary_key"`
 	UserID    int64     `json:"userId"`
 	ListID    int64     `json:"listId"`
-	List      *List     `json:"list,omitempty"`
 	BranchID  int64     `json:"branchId"`
 	Branch    *Branch   `json:"branch,omitempty"`
-	CreatedAt time.Time `json:"createdAt"`
-}
-
-type BranchListSimple struct {
-	ID        int64     `json:"id" sql:"primary_key"`
-	ListID    int64     `json:"listId"`
-	BranchID  int64     `json:"branchId"`
 	CreatedAt time.Time `json:"createdAt"`
 }
 
@@ -233,13 +225,13 @@ type GroceryListItem struct {
 }
 
 type List struct {
-	ID          int64                `json:"id" sql:"primary_key"`
-	Name        string               `json:"name"`
-	Type        ListType             `json:"type"`
-	UserID      int64                `json:"userId"`
-	ProductList []*ProductListSimple `json:"productList,omitempty"`
-	BranchList  []*BranchListSimple  `json:"branchList,omitempty"`
-	CreatedAt   time.Time            `json:"createdAt"`
+	ID          int64          `json:"id" sql:"primary_key"`
+	Name        string         `json:"name"`
+	Type        ListType       `json:"type"`
+	UserID      int64          `json:"userId"`
+	ProductList []*ProductList `json:"productList,omitempty" alias:"product_list"`
+	BranchList  []*BranchList  `json:"branchList,omitempty" alias:"branch_list"`
+	CreatedAt   time.Time      `json:"createdAt"`
 }
 
 type LocationInput struct {
@@ -382,19 +374,10 @@ type ProductList struct {
 	ID        int64     `json:"id" sql:"primary_key"`
 	UserID    int64     `json:"userId"`
 	ListID    int64     `json:"listId"`
-	List      *List     `json:"list,omitempty"`
 	Type      *ListType `json:"type,omitempty" alias:"list_type"`
 	ProductID int64     `json:"productId"`
 	Product   *Product  `json:"product,omitempty"`
 	Stock     *Stock    `json:"stock,omitempty"`
-	StockID   *int64    `json:"stockId,omitempty"`
-	CreatedAt time.Time `json:"createdAt"`
-}
-
-type ProductListSimple struct {
-	ID        int64     `json:"id" sql:"primary_key"`
-	ListID    int64     `json:"listId"`
-	ProductID int64     `json:"productId"`
 	StockID   *int64    `json:"stockId,omitempty"`
 	CreatedAt time.Time `json:"createdAt"`
 }

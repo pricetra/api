@@ -3,16 +3,8 @@ type List {
   name: String!
   type: ListType!
   userId: ID!
-  productList: [ProductListSimple!]
-  branchList: [BranchListSimple!]
-  createdAt: Time!
-}
-
-type ProductListSimple {
-  id: ID! @goTag(key: "sql", value: "primary_key")
-  listId: ID!
-  productId: ID!
-  stockId: ID
+  productList: [ProductList!] @goTag(key: "alias", value: "product_list")
+  branchList: [BranchList!] @goTag(key: "alias", value: "branch_list")
   createdAt: Time!
 }
 
@@ -20,7 +12,6 @@ type ProductList {
   id: ID! @goTag(key: "sql", value: "primary_key")
   userId: ID!
   listId: ID!
-  list: List
   type: ListType @goTag(key: "alias", value: "list_type")
   productId: ID!
   product: Product
@@ -29,18 +20,10 @@ type ProductList {
   createdAt: Time!
 }
 
-type BranchListSimple {
-  id: ID! @goTag(key: "sql", value: "primary_key")
-  listId: ID!
-  branchId: ID!
-  createdAt: Time!
-}
-
 type BranchList {
   id: ID! @goTag(key: "sql", value: "primary_key")
   userId: ID!
   listId: ID!
-  list: List
   branchId: ID!
   branch: Branch
   createdAt: Time!
