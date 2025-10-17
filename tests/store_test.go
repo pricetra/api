@@ -39,7 +39,7 @@ func TestStore(t *testing.T) {
 		if err != nil {
 			t.Fatal("could not find store", err)
 		}
-		if store == found_store {
+		if store != found_store {
 			t.Fatal("store data does not match", store, found_store)
 		}
 
