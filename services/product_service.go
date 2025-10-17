@@ -282,6 +282,13 @@ func (s Service) product_filter_builder(search *gmodel.ProductSearch) (where_cla
 		)
 	}
 
+	if len(search.BranchIds) > 0 {
+		ids := sliceutils.Map(search.BranchIds, func(val int64, index int, arr []int64) postgres.Expression {
+			return postgres.Int(val)
+		})
+		where_clause = where_clause.AND(table.Branch.ID.IN(ids...))
+	}
+
 	if search.Location != nil {
 		l := search.Location
 		distance_cols := s.GetDistanceCols(l.Latitude, l.Longitude, l.RadiusMeters)
