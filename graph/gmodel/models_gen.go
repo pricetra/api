@@ -46,7 +46,7 @@ type Branch struct {
 	Address   *Address         `json:"address"`
 	StoreID   int64            `json:"storeId"`
 	Store     *Store           `json:"store,omitempty"`
-	Products  []*ProductSimple `json:"products,omitempty"`
+	Products  []*ProductSimple `json:"products,omitempty" alias:"product"`
 }
 
 type BranchFlat struct {
@@ -530,7 +530,7 @@ type ProductSimple struct {
 	Model         *string      `json:"model,omitempty"`
 	CategoryID    int64        `json:"categoryId"`
 	Category      *Category    `json:"category,omitempty"`
-	Stock         *StockSimple `json:"stock,omitempty"`
+	Stock         *StockSimple `json:"stock,omitempty" alias:"stock"`
 	WeightValue   *float64     `json:"weightValue,omitempty"`
 	WeightType    *string      `json:"weightType,omitempty"`
 	QuantityValue int          `json:"quantityValue"`

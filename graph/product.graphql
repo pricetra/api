@@ -71,7 +71,7 @@ type ProductSimple {
   model: String
   categoryId: ID!
   category: Category
-  stock: StockSimple
+  stock: StockSimple @goTag(key: "alias", value: "stock")
   weightValue: Float
   weightType: String
   quantityValue: Int!
