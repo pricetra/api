@@ -71,50 +71,18 @@ func (s Service) FindAllListsByUserId(ctx context.Context, user gmodel.User, lis
 	for i, list := range lists {
 		// Products
 		product_list_qb := table.ProductList.
-			SELECT(
-				table.ProductList.AllColumns,
-				table.Product.AllColumns,
-				table.Category.AllColumns,
-				table.Stock.AllColumns,
-				table.Price.AllColumns,
-			).
-			FROM(
-				table.ProductList.
-					INNER_JOIN(table.Product, table.Product.ID.EQ(table.ProductList.ProductID)).
-					INNER_JOIN(table.Category, table.Category.ID.EQ(table.Product.CategoryID)).
-					LEFT_JOIN(table.Stock, table.Stock.ID.EQ(table.ProductList.StockID)).
-					LEFT_JOIN(table.Price, table.Price.ID.EQ(table.Stock.LatestPriceID)),
-			).
+			SELECT(table.ProductList.AllColumns).
+			FROM(table.ProductList).
 			WHERE(table.ProductList.ListID.EQ(postgres.Int(list.ID))).
 			ORDER_BY(table.ProductList.CreatedAt.DESC())
 		if err := product_list_qb.QueryContext(ctx, db, &lists[i].ProductList); err != nil {
 			return nil, err
 		}
 
-		// Cleanup zero-value struct for stock. For some reason even when stock_id is null
-		// Jet maps it as a zero-valued gmodel.Stock{}
-		// TODO: Take care of this on the db side
-		for j, pl := range lists[i].ProductList {
-			if pl.StockID != nil {
-				continue
-			}
-			lists[i].ProductList[j].Stock = nil
-		}
-
 		// Branches
 		branch_list_qb := table.BranchList.
-			SELECT(
-				table.BranchList.AllColumns,
-				table.Branch.AllColumns,
-				table.Store.AllColumns,
-				table.Address.AllColumns,
-			).
-			FROM(
-				table.BranchList.
-					INNER_JOIN(table.Branch, table.Branch.ID.EQ(table.BranchList.BranchID)).
-					INNER_JOIN(table.Store, table.Store.ID.EQ(table.Branch.StoreID)).
-					INNER_JOIN(table.Address, table.Address.ID.EQ(table.Branch.AddressID)),
-			).
+			SELECT(table.BranchList.AllColumns).
+			FROM(table.BranchList).
 			WHERE(table.BranchList.ListID.EQ(postgres.Int(list.ID))).
 			ORDER_BY(table.BranchList.CreatedAt.DESC())
 		if err := branch_list_qb.QueryContext(ctx, db, &lists[i].BranchList); err != nil {
