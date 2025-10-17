@@ -230,15 +230,14 @@ func (s Service) ProductExists(ctx context.Context, id int64) bool {
 }
 
 func (s Service) FindAllProducts(ctx context.Context) (products []gmodel.Product, err error) {
-	created_user_table, updated_user_table, cols := s.CreatedAndUpdatedUserTable()
-	cols = append(cols, table.Category.AllColumns)
 	qb := table.Product.
-		SELECT(table.Product.AllColumns, cols...).
+		SELECT(
+			table.Product.AllColumns,
+			table.Category.AllColumns,
+		).
 		FROM(
 			table.Product.
-				INNER_JOIN(table.Category, table.Category.ID.EQ(table.Product.CategoryID)).
-				LEFT_JOIN(created_user_table, created_user_table.ID.EQ(table.Product.CreatedByID)).
-				LEFT_JOIN(updated_user_table, updated_user_table.ID.EQ(table.Product.UpdatedByID)),
+				INNER_JOIN(table.Category, table.Category.ID.EQ(table.Product.CategoryID)),
 		).
 		ORDER_BY(table.Product.CreatedAt.DESC())
 	err = qb.QueryContext(ctx, s.DbOrTxQueryable(), &products)
@@ -385,16 +384,13 @@ func (s Service) ProductFiltersBuilder(search *gmodel.ProductSearch) (where_clau
 
 func (s Service) PaginatedProducts(ctx context.Context, paginator_input gmodel.PaginatorInput, search *gmodel.ProductSearch) (paginated_products gmodel.PaginatedProducts, err error) {
 	db := s.DbOrTxQueryable()
-	created_user_table, updated_user_table, cols := s.CreatedAndUpdatedUserTable()
 	tables := table.Stock.
 		INNER_JOIN(table.Product, table.Product.ID.EQ(table.Stock.ProductID)).
 		INNER_JOIN(table.Category, table.Category.ID.EQ(table.Product.CategoryID)).
 		INNER_JOIN(table.Store, table.Store.ID.EQ(table.Stock.StoreID)).
 		INNER_JOIN(table.Branch, table.Branch.ID.EQ(table.Stock.BranchID)).
 		INNER_JOIN(table.Price, table.Price.ID.EQ(table.Stock.LatestPriceID)).
-		INNER_JOIN(table.Address, table.Address.ID.EQ(table.Branch.AddressID)).
-		LEFT_JOIN(created_user_table, created_user_table.ID.EQ(table.Price.CreatedByID)).
-		LEFT_JOIN(updated_user_table, updated_user_table.ID.EQ(table.Price.UpdatedByID))
+		INNER_JOIN(table.Address, table.Address.ID.EQ(table.Branch.AddressID))
 
 	where_clause, order_by, filter_cols := s.ProductFiltersBuilder(search)
 	order_by = append(
@@ -402,7 +398,6 @@ func (s Service) PaginatedProducts(ctx context.Context, paginator_input gmodel.P
 		table.Price.CreatedAt.DESC(),
 		table.Product.Views.DESC(),
 	)
-	cols = append(cols, filter_cols...)
 
 	// get pagination data
 	sql_paginator, err := s.Paginate(ctx, paginator_input, tables, table.Product.ID, where_clause)
@@ -414,8 +409,8 @@ func (s Service) PaginatedProducts(ctx context.Context, paginator_input gmodel.P
 		}, nil
 	}
 
-	cols = append(
-		cols,
+	cols := append(
+		filter_cols,
 		table.Category.AllColumns,
 		table.Stock.AllColumns,
 		table.Store.AllColumns,

@@ -107,7 +107,7 @@ func (s Service) FetchUPCItemdb(ctx context.Context, endpoint string) (result UP
 	}
 
 	if result.Code != "OK" {
-		return UPCItemDbJsonResult{}, fmt.Errorf(result.Code)
+		return UPCItemDbJsonResult{}, fmt.Errorf("%s", result.Code)
 	}
 	return result, nil
 }
