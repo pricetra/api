@@ -25,25 +25,21 @@ type Price {
   amount: Float!
   currencyCode: String!
   productId: ID!
-  product: Product
   stockId: ID!
-  stock: Stock
   storeId: ID!
-  store: Store
   branchId: ID!
-  branch: Branch
   sale: Boolean!
   originalPrice: Float
   condition: String
   unitType: String!
   imageId: String
   expiresAt: Time
+
   createdAt: Time!
   updatedAt: Time!
+
   createdById: ID
   createdBy: CreatedByUser
-  updatedById: ID
-  updatedBy: UpdatedByUser
 }
 
 input CreatePrice {
