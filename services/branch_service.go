@@ -379,8 +379,15 @@ func (s Service) BranchesWithProducts(
 	}
 
 	branch_where_clause, _, _ := s.ProductFiltersBuilder(search)
+	branch_ids_qb_col := []postgres.Projection{}
+	branch_ids_qb_group_by := []postgres.GroupByClause{table.Branch.ID}
+	if search.Location != nil {
+		d := s.GetDistanceCols(search.Location.Latitude, search.Location.Longitude, search.Location.RadiusMeters)
+		branch_ids_qb_col = append(branch_ids_qb_col, d.DistanceColumn)
+		branch_ids_qb_group_by = append(branch_ids_qb_group_by, postgres.FloatColumn(d.DistanceColumnName))
+	}
 	branch_ids_qb := table.Branch.
-		SELECT(table.Branch.ID).
+		SELECT(table.Branch.ID, branch_ids_qb_col...).
 		FROM(
 			table.Branch.
 				INNER_JOIN(table.Store, table.Store.ID.EQ(table.Branch.StoreID)).
@@ -391,7 +398,7 @@ func (s Service) BranchesWithProducts(
 				INNER_JOIN(table.Category, table.Category.ID.EQ(table.Product.CategoryID)),
 		).
 		WHERE(branch_where_clause).
-		GROUP_BY(table.Branch.ID)
+		GROUP_BY(branch_ids_qb_group_by...)
 	branch_ids_table := branch_ids_qb.AsTable("branch_ids_table")
 	sql_paginator, err := s.Paginate(
 		ctx,
@@ -445,6 +452,7 @@ func (s Service) BranchesWithProducts(
 
 	// Represents all the paginated branch ids
 	paginated_branch_ids_table := branch_ids_qb.
+		ORDER_BY(order_by_with_distance...).
 		LIMIT(int64(sql_paginator.Limit)).
 		OFFSET(int64(sql_paginator.Offset)).
 		AsTable("paginated_branch_ids_table")
