@@ -451,8 +451,10 @@ func (s Service) BranchesWithProducts(
 	cols = append(cols, filter_cols...)
 
 	// Represents all the paginated branch ids
+	if len(order_by_with_distance) > 0 {
+		branch_ids_qb = branch_ids_qb.ORDER_BY(order_by_with_distance...)
+	}
 	paginated_branch_ids_table := branch_ids_qb.
-		ORDER_BY(order_by_with_distance...).
 		LIMIT(int64(sql_paginator.Limit)).
 		OFFSET(int64(sql_paginator.Offset)).
 		AsTable("paginated_branch_ids_table")
