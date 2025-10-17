@@ -43,10 +43,8 @@ type Product {
   name: String!
   image: String!
   description: String!
-  url: String
   brand: String!
   code: String!
-  color: String
   model: String
   categoryId: ID!
   category: Category
@@ -55,16 +53,12 @@ type Product {
   weightType: String
   quantityValue: Int!
   quantityType: String!
-  lowestRecordedPrice: Float
-  highestRecordedPrice: Float
+  views: Int!
+
   createdAt: Time!
   updatedAt: Time!
-  createdById: ID
-  createdBy: CreatedByUser
-  updatedById: ID
-  updatedBy: UpdatedByUser
+
   productList: [ProductList!]!
-  views: Int!
 }
 
 type SearchResult {
@@ -98,17 +92,13 @@ type ProductWeightComponents {
 input CreateProduct {
   name: String! @goTag(key: "validate", value: "required")
   description: String!
-  url: String @goTag(key: "validate", value: "omitempty,http_url")
   brand: String!
   code: String! @goTag(key: "validate", value: "required")
-  color: String
   model: String
   categoryId: ID! @goTag(key: "validate", value: "required")
   weight: String
   quantityValue: Int
   quantityType: String
-  lowestRecordedPrice: Float
-  highestRecordedPrice: Float
   imageFile: Upload
   imageBase64: String
   imageUrl: String @goTag(key: "validate", value: "omitempty,http_url")
@@ -117,17 +107,13 @@ input CreateProduct {
 input UpdateProduct {
   name: String
   description: String
-  url: String @goTag(key: "validate", value: "omitempty,http_url")
   brand: String
   code: String
-  color: String
   model: String
   categoryId: ID
   weight: String
   quantityValue: Int
   quantityType: String
-  lowestRecordedPrice: Float
-  highestRecordedPrice: Float
   imageFile: Upload
   imageBase64: String
 }

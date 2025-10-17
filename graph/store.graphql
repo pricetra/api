@@ -3,11 +3,6 @@ type Store {
   name: String!
   logo: String!
   website: String!
-
-  createdById: ID
-  createdBy: CreatedByUser
-  updatedById: ID
-  updatedBy: UpdatedByUser
 }
 
 type PaginatedStores {
