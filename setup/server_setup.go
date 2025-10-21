@@ -11,6 +11,7 @@ import (
 	"github.com/ayaanqui/go-migration-tool/migration_tool"
 	"github.com/cloudinary/cloudinary-go/v2"
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/cors"
 	"github.com/go-playground/validator/v10"
 	expo "github.com/oliveroneill/exponent-server-sdk-golang/sdk"
 	"github.com/openfoodfacts/openfoodfacts-go"
@@ -104,8 +105,29 @@ func NewServer(db_conn *sql.DB, router *chi.Mux) *types.ServerBase {
 	// Startup utils...
 	StartupUtils(service)
 
-	// TODO: only show in dev environment
-	server.Router.Handle("/playground", playground.Handler("GraphQL Playground", GRAPH_ENDPOINT))
+	cors_options := cors.Options{}
+	if os.Getenv("ENV") == "production" {
+		cors_options = cors.Options{
+			// AllowedOrigins:   []string{"https://foo.com"}, // Use this to allow specific origin hosts
+			AllowedOrigins:   []string{"https://pricetra.com", "http://*.railway.internal"},
+			// AllowOriginFunc:  func(r *http.Request, origin string) bool { return true },
+			AllowedMethods:   []string{"POST"},
+			AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
+			ExposedHeaders:   []string{"Link"},
+			MaxAge:           300, // Maximum value not ignored by any of major browsers
+		}
+	} else {
+		cors_options = cors.Options{
+			AllowedOrigins: []string{"http*"},
+			AllowedMethods: []string{"GET", "POST"},
+			AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
+		}
+	}
+	server.Router.Use(cors.Handler(cors_options))
+
+	if os.Getenv("ENV") != "production" {
+		server.Router.Handle("/playground", playground.Handler("GraphQL Playground", GRAPH_ENDPOINT))
+	}
 
 	server.Router.Group(func(chi_router chi.Router) {
 		c := graph.Config{}
