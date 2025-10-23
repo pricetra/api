@@ -149,7 +149,6 @@ input ProductSearch {
   storeId: ID
   sale: Boolean
   sortByPrice: String
-  wideSearch: Boolean
   weight: String
   quantity: Int
   brand: String

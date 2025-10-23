@@ -31532,7 +31532,7 @@ func (ec *executionContext) unmarshalInputProductSearch(ctx context.Context, obj
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"query", "category", "categoryId", "branchId", "branchIds", "location", "storeId", "sale", "sortByPrice", "wideSearch", "weight", "quantity", "brand"}
+	fieldsInOrder := [...]string{"query", "category", "categoryId", "branchId", "branchIds", "location", "storeId", "sale", "sortByPrice", "weight", "quantity", "brand"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -31602,13 +31602,6 @@ func (ec *executionContext) unmarshalInputProductSearch(ctx context.Context, obj
 				return it, err
 			}
 			it.SortByPrice = data
-		case "wideSearch":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("wideSearch"))
-			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.WideSearch = data
 		case "weight":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("weight"))
 			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
