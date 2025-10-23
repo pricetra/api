@@ -10,6 +10,7 @@ require (
 	github.com/99designs/gqlgen v0.17.44
 	github.com/cloudinary/cloudinary-go/v2 v2.7.0
 	github.com/go-chi/chi/v5 v5.0.12
+	github.com/go-chi/cors v1.2.2
 	github.com/go-jet/jet/v2 v2.11.0
 	github.com/joho/godotenv v1.5.1
 	github.com/oapi-codegen/oapi-codegen/v2 v2.4.1
@@ -42,7 +43,6 @@ require (
 	github.com/felixge/httpsnoop v1.0.4 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.3 // indirect
 	github.com/getkin/kin-openapi v0.127.0 // indirect
-	github.com/go-chi/cors v1.2.2 // indirect
 	github.com/go-logr/logr v1.4.1 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/go-openapi/jsonpointer v0.21.0 // indirect

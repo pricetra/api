@@ -17,14 +17,15 @@ type branchTable struct {
 	postgres.Table
 
 	// Columns
-	ID          postgres.ColumnInteger
-	Name        postgres.ColumnString
-	AddressID   postgres.ColumnInteger
-	StoreID     postgres.ColumnInteger
-	CreatedByID postgres.ColumnInteger
-	UpdatedByID postgres.ColumnInteger
-	CreatedAt   postgres.ColumnTimestampz
-	UpdatedAt   postgres.ColumnTimestampz
+	ID           postgres.ColumnInteger
+	Name         postgres.ColumnString
+	AddressID    postgres.ColumnInteger
+	StoreID      postgres.ColumnInteger
+	CreatedByID  postgres.ColumnInteger
+	UpdatedByID  postgres.ColumnInteger
+	CreatedAt    postgres.ColumnTimestampz
+	UpdatedAt    postgres.ColumnTimestampz
+	SearchVector postgres.ColumnString
 
 	AllColumns     postgres.ColumnList
 	MutableColumns postgres.ColumnList
@@ -65,30 +66,32 @@ func newBranchTable(schemaName, tableName, alias string) *BranchTable {
 
 func newBranchTableImpl(schemaName, tableName, alias string) branchTable {
 	var (
-		IDColumn          = postgres.IntegerColumn("id")
-		NameColumn        = postgres.StringColumn("name")
-		AddressIDColumn   = postgres.IntegerColumn("address_id")
-		StoreIDColumn     = postgres.IntegerColumn("store_id")
-		CreatedByIDColumn = postgres.IntegerColumn("created_by_id")
-		UpdatedByIDColumn = postgres.IntegerColumn("updated_by_id")
-		CreatedAtColumn   = postgres.TimestampzColumn("created_at")
-		UpdatedAtColumn   = postgres.TimestampzColumn("updated_at")
-		allColumns        = postgres.ColumnList{IDColumn, NameColumn, AddressIDColumn, StoreIDColumn, CreatedByIDColumn, UpdatedByIDColumn, CreatedAtColumn, UpdatedAtColumn}
-		mutableColumns    = postgres.ColumnList{NameColumn, AddressIDColumn, StoreIDColumn, CreatedByIDColumn, UpdatedByIDColumn, CreatedAtColumn, UpdatedAtColumn}
+		IDColumn           = postgres.IntegerColumn("id")
+		NameColumn         = postgres.StringColumn("name")
+		AddressIDColumn    = postgres.IntegerColumn("address_id")
+		StoreIDColumn      = postgres.IntegerColumn("store_id")
+		CreatedByIDColumn  = postgres.IntegerColumn("created_by_id")
+		UpdatedByIDColumn  = postgres.IntegerColumn("updated_by_id")
+		CreatedAtColumn    = postgres.TimestampzColumn("created_at")
+		UpdatedAtColumn    = postgres.TimestampzColumn("updated_at")
+		SearchVectorColumn = postgres.StringColumn("search_vector")
+		allColumns         = postgres.ColumnList{IDColumn, NameColumn, AddressIDColumn, StoreIDColumn, CreatedByIDColumn, UpdatedByIDColumn, CreatedAtColumn, UpdatedAtColumn, SearchVectorColumn}
+		mutableColumns     = postgres.ColumnList{NameColumn, AddressIDColumn, StoreIDColumn, CreatedByIDColumn, UpdatedByIDColumn, CreatedAtColumn, UpdatedAtColumn}
 	)
 
 	return branchTable{
 		Table: postgres.NewTable(schemaName, tableName, alias, allColumns...),
 
 		//Columns
-		ID:          IDColumn,
-		Name:        NameColumn,
-		AddressID:   AddressIDColumn,
-		StoreID:     StoreIDColumn,
-		CreatedByID: CreatedByIDColumn,
-		UpdatedByID: UpdatedByIDColumn,
-		CreatedAt:   CreatedAtColumn,
-		UpdatedAt:   UpdatedAtColumn,
+		ID:           IDColumn,
+		Name:         NameColumn,
+		AddressID:    AddressIDColumn,
+		StoreID:      StoreIDColumn,
+		CreatedByID:  CreatedByIDColumn,
+		UpdatedByID:  UpdatedByIDColumn,
+		CreatedAt:    CreatedAtColumn,
+		UpdatedAt:    UpdatedAtColumn,
+		SearchVector: SearchVectorColumn,
 
 		AllColumns:     allColumns,
 		MutableColumns: mutableColumns,

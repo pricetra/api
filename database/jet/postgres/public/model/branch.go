@@ -12,12 +12,13 @@ import (
 )
 
 type Branch struct {
-	ID          int64 `sql:"primary_key"`
-	Name        string
-	AddressID   int64
-	StoreID     int64
-	CreatedByID *int64
-	UpdatedByID *int64
-	CreatedAt   time.Time
-	UpdatedAt   time.Time
+	ID           int64 `sql:"primary_key"`
+	Name         string
+	AddressID    int64
+	StoreID      int64
+	CreatedByID  *int64
+	UpdatedByID  *int64
+	CreatedAt    time.Time
+	UpdatedAt    time.Time
+	SearchVector *string
 }
