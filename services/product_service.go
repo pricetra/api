@@ -308,7 +308,7 @@ func (s Service) ProductFiltersBuilder(search *gmodel.ProductSearch) (where_clau
 
 	if search.Category != nil {
 		clause := postgres.RawBool(
-			fmt.Sprintf("%s ILIKE $category", utils.BuildFullTableName(table.Category.ExpandedPathname)), 
+			fmt.Sprintf("%s ILIKE $category", utils.BuildFullTableName(table.Category.ExpandedPathname)),
 			map[string]any{
 				"$category": fmt.Sprintf("%%%s%%", *search.Category),
 			},
@@ -322,11 +322,12 @@ func (s Service) ProductFiltersBuilder(search *gmodel.ProductSearch) (where_clau
 			product_ft_components := s.BuildFullTextSearchQueryComponents(table.Product.SearchVector, query)
 			category_ft_components := s.BuildFullTextSearchQueryComponents(table.Category.SearchVector, query)
 			address_ft_components := s.BuildFullTextSearchQueryComponents(table.Address.SearchVector, query)
-			// TODO: Add branch search
+			branch_ft_components := s.BuildFullTextSearchQueryComponents(table.Branch.SearchVector, query)
 			or_clause := []postgres.BoolExpression{
 				product_ft_components.WhereClause,
 				category_ft_components.WhereClause,
 				address_ft_components.WhereClause,
+				branch_ft_components.WhereClause,
 			}
 
 			where_clause = where_clause.AND(
@@ -337,6 +338,7 @@ func (s Service) ProductFiltersBuilder(search *gmodel.ProductSearch) (where_clau
 				category_ft_components.OrderByComputeRank.DESC(),
 				product_ft_components.OrderByComputeRank.DESC(),
 				address_ft_components.OrderByComputeRank.DESC(),
+				branch_ft_components.OrderByComputeRank.DESC(),
 			)
 		}
 	}

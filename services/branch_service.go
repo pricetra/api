@@ -3,7 +3,6 @@ package services
 import (
 	"context"
 	"fmt"
-	"log"
 	"strings"
 
 	"github.com/Goldziher/go-utils/sliceutils"
@@ -482,8 +481,9 @@ func (s Service) BranchesWithProducts(
 			).
 			FROM(
 				paginated_branch_ids_table.
-					INNER_JOIN(table.Address, table.Address.ID.EQ(table.Address.ID.From(paginated_branch_ids_table))).
-					INNER_JOIN(table.Stock, table.Stock.BranchID.EQ(table.Branch.ID.From(paginated_branch_ids_table))).
+					INNER_JOIN(table.Branch, table.Branch.ID.EQ(table.Branch.ID.From(paginated_branch_ids_table))).
+					INNER_JOIN(table.Address, table.Address.ID.EQ(table.Branch.AddressID)).
+					INNER_JOIN(table.Stock, table.Stock.BranchID.EQ(table.Branch.ID)).
 					INNER_JOIN(table.Price, table.Price.ID.EQ(table.Stock.LatestPriceID)).
 					INNER_JOIN(table.Product, table.Product.ID.EQ(table.Stock.ProductID)).
 					INNER_JOIN(table.Category, table.Category.ID.EQ(table.Product.CategoryID)),
@@ -516,7 +516,6 @@ func (s Service) BranchesWithProducts(
 					),
 				).ORDER_BY(final_order_by...),
 		)
-	log.Println(qb.DebugSql())
 	var branches []*gmodel.Branch
 	if err := qb.QueryContext(ctx, s.DbOrTxQueryable(), &branches); err != nil {
 		return gmodel.PaginatedBranches{
