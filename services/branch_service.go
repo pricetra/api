@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"fmt"
+	"log"
 	"strings"
 
 	"github.com/Goldziher/go-utils/sliceutils"
@@ -379,8 +380,10 @@ func (s Service) BranchesWithProducts(
 	}
 
 	branch_where_clause, _, _ := s.ProductFiltersBuilder(search)
-	branch_ids_qb_col := []postgres.Projection{}
-	branch_ids_qb_group_by := []postgres.GroupByClause{table.Branch.ID}
+	branch_ids_qb_col := []postgres.Projection{
+		table.Address.ID,
+	}
+	branch_ids_qb_group_by := []postgres.GroupByClause{table.Branch.ID, table.Address.ID}
 	if search.Location != nil {
 		d := s.GetDistanceCols(search.Location.Latitude, search.Location.Longitude, search.Location.RadiusMeters)
 		branch_ids_qb_col = append(branch_ids_qb_col, d.DistanceColumn)
@@ -471,6 +474,7 @@ func (s Service) BranchesWithProducts(
 		).AS(row_num_col_name)
 	stock_cte := postgres.CTE("stock_cte")
 	stock_sub_query_cols := append(filter_cols, row_number_col)
+	stock_sub_query_cols = append(stock_sub_query_cols, table.Address.SearchVector)
 	stock_sub_query := table.Stock.
 			SELECT(
 				table.Stock.ID,
@@ -478,6 +482,7 @@ func (s Service) BranchesWithProducts(
 			).
 			FROM(
 				paginated_branch_ids_table.
+					INNER_JOIN(table.Address, table.Address.ID.EQ(table.Address.ID.From(paginated_branch_ids_table))).
 					INNER_JOIN(table.Stock, table.Stock.BranchID.EQ(table.Branch.ID.From(paginated_branch_ids_table))).
 					INNER_JOIN(table.Price, table.Price.ID.EQ(table.Stock.LatestPriceID)).
 					INNER_JOIN(table.Product, table.Product.ID.EQ(table.Stock.ProductID)).
@@ -511,6 +516,7 @@ func (s Service) BranchesWithProducts(
 					),
 				).ORDER_BY(final_order_by...),
 		)
+	log.Println(qb.DebugSql())
 	var branches []*gmodel.Branch
 	if err := qb.QueryContext(ctx, s.DbOrTxQueryable(), &branches); err != nil {
 		return gmodel.PaginatedBranches{
