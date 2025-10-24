@@ -693,7 +693,8 @@ func (s Service) PaginatedRecentlyViewedProducts(
 	tables := table.ProductView.
 		INNER_JOIN(table.Product, table.Product.ID.EQ(table.ProductView.ProductID)).
 		INNER_JOIN(table.Category, table.Category.ID.EQ(table.Product.CategoryID)).
-		LEFT_JOIN(table.Stock, table.Stock.ID.EQ(table.ProductView.StockID))
+		LEFT_JOIN(table.Stock, table.Stock.ID.EQ(table.ProductView.StockID)).
+		LEFT_JOIN(table.Price, table.Price.ID.EQ(table.Stock.LatestPriceID))
 	sql_paginator, err := s.Paginate(ctx, paginator_input, tables, table.ProductView.ID, where_clause)
 	if err != nil {
 		return gmodel.PaginatedProducts{
@@ -707,6 +708,7 @@ func (s Service) PaginatedRecentlyViewedProducts(
 			table.Product.AllColumns,
 			table.Category.AllColumns,
 			table.Stock.AllColumns,
+			table.Price.AllColumns,
 		).
 		FROM(tables).
 		WHERE(where_clause).
